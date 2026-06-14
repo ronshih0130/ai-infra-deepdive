@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Infra Run #6 v5 — Substrates: ABF Film / T-Glass Chokepoint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0b0d12;--panel:#13161e;--panel2:#1a1e28;--panel3:#212634;--line:#2a3040;--line2:#363d4f;--txt:#e8eaf0;--mut:#9aa3b5;--dim:#697283;--accent:#2dd4bf;--choke:#e0686a;--up:#5b81c4;--l3:#8b84cf;--pkg:#c47a9e;--l2:#d2a24a;--l1:#4faf8e;--dup:#e0a458;--dout:#5aa9e0;--dacr:#5fc98a}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px;-webkit-font-smoothing:antialiased}
+  .num,.m{font-family:"JetBrains Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
+  svg text{font-family:"Space Grotesk",sans-serif}
+  svg text.m{font-family:"JetBrains Mono",monospace}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  header{border-bottom:1px solid var(--line);padding:36px 0 28px;margin-bottom:8px;background:radial-gradient(900px 320px at 12% -40%,rgba(45,212,191,.10),transparent 60%),radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
+  .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+  .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
+  h1{font-size:30px;font-weight:700;letter-spacing:-.6px;line-height:1.14;max-width:900px}
+  .sub{font-size:14.5px;color:var(--mut);margin-top:12px;max-width:860px}
+  .meta{margin-top:18px;display:flex;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+  .meta div{padding-right:24px;margin-right:24px;border-right:1px solid var(--line)}
+  .meta div:last-child{border:0}
+  .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+  .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
+  .gauges{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .gauge{border:1px solid var(--line);border-radius:10px;padding:9px 14px;background:var(--panel)}
+  .gauge .gl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim)}
+  .gauge .gv{font-size:18px;font-weight:600}
+  section{padding:32px 0 2px}
+  .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+  .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600}
+  .sh h2{font-size:20px;font-weight:600;letter-spacing:-.3px}
+  .sh .cn{font-size:13px;color:var(--dim);margin-left:auto}
+  .lead{color:var(--mut);font-size:13.5px;max-width:880px;margin-bottom:16px}
+  .lead b{color:var(--txt)}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
+  .kpi{padding:17px 19px;border-right:1px solid var(--line)}
+  .kpi:last-child{border-right:0}
+  .kpi .v{font-size:23px;font-weight:600;letter-spacing:-.5px}
+  .kpi .l{font-size:11.5px;color:var(--mut);margin-top:4px}
+  .kpi .d{font-size:11px;color:var(--dim);margin-top:7px}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .svgwide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
+  .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
+  .two{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+  @media(max-width:780px){.two{grid-template-columns:1fr}}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  td{padding:9px 11px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+  td b{color:var(--txt)}
+  .lyr{font-family:"JetBrains Mono",monospace;font-size:10.5px;padding:1px 7px;border-radius:5px;font-weight:600}
+  .lyu{background:rgba(91,129,196,.15);color:#8aa7df}.ly3{background:rgba(139,132,207,.15);color:#aaa3e6}.lyp{background:rgba(196,122,158,.15);color:#dba0bf}.ly2{background:rgba(210,162,74,.15);color:#e3bd76}.ly1{background:rgba(79,175,142,.15);color:#7cc9ad}
+  .choke{border:1px solid #5a3236;border-radius:14px;padding:20px 22px;background:linear-gradient(135deg,rgba(224,104,106,.10),transparent 55%),var(--panel)}
+  .choke h3{font-size:16px;font-weight:600;color:var(--choke);margin-bottom:9px;display:flex;align-items:center;gap:10px}
+  .choke p{font-size:13px;color:#d9c4c6;max-width:900px}.choke p b{color:#fff}
+  .choke .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:16px;border-top:1px solid #4a2c2f;padding-top:14px}
+  @media(max-width:780px){.choke .stats{grid-template-columns:1fr 1fr}}
+  .choke .stats b{display:block;font-size:19px;color:var(--choke);font-weight:600}
+  .choke .stats span{font-size:10.5px;color:var(--dim)}
+  .variant{border-left:3px solid var(--accent);background:rgba(45,212,191,.06);border-radius:8px;padding:13px 16px;margin:14px 0}
+  .variant .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:5px}
+  .variant p{font-size:12.8px;color:var(--mut);line-height:1.5}.variant p b{color:var(--txt)}
+  .tabbtn{font-family:inherit;background:var(--panel2);border:1px solid var(--line);color:var(--mut);padding:11px 15px;border-radius:10px 10px 0 0;font-size:13px;font-weight:600;cursor:pointer;border-bottom:none;display:flex;flex-direction:column;gap:2px;min-width:150px;text-align:left}
+  .tabbtn small{font-size:10px;font-weight:400;color:var(--dim)}
+  .tabbtn[aria-selected="true"]{background:var(--panel);color:var(--txt);border-color:var(--line2)}
+  .tabbtn[aria-selected="true"] small{color:var(--accent)}
+  .stagebadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px}
+  .sg-early{background:rgba(95,201,138,.16);color:var(--dacr)}.sg-recog{background:rgba(210,162,74,.16);color:var(--dup)}.sg-eu{background:rgba(224,104,106,.16);color:var(--choke)}
+  .mini{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+  @media(max-width:780px){.mini{grid-template-columns:1fr 1fr 1fr}}
+  .mini div{padding:11px 13px;border-right:1px solid var(--line)}.mini div:last-child{border-right:0}
+  .mini .v{font-size:17px;font-weight:600}.mini .l{font-size:10px;color:var(--mut);margin-top:2px}
+  .mtd{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
+  @media(max-width:780px){.mtd{grid-template-columns:1fr}}
+  .mtc{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+  .mtc .h{font-size:11.5px;font-weight:600;color:var(--accent);margin-bottom:3px}
+  .mtc p{font-size:11.5px;color:var(--mut);line-height:1.45}.mtc p b{color:var(--txt)}
+  .bbr{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+  .bbr div{border-radius:8px;padding:9px 12px;font-size:11.5px;line-height:1.45;color:var(--mut)}
+  .bbr .bl{border-left:3px solid var(--dacr);background:var(--panel2)}.bbr .be{border-left:3px solid var(--choke);background:var(--panel2)}
+  .bbr b{display:block;font-size:10.5px;margin-bottom:2px}
+  .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
+  footer{margin-top:16px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}
+  footer b{color:var(--mut)}
+  @media print{.tabpane{display:block!important}.tabbtn{display:none}}
+</style>
+</head>
+<body>
+<nav style="background:#0e1117;border-bottom:1px solid #2a3040;padding:10px 22px;font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:60">
+  <a href="index.html" style="color:#2dd4bf;text-decoration:none;font-weight:600">&larr; All reports</a>
+  <span style="color:#9aa3b5;font-weight:600">AI-Infra Deep-Dive</span>
+  <span style="color:#5a6377;margin-left:auto">Personal research · not investment advice · Jun 2026</span>
+</nav>
+
+<header>
+  <div class="wrap">
+    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #6 · v5 · cycle complete</div>
+    <h1>Substrates &amp; Materials — the MSG company that secretly gates every AI chip</h1>
+    <p class="sub">Every advanced GPU sits on a package substrate built from <b style="color:#fff">ABF film</b> — and one company, <b style="color:#fff">Ajinomoto</b> (yes, the seasoning maker), holds <b style="color:#fff">~95%</b> of it. Beneath that, Nittobo holds ~90% of the T-glass it needs. The most invisible chokepoint in AI — and a textbook hidden-alpha case.</p>
+    <div class="meta">
+      <div><div class="k">Date</div><div class="vv m">13 Jun 2026</div></div>
+      <div><div class="k">Layer</div><div class="vv">Substrates · material → film → substrate</div></div>
+      <div><div class="k">Chokepoint</div><div class="vv">ABF film monopoly (+ T-glass beneath)</div></div>
+      <div><div class="k">Top-3</div><div class="vv">Ajinomoto · Shin-Etsu · Ibiden</div></div>
+    </div>
+    <div class="gauges">
+      <div class="gauge"><div class="gl">Chokepoint severity</div><div class="gv red m">18/20</div></div>
+      <div class="gauge"><div class="gl">Remaining asymmetry</div><div class="gv amb m">~9/20</div></div>
+      <div class="gauge"><div class="gl">Stance</div><div class="gv" style="color:var(--mut)">Not advice · research</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- 01 SNAPSHOT -->
+<section>
+  <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">為什麼是現在</span></div>
+  <p class="lead">As AI chips grow bigger and stack more layers, the package substrate underneath them gets harder to make — and it all depends on a single insulating film (ABF) that one company has a near-monopoly on. Analysts see the ABF supply gap exceeding <b>20% in 2027</b>; Ajinomoto is raising film prices <b>+30%</b>. The most hidden chokepoint in the whole AI stack.</p>
+  <div class="kpis">
+    <div class="kpi"><div class="v m red">~95%</div><div class="l">Ajinomoto share of ABF film</div><div class="d">a near-monopoly hidden in a food co.</div></div>
+    <div class="kpi"><div class="v m amb">+30%</div><div class="l">ABF film price hike, Q3'26</div><div class="d">monopoly pricing power in action</div></div>
+    <div class="kpi"><div class="v m red">~90%</div><div class="l">Nittobo share of T-glass</div><div class="d">the chokepoint beneath the chokepoint</div></div>
+    <div class="kpi"><div class="v m grn">&gt;20%</div><div class="l">ABF supply gap by 2027</div><div class="d">3-year upcycle; utilization ~90%</div></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px">EXPLAIN IT SIMPLY · 白話版</div>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6;max-width:900px">A computer chip can't be soldered straight onto a circuit board — it sits on a little intermediate board called a <b style="color:var(--txt)">package substrate</b>, which is built up from thin layers of a special insulating <b style="color:var(--txt)">film called ABF</b>. Here's the wild part: ABF stands for <b style="color:var(--txt)">Ajinomoto Build-up Film</b> — invented by the Japanese company famous for MSG seasoning — and Ajinomoto makes ~95% of all of it. So a seasoning company quietly gates every advanced AI chip, and it's raising prices because demand is exploding. Even deeper, the glass cloth inside ABF (T-glass) is ~90% controlled by one firm, Nittobo. The investor question: own the <b style="color:var(--txt)">film monopoly</b> (Ajinomoto), the broad <b style="color:var(--txt)">materials giant</b> (Shin-Etsu), or the <b style="color:var(--txt)">substrate maker</b> (Ibiden, already up 3x) — and notice which is hiding in plain sight.</p>
+  </div>
+  <div class="panel" style="margin-top:12px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div><div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px">THE STACK · 分層 (read first)</div>
+        <div style="font-size:12px;color:var(--mut);line-height:1.7"><b>T-glass</b> low-expansion glass cloth (the skeleton) · <b>ABF film</b> the insulating build-up film · <b>Substrate</b> the layered package board · <b>Package</b> substrate + chip together · <b>Board</b> the motherboard it plugs into.</div></div>
+      <div><div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px">6-TERM GLOSSARY · 名詞</div>
+        <div style="font-size:11.5px;color:var(--mut);line-height:1.6"><b>ABF</b> Ajinomoto Build-up Film · <b>Substrate</b> package interposer board · <b>T-glass</b> low-CTE glass cloth · <b>Layer count</b> # of build-up layers (rising) · <b>Glass-core</b> next-gen glass substrate · <b>CCL</b> copper-clad laminate.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 SUPPLY CHAIN -->
+<section>
+  <div class="sh"><span class="n">02</span><h2>End-to-end supply chain</h2><span class="cn">上下游全鏈</span></div>
+  <p class="lead">A near-monopoly stacked on a near-monopoly. The flow constricts hardest at <b>ABF film (Ajinomoto ~95%)</b> — and the raw <b>T-glass (Nittobo ~90%)</b> beneath it is the deeper hidden gem.</p>
+  <div class="svgwide">
+    <svg viewBox="-12 -2 1124 470" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="aT" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5a6377"/></marker>
+        <marker id="aR" markerWidth="9" markerHeight="9" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e0686a"/></marker>
+      </defs>
+      <text x="22" y="20" class="m" font-size="11" fill="#697283">RAW MATERIAL</text>
+      <line x1="130" y1="16" x2="980" y2="16" stroke="#2a3040"/><polygon points="982,16 974,12 974,20" fill="#2a3040"/>
+      <text x="1078" y="20" class="m" font-size="11" fill="#697283" text-anchor="end">FINISHED CHIP / DEMAND</text>
+      <!-- connectors: constriction at C2 (ABF film) -->
+      <line x1="180" y1="180" x2="200" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR)"/>
+      <line x1="360" y1="180" x2="380" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR)"/>
+      <line x1="540" y1="180" x2="560" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT)"/>
+      <line x1="720" y1="180" x2="740" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT)"/>
+      <line x1="900" y1="180" x2="920" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT)"/>
+
+      <!-- C1 Raw materials (T-glass deepest) -->
+      <rect x="20" y="40" width="160" height="200" rx="10" fill="#1c1518" stroke="#5a3236"/><rect x="20" y="40" width="5" height="200" rx="2" fill="#5b81c4"/>
+      <rect x="34" y="26" width="132" height="20" rx="5" fill="#c98a8b"/><text x="100" y="40" class="m" font-size="8.5" fill="#1c1518" font-weight="700" text-anchor="middle">DEEPEST GEM</text>
+      <text x="36" y="62" font-size="12" fill="#e8eaf0" font-weight="600">Raw materials</text><text x="36" y="76" class="m" font-size="9" fill="#8aa7df">UPSTREAM</text>
+      <g font-size="9"><rect x="32" y="84" width="136" height="30" rx="6" fill="#2a1a1f" stroke="#c98a8b"/><text x="40" y="97" fill="#fff" font-weight="700">T-glass</text><text x="40" y="108" fill="#eda3a4">Nittobo ~90%</text>
+      <rect x="32" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="133" fill="#fff" font-weight="600">Epoxy resin</text><text x="40" y="144" fill="#9aa3b5">specialty chemicals</text>
+      <rect x="32" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="169" fill="#fff" font-weight="600">Copper foil</text><text x="40" y="180" fill="#9aa3b5">Mitsui · Furukawa</text></g>
+      <text x="36" y="208" font-size="8.5" fill="#eda3a4">⚑ Nittobo T-glass = latent #1</text>
+
+      <!-- C2 ABF film CHOKE -->
+      <rect x="200" y="40" width="160" height="200" rx="10" fill="#1c1518" stroke="#5a3236" stroke-width="1.5"/><rect x="200" y="40" width="5" height="200" rx="2" fill="#e0686a"/>
+      <rect x="214" y="26" width="132" height="20" rx="5" fill="#e0686a"/><text x="280" y="40" class="m" font-size="9" fill="#1c1518" font-weight="700" text-anchor="middle">CHOKEPOINT</text>
+      <text x="216" y="62" font-size="12" fill="#e8eaf0" font-weight="600">ABF film</text><text x="216" y="76" class="m" font-size="9" fill="#eda3a4">THE MONOPOLY</text>
+      <g font-size="9"><rect x="212" y="84" width="136" height="46" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="220" y="100" fill="#fff" font-weight="700">ABF build-up film</text><text x="220" y="113" fill="#eda3a4">Ajinomoto ~95%</text><text x="220" y="124" fill="#eda3a4">(+30% price Q3'26)</text>
+      <rect x="212" y="136" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="220" y="149" fill="#fff" font-weight="600">Photoresist (logic)</text><text x="220" y="160" fill="#9aa3b5">JSR · TOK · Shin-Etsu</text>
+      <rect x="212" y="172" width="136" height="22" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="220" y="186" fill="#9aa3b5">silicon wafers — Shin-Etsu · SUMCO</text></g>
+      <text x="216" y="208" font-size="8.5" fill="#eda3a4">~95% share, no substitute</text>
+
+      <!-- C3 Substrate fab 2nd peak -->
+      <rect x="380" y="40" width="160" height="200" rx="10" fill="#1c1518" stroke="#5a3236"/><rect x="380" y="40" width="5" height="200" rx="2" fill="#8b84cf"/>
+      <rect x="394" y="26" width="132" height="20" rx="5" fill="#aaa3e6"/><text x="460" y="40" class="m" font-size="9" fill="#1c1518" font-weight="700" text-anchor="middle">2nd RENT POOL</text>
+      <text x="396" y="62" font-size="12" fill="#e8eaf0" font-weight="600">Substrate fab</text><text x="396" y="76" class="m" font-size="9" fill="#aaa3e6">THE BOARD</text>
+      <g font-size="9"><rect x="392" y="84" width="136" height="30" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="400" y="97" fill="#fff" font-weight="700">ABF substrate</text><text x="400" y="108" fill="#bcb3e6">Ibiden · Shinko · AT&amp;S</text>
+      <rect x="392" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="133" fill="#fff" font-weight="600">TW fabs</text><text x="400" y="144" fill="#9aa3b5">Unimicron · Kinsus</text>
+      <rect x="392" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="169" fill="#fff" font-weight="600">Glass-core (next)</text><text x="400" y="180" fill="#9aa3b5">Absolics · Samsung</text></g>
+      <text x="396" y="208" font-size="8.5" fill="#bcb3e6">~90% utilization, gap by 2027</text>
+
+      <!-- C4 Advanced packaging -->
+      <rect x="560" y="40" width="160" height="200" rx="10" fill="#141822" stroke="#2a3040"/><rect x="560" y="40" width="5" height="200" rx="2" fill="#d2a24a"/>
+      <text x="576" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Adv. packaging</text><text x="576" y="74" class="m" font-size="9" fill="#e3bd76">PACKAGE</text>
+      <g font-size="9"><rect x="572" y="84" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="97" fill="#fff" font-weight="600">CoWoS / SoIC</text><text x="580" y="108" fill="#9aa3b5">TSMC (Run #2)</text>
+      <rect x="572" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="133" fill="#fff" font-weight="600">OSAT</text><text x="580" y="144" fill="#9aa3b5">Amkor · ASE</text>
+      <rect x="572" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="169" fill="#fff" font-weight="600">Substrate ↑ into here</text><text x="580" y="180" fill="#9aa3b5">bigger bodies, more layers</text></g>
+      <text x="576" y="208" font-size="8.5" fill="#697283">substrate feeds the package</text>
+
+      <!-- C5 Chip -->
+      <rect x="740" y="40" width="160" height="200" rx="10" fill="#141822" stroke="#2a3040"/><rect x="740" y="40" width="5" height="200" rx="2" fill="#4faf8e"/>
+      <text x="756" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Chip / module</text><text x="756" y="74" class="m" font-size="9" fill="#7cc9ad">FINISHED</text>
+      <g font-size="9"><rect x="752" y="84" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="97" fill="#fff" font-weight="600">GPU / ASIC</text><text x="760" y="108" fill="#9aa3b5">Nvidia · AMD · custom</text>
+      <rect x="752" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="133" fill="#fff" font-weight="600">Locking capacity</text><text x="760" y="144" fill="#9aa3b5">Nvidia ABF pre-buys</text>
+      <rect x="752" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="169" fill="#fff" font-weight="600">Server boards</text><text x="760" y="180" fill="#9aa3b5">ODMs</text></g>
+      <text x="756" y="208" font-size="8.5" fill="#697283">bigger chips = more ABF</text>
+
+      <!-- C6 Buyers -->
+      <rect x="920" y="40" width="160" height="200" rx="10" fill="#141822" stroke="#2a3040"/><rect x="920" y="40" width="5" height="200" rx="2" fill="#4faf8e"/>
+      <text x="936" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Buyers / demand</text><text x="936" y="74" class="m" font-size="9" fill="#7cc9ad">DEMAND</text>
+      <g font-size="9"><rect x="932" y="84" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="97" fill="#fff" font-weight="600">Nvidia / AMD</text><text x="940" y="108" fill="#9aa3b5">GPU packages</text>
+      <rect x="932" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="133" fill="#fff" font-weight="600">Hyperscalers</text><text x="940" y="144" fill="#9aa3b5">custom ASIC</text>
+      <rect x="932" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="169" fill="#fff" font-weight="600">CPU (Intel/AMD)</text><text x="940" y="180" fill="#9aa3b5">also ABF-hungry</text></g>
+      <text x="936" y="208" font-size="8.5" fill="#697283">demand &gt; ABF supply</text>
+
+      <!-- rent bars -->
+      <line x1="40" y1="420" x2="1080" y2="420" stroke="#2a3040"/>
+      <text x="40" y="320" font-size="9" fill="#697283">value capture / scarcity premium</text>
+      <g>
+        <rect x="80" y="356" width="40" height="64" rx="2" fill="#c98a8b" opacity="0.8"/>
+        <rect x="260" y="328" width="40" height="92" rx="2" fill="#e0686a"/>
+        <rect x="440" y="354" width="40" height="66" rx="2" fill="#aaa3e6" opacity="0.78"/>
+        <rect x="620" y="386" width="40" height="34" rx="2" fill="#2dd4bf" opacity="0.5"/>
+        <rect x="800" y="392" width="40" height="28" rx="2" fill="#2dd4bf" opacity="0.45"/>
+        <rect x="980" y="396" width="40" height="24" rx="2" fill="#2dd4bf" opacity="0.3"/>
+      </g>
+      <text x="280" y="320" class="m" font-size="8.5" fill="#eda3a4" text-anchor="middle">rent peaks at the ABF-film monopoly</text>
+      <text x="100" y="348" class="m" font-size="8" fill="#d99a9b" text-anchor="middle">T-glass (hidden)</text>
+      <text x="460" y="346" class="m" font-size="8" fill="#aaa3e6" text-anchor="middle">2nd: substrate fab</text>
+      <g class="m" font-size="8.5" fill="#697283" text-anchor="middle"><text x="100" y="436">raw / T-glass</text><text x="280" y="436">ABF film</text><text x="460" y="436">substrate fab</text><text x="640" y="436">packaging</text><text x="820" y="436">chip</text><text x="1000" y="436">buyers</text></g>
+      <text x="550" y="458" font-size="9" fill="#697283" text-anchor="middle">Red = constricted throughput. Two near-monopolies stacked: the ABF film (Ajinomoto ~95%) holds the rent; the T-glass beneath it (Nittobo ~90%) is the deeper, even-more-hidden gem.</text>
+    </svg>
+  </div>
+</section>
+
+<!-- 03 CHOKEPOINT + SEVERITY -->
+<section>
+  <div class="sh"><span class="n">03</span><h2>The chokepoint &amp; severity</h2><span class="cn">卡點與嚴重度</span></div>
+  <div class="choke">
+    <h3><svg width="20" height="20" viewBox="0 0 24 24"><path d="M12 2 L22 20 H2 Z" fill="none" stroke="#e0686a" stroke-width="2" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="14" stroke="#e0686a" stroke-width="2"/><circle cx="12" cy="17" r="1.2" fill="#e0686a"/></svg> ABF build-up film (a ~95% monopoly, on a ~90% T-glass monopoly)</h3>
+    <p>Every advanced GPU/CPU/ASIC package is built from ABF film, and <b>Ajinomoto controls ~95%</b> of it — one of the tightest single-supplier chokepoints in all of technology, raising prices <b>+30%</b> into a >20% supply gap. The film itself depends on <b>T-glass</b>, where <b>Nittobo holds ~90%</b> and admits its capacity expansion "may still fall short." This is a genuine near-monopoly with real pricing power, not just a tight market — the strongest single-supplier position in the whole rotation. The only reason it isn't more crowded: it's hidden inside a Japanese food company and an obscure glass maker.</p>
+    <div class="stats">
+      <div><b class="m">18/20</b><span>ABF-film link severity (supply 5 · lead-time 4 · substitut. 4 · demand 5)</span></div>
+      <div><b class="m">~95%</b><span>Ajinomoto ABF film share</span></div>
+      <div><b class="m">~90%</b><span>Nittobo T-glass share</span></div>
+      <div><b class="m">+30%</b><span>ABF price hike Q3'26</span></div>
+      <div><b class="m">&gt;20%</b><span>supply gap by 2027</span></div>
+    </div>
+  </div>
+  <div class="variant"><div class="h">VARIANT PERCEPTION vs CONSENSUS · 變異認知</div><p>Consensus, to the extent it has noticed: "ABF is tight — buy the substrate fabs (Ibiden)." But Ibiden has <b>already run ~7x off its lows (+192% YTD)</b> and faces several competitors (Shinko, AT&amp;S, Unimicron). The disaggregation: the real monopoly isn't the substrate <i>fab</i> — it's the <b>film</b> (Ajinomoto ~95%) and the <b>T-glass</b> (Nittobo ~90%) beneath it, both hiding inside diversified/obscure Japanese companies that the AI crowd hasn't priced as AI plays. The film monopoly is raising prices 30% with no competitor able to respond. If we're wrong, it's that (a) glass-core substrates leapfrog ABF this decade, eroding the franchise, or (b) Ajinomoto's ABF profit stays too small a slice of a huge food company to move the stock.</p></div>
+</section>
+
+<!-- 04 AWARENESS -->
+<section>
+  <div class="sh"><span class="n">04</span><h2>Are we early? Awareness curve</h2><span class="cn">現在是早期嗎</span></div>
+  <p class="lead">The substrate <i>fab</i> (Ibiden) is euphoric; the actual <i>monopolies</i> (Ajinomoto film, Nittobo T-glass) are barely priced as AI plays — the cleanest hidden-alpha set-up of the whole rotation.</p>
+  <div class="svgwide" style="margin-bottom:6px">
+    <svg viewBox="0 0 1060 300" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="az" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5fc98a" stop-opacity="0.22"/><stop offset="1" stop-color="#5fc98a" stop-opacity="0"/></linearGradient></defs>
+      <rect x="40" y="40" width="190" height="230" fill="#11141c"/>
+      <rect x="230" y="40" width="200" height="230" fill="url(#az)" stroke="#2c5a40" stroke-dasharray="3 4"/>
+      <rect x="630" y="40" width="200" height="230" fill="#1a1216" opacity="0.5"/>
+      <text x="135" y="32" class="m" font-size="9" fill="#697283" text-anchor="middle">LATENT</text>
+      <text x="330" y="32" class="m" font-size="9" fill="#5fc98a" text-anchor="middle" font-weight="600">EARLY · ALPHA</text>
+      <text x="530" y="32" class="m" font-size="9" fill="#d2a24a" text-anchor="middle">RECOGNITION</text>
+      <text x="730" y="32" class="m" font-size="9" fill="#e0686a" text-anchor="middle">EUPHORIA</text>
+      <text x="930" y="32" class="m" font-size="9" fill="#697283" text-anchor="middle">FULLY PRICED</text>
+      <path d="M40,258 C 260,250 280,205 430,150 C 560,104 640,70 760,62 C 880,56 980,58 1020,58" fill="none" stroke="#4a5570" stroke-width="2.5"/>
+      <text x="48" y="288" font-size="10" fill="#697283">time · market awareness →</text>
+      <!-- Ajinomoto early/recognition boundary (hidden monopoly, modest move) -->
+      <circle cx="430" cy="150" r="7" fill="#5fc98a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="430" y="138" class="m" font-size="10" fill="#7cd6a0" text-anchor="middle" font-weight="700">2802</text>
+      <text x="430" y="176" class="m" font-size="9" fill="#9aa3b5" text-anchor="middle">Ajinomoto +57%</text>
+      <!-- Shin-Etsu recognition -->
+      <circle cx="560" cy="104" r="7" fill="#d2a24a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="560" y="92" class="m" font-size="10" fill="#e3bd76" text-anchor="middle" font-weight="700">4063</text>
+      <text x="560" y="130" class="m" font-size="9" fill="#9aa3b5" text-anchor="middle">Shin-Etsu +51%</text>
+      <!-- Ibiden euphoria -->
+      <circle cx="775" cy="62" r="7" fill="#e0686a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="775" y="50" class="m" font-size="10" fill="#eda3a4" text-anchor="middle" font-weight="700">4062</text>
+      <text x="790" y="78" class="m" font-size="9" fill="#9aa3b5" text-anchor="start">Ibiden +192%</text>
+      <circle cx="300" cy="200" r="6" fill="none" stroke="#5fc98a" stroke-width="2" stroke-dasharray="2 2"/>
+      <text x="300" y="188" class="m" font-size="9" fill="#7cd6a0" text-anchor="middle">T-glass / glass-core hide here ↙</text>
+      <text x="330" y="262" font-size="9.5" fill="#5fc98a" text-anchor="middle">↑ enter here — Ajinomoto is closest of the three</text>
+    </svg>
+  </div>
+  <p class="cap">Horizontal = awareness stage (qualitative). Ajinomoto (the ~95% film monopoly) is closest to "early" because it's hidden in a food company and only +57%; Shin-Etsu is the broad materials gate; Ibiden the euphoric substrate fab (+192%). The genuinely-early entry is the T-glass monopoly (Nittobo) and glass-core substrate (latent watchlist).</p>
+
+  <div class="panel" style="margin:14px 0;border-color:#2c5a40;background:rgba(95,201,138,.05)">
+    <h4 style="font-size:13px;margin-bottom:6px;font-weight:600;color:var(--dacr)">Still-latent watchlist — where the NEXT early entry hides <span class="cn" style="font-weight:400;color:var(--dim)">尚未被發現的早期標的</span></h4>
+    <p style="font-size:12px;color:var(--mut);line-height:1.55">This layer has the deepest hidden gems of the whole rotation — monopolies the AI crowd literally hasn't found:</p>
+    <table style="margin-top:8px">
+      <tr><th>Latent candidate (link)</th><th>Why it could be next</th><th>Trigger / tripwire</th><th>Where to track it</th></tr>
+      <tr><td><b>Nittobo</b> (3110 TYO) — T-glass ~90% <span style="color:var(--dim);font-size:10px">(illiquid JP mid-cap; quote not pulled)</span></td><td>The chokepoint <i>beneath</i> ABF; even more under-covered than Ajinomoto; tripling capacity but "may fall short"</td><td>T-glass price hikes; capacity-vs-demand gap</td><td>Nittobo disclosures; Japanese materials press; ABF-maker commentary</td></tr>
+      <tr><td><b>Glass-core substrate</b> — Absolics (SKC), Samsung EM, AGC</td><td>The ABF successor as die sizes blow past limits; pre-revenue today</td><td>First glass-substrate qualification at a GPU vendor</td><td>SKC/Absolics &amp; Samsung EM IR; GPU-vendor roadmaps</td></tr>
+      <tr><td><b>Other ABF fabs</b> — Shinko (6967), Unimicron, AT&amp;S</td><td>Ibiden ran; the smaller ABF fabs may catch up as the gap widens</td><td>Utilization &gt;90%; capacity adds; ASP rises</td><td>Company monthly/quarterly results; Digitimes</td></tr>
+    </table>
+    <p class="cap" style="margin-top:6px">Watch-only ideas, not recommendations — most latent bets fail (and Nittobo/Japanese small-caps carry liquidity/FX risk). But this is where the genuine early edge lives.</p>
+  </div>
+
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:4px;font-weight:600">Leading indicators</h4>
+      <p style="font-size:11px;color:var(--dim);margin-bottom:10px">Watch these before the print.</p>
+      <table>
+        <tr><th>Signal · trigger</th><th>Where an amateur can actually read it</th></tr>
+        <tr><td><b>ABF film price hikes</b><br><span class="m" style="font-size:10px;color:var(--dim)">+30% Q3'26 · more = tighter</span></td><td>Ajinomoto IR + Digitimes / TrendForce substrate notes</td></tr>
+        <tr><td><b>ABF substrate utilization</b><br><span class="m" style="font-size:10px;color:var(--dim)">~90% · gap &gt;20% by '27</span></td><td>Ibiden/Shinko/Unimicron results; Digitimes</td></tr>
+        <tr><td><b>T-glass capacity vs demand</b><br><span class="m" style="font-size:10px;color:var(--dim)">Nittobo expansion may fall short</span></td><td>Nittobo disclosures; materials trade press</td></tr>
+        <tr><td><b>Nvidia ABF pre-buys</b><br><span class="m" style="font-size:10px;color:var(--dim)">capacity lock = demand signal</span></td><td>Supply-chain news (BigGo/Digitimes); Nvidia commentary</td></tr>
+        <tr><td><b>Hyperscaler / chip capex</b><br><span class="m" style="font-size:10px;color:var(--dim)">rising · a cut = exit</span></td><td>MSFT/GOOG/META 10-Q; Nvidia/AMD results</td></tr>
+      </table>
+      <p style="font-size:10px;color:var(--dim);margin-top:8px">All readable from free public sources weeks before reported revenue. Thresholds illustrative — calibrate to your own risk.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Who captures the rent?</h4>
+      <p style="font-size:12.5px;color:var(--mut);line-height:1.55">Margins settle it. <b style="color:var(--txt)">Ajinomoto</b> has the textbook monopoly margin on ABF — but it's a small slice of a giant food company, so the stock is diluted (and only +57%). <b style="color:var(--txt)">Ibiden</b> captures the substrate-fab value and has re-rated hardest (+192%), but competes with several fabs. <b style="color:var(--txt)">Shin-Etsu</b> is the broad, lower-risk materials gate (silicon wafers #1 + resist). <b style="color:var(--txt)">Conclusion:</b> the tightest monopoly (Ajinomoto/Nittobo) has the least <i>pure</i> stock exposure; the purest substrate exposure (Ibiden) is the most priced. The hidden edge is owning the monopoly and accepting the dilution.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 05 TOP-3 TABS -->
+<section>
+  <div class="sh"><span class="n">05</span><h2>Top-3 plays</h2><span class="cn">三大標的 · 分頁</span></div>
+  <p class="lead">Three different links — the film monopoly, the broad materials gate, the substrate fab — ordered by remaining asymmetry per unit of risk.</p>
+  <div role="tablist" aria-label="Top 3 plays" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:-1px">
+    <button class="tabbtn" role="tab" aria-selected="true" aria-controls="t1" id="b1" tabindex="0" onclick="showTab('t1',this)">① Ajinomoto · 2802<small>ABF film ~95% · hidden monopoly</small></button>
+    <button class="tabbtn" role="tab" aria-selected="false" aria-controls="t2" id="b2" tabindex="-1" onclick="showTab('t2',this)">② Shin-Etsu · 4063<small>materials gate · lower-risk</small></button>
+    <button class="tabbtn" role="tab" aria-selected="false" aria-controls="t3" id="b3" tabindex="-1" onclick="showTab('t3',this)">③ Ibiden · 4062<small>substrate fab · euphoric</small></button>
+  </div>
+
+  <div class="tabpane" id="t1" role="tabpanel" aria-labelledby="b1" style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap"><h3 style="font-size:18px;font-weight:600">Ajinomoto <span style="color:var(--dim);font-weight:400">TSE: 2802</span></h3><span class="stagebadge sg-early">EARLY-ish · the hidden monopoly</span></div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The seasoning giant that invented and ~95%-controls ABF build-up film — a genuine near-monopoly on a material every advanced AI chip needs, raising prices +30% into a supply gap. The catch (and the reason it's only +57%): ABF is a small, very-high-margin slice of a huge diversified food company, so the AI leverage is real but diluted. The cleanest "hidden in plain sight" name of the rotation.</p>
+    <div class="mini">
+      <div><div class="v m">¥5,180</div><div class="l">Last (JPY)</div></div>
+      <div><div class="v m grn">+57%</div><div class="l">YTD</div></div>
+      <div><div class="v m">52wk</div><div class="l">¥3,252–5,739</div></div>
+      <div><div class="v m red">~95%</div><div class="l">ABF film share</div></div>
+      <div><div class="v m grn">monopoly</div><div class="l">+30% price hike</div></div>
+    </div>
+    <div class="variant"><div class="h">ASYMMETRIC INFO GAP</div><p>The market files Ajinomoto under "Japanese food / MSG," not "AI chip monopoly." The variant: its electronic-materials (ABF) segment is a near-monopoly with rare pricing power (+30%) into a multi-year shortage, and as that high-margin segment grows it could re-rate the whole stock — without the euphoria already baked into the substrate fabs. The offset is dilution: you're buying a food company to own a chip monopoly, so the upside is geared down by the rest of the business.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢</div><p>Sells seasonings/foods + a high-margin <b>electronic materials</b> business (ABF film) + amino-acid/bio.</p></div>
+      <div class="mtc"><div class="h">② 營收結構</div><p>Food the bulk; electronic materials (ABF) small but the fastest-growing, highest-margin slice.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源</div><p>ABF volume + 30% price hikes; bigger/more-layered AI packages; supply gap to 2027+.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場</div><p>Semiconductors (ABF) + global food/seasoning + healthcare.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶</div><p>Every advanced substrate fab (Ibiden, Shinko, Unimicron…) — i.e. the whole industry.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河</div><p>~95% share, decades of formulation IP, qualified into every package — the textbook monopoly moat.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望</div><p>Raising ABF prices +30%; investing in electronic-materials capacity.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點</div><p>No ABF = no advanced package = no AI chip; Ajinomoto is ~95% of ABF. The purest monopoly in the stack.</p></div>
+    </div>
+    <div class="bbr"><div class="bl"><b style="color:var(--dacr)">BULL</b>Monopoly pricing + multi-year shortage; electronic-materials segment re-rates the whole stock; not euphoric.</div><div class="be"><b style="color:var(--choke)">BEAR</b>ABF too small a slice to move a food giant; glass-core substrate erodes ABF this decade; FX/JP-large-cap inertia.</div></div>
+  </div>
+
+  <div class="tabpane" id="t2" role="tabpanel" aria-labelledby="b2" hidden style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap"><h3 style="font-size:18px;font-weight:600">Shin-Etsu Chemical <span style="color:var(--dim);font-weight:400">TSE: 4063</span></h3><span class="stagebadge sg-recog">RECOGNITION · the broad materials gate</span></div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The world's #1 silicon-wafer maker and a materials powerhouse (photoresist, rare-earth magnets, PVC) — the broad, lower-risk way to own the substrate &amp; materials layer. Not a single chokepoint but a portfolio of strong positions, +51% YTD (modest vs the substrate fab). The "sleep-at-night" materials gate.</p>
+    <div class="mini">
+      <div><div class="v m">¥7,300</div><div class="l">Last (JPY)</div></div>
+      <div><div class="v m grn">+51%</div><div class="l">YTD</div></div>
+      <div><div class="v m">52wk</div><div class="l">¥4,195–7,930</div></div>
+      <div><div class="v m">#1</div><div class="l">silicon wafers</div></div>
+      <div><div class="v m grn">diversified</div><div class="l">lower-risk gate</div></div>
+    </div>
+    <div class="variant"><div class="h">ASYMMETRIC INFO GAP</div><p>Less an "info gap" than a risk-adjusted choice: Shin-Etsu owns multiple strong positions (silicon wafers, photoresist, magnets) so no single one is a pure chokepoint, but the bundle is a low-risk way to ride the whole materials up-cycle. The variant is leading-edge wafer + resist tightness (for 2nm logic) being under-appreciated inside a "boring" diversified name. The offset: diversification caps the AI upside vs a pure-play.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢</div><p>Sells silicon wafers, photoresist, PVC, silicones, rare-earth magnets — broad materials.</p></div>
+      <div class="mtc"><div class="h">② 營收結構</div><p>Semiconductor silicon + electronics materials + chemicals; balanced, high-margin.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源</div><p>Leading-edge wafer + resist demand (2nm), AI packaging materials, magnets (EV).</p></div>
+      <div class="mtc"><div class="h">④ 終端市場</div><p>Semiconductors, electronics, construction, autos.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶</div><p>TSMC/foundries (wafers, resist), broad industrial base.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河</div><p>#1 wafer scale + cost; deep materials IP; multiple top-2 positions.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望</div><p>Steady; wafer cycle recovering; investing in leading-edge materials.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點</div><p>Silicon wafers are a duopoly (Shin-Etsu/SUMCO) — a real gate, just broader and less AI-pure.</p></div>
+    </div>
+    <div class="bbr"><div class="bl"><b style="color:var(--dacr)">BULL</b>Leading-edge wafer + resist tightness; diversified compounding; low-risk materials exposure.</div><div class="be"><b style="color:var(--choke)">BEAR</b>Diversification dilutes AI upside; wafer cyclicality; not a pure chokepoint.</div></div>
+  </div>
+
+  <div class="tabpane" id="t3" role="tabpanel" aria-labelledby="b3" hidden style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap"><h3 style="font-size:18px;font-weight:600">Ibiden <span style="color:var(--dim);font-weight:400">TSE: 4062</span></h3><span class="stagebadge sg-eu">EUPHORIA · the visible bottleneck, fully priced</span></div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The leading high-layer-count ABF <b>substrate fabricator</b> — the visible bottleneck and a key Nvidia GPU-package supplier. The purest substrate-fab exposure, which is why it has re-rated ~7x off its lows (+192% YTD). The risk: it's the most-priced of the three and competes with several fabs (Shinko, AT&amp;S, Unimicron), so it lacks the monopoly protection of the film/T-glass beneath it.</p>
+    <div class="mini">
+      <div><div class="v m">¥19,650</div><div class="l">Last (JPY)</div></div>
+      <div><div class="v m red">+192%</div><div class="l">YTD</div></div>
+      <div><div class="v m">52wk</div><div class="l">¥2,857–23,145</div></div>
+      <div><div class="v m red">~7x</div><div class="l">off 52wk low</div></div>
+      <div><div class="v m grn">Nvidia</div><div class="l">GPU-package supplier</div></div>
+    </div>
+    <div class="variant"><div class="h">ASYMMETRIC INFO GAP</div><p>Mostly closed — Ibiden is the consensus way to play the ABF shortage and has run ~7x. The residual variant is the <b>severity of the 2027 supply gap</b>: if it exceeds the 20–26% estimates and Ibiden's high-end capacity is the scarcest, pricing/margins overshoot. But at +192% near its high, the bar is very high and any AI-capex wobble or capacity catch-up de-rates it hard. Lowest risk-adjusted asymmetry of the three despite the strongest demand signal.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢</div><p>Makes IC package substrates (ABF) + ceramic products (auto); per-unit substrate sales.</p></div>
+      <div class="mtc"><div class="h">② 營收結構</div><p>Electronics (ABF substrates) the AI-leveraged growth; automotive ceramics the base.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源</div><p>AI GPU packages (bigger bodies, more layers), capacity expansion, ASP, supply gap.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場</div><p>AI/HPC chips (Nvidia), CPUs, autos (ceramics).</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶</div><p>Nvidia, Intel, AMD (GPU/CPU packages).</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河</div><p>High-layer-count ABF know-how + capacity + qualification — but several capable rivals.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望</div><p>Expanding ABF capacity; high utilization; AI package demand strong.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點</div><p>The substrate fab is the visible bottleneck — but it buys the monopoly inputs (ABF, T-glass), so it's a price-taker on the scarcest links.</p></div>
+    </div>
+    <div class="bbr"><div class="bl"><b style="color:var(--dacr)">BULL</b>2027 gap exceeds estimates; high-end capacity scarcest; pricing/margins overshoot.</div><div class="be"><b style="color:var(--choke)">BEAR</b>+192% near ATH prices it; rivals add capacity; price-taker on ABF/T-glass; AI-capex wobble.</div></div>
+  </div>
+  <p class="cap" style="margin-top:12px">*Prices in JPY from live IBKR quotes; multiples not pulled — verify on a terminal (JP large-caps; FX risk). Shinko (6967), Unimicron, AT&amp;S, and Nittobo (3110, T-glass) are co-plays / latent names.</p>
+</section>
+
+<!-- 06 DECISION -->
+<section>
+  <div class="sh"><span class="n">06</span><h2>The decision — one table</h2><span class="cn">投資決策總表</span></div>
+  <div style="overflow-x:auto">
+  <table style="min-width:900px">
+    <tr><th>#</th><th>Ticker</th><th>Chokepoint link</th><th>Severity</th><th>Stage</th><th>Valuation</th><th>Asymmetry</th><th>Framework lean</th><th>Key trigger</th></tr>
+    <tr><td class="m">1</td><td><b>2802</b> Ajinomoto</td><td><span class="lyr lyu">MATERIAL</span> ABF film ~95%</td><td class="m">18/20<br><span style="font-size:9px;color:var(--dim)">monopoly</span></td><td><span class="stagebadge sg-early">EARLY-ish</span></td><td class="m">+57% · hidden</td><td class="grn">Highest (diluted)</td><td><b>Own the monopoly, accept dilution</b></td><td>ABF price hikes; electronic-materials mix</td></tr>
+    <tr><td class="m">2</td><td><b>4063</b> Shin-Etsu</td><td><span class="lyr ly1">MATERIALS</span> wafers + resist</td><td class="m">15/20</td><td><span class="stagebadge sg-recog">RECOG</span></td><td class="m">+51%</td><td class="amb">Moderate (low-risk)</td><td><b>Broad, sleep-at-night gate</b></td><td>Leading-edge wafer/resist demand</td></tr>
+    <tr><td class="m">3</td><td><b>4062</b> Ibiden</td><td><span class="lyr ly3">SUBSTRATE</span> ABF fab</td><td class="m">15/20</td><td><span class="stagebadge sg-eu">EUPHORIA</span></td><td class="m">+192% · ~7x</td><td class="red">Low (priced)</td><td><b>Strongest demand, most priced</b></td><td>2027 supply gap; capacity/ASP</td></tr>
+  </table>
+  </div>
+  <p class="cap"><b>How each severity is derived</b> (0–20, four factors each 0–5: supply concentration · lead-time · low substitutability · demand): <b>Ajinomoto ABF film = 18</b> (5+4+4+5 — ~95% monopoly, no substitute, +30% pricing). <b>Shin-Etsu = 15</b> (4+4+3+4 — wafer duopoly but diversified). <b>Ibiden = 15</b> (3+4+3+5 — several ABF fabs, price-taker on inputs). The ABF-film link and the Ajinomoto play share the same score (<b>18</b>) because Ajinomoto <i>is</i> the monopoly. The unusual feature of this layer: the <b>tightest monopoly is the least-priced stock</b> (Ajinomoto +57% vs Ibiden +192%) — because the monopoly hides in a food company. <b>If you can only do one thing:</b> own the hidden monopoly → <b>Ajinomoto</b> (accept the dilution); low-risk breadth → <b>Shin-Etsu</b>; strongest demand but priced → <b>Ibiden</b>; deepest early edge → the <b>Nittobo T-glass / glass-core</b> watchlist.</p>
+</section>
+
+<!-- 07 RISKS -->
+<section>
+  <div class="sh"><span class="n">07</span><h2>Open questions &amp; risks</h2><span class="cn">未解與風險</span></div>
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">Honest open questions (self-critique)</h4>
+      <p style="font-size:12px;color:var(--mut);line-height:1.6">We pulled prices (JPY) but <b>not</b> per-segment financials — the key unanswered question is how big and how high-margin Ajinomoto's ABF segment actually is as a share of the whole (it drives whether the monopoly can move the stock). Severity 18 for Ajinomoto reflects the <i>link</i>'s monopoly, not the stock's purity. The latent names (Nittobo, glass-core) are Japanese small-/mid-caps or pre-revenue — liquidity, FX and disclosure are real constraints. Glass-core substrate is a genuine multi-year threat to the entire ABF franchise that we have not sized.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">Risk register</h4>
+      <table>
+        <tr><td><b>Dilution (Ajinomoto)</b></td><td>ABF too small a slice of a food giant to re-rate it</td></tr>
+        <tr><td><b>Glass-core disruption</b></td><td>Glass substrates leapfrog ABF this decade</td></tr>
+        <tr><td><b>Valuation (Ibiden)</b></td><td>+192% near ATH prices in the shortage</td></tr>
+        <tr><td><b>Capacity catch-up</b></td><td>Substrate/T-glass expansions close the gap</td></tr>
+        <tr><td><b>JP large-cap / FX</b></td><td>Yen + Japanese-equity inertia, liquidity (latent)</td></tr>
+        <tr><td><b>AI-capex air-pocket</b></td><td>Hits the euphoric fab (Ibiden) hardest</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><span class="n">08</span><h2>Framework — use cases × layers &amp; 3-year roadmap</h2><span class="cn">框架與路線圖</span></div>
+  <p class="lead">Every advanced package needs ABF, but the squeeze is worst where chips are biggest. Two axes: the package type (rows) × the layer (columns). GPU packages — biggest bodies, most layers — feel the ABF/T-glass monopoly hardest.</p>
+  <table style="margin-bottom:18px">
+    <tr><th>Use case ↓ / layer →</th><th>What it stresses</th><th>Binding chokepoint</th><th>Who wins</th></tr>
+    <tr><td><b>GPU packages</b> (biggest bodies)</td><td>High layer-count ABF, large area</td><td><span class="lyr lyu">FILM</span> ABF film + T-glass</td><td>Ajinomoto · Nittobo · Ibiden</td></tr>
+    <tr><td><b>Custom ASIC</b> (hyperscaler)</td><td>Advanced ABF + future glass-core</td><td><span class="lyr ly3">SUBSTRATE</span> ABF fab capacity</td><td>Ibiden · Shinko · Unimicron</td></tr>
+    <tr><td><b>CPU packages</b></td><td>Large-body ABF (legacy demand)</td><td><span class="lyr ly3">SUBSTRATE</span> ABF substrate</td><td>Ibiden · AT&amp;S · Intel-captive</td></tr>
+  </table>
+  <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">3-year evolution timeline</h4>
+  <div style="overflow-x:auto"><table style="min-width:760px">
+    <tr><th>Sub-layer ↓ / year →</th><th>2025</th><th>2026</th><th>2027</th><th>2028</th></tr>
+    <tr><td><b>ABF film (Ajinomoto)</b></td><td>tight</td><td style="background:rgba(224,104,106,.08)">+30% price hike; ~90% utilization</td><td style="background:rgba(224,104,106,.08)">supply gap &gt;20%</td><td>capacity adds; still tight</td></tr>
+    <tr><td><b>T-glass (Nittobo)</b></td><td>~90% share</td><td>¥15B capacity build</td><td>3x capacity (may fall short)</td><td>eased but concentrated</td></tr>
+    <tr><td><b>Glass-core substrate</b></td><td>R&amp;D</td><td>sampling</td><td>first qualifications</td><td style="background:rgba(224,104,106,.08)">ramps (ABF successor)</td></tr>
+  </table></div>
+  <p class="cap">Reading down a column = what's live that year; across a row = one sub-layer's arc. Stressed/catalyst cells tinted.</p>
+</section>
+
+<div class="disc"><b>Not investment advice.</b> Personal research for a private knowledge base; not a recommendation or solicitation. Figures from public reporting and live IBKR quotes as of 13 Jun 2026 (prices in JPY); segment financials not pulled; approximations may be wrong or stale. IBKR read-only — no trades. Do your own due diligence.</div>
+
+<footer>
+  <p><b>Sources:</b> Digitimes (ABF AI upcycle, supply gap, utilization) · BigGo Finance (Nvidia locking ABF capacity) · thecodersblog / Ajinomoto (ABF ~95% share, +30% price hike Q3'26) · Nittobo (T-glass ~90%, ¥15B capacity expansion, "may still fall short") · TechTimes (substrate bottleneck) · Daiwa (Taiwan ABF) · IBKR live quotes (Ajinomoto 2802, Shin-Etsu 4063, Ibiden 4062). Live quotes: IBKR (read-only).</p>
+  <p style="margin-top:10px">Automated AI-Infra workflow · Run #6 v5 · <b>rotation cycle complete (Optics → Compute → Power → Cooling → Networking → Substrates)</b> · next loop goes deeper.</p>
+</footer>
+</div>
+<script>
+function showTab(id,btn){
+  document.querySelectorAll('.tabpane').forEach(function(p){p.hidden=true;p.style.display='none';});
+  var el=document.getElementById(id); if(el){el.hidden=false;el.style.display='block';}
+  document.querySelectorAll('.tabbtn').forEach(function(b){b.setAttribute('aria-selected','false');b.tabIndex=-1;});
+  if(btn){btn.setAttribute('aria-selected','true');btn.tabIndex=0;btn.focus();}
+}
+document.querySelectorAll('[role=tablist]').forEach(function(tl){
+  tl.addEventListener('keydown',function(e){
+    var tabs=[].slice.call(tl.querySelectorAll('.tabbtn'));
+    var i=tabs.indexOf(document.activeElement);
+    if(e.key==='ArrowRight'){e.preventDefault();var n=tabs[(i+1)%tabs.length];showTab(n.getAttribute('aria-controls'),n);}
+    if(e.key==='ArrowLeft'){e.preventDefault();var p=tabs[(i-1+tabs.length)%tabs.length];showTab(p.getAttribute('aria-controls'),p);}
+  });
+});
+</script>
+<div style="background:#0e1117;border-top:1px solid #2a3040;padding:16px 22px;font-family:'Space Grotesk',-apple-system,sans-serif;font-size:11.5px;color:#697283;display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+  <a href="index.html" style="color:#2dd4bf;text-decoration:none;font-weight:600">&larr; All reports</a>
+  <span>AI-Infra Deep-Dive · chokepoint research · personal research, not investment advice.</span>
+</div>
+
+</body>
+</html>

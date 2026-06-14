@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Infra Run #4 v5 — Cooling: Cold-Plate / Quick-Disconnect Chokepoint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0b0d12;--panel:#13161e;--panel2:#1a1e28;--panel3:#212634;--line:#2a3040;--line2:#363d4f;--txt:#e8eaf0;--mut:#9aa3b5;--dim:#697283;--accent:#2dd4bf;--choke:#e0686a;--up:#5b81c4;--l3:#8b84cf;--pkg:#c47a9e;--l2:#d2a24a;--l1:#4faf8e;--dup:#e0a458;--dout:#5aa9e0;--dacr:#5fc98a}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px;-webkit-font-smoothing:antialiased}
+  .num,.m{font-family:"JetBrains Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
+  svg text{font-family:"Space Grotesk",sans-serif}
+  svg text.m{font-family:"JetBrains Mono",monospace}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  header{border-bottom:1px solid var(--line);padding:36px 0 28px;margin-bottom:8px;background:radial-gradient(900px 320px at 12% -40%,rgba(45,212,191,.10),transparent 60%),radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
+  .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+  .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
+  h1{font-size:30px;font-weight:700;letter-spacing:-.6px;line-height:1.14;max-width:900px}
+  .sub{font-size:14.5px;color:var(--mut);margin-top:12px;max-width:860px}
+  .meta{margin-top:18px;display:flex;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+  .meta div{padding-right:24px;margin-right:24px;border-right:1px solid var(--line)}
+  .meta div:last-child{border:0}
+  .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+  .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
+  .gauges{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .gauge{border:1px solid var(--line);border-radius:10px;padding:9px 14px;background:var(--panel)}
+  .gauge .gl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim)}
+  .gauge .gv{font-size:18px;font-weight:600}
+  section{padding:32px 0 2px}
+  .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+  .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600}
+  .sh h2{font-size:20px;font-weight:600;letter-spacing:-.3px}
+  .sh .cn{font-size:13px;color:var(--dim);margin-left:auto}
+  .lead{color:var(--mut);font-size:13.5px;max-width:880px;margin-bottom:16px}
+  .lead b{color:var(--txt)}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
+  .kpi{padding:17px 19px;border-right:1px solid var(--line)}
+  .kpi:last-child{border-right:0}
+  .kpi .v{font-size:23px;font-weight:600;letter-spacing:-.5px}
+  .kpi .l{font-size:11.5px;color:var(--mut);margin-top:4px}
+  .kpi .d{font-size:11px;color:var(--dim);margin-top:7px}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .svgwide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
+  .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
+  .two{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+  @media(max-width:780px){.two{grid-template-columns:1fr}}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  td{padding:9px 11px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+  td b{color:var(--txt)}
+  .lyr{font-family:"JetBrains Mono",monospace;font-size:10.5px;padding:1px 7px;border-radius:5px;font-weight:600}
+  .lyu{background:rgba(91,129,196,.15);color:#8aa7df}.ly3{background:rgba(139,132,207,.15);color:#aaa3e6}.lyp{background:rgba(196,122,158,.15);color:#dba0bf}.ly2{background:rgba(210,162,74,.15);color:#e3bd76}.ly1{background:rgba(79,175,142,.15);color:#7cc9ad}
+  .choke{border:1px solid #5a3236;border-radius:14px;padding:20px 22px;background:linear-gradient(135deg,rgba(224,104,106,.10),transparent 55%),var(--panel)}
+  .choke h3{font-size:16px;font-weight:600;color:var(--choke);margin-bottom:9px;display:flex;align-items:center;gap:10px}
+  .choke p{font-size:13px;color:#d9c4c6;max-width:900px}.choke p b{color:#fff}
+  .choke .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:16px;border-top:1px solid #4a2c2f;padding-top:14px}
+  @media(max-width:780px){.choke .stats{grid-template-columns:1fr 1fr}}
+  .choke .stats b{display:block;font-size:19px;color:var(--choke);font-weight:600}
+  .choke .stats span{font-size:10.5px;color:var(--dim)}
+  .variant{border-left:3px solid var(--accent);background:rgba(45,212,191,.06);border-radius:8px;padding:13px 16px;margin:14px 0}
+  .variant .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:5px}
+  .variant p{font-size:12.8px;color:var(--mut);line-height:1.5}.variant p b{color:var(--txt)}
+  .tabbtn{font-family:inherit;background:var(--panel2);border:1px solid var(--line);color:var(--mut);padding:11px 15px;border-radius:10px 10px 0 0;font-size:13px;font-weight:600;cursor:pointer;border-bottom:none;display:flex;flex-direction:column;gap:2px;min-width:150px;text-align:left}
+  .tabbtn small{font-size:10px;font-weight:400;color:var(--dim)}
+  .tabbtn[aria-selected="true"]{background:var(--panel);color:var(--txt);border-color:var(--line2)}
+  .tabbtn[aria-selected="true"] small{color:var(--accent)}
+  .stagebadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px}
+  .sg-early{background:rgba(95,201,138,.16);color:var(--dacr)}.sg-recog{background:rgba(210,162,74,.16);color:var(--dup)}.sg-eu{background:rgba(224,104,106,.16);color:var(--choke)}
+  .mini{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+  @media(max-width:780px){.mini{grid-template-columns:1fr 1fr 1fr}}
+  .mini div{padding:11px 13px;border-right:1px solid var(--line)}.mini div:last-child{border-right:0}
+  .mini .v{font-size:17px;font-weight:600}.mini .l{font-size:10px;color:var(--mut);margin-top:2px}
+  .mtd{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
+  @media(max-width:780px){.mtd{grid-template-columns:1fr}}
+  .mtc{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+  .mtc .h{font-size:11.5px;font-weight:600;color:var(--accent);margin-bottom:3px}
+  .mtc p{font-size:11.5px;color:var(--mut);line-height:1.45}.mtc p b{color:var(--txt)}
+  .bbr{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+  .bbr div{border-radius:8px;padding:9px 12px;font-size:11.5px;line-height:1.45;color:var(--mut)}
+  .bbr .bl{border-left:3px solid var(--dacr);background:var(--panel2)}.bbr .be{border-left:3px solid var(--choke);background:var(--panel2)}
+  .bbr b{display:block;font-size:10.5px;margin-bottom:2px}
+  .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
+  footer{margin-top:16px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}
+  footer b{color:var(--mut)}
+  @media print{.tabpane{display:block!important}.tabbtn{display:none}}
+</style>
+</head>
+<body>
+<nav style="background:#0e1117;border-bottom:1px solid #2a3040;padding:10px 22px;font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:60">
+  <a href="index.html" style="color:#2dd4bf;text-decoration:none;font-weight:600">&larr; All reports</a>
+  <span style="color:#9aa3b5;font-weight:600">AI-Infra Deep-Dive</span>
+  <span style="color:#5a6377;margin-left:auto">Personal research · not investment advice · Jun 2026</span>
+</nav>
+
+<header>
+  <div class="wrap">
+    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #4 · v5</div>
+    <h1>Cooling — when air gives up, the rack's plumbing becomes the gate</h1>
+    <p class="sub">A 1 MW AI rack can't be air-cooled — so liquid goes <b style="color:#fff">direct to the chip</b>, and the binding link becomes the leak-proof, OEM-locked plumbing: <b style="color:#fff">cold plates and quick-disconnect couplings</b>. Penetration is jumping 3%→37%. This maps the chain and stages the plays from cheapest to most-priced.</p>
+    <div class="meta">
+      <div><div class="k">Date</div><div class="vv m">13 Jun 2026</div></div>
+      <div><div class="k">Layer</div><div class="vv">Cooling · component → CDU → facility</div></div>
+      <div><div class="k">Chokepoint</div><div class="vv">Cold-plate / quick-disconnect interface</div></div>
+      <div><div class="k">Top-3</div><div class="vv">AVC · NVT · VRT</div></div>
+    </div>
+    <div class="gauges">
+      <div class="gauge"><div class="gl">Chokepoint severity</div><div class="gv red m">16/20</div></div>
+      <div class="gauge"><div class="gl">Remaining asymmetry</div><div class="gv amb m">~9/20</div></div>
+      <div class="gauge"><div class="gl">Stance</div><div class="gv" style="color:var(--mut)">Not advice · research</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- 01 SNAPSHOT -->
+<section>
+  <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">為什麼是現在</span></div>
+  <p class="lead">Air cooling tops out around 50 kW/rack; AI racks are heading to <b>1 MW</b>. So liquid is no longer optional — and the value moves to the rack-level liquid interface that every GPU must touch. Unlike chips, this is plumbing: leak-proof couplings and cold plates that are OEM-specific and hard to second-source mid-design.</p>
+  <div class="kpis">
+    <div class="kpi"><div class="v m teal">3%→37%</div><div class="l">Liquid-cooling penetration, '21→'26</div><div class="d">one of the fastest AI ramps</div></div>
+    <div class="kpi"><div class="v m red">leak = down</div><div class="l">Why quick-disconnects gate it</div><div class="d">"the quick-disconnect imperative"</div></div>
+    <div class="kpi"><div class="v m amb">OEM-locked</div><div class="l">Cold-plate / QD compatibility</div><div class="d">varies by vendor → switching friction</div></div>
+    <div class="kpi"><div class="v m grn">2 MW</div><div class="l">CDU capacity (Nidec in-row)</div><div class="d">CDUs scaling to feed denser racks</div></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px">EXPLAIN IT SIMPLY · 白話版</div>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6;max-width:900px">A high-end GPU now runs so hot that a fan can't cool it — you have to run <b style="color:var(--txt)">liquid</b> right onto the chip through a metal <b style="color:var(--txt)">cold plate</b>. That liquid travels through pipes joined by <b style="color:var(--txt)">quick-disconnect couplings</b> (drip-free snap connectors) to a <b style="color:var(--txt)">CDU</b> (the fridge/pump unit), then out to the building's cooling towers. The traffic jam is the plumbing right at the chip: the cold plates and couplings are leak-proof, custom to each server maker, and hard to swap mid-design — so whoever supplies them is sticky. The investor question: own the <b style="color:var(--txt)">component maker</b> (AVC), the <b style="color:var(--txt)">rack-system integrator</b> (nVent), or the <b style="color:var(--txt)">facility power+cooling leader</b> (Vertiv) — and which is still cheap after the run?</p>
+  </div>
+  <div class="panel" style="margin-top:12px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div><div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px">THE LOOP · 分層 (read first)</div>
+        <div style="font-size:12px;color:var(--mut);line-height:1.7"><b>Cold plate</b> metal block on the GPU that liquid flows through · <b>Quick-disconnect (QD)</b> drip-free coupling joining the pipes · <b>Manifold</b> splits coolant to each cold plate · <b>CDU</b> pumps + regulates the loop · <b>Heat rejection</b> dumps heat outside (towers/chillers).</div></div>
+      <div><div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px">6-TERM GLOSSARY · 名詞</div>
+        <div style="font-size:11.5px;color:var(--mut);line-height:1.6"><b>D2C</b> direct-to-chip cooling · <b>CDU</b> coolant distribution unit · <b>QD</b> quick-disconnect coupling · <b>Two-phase</b> coolant that boils to absorb more heat · <b>Immersion</b> servers submerged in dielectric fluid · <b>Dielectric fluid</b> non-conductive coolant.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 SUPPLY CHAIN -->
+<section>
+  <div class="sh"><span class="n">02</span><h2>End-to-end supply chain</h2><span class="cn">上下游全鏈</span></div>
+  <p class="lead">Follow the heat from the GPU outward. The flow constricts hardest at the <b>cold-plate / quick-disconnect interface</b> — the OEM-locked plumbing every chip must touch.</p>
+  <div class="svgwide">
+    <svg viewBox="-12 -2 1124 470" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="aT" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5a6377"/></marker>
+        <marker id="aR" markerWidth="9" markerHeight="9" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e0686a"/></marker>
+      </defs>
+      <text x="22" y="20" class="m" font-size="11" fill="#697283">AT THE CHIP</text>
+      <line x1="120" y1="16" x2="980" y2="16" stroke="#2a3040"/><polygon points="982,16 974,12 974,20" fill="#2a3040"/>
+      <text x="1078" y="20" class="m" font-size="11" fill="#697283" text-anchor="end">TO THE BUILDING / DEMAND</text>
+      <!-- connectors: constriction at C2 (interface) -->
+      <line x1="180" y1="180" x2="200" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR)"/>
+      <line x1="360" y1="180" x2="380" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR)"/>
+      <line x1="540" y1="180" x2="560" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT)"/>
+      <line x1="720" y1="180" x2="740" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT)"/>
+      <line x1="900" y1="180" x2="920" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT)"/>
+
+      <!-- C1 Coolant/materials -->
+      <rect x="20" y="40" width="160" height="200" rx="10" fill="#141822" stroke="#2a3040"/><rect x="20" y="40" width="5" height="200" rx="2" fill="#5b81c4"/>
+      <text x="36" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Coolant / materials</text><text x="36" y="74" class="m" font-size="9" fill="#8aa7df">UPSTREAM</text>
+      <g font-size="9"><rect x="32" y="84" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="97" fill="#fff" font-weight="600">Dielectric fluids</text><text x="40" y="108" fill="#9aa3b5">immersion / two-phase</text>
+      <rect x="32" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="133" fill="#fff" font-weight="600">Copper / tubing</text><text x="40" y="144" fill="#9aa3b5">cold-plate metal</text>
+      <rect x="32" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="169" fill="#fff" font-weight="600">Seals / O-rings</text><text x="40" y="180" fill="#9aa3b5">leak-proof materials</text></g>
+      <text x="36" y="208" font-size="8.5" fill="#697283">dielectric fluid = latent angle</text>
+
+      <!-- C2 Interface CHOKE -->
+      <rect x="200" y="40" width="160" height="200" rx="10" fill="#1c1518" stroke="#5a3236" stroke-width="1.5"/><rect x="200" y="40" width="5" height="200" rx="2" fill="#e0686a"/>
+      <rect x="214" y="26" width="132" height="20" rx="5" fill="#e0686a"/><text x="280" y="40" class="m" font-size="9" fill="#1c1518" font-weight="700" text-anchor="middle">CHOKEPOINT</text>
+      <text x="216" y="62" font-size="12" fill="#e8eaf0" font-weight="600">Cold plate + QD</text><text x="216" y="76" class="m" font-size="9" fill="#eda3a4">THE INTERFACE</text>
+      <g font-size="9"><rect x="212" y="84" width="136" height="30" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="220" y="97" fill="#fff" font-weight="700">Cold plates</text><text x="220" y="108" fill="#eda3a4">AVC · Auras · Boyd · CoolIT</text>
+      <rect x="212" y="120" width="136" height="30" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="220" y="133" fill="#fff" font-weight="700">Quick-disconnects</text><text x="220" y="144" fill="#eda3a4">Staubli · CPC/Dover · Parker</text>
+      <rect x="212" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="220" y="169" fill="#fff" font-weight="600">Manifolds</text><text x="220" y="180" fill="#9aa3b5">nVent · Boyd</text></g>
+      <text x="216" y="208" font-size="8.5" fill="#eda3a4">leak-proof, OEM-locked, sticky</text>
+
+      <!-- C3 CDU 2nd peak -->
+      <rect x="380" y="40" width="160" height="200" rx="10" fill="#1c1518" stroke="#5a3236"/><rect x="380" y="40" width="5" height="200" rx="2" fill="#8b84cf"/>
+      <rect x="394" y="26" width="132" height="20" rx="5" fill="#aaa3e6"/><text x="460" y="40" class="m" font-size="9" fill="#1c1518" font-weight="700" text-anchor="middle">2nd RENT POOL</text>
+      <text x="396" y="62" font-size="12" fill="#e8eaf0" font-weight="600">CDU</text><text x="396" y="76" class="m" font-size="9" fill="#aaa3e6">PUMP / LOOP</text>
+      <g font-size="9"><rect x="392" y="84" width="136" height="30" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="400" y="97" fill="#fff" font-weight="600">Coolant dist. units</text><text x="400" y="108" fill="#bcb3e6">Vertiv · Boyd · Motivair</text>
+      <rect x="392" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="133" fill="#fff" font-weight="600">In-row / in-rack</text><text x="400" y="144" fill="#9aa3b5">Nidec · Delta · Schneider</text>
+      <rect x="392" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="169" fill="#fff" font-weight="600">Pumps / sensors</text><text x="400" y="180" fill="#9aa3b5">leak detection</text></g>
+      <text x="396" y="208" font-size="8.5" fill="#bcb3e6">system value capture</text>
+
+      <!-- C4 Rack integration -->
+      <rect x="560" y="40" width="160" height="200" rx="10" fill="#141822" stroke="#2a3040"/><rect x="560" y="40" width="5" height="200" rx="2" fill="#d2a24a"/>
+      <text x="576" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Rack / loop</text><text x="576" y="74" class="m" font-size="9" fill="#e3bd76">INTEGRATION</text>
+      <g font-size="9"><rect x="572" y="84" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="97" fill="#fff" font-weight="600">Rack manifolds</text><text x="580" y="108" fill="#9aa3b5">nVent · Vertiv</text>
+      <rect x="572" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="133" fill="#fff" font-weight="600">Server / ODM</text><text x="580" y="144" fill="#9aa3b5">Supermicro · Foxconn</text>
+      <rect x="572" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="169" fill="#fff" font-weight="600">Busbar + cooling</text><text x="580" y="180" fill="#9aa3b5">nVent (power+thermal)</text></g>
+      <text x="576" y="208" font-size="8.5" fill="#697283">where power meets cooling</text>
+
+      <!-- C5 Heat rejection -->
+      <rect x="740" y="40" width="160" height="200" rx="10" fill="#141822" stroke="#2a3040"/><rect x="740" y="40" width="5" height="200" rx="2" fill="#4faf8e"/>
+      <text x="756" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Heat rejection</text><text x="756" y="74" class="m" font-size="9" fill="#7cc9ad">FACILITY</text>
+      <g font-size="9"><rect x="752" y="84" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="97" fill="#fff" font-weight="600">Cooling towers</text><text x="760" y="108" fill="#9aa3b5">Vertiv (ThermoKey)</text>
+      <rect x="752" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="133" fill="#fff" font-weight="600">Chillers / dry cool</text><text x="760" y="144" fill="#9aa3b5">Munters · Trane</text>
+      <rect x="752" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="169" fill="#fff" font-weight="600">Heat reuse</text><text x="760" y="180" fill="#9aa3b5">district heating (EU)</text></g>
+      <text x="756" y="208" font-size="8.5" fill="#697283">facility integrator's turf</text>
+
+      <!-- C6 Buyers -->
+      <rect x="920" y="40" width="160" height="200" rx="10" fill="#141822" stroke="#2a3040"/><rect x="920" y="40" width="5" height="200" rx="2" fill="#4faf8e"/>
+      <text x="936" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Buyers / demand</text><text x="936" y="74" class="m" font-size="9" fill="#7cc9ad">DEMAND</text>
+      <g font-size="9"><rect x="932" y="84" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="97" fill="#fff" font-weight="600">Nvidia GB/Rubin</text><text x="940" y="108" fill="#9aa3b5">liquid-mandatory</text>
+      <rect x="932" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="133" fill="#fff" font-weight="600">Hyperscalers</text><text x="940" y="144" fill="#9aa3b5">MSFT · Google · Meta</text>
+      <rect x="932" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="169" fill="#fff" font-weight="600">Neoclouds / colo</text><text x="940" y="180" fill="#9aa3b5">CoreWeave</text></g>
+      <text x="936" y="208" font-size="8.5" fill="#697283">3%→37% adoption</text>
+
+      <!-- rent bars -->
+      <line x1="40" y1="420" x2="1080" y2="420" stroke="#2a3040"/>
+      <text x="40" y="320" font-size="9" fill="#697283">value capture / scarcity premium</text>
+      <g>
+        <rect x="80" y="392" width="40" height="28" rx="2" fill="#2dd4bf" opacity="0.35"/>
+        <rect x="260" y="330" width="40" height="90" rx="2" fill="#e0686a"/>
+        <rect x="440" y="356" width="40" height="64" rx="2" fill="#aaa3e6" opacity="0.75"/>
+        <rect x="620" y="384" width="40" height="36" rx="2" fill="#2dd4bf" opacity="0.5"/>
+        <rect x="800" y="388" width="40" height="32" rx="2" fill="#2dd4bf" opacity="0.45"/>
+        <rect x="980" y="396" width="40" height="24" rx="2" fill="#2dd4bf" opacity="0.3"/>
+      </g>
+      <text x="280" y="322" class="m" font-size="8.5" fill="#eda3a4" text-anchor="middle">rent peaks at the interface</text>
+      <text x="460" y="348" class="m" font-size="8" fill="#aaa3e6" text-anchor="middle">2nd pool: CDU</text>
+      <g class="m" font-size="8.5" fill="#697283" text-anchor="middle"><text x="100" y="436">coolant/mat'l</text><text x="280" y="436">cold plate+QD</text><text x="460" y="436">CDU</text><text x="640" y="436">rack integ.</text><text x="820" y="436">heat reject</text><text x="1000" y="436">buyers</text></g>
+      <text x="550" y="458" font-size="9" fill="#697283" text-anchor="middle">Red = constricted throughput. Rent peaks at the OEM-locked cold-plate/QD interface; the CDU is the secondary system-value pool. The integrators capture breadth, the component makers capture stickiness.</text>
+    </svg>
+  </div>
+</section>
+
+<!-- 03 CHOKEPOINT + SEVERITY -->
+<section>
+  <div class="sh"><span class="n">03</span><h2>The chokepoint &amp; severity</h2><span class="cn">卡點與嚴重度</span></div>
+  <div class="choke">
+    <h3><svg width="20" height="20" viewBox="0 0 24 24"><path d="M12 2 L22 20 H2 Z" fill="none" stroke="#e0686a" stroke-width="2" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="14" stroke="#e0686a" stroke-width="2"/><circle cx="12" cy="17" r="1.2" fill="#e0686a"/></svg> The cold-plate &amp; quick-disconnect interface</h3>
+    <p>Every liquid-cooled GPU touches a cold plate, and every loop is joined by quick-disconnect couplings — components that must be <b>absolutely leak-proof</b> (a drip kills a rack), are <b>qualified per OEM design</b>, and can't be casually second-sourced mid-program. That makes them the sticky, binding link. The honest caveat vs the optics laser: there are <b>several</b> credible cold-plate and QD makers, so concentration is lower — this is a high-growth, sticky chokepoint, not a single-source monopoly. The forced air→liquid transition (you cannot air-cool 1 MW) is what makes demand non-optional.</p>
+    <div class="stats">
+      <div><b class="m">16/20</b><span>severity (supply 3 · lead-time 4 · substitut. 4 · demand 5)</span></div>
+      <div><b class="m">3%→37%</b><span>liquid penetration '21→'26</span></div>
+      <div><b class="m">leak=down</b><span>why QD quality gates it</span></div>
+      <div><b class="m">OEM-locked</b><span>per-design qualification</span></div>
+      <div><b class="m">several</b><span>credible makers (lower concentration)</span></div>
+    </div>
+  </div>
+  <div class="variant"><div class="h">VARIANT PERCEPTION vs CONSENSUS · 變異認知</div><p>Consensus: "AI needs liquid cooling — buy the big integrator (Vertiv)." The disaggregation: the integrator is the <b>broadest but most-priced</b> exposure; the binding, OEM-locked link is the <b>rack-level interface</b> (cold plates + quick-disconnects), where the purest exposure is the <b>Asian cold-plate makers</b> (AVC, Auras) and the under-covered <b>quick-disconnect specialists</b> (Staubli is private; CPC sits inside Dover; Parker). The genuinely-early angle is one rung further: <b>two-phase / immersion cooling and dielectric coolant fluids</b>, which become the story when direct-to-chip hits its thermal ceiling. If we're wrong, it's that cold plates/QDs commoditise faster than volume grows (many suppliers), compressing the component rent into the integrators.</p></div>
+</section>
+
+<!-- 04 AWARENESS -->
+<section>
+  <div class="sh"><span class="n">04</span><h2>Are we early? Awareness curve</h2><span class="cn">現在是早期嗎</span></div>
+  <p class="lead">Liquid cooling is now a consensus AI theme — all three plays have run. But cooling started later than optics/compute (3% penetration in 2021), so there's arguably more runway, and the component name (AVC) has already pulled back from its high.</p>
+  <div class="svgwide" style="margin-bottom:6px">
+    <svg viewBox="0 0 1060 300" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="az" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5fc98a" stop-opacity="0.22"/><stop offset="1" stop-color="#5fc98a" stop-opacity="0"/></linearGradient></defs>
+      <rect x="40" y="40" width="190" height="230" fill="#11141c"/>
+      <rect x="230" y="40" width="200" height="230" fill="url(#az)" stroke="#2c5a40" stroke-dasharray="3 4"/>
+      <rect x="630" y="40" width="200" height="230" fill="#1a1216" opacity="0.5"/>
+      <text x="135" y="32" class="m" font-size="9" fill="#697283" text-anchor="middle">LATENT</text>
+      <text x="330" y="32" class="m" font-size="9" fill="#5fc98a" text-anchor="middle" font-weight="600">EARLY · ALPHA</text>
+      <text x="530" y="32" class="m" font-size="9" fill="#d2a24a" text-anchor="middle">RECOGNITION</text>
+      <text x="730" y="32" class="m" font-size="9" fill="#e0686a" text-anchor="middle">EUPHORIA</text>
+      <text x="930" y="32" class="m" font-size="9" fill="#697283" text-anchor="middle">FULLY PRICED</text>
+      <path d="M40,258 C 260,250 280,205 430,150 C 560,104 640,70 760,62 C 880,56 980,58 1020,58" fill="none" stroke="#4a5570" stroke-width="2.5"/>
+      <text x="48" y="288" font-size="10" fill="#697283">time · market awareness →</text>
+      <!-- NVT recognition (least euphoric) -->
+      <circle cx="500" cy="128" r="7" fill="#5fc98a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="500" y="116" class="m" font-size="11" fill="#7cd6a0" text-anchor="middle" font-weight="700">NVT</text>
+      <text x="500" y="154" class="m" font-size="9" fill="#9aa3b5" text-anchor="middle">+62% YTD</text>
+      <!-- AVC recognition/eu, off high -->
+      <circle cx="640" cy="84" r="7" fill="#d2a24a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="640" y="72" class="m" font-size="11" fill="#e3bd76" text-anchor="middle" font-weight="700">AVC</text>
+      <text x="640" y="110" class="m" font-size="9" fill="#9aa3b5" text-anchor="middle">+59% · off hi</text>
+      <!-- VRT euphoria -->
+      <circle cx="775" cy="64" r="7" fill="#e0686a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="775" y="52" class="m" font-size="11" fill="#eda3a4" text-anchor="middle" font-weight="700">VRT</text>
+      <text x="790" y="80" class="m" font-size="9" fill="#9aa3b5" text-anchor="start">+84% YTD</text>
+      <circle cx="320" cy="195" r="6" fill="none" stroke="#5fc98a" stroke-width="2" stroke-dasharray="2 2"/>
+      <text x="320" y="183" class="m" font-size="9" fill="#7cd6a0" text-anchor="middle">next entry hides here ↙</text>
+      <text x="330" y="262" font-size="9.5" fill="#5fc98a" text-anchor="middle">↑ enter here — the 3 are all right of it</text>
+    </svg>
+  </div>
+  <p class="cap">Horizontal = awareness stage (qualitative). NVT is the least euphoric broad play, AVC the component-chokepoint name (off its high, under-covered by US investors), VRT the premium integrator. The genuinely-early entry sits one rung further out in two-phase/immersion &amp; coolant fluids (latent watchlist).</p>
+
+  <div class="panel" style="margin:14px 0;border-color:#2c5a40;background:rgba(95,201,138,.05)">
+    <h4 style="font-size:13px;margin-bottom:6px;font-weight:600;color:var(--dacr)">Still-latent watchlist — where the NEXT early entry hides <span class="cn" style="font-weight:400;color:var(--dim)">尚未被發現的早期標的</span></h4>
+    <p style="font-size:12px;color:var(--mut);line-height:1.55">The headline cooling names have run. The unpriced links are the components inside the chokepoint and the next-gen cooling methods:</p>
+    <table style="margin-top:8px">
+      <tr><th>Latent candidate (link)</th><th>Why it could be next</th><th>Trigger / tripwire</th><th>Where to track it</th></tr>
+      <tr><td><b>Quick-disconnect specialists</b> — Staubli (private), CPC inside <b>Dover (DOV)</b>, Parker (PH)</td><td>The single most-cited cooling bottleneck; no clean public pure-play → mispriced inside diversified parents</td><td>Dover/Parker thermal-connection segment growth; QD capacity adds</td><td>Dover &amp; Parker segment disclosures; DC-cooling trade press</td></tr>
+      <tr><td><b>Two-phase / immersion cooling</b> — early OEMs, dielectric-fluid makers</td><td>The next ceiling after direct-to-chip; pre-mainstream today</td><td>First large hyperscaler immersion deployment</td><td>Equinix/Schneider/DCD coverage; OEM PRs</td></tr>
+      <tr><td><b>Auras Technology</b> (3324 TW) — cold-plate / thermal #2</td><td>Same cold-plate tailwind as AVC, smaller and less-covered</td><td>Nvidia cold-plate design wins; monthly TW sales</td><td>TWSE monthly revenue; TW tech press</td></tr>
+    </table>
+    <p class="cap" style="margin-top:6px">Watch-only ideas, not recommendations — most latent bets fail. Scan here while the crowd buys the obvious cooling names.</p>
+  </div>
+
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:4px;font-weight:600">Leading indicators</h4>
+      <p style="font-size:11px;color:var(--dim);margin-bottom:10px">Watch these before the print.</p>
+      <table>
+        <tr><th>Signal · trigger</th><th>Where an amateur can actually read it</th></tr>
+        <tr><td><b>Liquid-cooling attach rate</b><br><span class="m" style="font-size:10px;color:var(--dim)">3%→37% · faster = bullish</span></td><td>Dell'Oro / TrendForce cooling reports; OEM commentary</td></tr>
+        <tr><td><b>AVC / Auras monthly sales</b><br><span class="m" style="font-size:10px;color:var(--dim)">TW monthly rev · YoY accel</span></td><td>TWSE monthly revenue filings (published ~10th)</td></tr>
+        <tr><td><b>VRT / NVT backlog &amp; cooling mix</b><br><span class="m" style="font-size:10px;color:var(--dim)">backlog growth · liquid mix ↑</span></td><td>VRT &amp; NVT quarterly results + segment splits</td></tr>
+        <tr><td><b>Nvidia liquid-cooling spec</b><br><span class="m" style="font-size:10px;color:var(--dim)">GB/Rubin = liquid-mandatory</span></td><td>Nvidia GTC / reference designs; ODM PRs</td></tr>
+        <tr><td><b>Hyperscaler capex</b><br><span class="m" style="font-size:10px;color:var(--dim)">rising · a cut = exit</span></td><td>MSFT/GOOG/META/AMZN 10-Q capex line</td></tr>
+      </table>
+      <p style="font-size:10px;color:var(--dim);margin-top:8px">All readable from free public sources weeks before reported revenue. Thresholds illustrative — calibrate to your own risk.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Who captures the rent?</h4>
+      <p style="font-size:12.5px;color:var(--mut);line-height:1.55">Margins settle it. <b style="color:var(--txt)">AVC</b> holds the sticky component (cold plate) with direct GPU exposure — high growth, but several rivals cap pricing power and it's a TW small-cap (governance/liquidity risk). <b style="color:var(--txt)">NVT</b> bundles cooling with electrical busbar — broad, US-listed, less euphoric. <b style="color:var(--txt)">VRT</b> is the premium integrator vertically buying cold-plate (Strategic Thermal Labs) and heat-rejection (ThermoKey) — widest moat, fullest price. <b style="color:var(--txt)">Conclusion:</b> the stickiest link (interface) and the broadest moat (integrator) sit in different names; the integrators are buying their way into the component rent.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 05 TOP-3 TABS -->
+<section>
+  <div class="sh"><span class="n">05</span><h2>Top-3 plays</h2><span class="cn">三大標的 · 分頁</span></div>
+  <p class="lead">Three different links — cold-plate component, rack-system + busbar, facility integrator — ordered by remaining asymmetry per unit of risk.</p>
+  <div role="tablist" aria-label="Top 3 plays" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:-1px">
+    <button class="tabbtn" role="tab" aria-selected="true" aria-controls="t1" id="b1" tabindex="0" onclick="showTab('t1',this)">① Asia Vital · AVC<small>cold plate · purest chokepoint</small></button>
+    <button class="tabbtn" role="tab" aria-selected="false" aria-controls="t2" id="b2" tabindex="-1" onclick="showTab('t2',this)">② nVent · NVT<small>rack + busbar · accessible</small></button>
+    <button class="tabbtn" role="tab" aria-selected="false" aria-controls="t3" id="b3" tabindex="-1" onclick="showTab('t3',this)">③ Vertiv · VRT<small>integrator · premium</small></button>
+  </div>
+
+  <div class="tabpane" id="t1" role="tabpanel" aria-labelledby="b1" style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap"><h3 style="font-size:18px;font-weight:600">Asia Vital Components <span style="color:var(--dim);font-weight:400">TWSE: 3017</span></h3><span class="stagebadge sg-recog">RECOG · purest chokepoint, highest risk/reward</span></div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">A Taiwanese thermal-module maker supplying <b>cold plates</b> and liquid-cooling components direct into Nvidia GPU programs — the purest exposure to the rack-level interface chokepoint. Most asymmetric of the three (component-level, under-covered by US investors, already pulled back ~20% from its high) — but also the highest-risk: TW small-cap, FX, governance/liquidity, and several rivals.</p>
+    <div class="mini">
+      <div><div class="v m">NT$2,405</div><div class="l">Last (TWD)</div></div>
+      <div><div class="v m grn">+59%</div><div class="l">YTD</div></div>
+      <div><div class="v m">52wk</div><div class="l">713–3010</div></div>
+      <div><div class="v m red">−20%</div><div class="l">off 52wk high</div></div>
+      <div><div class="v m grn">cold plate</div><div class="l">direct Nvidia exposure</div></div>
+    </div>
+    <div class="variant"><div class="h">ASYMMETRIC INFO GAP</div><p>US investors mostly play cooling through Vertiv; the component maker that actually ships the cold plate is under-followed offshore and has already de-rated from its peak. If liquid attach keeps compounding and AVC holds GPU design slots, the component name has the steepest revenue leverage. The gap cuts both ways: TW small-cap volatility and rivals (Auras, Boyd, CoolIT) mean position-sizing and stops matter more than the thesis.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢</div><p>Designs/makes thermal modules — fans, heat sinks, vapor chambers, and now <b>cold plates / liquid-cooling</b> parts; per-unit hardware sales.</p></div>
+      <div class="mtc"><div class="h">② 營收結構</div><p>Server/datacenter thermal the fast-growing slice; plus PC/notebook/consumer thermal.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源</div><p>Liquid-cooling attach (3%→37%), cold-plate content per GPU, Nvidia program ramps.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場</div><p>AI servers (lead), plus PC/consumer electronics.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶</div><p>Nvidia ecosystem / server ODMs; concentration in AI server thermal.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河</div><p>Design-in qualification + scale in thermal; but cold plates have several capable rivals.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望</div><p>Track via TWSE monthly revenue (AI thermal driving YoY growth).</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點</div><p>The cold plate is the leak-proof, OEM-qualified part the GPU literally sits on — sticky, but not single-source.</p></div>
+    </div>
+    <div class="bbr"><div class="bl"><b style="color:var(--dacr)">BULL</b>Liquid attach compounds; AVC holds GPU cold-plate slots; steepest revenue leverage of the three.</div><div class="be"><b style="color:var(--choke)">BEAR</b>Cold plates commoditise; rivals win slots; TW small-cap volatility + FX + governance discount.</div></div>
+  </div>
+
+  <div class="tabpane" id="t2" role="tabpanel" aria-labelledby="b2" hidden style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap"><h3 style="font-size:18px;font-weight:600">nVent Electric <span style="color:var(--dim);font-weight:400">NYSE: NVT</span></h3><span class="stagebadge sg-recog">RECOGNITION · accessible relative value</span></div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">A US-listed electrical-connection &amp; protection company that has pushed into <b>data-center liquid cooling</b> (manifolds, rack systems) alongside its power busbar — the rare name sitting at the seam where <b>power meets cooling</b>. The least euphoric of the three (+62%), a more accessible, lower-volatility way to own the theme than a TW small-cap or a premium integrator.</p>
+    <div class="mini">
+      <div><div class="v m">$164.52</div><div class="l">Last</div></div>
+      <div><div class="v m grn">+62%</div><div class="l">YTD</div></div>
+      <div><div class="v m">52wk</div><div class="l">$68–177</div></div>
+      <div><div class="v m">power+cool</div><div class="l">busbar + liquid</div></div>
+      <div><div class="v m grn">US mid-cap</div><div class="l">accessible / liquid</div></div>
+    </div>
+    <div class="variant"><div class="h">ASYMMETRIC INFO GAP</div><p>The market still values NVT partly as a legacy electrical-products company; the variant is that its <b>data-center power+cooling</b> mix (busbar + liquid manifolds) is becoming the growth engine, which could re-rate it toward the pure-play cooling multiples — without the TW small-cap risk of AVC or the full price of VRT. Risk: cooling stays a minority of revenue and the legacy base caps the re-rating.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢</div><p>Sells electrical connection/protection + data-center power (busbar) and liquid-cooling systems.</p></div>
+      <div class="mtc"><div class="h">② 營收結構</div><p>Enclosures, electrical &amp; fastening, and the growing data-center solutions segment.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源</div><p>Liquid cooling, busbar content per rack, datacenter mix shift, M&amp;A.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場</div><p>Datacenters (growth), industrial, infrastructure, energy.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶</div><p>Hyperscalers, ODMs, industrial OEMs; broad base.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河</div><p>Breadth across power+cooling connection; install base; US scale.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望</div><p>Datacenter solutions guided as the growth driver; verify cooling mix on the call.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點</div><p>Sits at the power-meets-cooling seam (manifolds + busbar) — real, but more substitutable than the cold plate.</p></div>
+    </div>
+    <div class="bbr"><div class="bl"><b style="color:var(--dacr)">BULL</b>Cooling+power mix re-rates NVT toward pure-play multiples; accessible, lower-vol way to own the theme.</div><div class="be"><b style="color:var(--choke)">BEAR</b>Cooling stays minority of revenue; legacy base dilutes the AI signal; +62% already prices some of it.</div></div>
+  </div>
+
+  <div class="tabpane" id="t3" role="tabpanel" aria-labelledby="b3" hidden style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap"><h3 style="font-size:18px;font-weight:600">Vertiv <span style="color:var(--dim);font-weight:400">NYSE: VRT</span></h3><span class="stagebadge sg-eu">EUPHORIA · premium integrator, fullest price</span></div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The premium AI infrastructure integrator — the only large player covering <b>both</b> power and cooling — now vertically integrating the chokepoint by buying cold-plate (Strategic Thermal Labs) and heat-rejection (ThermoKey) specialists. Widest moat, deepest reference-design lock-in, but +84% YTD and the most fully priced. (Also profiled in Run #3 — Power.)</p>
+    <div class="mini">
+      <div><div class="v m">$297.88</div><div class="l">Last</div></div>
+      <div><div class="v m red">+84%</div><div class="l">YTD</div></div>
+      <div><div class="v m">52wk</div><div class="l">$110–380</div></div>
+      <div><div class="v m">$15B</div><div class="l">backlog (+109%)</div></div>
+      <div><div class="v m grn">power+cool</div><div class="l">only large dual play</div></div>
+    </div>
+    <div class="variant"><div class="h">ASYMMETRIC INFO GAP</div><p>Mostly priced — it's the consensus AI-infra long. The residual variant is <b>vertical integration</b>: by absorbing cold-plate and heat-rejection makers, VRT could capture the component rent (not just the system value), lifting margins. The offset is valuation — at +84% and a premium multiple, the bar is high and an AI-capex wobble hits it hard. Lowest risk-adjusted asymmetry of the three.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢</div><p>Designs/builds datacenter power + thermal hardware + services; project + product + service.</p></div>
+      <div class="mtc"><div class="h">② 營收結構</div><p>Power management, thermal management, services; AI datacenter the driver.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源</div><p>Liquid cooling, 800VDC, content-per-rack, vertical integration (cold plate + heat rejection), $15B backlog.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場</div><p>Hyperscalers, colos, enterprise.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶</div><p>Hyperscalers + colos; Nvidia reference designs.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河</div><p>Only large player spanning power <i>and</i> cooling; install base + service + reference lock-in.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望</div><p>$15B backlog +109%; orders +252% YoY; M&amp;A into cold-plate / heat-rejection.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點</div><p>Facility power+cooling integration is a real bottleneck — broadest, but more substitutable than the cold plate.</p></div>
+    </div>
+    <div class="bbr"><div class="bl"><b style="color:var(--dacr)">BULL</b>Vertical integration captures component rent; power+cooling bundle compounds; widest moat.</div><div class="be"><b style="color:var(--choke)">BEAR</b>+84% prices the backlog; premium multiple de-rates on any AI-capex wobble; integration risk.</div></div>
+  </div>
+  <p class="cap" style="margin-top:12px">*Multiples/financials are estimates from live IBKR quotes + reported run-rate; AVC price in TWD. Auras (3324 TW), Boyd &amp; CoolIT (private), and Schneider/Motivair are co-plays not detailed here.</p>
+</section>
+
+<!-- 06 DECISION -->
+<section>
+  <div class="sh"><span class="n">06</span><h2>The decision — one table</h2><span class="cn">投資決策總表</span></div>
+  <div style="overflow-x:auto">
+  <table style="min-width:900px">
+    <tr><th>#</th><th>Ticker</th><th>Chokepoint link</th><th>Severity</th><th>Stage</th><th>Valuation</th><th>Asymmetry</th><th>Framework lean</th><th>Key trigger</th></tr>
+    <tr><td class="m">1</td><td><b>AVC</b> · 3017 TW</td><td><span class="lyr lyp">COMPONENT</span> cold plate / interface</td><td class="m">15/20<br><span style="font-size:9px;color:var(--dim)">interface link 16</span></td><td><span class="stagebadge sg-recog">RECOG</span></td><td class="m">+59% · off hi</td><td class="grn">Highest (highest risk)</td><td><b>Purest exposure, size small</b></td><td>TW monthly sales; Nvidia design slots</td></tr>
+    <tr><td class="m">2</td><td><b>NVT</b></td><td><span class="lyr ly2">RACK</span> manifolds + busbar</td><td class="m">14/20</td><td><span class="stagebadge sg-recog">RECOG</span></td><td class="m">+62%</td><td class="amb">Moderate (accessible)</td><td><b>Accessible relative value</b></td><td>Datacenter-segment growth; cooling mix</td></tr>
+    <tr><td class="m">3</td><td><b>VRT</b></td><td><span class="lyr ly1">FACILITY</span> CDU + integration</td><td class="m">15/20</td><td><span class="stagebadge sg-eu">EUPHORIA</span></td><td class="m">+84% · backlog $15B</td><td class="red">Low (priced)</td><td><b>Premium quality, fullest price</b></td><td>Backlog conversion; integration margin</td></tr>
+  </table>
+  </div>
+  <p class="cap"><b>How each severity is derived</b> (0–20, four factors each 0–5: supply concentration · lead-time · low substitutability · demand): <b>AVC cold plate = 15</b> (3+4+3+5 — sticky &amp; GPU-qualified but several makers). <b>VRT facility = 15</b> (3+4+3+5 — broad integration, more substitutable). <b>NVT rack = 14</b> (3+3+3+5 — manifolds/busbar, more vendors). The headline interface (cold plate + quick-disconnect) scores <b>16</b> as a link because the QD layer is tighter than any one component maker. Tightness ≠ a good buy. <b>If you can only do one thing:</b> purest chokepoint (high risk) → <b>AVC</b>, sized small; accessible relative value → <b>NVT</b>; premium quality → <b>VRT</b>; genuine early asymmetry → the <b>quick-disconnect / immersion / coolant-fluid</b> watchlist.</p>
+</section>
+
+<!-- 07 RISKS -->
+<section>
+  <div class="sh"><span class="n">07</span><h2>Open questions &amp; risks</h2><span class="cn">未解與風險</span></div>
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">Honest open questions (self-critique)</h4>
+      <p style="font-size:12px;color:var(--mut);line-height:1.6">AVC financials here are price-only (TWD) — we did <b>not</b> pull its revenue/margin/valuation multiple; verify before any sizing (a TW small-cap needs extra diligence on liquidity, FX and governance). The "interface is the chokepoint" call is real but concentration is lower than optics/compute — cold plates and QDs have multiple credible makers, so the component rent could compress into the integrators. The quick-disconnect chokepoint has <b>no clean public pure-play</b>, so the purest bottleneck is only investable indirectly (Dover/Parker) — a genuine limitation of this layer.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">Risk register</h4>
+      <table>
+        <tr><td><b>Commoditisation</b></td><td>Many cold-plate/QD makers → component rent compresses</td></tr>
+        <tr><td><b>TW small-cap risk (AVC)</b></td><td>Liquidity, FX, governance, single-customer concentration</td></tr>
+        <tr><td><b>Tech shift</b></td><td>Immersion/two-phase could leapfrog direct-to-chip plumbing</td></tr>
+        <tr><td><b>AI-capex air-pocket</b></td><td>Hits highest-beta (VRT/AVC) hardest</td></tr>
+        <tr><td><b>Integrators in-source</b></td><td>VRT buying cold-plate makers caps component pricing</td></tr>
+        <tr><td><b>Valuation</b></td><td>All three have re-rated; VRT the fullest</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><span class="n">08</span><h2>Framework — use cases × layers &amp; 3-year roadmap</h2><span class="cn">框架與路線圖</span></div>
+  <p class="lead">Three cooling architectures, each leaning on the chain differently. Two axes: the cooling method (rows) × the layer (columns). Direct-to-chip dominates now and is where the cold-plate/QD interface binds hardest.</p>
+  <table style="margin-bottom:18px">
+    <tr><th>Use case ↓ / layer →</th><th>What it stresses</th><th>Binding chokepoint</th><th>Who wins</th></tr>
+    <tr><td><b>Direct-to-chip (D2C)</b></td><td>Cold plate + quick-disconnect per GPU</td><td><span class="lyr lyp">INTERFACE</span> cold-plate / QD</td><td>AVC · Auras · Vertiv</td></tr>
+    <tr><td><b>Rear-door / hybrid</b></td><td>Retrofit air-to-liquid heat exchange</td><td><span class="lyr ly1">CDU</span> CDU + coils</td><td>Vertiv · nVent</td></tr>
+    <tr><td><b>Immersion / two-phase</b></td><td>Tanks + dielectric fluid (next ceiling)</td><td><span class="lyr lyu">FLUID</span> dielectric fluids (latent)</td><td>early OEMs · fluid makers</td></tr>
+  </table>
+  <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">3-year evolution timeline</h4>
+  <div style="overflow-x:auto"><table style="min-width:760px">
+    <tr><th>Sub-layer ↓ / year →</th><th>2025</th><th>2026</th><th>2027</th><th>2028</th></tr>
+    <tr><td><b>Cold plate / QD</b></td><td>D2C pilots</td><td style="background:rgba(224,104,106,.08)">D2C mainstream (~37% penetration)</td><td>higher flow / 224-class density</td><td>standardised QDs</td></tr>
+    <tr><td><b>CDU</b></td><td>in-row CDUs</td><td>2 MW CDUs (Nidec)</td><td>higher-capacity loops</td><td>rack-integrated</td></tr>
+    <tr><td><b>Immersion / two-phase</b></td><td>niche</td><td>early hyperscaler trials</td><td style="background:rgba(224,104,106,.08)">scale-up as D2C tops out</td><td>mainstream for highest density</td></tr>
+  </table></div>
+  <p class="cap">Reading down a column = what's live that year; across a row = one sub-layer's arc. Stressed/catalyst cells tinted.</p>
+</section>
+
+<div class="disc"><b>Not investment advice.</b> Personal research for a private knowledge base; not a recommendation or solicitation. Figures from public reporting and live IBKR quotes as of 13 Jun 2026 (AVC in TWD); multiples marked est. or omitted; approximations may be wrong or stale. IBKR read-only — no trades. Do your own due diligence.</div>
+
+<footer>
+  <p><b>Sources:</b> Schneider Electric blog &amp; DCD (direct-to-chip liquid cooling) · DataCenterKnowledge ("the quick-disconnect imperative") · Equinix blog (D2C anatomy) · Gottog Power (cold plate vs immersion; 3%→37% penetration) · Nidec (2MW in-row CDU) · SEC 8-K FY2026 (Vertiv — Strategic Thermal Labs &amp; ThermoKey acquisitions, $15B backlog) · IBKR live quotes (VRT, NVT, AVC 3017). Live quotes: IBKR (read-only).</p>
+  <p style="margin-top:10px">Automated AI-Infra workflow · Run #4 v5 · built to the optics-v5 gold standard · Next: Networking silicon.</p>
+</footer>
+</div>
+<script>
+function showTab(id,btn){
+  document.querySelectorAll('.tabpane').forEach(function(p){p.hidden=true;p.style.display='none';});
+  var el=document.getElementById(id); if(el){el.hidden=false;el.style.display='block';}
+  document.querySelectorAll('.tabbtn').forEach(function(b){b.setAttribute('aria-selected','false');b.tabIndex=-1;});
+  if(btn){btn.setAttribute('aria-selected','true');btn.tabIndex=0;btn.focus();}
+}
+document.querySelectorAll('[role=tablist]').forEach(function(tl){
+  tl.addEventListener('keydown',function(e){
+    var tabs=[].slice.call(tl.querySelectorAll('.tabbtn'));
+    var i=tabs.indexOf(document.activeElement);
+    if(e.key==='ArrowRight'){e.preventDefault();var n=tabs[(i+1)%tabs.length];showTab(n.getAttribute('aria-controls'),n);}
+    if(e.key==='ArrowLeft'){e.preventDefault();var p=tabs[(i-1+tabs.length)%tabs.length];showTab(p.getAttribute('aria-controls'),p);}
+  });
+});
+</script>
+<div style="background:#0e1117;border-top:1px solid #2a3040;padding:16px 22px;font-family:'Space Grotesk',-apple-system,sans-serif;font-size:11.5px;color:#697283;display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+  <a href="index.html" style="color:#2dd4bf;text-decoration:none;font-weight:600">&larr; All reports</a>
+  <span>AI-Infra Deep-Dive · chokepoint research · personal research, not investment advice.</span>
+</div>
+
+</body>
+</html>

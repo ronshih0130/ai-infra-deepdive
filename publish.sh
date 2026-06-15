@@ -25,10 +25,11 @@ sync_slug() {
 }
 
 # --- sync the AI-infra chokepoint layers (latest v5 per page) ---
-# Optics keeps TWO curated pages: the base CPO/EML report and the deeper InP-epitaxy report.
-sync_slug "$VAULT/AI-Infra_Optics_CPO*_v5_*.html"      optics.html
-sync_slug "$VAULT/AI-Infra_Optics_*Epitaxy*_v5_*.html" optics-epitaxy.html
-sync_slug "$VAULT/AI-Infra_ComputeFabric_*_v5_*.html"     compute-fabric.html
+# Optics & Compute fabric each keep TWO curated pages: a base report + a deeper-run report.
+sync_slug "$VAULT/AI-Infra_Optics_CPO*_v5_*.html"             optics.html
+sync_slug "$VAULT/AI-Infra_Optics_*Epitaxy*_v5_*.html"        optics-epitaxy.html
+sync_slug "$VAULT/AI-Infra_ComputeFabric_CoWoS*_v5_*.html"    compute-fabric.html
+sync_slug "$VAULT/AI-Infra_ComputeFabric_*HybridBonding*_v5_*.html" compute-fabric-hybrid.html
 sync_slug "$VAULT/AI-Infra_PowerDelivery_*_v5_*.html"     power.html
 sync_slug "$VAULT/AI-Infra_Cooling_*_v5_*.html"           cooling.html
 sync_slug "$VAULT/AI-Infra_NetworkingSilicon_*_v5_*.html" networking.html

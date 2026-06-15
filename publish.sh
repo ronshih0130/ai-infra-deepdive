@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-# Sync the latest v5 AI-Infra reports from the Obsidian vault into this site folder
-# and publish to GitHub Pages. Run from an environment authenticated to GitHub
-# (e.g. your terminal where `gh`/`git` is logged in).
+# Sync the latest v5 AI-Infra reports + weekly Macro-Flow Monitor from the Obsidian
+# vault into this site folder and publish to GitHub Pages.
+#
+# Safe to run unattended (from the scheduled tasks) on a machine where git/gh is
+# authenticated: it rebases onto origin before pushing, so a diverged remote
+# (e.g. a report pushed from another environment) self-heals instead of failing.
 #
 #   ./publish.sh
 #
@@ -10,31 +13,48 @@ cd "$(cd "$(dirname "$0")" && pwd)"
 
 VAULT="$HOME/Documents/My Obsidian/04 Reports"
 
-# layer-file prefix -> clean site slug
-map_layer() {
-  case "$1" in
-    Optics)            echo optics.html ;;
-    ComputeFabric)     echo compute-fabric.html ;;
-    PowerDelivery)     echo power.html ;;
-    Cooling)           echo cooling.html ;;
-    NetworkingSilicon) echo networking.html ;;
-    Substrates)        echo substrates.html ;;
-  esac
-}
-
-for key in Optics ComputeFabric PowerDelivery Cooling NetworkingSilicon Substrates; do
-  latest=$(ls -t "$VAULT"/AI-Infra_${key}_*_v5_*.html 2>/dev/null | head -1 || true)
-  slug=$(map_layer "$key")
-  if [ -n "${latest:-}" ] && [ -n "$slug" ]; then
+# copy the newest file matching a glob -> a slug (no-op if no match)
+sync_slug() {
+  local glob="$1" slug="$2"
+  local latest
+  latest=$(ls -t $glob 2>/dev/null | head -1 || true)
+  if [ -n "${latest:-}" ]; then
     cp "$latest" "$slug"
     echo "synced $(basename "$latest") -> $slug"
   fi
-done
+}
 
+# --- sync the AI-infra chokepoint layers (latest v5 per page) ---
+# Optics keeps TWO curated pages: the base CPO/EML report and the deeper InP-epitaxy report.
+sync_slug "$VAULT/AI-Infra_Optics_CPO*_v5_*.html"      optics.html
+sync_slug "$VAULT/AI-Infra_Optics_*Epitaxy*_v5_*.html" optics-epitaxy.html
+sync_slug "$VAULT/AI-Infra_ComputeFabric_*_v5_*.html"     compute-fabric.html
+sync_slug "$VAULT/AI-Infra_PowerDelivery_*_v5_*.html"     power.html
+sync_slug "$VAULT/AI-Infra_Cooling_*_v5_*.html"           cooling.html
+sync_slug "$VAULT/AI-Infra_NetworkingSilicon_*_v5_*.html" networking.html
+sync_slug "$VAULT/AI-Infra_Substrates_*_v5_*.html"        substrates.html
+
+# --- sync the latest weekly Macro-Flow Monitor ---
+sync_slug "$VAULT/Macro-Flow-Monitor_*.html" macro.html
+
+# --- commit ---
 git add -A
 if git diff --cached --quiet; then
-  echo "No changes to publish."
+  echo "No content changes to publish."
 else
-  git commit -m "Update AI-Infra reports ($(date +%F))"
-  git push && echo "Published -> https://ronshih0130.github.io/ai-infra-deepdive/"
+  git commit -m "Update AI-Infra + Macro reports ($(date +%F))"
+fi
+
+# --- reconcile with origin, then push (so a diverged remote doesn't block us) ---
+git fetch -q origin
+if ! git rebase origin/main; then
+  echo "ERROR: rebase hit a conflict — aborting, leaving the repo untouched for manual review." >&2
+  git rebase --abort || true
+  exit 1
+fi
+
+if git diff --quiet origin/main..HEAD; then
+  echo "Already up to date with origin; nothing to push."
+else
+  git push origin main && echo "Published -> https://ronshih0130.github.io/ai-infra-deepdive/"
 fi

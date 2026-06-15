@@ -13,11 +13,13 @@ cd "$(cd "$(dirname "$0")" && pwd)"
 
 VAULT="$HOME/Documents/My Obsidian/04 Reports"
 
-# copy the newest file matching a glob -> a slug (no-op if no match)
+# copy the newest vault file matching a FILENAME glob -> a slug (no-op if no match).
+# $1 is a filename pattern only (no directory); $VAULT is prepended quoted so the
+# space in the vault path is preserved while the wildcard still expands.
 sync_slug() {
-  local glob="$1" slug="$2"
+  local pat="$1" slug="$2"
   local latest
-  latest=$(ls -t $glob 2>/dev/null | head -1 || true)
+  latest=$(ls -t "$VAULT"/$pat 2>/dev/null | head -1 || true)
   if [ -n "${latest:-}" ]; then
     cp "$latest" "$slug"
     echo "synced $(basename "$latest") -> $slug"
@@ -26,17 +28,17 @@ sync_slug() {
 
 # --- sync the AI-infra chokepoint layers (latest v5 per page) ---
 # Optics & Compute fabric each keep TWO curated pages: a base report + a deeper-run report.
-sync_slug "$VAULT/AI-Infra_Optics_CPO*_v5_*.html"             optics.html
-sync_slug "$VAULT/AI-Infra_Optics_*Epitaxy*_v5_*.html"        optics-epitaxy.html
-sync_slug "$VAULT/AI-Infra_ComputeFabric_CoWoS*_v5_*.html"    compute-fabric.html
-sync_slug "$VAULT/AI-Infra_ComputeFabric_*HybridBonding*_v5_*.html" compute-fabric-hybrid.html
-sync_slug "$VAULT/AI-Infra_PowerDelivery_*_v5_*.html"     power.html
-sync_slug "$VAULT/AI-Infra_Cooling_*_v5_*.html"           cooling.html
-sync_slug "$VAULT/AI-Infra_NetworkingSilicon_*_v5_*.html" networking.html
-sync_slug "$VAULT/AI-Infra_Substrates_*_v5_*.html"        substrates.html
+sync_slug 'AI-Infra_Optics_CPO*_v5_*.html'                   optics.html
+sync_slug 'AI-Infra_Optics_*Epitaxy*_v5_*.html'              optics-epitaxy.html
+sync_slug 'AI-Infra_ComputeFabric_CoWoS*_v5_*.html'          compute-fabric.html
+sync_slug 'AI-Infra_ComputeFabric_*HybridBonding*_v5_*.html' compute-fabric-hybrid.html
+sync_slug 'AI-Infra_PowerDelivery_*_v5_*.html'               power.html
+sync_slug 'AI-Infra_Cooling_*_v5_*.html'                     cooling.html
+sync_slug 'AI-Infra_NetworkingSilicon_*_v5_*.html'           networking.html
+sync_slug 'AI-Infra_Substrates_*_v5_*.html'                  substrates.html
 
 # --- sync the latest weekly Macro-Flow Monitor ---
-sync_slug "$VAULT/Macro-Flow-Monitor_*.html" macro.html
+sync_slug 'Macro-Flow-Monitor_*.html' macro.html
 
 # --- commit ---
 git add -A

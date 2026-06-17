@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AIXTRON SE — Reverse-Model / Expectations-Investing Memo (v3) · as-of 2026-06-16</title>
+<style>
+  :root{
+    --bg:#0e1116;--panel:#161b22;--panel2:#1c232c;--line:#2a323d;--line2:#3a444f;
+    --ink:#e6edf3;--muted:#9aa7b4;--faint:#8692a0;
+    --accent:#e0a23b;--accent2:#3fb6a8;--pos:#46b87f;--neg:#df6258;--warn:#dca24a;--violet:#9a8cd6;
+    --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55}
+  .wrap{max-width:1120px;margin:0 auto;padding:34px 26px 80px}
+  h1{font-size:27px;letter-spacing:-.02em;margin:0 0 4px}
+  h2{font-size:16px;letter-spacing:.01em;margin:38px 0 6px;padding-top:14px;border-top:1px solid var(--line)}
+  h2 .n{font-family:var(--mono);color:var(--accent2);font-size:13px;margin-right:8px}
+  h3{font-size:13px;letter-spacing:.02em;margin:16px 0 4px;color:var(--ink)}
+  .sub{color:var(--muted);max-width:90ch}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .mono{font-family:var(--mono)}
+  .teal{color:var(--accent2)} .red{color:var(--neg)} .amber{color:var(--accent)} .pos{color:var(--pos)} .mut{color:var(--muted)} .violet{color:var(--violet)}
+  .card{background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  @media(max-width:820px){.grid2,.grid3{grid-template-columns:1fr}}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint)}
+  td.num,th.num{text-align:right;font-family:var(--mono)}
+  .pill{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:999px;border:1px solid var(--line2);white-space:nowrap;display:inline-block}
+  .pill.edge{color:var(--accent2);border-color:#2f5e57} .pill.no{color:var(--neg);border-color:#5e3331} .pill.ctx{color:var(--faint)} .pill.warn{color:var(--accent);border-color:#5e4f2f} .pill.yel{color:var(--warn);border-color:#5e4f2f}
+  svg{display:block;width:100%;height:auto}
+  svg text{font-family:var(--sans);fill:var(--ink);font-size:12px}
+  svg text.m{font-family:var(--mono)}
+  svg text.lbl{fill:var(--muted);font-size:11px}
+  svg text.fa{fill:var(--faint);font-size:10px}
+  .legend{color:var(--faint);font-size:12px;margin-top:18px}
+  .kicker{color:var(--muted);font-size:13px;margin:2px 0 0}
+  b.h{color:var(--ink)}
+  ul{margin:6px 0 0;padding-left:18px} li{margin:3px 0;color:var(--muted)}
+  code{font-family:var(--mono);font-size:12px;background:var(--panel2);padding:1px 5px;border-radius:4px;color:var(--ink)}
+  .tag{font-family:var(--mono);font-size:10px;color:var(--faint)}
+  .callbox{background:linear-gradient(180deg,#1a2230,#161b22);border:1px solid #5e3331;border-radius:14px;padding:20px 22px;margin-top:16px}
+  .verdict{font-family:var(--mono);font-size:22px;letter-spacing:.02em;color:var(--neg)}
+  .statrow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+  @media(max-width:820px){.statrow{grid-template-columns:1fr 1fr}}
+  .stat{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+  .stat .k{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+  .stat .v{font-family:var(--mono);font-size:19px;margin-top:3px}
+  .src{font-family:var(--mono);font-size:10px;color:var(--faint)}
+  a{color:var(--accent2);text-decoration:none} a:hover{text-decoration:underline}
+  .blogflag{color:var(--accent);font-family:var(--mono);font-size:10px}
+  .keybox{background:linear-gradient(180deg,#13302c,#141b22);border:1px solid #2f5e57;border-radius:12px;padding:16px 18px;margin-top:14px}
+  hr{border:0;border-top:1px solid var(--line);margin:24px 0}
+  @media print{
+    body{background:#fff;color:#111}
+    .wrap{max-width:100%}
+    .card,.callbox,.stat,.keybox,table,svg{break-inside:avoid}
+    svg text{fill:#111}
+    a{color:#111}
+  }
+</style>
+</head>
+<body><div class="wrap">
+
+  <div class="eyebrow">Investment Research · Reverse-Model / Expectations-Investing memo (v3) · Engine C lens · position-grade</div>
+  <h1>AIXTRON SE <span class="mono mut" style="font-size:18px">(AIXA.DE · AIXXY)</span> — what does €56 already assume?</h1>
+  <p class="kicker mono">As-of 2026-06-16 · spot €56.22 (16-Jun close; €58.64 intraday 15-Jun) · ~112.8M sh (pre-convert; ~121.6M if-converted) · basic mkt cap ~€6.34B (112.8M × €56.22); if-converted equity value ~€6.8B (~121.6M) · net cash ~€273M · EV ~€6.07B · personal research, NOT investment advice · IBKR READ-ONLY</p>
+
+  <!-- ===================== DECISION CALLBOX ===================== -->
+  <div class="callbox">
+    <div class="eyebrow" style="color:var(--neg)">PM call · up front</div>
+    <div class="verdict">AVOID / NO-CHASE @ €56 — WATCHLIST, buy-below ~€35–40</div>
+    <p class="kicker" style="margin-top:8px;max-width:96ch"><b class="h">One line:</b> a genuine, correctly-recognized InP-MOCVD monopoly priced at a cyclical peak — the stock has run ~5× off its low to <span class="teal mono">~17–24% ABOVE the Street's own consensus target</span>, on ~74× trailing FY25 EPS, in a <span class="amber">flat-revenue year</span>. <b class="h amber">The real debate is NOT 2028 revenue — bulls and bears agree on ~€700–950M.</b> It is whether a <span class="red">proven violent cyclical</span> keeps a ~35× compounder multiple <i>forever</i>. At €56 you are paying "yes, forever"; a normal-WACC DCF of the bull revenue path is worth only <span class="teal mono">~€20–30</span>. Great business, wrong price. Not a short either — monopoly + order momentum can squeeze.</p>
+    <div class="statrow">
+      <div class="stat"><div class="k">Spot vs Street target</div><div class="v"><span class="red">€56.2 / €42.7–46.8</span></div><div class="src">+17% to +24% above consensus</div></div>
+      <div class="stat"><div class="k">Prob-weighted EV (est.)</div><div class="v"><span class="red">~€44.9</span></div><div class="src">−20% vs €56 spot → neg. expected return</div></div>
+      <div class="stat"><div class="k">Up / down asymmetry</div><div class="v"><span class="red">~0.6×</span></div><div class="src">+28% bull-mid / +42% bull-high vs −47% bear</div></div>
+      <div class="stat"><div class="k">Buy-below (re-engage)</div><div class="v"><span class="teal">~€35–40</span></div><div class="src">fair-value / bear zone (mwb DCF €29.9; base €42–47)</div></div>
+    </div>
+    <p class="kicker" style="margin-top:12px"><b class="h">白話版 (explain it simply):</b> AIXTRON makes the one machine almost nobody else can build for growing the laser chips that AI data-centre optics need — a real near-monopoly. But the share price has already 5×'d and now prices in a boom that is years away, sitting above what even the bullish analysts will pay. You make money on a stock like this by buying it when everyone hates it (it was €13–14 for months), not after it has run. So: don't chase; keep it on the watchlist and wait for a much lower price.</p>
+    <p class="kicker" style="margin-top:8px"><span class="amber mono">DATA NOTE:</span> the earlier Alpha-Map figure of <span class="mono">~€27.60</span> for AIXTRON was a <b class="h">stale scrape and is now corrected</b> — verified spot is <span class="mono">€56.22</span> (16-Jun close), independently triangulated across IBKR, eToro, Investing.com and stockanalysis. The whole setup flips from "looks cheap" to "priced through every analyst target."</p>
+  </div>
+
+  <p class="legend" style="margin-top:14px">Reading guide: §2 is the centerpiece — an explicit reverse-DCF that backs out what the price assumes, with the year-by-year forecast, the three-way solve, and a WACC × terminal-multiple grid. §2b is the audit-grade consensus table. §3 tests each value-driver. §4–§5 fold in the durability check and the probability-weighted trading-multiple distribution. §6–§7 are the action plan (incl. existing-holder bands and the honest "refresh-before-aggressive-entry" checklist); §8–§9 the risk register and the re-tiered source audit table. Every load-bearing number is traceable to the §9 table; modeled figures are tagged (est.).</p>
+
+  <!-- ===================== 1. THE SETUP ===================== -->
+  <h2><span class="n">1</span>The setup — why this is a textbook "real but priced" name</h2>
+  <p class="sub">The expectations question is not "is AIXTRON a good business?" (it is) — it is "what has to be true for €56 to make money, and is that already the consensus?" The answer: the price embeds the optimistic outcome roughly two years early, and the Street has re-rated its targets but <i>still will not chase the stock to here</i>.</p>
+  <div class="grid3">
+    <div class="card"><span class="tag teal">THE BUSINESS</span><p class="kicker" style="margin-top:6px">MOCVD/CVD epitaxy-deposition tools. <b class="h">&gt;90% of InP-laser MOCVD</b> (mgmt-stated/analyst-amplified, not audited; blended MOCVD 77% per Yole-2024). The "ASML of compound-semi." FY25 rev €556.6M, ~40% GM, €182M FCF (~33% margin). Fortress balance sheet (85% equity, ~€273M net cash).</p></div>
+    <div class="card"><span class="tag amber">THE PRICE</span><p class="kicker" style="margin-top:6px">~5× / +324% in one year (€11.68 → €60.8 high → €56.2). <b class="h">~74× FY25 EPS, ~106× TTM</b> (incl. Q1-26 loss), ~10.8× EV/Sales. Spot sits <span class="red">above</span> the €42.7–46.8 consensus target. The re-rating has out-run even the raised numbers.</p></div>
+    <div class="card"><span class="tag" style="color:var(--neg)">THE TENSION</span><p class="kicker" style="margin-top:6px">FY26 guide is <b class="h">flat</b> (~€560M, vs €556.6M FY25). The whole valuation rests on a 2027-29 opto super-cycle that has been <i>ordered</i> (book-to-bill ~2.9× in Q1) but <span class="amber">not yet recognized</span> — and on the monopoly compounding with <span class="red">no multiple de-rate</span> on a proven cyclical.</p></div>
+  </div>
+
+  <!-- ===================== 2. THE REVERSE MODEL ===================== -->
+  <h2><span class="n">2</span>The reverse model (centerpiece) — an explicit reverse-DCF on what €56 assumes</h2>
+  <p class="sub">Mauboussin/Rappaport "Expectations Investing": start from the price, solve for the operating performance the market must already believe. We build a year-by-year forecast (the bull ramp the bulls actually use), then solve <b class="h">three honest ways</b> for what justifies €56, and stress it across WACC × terminal-multiple. The punch-line, stated up front: even the <i>bull revenue path</i> is worth only ~€20–30 at a cyclical WACC — so €56 is a bet on the multiple, not the revenue.</p>
+
+  <div class="card">
+  <h3>Panel A · Year-by-year explicit forecast (the bull ramp), EUR M</h3>
+  <p class="kicker">The path below is the optimistic case bulls underwrite (Kerrisdale-style): opto doubles, GaN/SiC recover, margins set a record and hold. Tax 26%; FCF ≈ NOPAT (asset-light tool model, modest reinvest, ~33% FY25 FCF margin supports the assumption). This is the numerator the reverse-DCF discounts.</p>
+  <table>
+    <thead><tr><th>FY (EUR M)</th><th class="num">2026</th><th class="num">2027</th><th class="num">2028</th><th class="num">2029</th><th class="num">2030</th></tr></thead>
+    <tbody>
+      <tr><td>Revenue</td><td class="num">560</td><td class="num">727</td><td class="num">906</td><td class="num">1,030</td><td class="num">1,130</td></tr>
+      <tr><td>EBIT</td><td class="num">105</td><td class="num">166</td><td class="num amber">235</td><td class="num">289</td><td class="num">316</td></tr>
+      <tr><td>EBIT margin</td><td class="num">18.7%</td><td class="num">22.8%</td><td class="num amber">26%*</td><td class="num">28%</td><td class="num">28%</td></tr>
+      <tr><td>NOPAT (FCF≈)</td><td class="num">78</td><td class="num">123</td><td class="num">174</td><td class="num">214</td><td class="num">234</td></tr>
+    </tbody>
+  </table>
+  <p class="kicker" style="margin-top:6px"><span class="amber">*FY28 margin 26% is (est.) — bull base case. A credible low variant is mwb's €208M EBIT (~26.0% on €800.7M rev); we model €235M on the higher €906M consensus revenue. Either way FY28 EBIT sits ~€210–235M.</span> Anchors: FY26 = guide (rev €560M ±30, EBIT 17–20%); FY27/28 = consensus (see §2b); FY29–30 = the bull extension required to make the multiple "work."</p>
+  </div>
+
+  <div class="card">
+  <h3>Panel B · The solve — three honest ways to ask "what justifies €56?"</h3>
+  <p class="kicker">Assumptions (stamped): WACC base 10% (cyclical Euro semicap), terminal g 2.5%, ~112.8M shares (pre-convert), net cash €273M, tax 26%. EV today ≈ €56.2 × 112.8M − €0.27B net cash ≈ <span class="mono">€6.07B</span>. <b class="h red">Correction vs v1:</b> the prior "~€280M normalized EBIT supports €6.07B EV" was arithmetically wrong — €280M EBIT (~€207M NOPAT) at 10%/2.5% supports only ~€2.83B EV. The honest solves are below.</p>
+  <div class="grid3" style="margin-top:12px">
+    <div class="card" style="margin-top:0;border-color:#5e3331">
+      <span class="tag" style="color:var(--neg)">(i) FLAT no-growth solve</span>
+      <p class="kicker" style="margin-top:6px">If you pay €56 for a <i>level</i> perpetuity (no growth beyond a 2.5% inflation drift), the price needs:</p>
+      <p class="mono" style="font-size:15px;margin:8px 0 2px;color:var(--neg)">~€455M NOPAT</p>
+      <p class="kicker">≈ <b class="h">€615M EBIT</b> ≈ <b class="h">€2.2B revenue</b> at 28% margin — <span class="red">≈4× the current ~€100M EBIT base</span>, in perpetuity. <span class="src">NOPAT = EV×(WACC−g) = 6,070×(0.10−0.025).</span></p>
+    </div>
+    <div class="card" style="margin-top:0;border-color:#5e3331">
+      <span class="tag" style="color:var(--neg)">(ii) Bull ramp @ cyclical WACC</span>
+      <p class="kicker" style="margin-top:6px">Discount the <i>bull</i> Panel-A path at 10% with a normal cyclical ~13× terminal EBIT multiple:</p>
+      <p class="mono" style="font-size:13px;margin:8px 0 0;color:var(--muted)">PV explicit FY26–30 ≈ €595M</p>
+      <p class="mono" style="font-size:13px;margin:1px 0 2px;color:var(--muted)">+ PV terminal (13× €316M, df 0.62) ≈ €1.99–2.55B</p>
+      <p class="mono" style="font-size:15px;margin:6px 0 2px;color:var(--neg)">fair value ≈ €22–30/sh</p>
+      <p class="kicker"><span class="red">Even the bull revenue path is worth ~€20–30 at a cyclical WACC.</span> €56 is ~2× that.</p>
+    </div>
+    <div class="card" style="margin-top:0;border-color:#5e3331">
+      <span class="tag" style="color:var(--neg)">(iii) What €56 implies</span>
+      <p class="kicker" style="margin-top:6px">To justify €56 on the bull ramp, you must assume <i>either</i>:</p>
+      <ul style="margin-top:4px">
+        <li>a terminal multiple of <b class="h red">~28× EBIT</b> on FY30 €316M EBIT — <i>that never de-rates</i>; or</li>
+        <li>a WACC of <b class="h red">~7%</b> (a compounder discount rate, not a violent cyclical's); or</li>
+        <li>revenue materially above the €1.13B-by-2030 bull path.</li>
+      </ul>
+    </div>
+  </div>
+  <svg viewBox="0 0 1080 132" role="img" aria-label="Fair value bar: flat solve, bull-ramp DCF, spot">
+    <line x1="70" y1="96" x2="1040" y2="96" stroke="#3a444f" stroke-width="1.2"/>
+    <g class="fa" text-anchor="middle"><text x="70" y="116">€10</text><text x="264" y="116">€25</text><text x="458" y="116">€40</text><text x="652" y="116">€55</text><text x="846" y="116">€70</text><text x="1040" y="116">€85</text></g>
+    <!-- scale: 12.93px/EUR, base €10 at x=70 -->
+    <!-- bull-ramp fair 22-30 -->
+    <rect x="225" y="60" width="103" height="22" rx="4" fill="#df6258" opacity="0.45"/>
+    <text class="m" x="338" y="76" style="fill:#df6258;font-size:11px">bull-ramp DCF @10% ≈ €22–30</text>
+    <!-- street base 42-47 -->
+    <rect x="484" y="32" width="65" height="22" rx="4" fill="#dca24a" opacity="0.5"/>
+    <text class="m" x="558" y="48" style="fill:#e0a23b;font-size:11px">Street base €42–47 (≈8–9% / 20× term)</text>
+    <!-- spot 56.2 -> x=70+(56.2-10)*12.93=70+597.4=667.4 -->
+    <line x1="667" y1="20" x2="667" y2="100" stroke="#e6edf3" stroke-width="1.4" stroke-dasharray="5 4"/>
+    <text class="m" x="667" y="16" text-anchor="middle" style="font-size:11px">spot €56.2 (= ~7% WACC, or ~28× held terminal)</text>
+  </svg>
+  </div>
+
+  <div class="card">
+  <h3>Panel C · Sensitivity grid — fair value €/share on the bull €1.13B-by-2030 path</h3>
+  <p class="kicker">Rows = WACC; columns = terminal EV/EBIT multiple (applied to FY30 EBIT €316M, then discounted; explicit FY26–30 NOPAT added). This is the more honest framing than a Gordon-g terminal for a cyclical — it asks directly "what exit multiple are you paying for, and at what discount rate?" <span class="teal">€56 only appears at WACC ≤~7.5% paired with a premium ~25–28× terminal; the Street base €42–47 sits at ~8–9% WACC / ~20× terminal.</span></p>
+  <svg viewBox="0 0 1080 250" role="img" aria-label="Sensitivity grid of fair value per share across WACC and terminal multiple">
+    <!-- column headers -->
+    <g class="m" text-anchor="middle" style="font-size:12px">
+      <text x="150" y="30" class="fa">WACC ↓ / term EV/EBIT →</text>
+      <text x="350" y="30">13×</text><text x="490" y="30">16×</text><text x="630" y="30">20×</text><text x="770" y="30">25×</text><text x="910" y="30">28×</text>
+    </g>
+    <text x="350" y="14" class="fa" style="font-size:9px">← cyclical terminal</text>
+    <text x="910" y="14" class="fa" text-anchor="end" style="font-size:9px">compounder terminal →</text>
+    <line x1="40" y1="40" x2="1040" y2="40" stroke="#3a444f"/>
+    <!-- rows -->
+    <g class="m" style="font-size:13px" text-anchor="middle">
+      <!-- 7% -->
+      <text x="150" y="68" text-anchor="start" class="lbl">WACC 7%</text>
+      <text x="350" y="68">€34</text><text x="490" y="68">€40</text><text x="630" y="68" style="fill:#e0a23b">€48</text><text x="770" y="68">€58</text><text x="910" y="68" style="fill:#df6258">€64</text>
+      <!-- 8% -->
+      <text x="150" y="100" text-anchor="start" class="lbl">WACC 8%</text>
+      <text x="350" y="100">€33</text><text x="490" y="100">€39</text><text x="630" y="100" style="fill:#e0a23b">€46</text><text x="770" y="100" style="fill:#df6258">€56</text><text x="910" y="100">€61</text>
+      <!-- 9% -->
+      <text x="150" y="132" text-anchor="start" class="lbl">WACC 9%</text>
+      <text x="350" y="132">€32</text><text x="490" y="132">€37</text><text x="630" y="132" style="fill:#e0a23b">€44</text><text x="770" y="132">€53</text><text x="910" y="132">€59</text>
+      <!-- 10% base -->
+      <text x="150" y="164" text-anchor="start" style="fill:#3fb6a8">WACC 10% (base)</text>
+      <text x="350" y="164" style="fill:#3fb6a8">€30</text><text x="490" y="164">€36</text><text x="630" y="164">€42</text><text x="770" y="164">€51</text><text x="910" y="164">€56</text>
+      <!-- 11% -->
+      <text x="150" y="196" text-anchor="start" class="lbl">WACC 11%</text>
+      <text x="350" y="196">€29</text><text x="490" y="196">€34</text><text x="630" y="196">€41</text><text x="770" y="196">€49</text><text x="910" y="196">€54</text>
+    </g>
+    <!-- guides -->
+    <line x1="40" y1="146" x2="1040" y2="146" stroke="#3fb6a8" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.5"/>
+    <rect x="580" y="48" width="100" height="120" fill="#e0a23b" opacity="0.06"/>
+    <text class="fa" x="630" y="222" text-anchor="middle">↑ Street base zone (€42–47)</text>
+    <rect x="860" y="48" width="100" height="84" fill="#df6258" opacity="0.06"/>
+    <text class="fa" x="910" y="222" text-anchor="middle">↑ €56 needs ≤7.5%/≥28×</text>
+  </svg>
+  <p class="kicker" style="margin-top:6px"><b class="h">Cross-check with a Gordon-g terminal:</b> discounting the same bull NOPAT at 10% with a 2.5%-growth terminal gives €25/sh; at WACC 7%/g2.5% it gives €42. Both methods agree: <span class="red">€56 requires a sub-7.5% discount rate — the rate you'd assign a durable compounder, not a stock that has fallen 67% peak-to-trough in living memory.</span> <span class="src">Author's model; inputs per §2b consensus + §9.</span></p>
+
+  <table style="margin-top:14px">
+    <thead><tr><th>Reverse-DCF line (the €56 solve)</th><th class="num">(ii) bull-ramp DCF<br/>10% WACC · 13× term</th><th class="num">(iii) what justifies €56<br/>10% WACC · 28× term</th><th class="num">(iii-alt) what justifies €56<br/>~7% WACC · ~13–15× term</th></tr></thead>
+    <tbody>
+      <tr><td>PV of explicit NOPAT (FY26–30, €M)</td><td class="num">~595</td><td class="num">~595</td><td class="num amber">~660</td></tr>
+      <tr><td>Terminal FY30 EBIT (€M)</td><td class="num">316</td><td class="num">316</td><td class="num">316</td></tr>
+      <tr><td>Terminal EV/EBIT multiple</td><td class="num">13×</td><td class="num red">28×</td><td class="num amber">~14×</td></tr>
+      <tr><td>Terminal EV (€M)</td><td class="num">~4,108</td><td class="num">~8,848</td><td class="num">~4,424</td></tr>
+      <tr><td>Discount factor (yr-5)</td><td class="num">0.62</td><td class="num">0.62</td><td class="num amber">0.71</td></tr>
+      <tr><td>PV of terminal (€M)</td><td class="num">~2,547</td><td class="num">~5,486</td><td class="num">~3,141</td></tr>
+      <tr><td>Enterprise value (€M)</td><td class="num">~3,142</td><td class="num">~6,081</td><td class="num">~3,801</td></tr>
+      <tr><td>+ net cash (€M)</td><td class="num">273</td><td class="num">273</td><td class="num">273</td></tr>
+      <tr><td>Equity value (€M)</td><td class="num">~3,415</td><td class="num">~6,354</td><td class="num">~4,074</td></tr>
+      <tr><td>÷ shares (basic, M)</td><td class="num">112.8</td><td class="num">112.8</td><td class="num">112.8</td></tr>
+      <tr style="border-top:2px solid var(--line2)"><td><b class="h">€/share (basic)</b></td><td class="num"><b class="h teal">~€30</b></td><td class="num red"><b class="h">~€56</b></td><td class="num amber"><b class="h">~€56</b></td></tr>
+      <tr><td>€/share (diluted ~121.6M, memo)</td><td class="num mut">~€28</td><td class="num mut">~€52</td><td class="num mut">~€48</td></tr>
+    </tbody>
+  </table>
+  <p class="kicker" style="margin-top:8px"><b class="h">One consistent statement of the €56 solve:</b> <span class="red">€56 requires EITHER ~28× terminal EBIT at a 10% WACC, OR a materially lower WACC (~7%) paired with a normal ~13–15× terminal — equivalently, the premium "compounder" multiple persisting and never de-rating.</span> The two are the same bet expressed two ways. <b class="h">The "~€22–30 bull-ramp DCF"</b> (solve (ii) / the central reconciliation) uses a <b class="h">~13× terminal multiple (Gordon-equivalent ~2.5% g) on BASIC ~112.8M shares</b>; on the diluted ~121.6M if-converted count the same path is <b class="h">~€28/sh</b>. All three columns above hold FY30 EBIT €316M and net cash €273M constant; only WACC and the terminal multiple move. <span class="src">Author's model; PV/discount-factor rounding ±1–2%; inputs per §2b + §9.</span></p>
+  </div>
+
+  <div class="keybox">
+    <div class="eyebrow" style="color:var(--accent2)">THE CENTRAL RECONCILIATION · key takeaway</div>
+    <p class="kicker" style="margin-top:6px;max-width:98ch"><b class="h amber">Bulls and bears AGREE on 2028 revenue (~€700–950M).</b> The most-cited bear (mwb, SELL/PT €30) models 2028 rev €800.7M / EBIT €208.2M; consensus is ~€906M; the bull is ~€1.0B. <b class="h">That is a narrow band — the debate is NOT about revenue.</b> The real debate is whether a <span class="red">proven violent cyclical keeps a ~35× compounder multiple FOREVER</span>. At €56 you are paying for "yes, forever." The normal-WACC DCF above shows that the moment the multiple de-rates to a cyclical terminal (~13–16× EBIT), fair value is <span class="teal mono">€20–30</span> — even on the <i>bull</i> revenue path.</p>
+    <p class="kicker" style="margin-top:8px;max-width:98ch"><b class="h">This reconciles §2 with the §5 scenarios explicitly:</b> the §5 scenario values (bear €30, base €44.5, bull €72) all <i>implicitly assume the premium multiple HOLDS</i> in proportion to how good the world gets — the bull €72 is the bull revenue path at a ~33× <i>held</i> peer multiple; the bear €30 is essentially the same revenue path re-rated to a cyclical terminal. So §5 is the multiple-regime distribution, and §2's reverse-DCF is the "if-it-de-rates" anchor underneath it. The asymmetry comes from the fact that the multiple has far more room to fall than to rise.</p>
+  </div>
+
+  <!-- ===================== 2b. CONSENSUS TABLE ===================== -->
+  <h2><span class="n">2b</span>Audit-grade consensus &amp; revisions — FY26 / FY27 / FY28, reconciled not blended</h2>
+  <p class="sub">The reverse-DCF numerator is only as good as the consensus it anchors to. Below is the FY26–28 set from <b class="h">≥2 independent sources, reconciled</b> (not silently averaged), with target, analyst count, and revision direction. The decisive fact: out-year estimates are being <span class="pos">revised UP</span>, and even after the raises the Street target sits <span class="red">below</span> spot.</p>
+  <table>
+    <thead><tr><th>Line</th><th class="num">FY26</th><th class="num">FY27</th><th class="num">FY28</th><th>Sources reconciled</th></tr></thead>
+    <tbody>
+      <tr><td><b class="h">Revenue (€M)</b></td><td class="num">560 <span class="mut">(guide)</span> / 572 <span class="mut">(SA)</span></td><td class="num">~727</td><td class="num">~906 <span class="mut">(SA/fintel)</span></td><td class="mut">FY26: co. guide €560±30 (14-Apr raise) vs stockanalysis €571.76M. FY27/28: fintel/SA post-Q1 raise.</td></tr>
+      <tr><td><b class="h">EBIT / op. income (€M)</b></td><td class="num">105 <span class="mut">(guide-impl)</span> / 108 <span class="mut">(SA)</span></td><td class="num">~166 <span class="mut">(mwb)</span></td><td class="num">~208–235</td><td class="mut">FY26 guide-implied €105M (18.7%) vs stockanalysis €108.16M. FY27 €166.2M / FY28 €208.2M = mwb; €235M = bull on €906M rev (est.).</td></tr>
+      <tr><td><b class="h">EPS (€)</b></td><td class="num">0.67–0.69 <span class="mut">(fintel)</span> / 0.73 <span class="mut">(SA)</span></td><td class="num">~1.18 <span class="mut">(fintel)</span></td><td class="num">~1.30–1.42</td><td class="mut">FY26 fintel €0.67–0.69 vs stockanalysis €0.73. FY27 fintel €1.18. FY28 €1.30 (mwb) → €1.42 (consensus bull).</td></tr>
+    </tbody>
+  </table>
+  <div class="grid2" style="margin-top:12px">
+    <div class="card" style="margin-top:0">
+      <span class="tag teal">CONSENSUS TARGET &amp; RATINGS (as-of Jun-2026)</span>
+      <table style="margin-top:8px">
+        <tbody>
+          <tr><td>stockanalysis (14–15 analysts)</td><td class="num teal">€46.83</td><td class="num red">−16.7%</td></tr>
+          <tr><td>TradingView (XETR-AIXA)</td><td class="num teal">€46.38</td><td class="num red">−17.5%</td></tr>
+          <tr><td>investing.com</td><td class="num teal">€46.83</td><td class="num red">−16.7%</td></tr>
+          <tr><td>brief midpoint / older panel</td><td class="num amber">€42.70</td><td class="num red">−24%</td></tr>
+          <tr><td>range (EUR panel)</td><td class="num mut">€23.5 low</td><td class="num mut">€72 high</td></tr>
+          <tr><td>ratings (fintel, 19)</td><td colspan="2" class="num">5 Buy · 13 Hold · 1 Sell</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card" style="margin-top:0">
+      <span class="tag teal">REVISION DIRECTION (30/60/90-day)</span>
+      <ul style="margin-top:6px">
+        <li><b class="h pos">UP.</b> UBS lifted PT €13.50 → €28 (Feb-26); FY27/28 estimates raised post-Q1.</li>
+        <li>Consensus FY27 rev migrated to ~€727M and FY28 to ~€906M+, <b class="h">overtaking even the bear (mwb €678M/€800M)</b> — consensus 2027 ≈ +7%, 2028 ≈ +13% in ~3 months (est.).</li>
+        <li>House targets cluster Berenberg €42 (Buy), DZ Bank €45 (Hold), Barclays €39 (Hold).</li>
+      </ul>
+    </div>
+  </div>
+  <p class="kicker" style="margin-top:8px"><b class="h amber">Reconciling €42.70 vs €46.83:</b> these are <span class="red">not</span> a discrepancy to blend — they are <b class="h">two snapshots of the same migrating panel</b>. €42.70 is the brief's midpoint of an older/wider cluster (and the low end of the live range); €46.4–46.8 is the <i>fresh</i> three-source panel (TradingView €46.38, investing.com €46.83, stockanalysis €46.83) after the recent hikes. A genuinely <i>stale</i> ~€35 avg / €44 high / €23.5 low (15-analyst) cache also still circulates — <span class="amber">flagged as cached, do not use</span>. Use ~€46.8 as the live consensus; €42.70 as the conservative/low anchor. <b class="h">Either way the target is below spot</b> — the load-bearing fact is unchanged. <span class="src">stockanalysis.com/quote/etr/AIXA/forecast · tradingview.com/symbols/XETR-AIXA/forecast · investing.com/equities/aixtron-consensus-estimates · fintel.io/sfo/us/aixxf · mwb research 27-Mar-26.</span></p>
+
+  <!-- ===================== 3. VALUE-DRIVER TREE ===================== -->
+  <h2><span class="n">3</span>The value-driver tree — price assumes vs my variant, per driver</h2>
+  <p class="sub">Decompose the embedded expectation into the five operating drivers. For each: <b class="h">what the price assumes</b>, <b class="h">my read</b>, the <b class="h">delta</b>, and the honest "is it priced?" The whole bull case routes through one contested node — <span class="amber">per-port InP intensity</span> — whose key offset is a single unverified blog source.</p>
+  <div class="card">
+  <svg viewBox="0 0 1080 250" role="img" aria-label="Value-driver tree from price to five drivers">
+    <rect x="430" y="14" width="220" height="46" rx="9" fill="#13302c" stroke="#3fb6a8"/>
+    <text class="m" x="450" y="34" style="fill:#3fb6a8;font-size:12px">€56 embedded expectation</text>
+    <text class="fa" x="450" y="51">~€1.0–1.2B rev · 25–28% margin · held mult.</text>
+    <line x1="540" y1="60" x2="540" y2="78" stroke="#3a444f"/>
+    <line x1="110" y1="78" x2="970" y2="78" stroke="#3a444f"/>
+    <g font-size="11">
+      <line x1="110" y1="78" x2="110" y2="96" stroke="#3a444f"/>
+      <rect x="20" y="96" width="180" height="120" rx="8" fill="#1c232c" stroke="#3a444f"/>
+      <text class="m" x="32" y="116" style="font-size:11px">① VOLUME</text>
+      <text class="fa" x="32" y="134">800G+ 24M→63M</text>
+      <text class="fa" x="32" y="148">units (2.6×) into '26</text>
+      <text class="lbl" x="32" y="170" style="font-size:10px;fill:#46b87f">priced: PARTLY</text>
+      <text class="fa" x="32" y="186">real &amp; durable;</text>
+      <text class="fa" x="32" y="200">consensus catching up</text>
+
+      <line x1="325" y1="78" x2="325" y2="96" stroke="#3a444f"/>
+      <rect x="215" y="96" width="180" height="120" rx="8" fill="#1c232c" stroke="#3a444f"/>
+      <text class="m" x="227" y="116" style="font-size:11px">② ATTACH</text>
+      <text class="fa" x="227" y="134">2–3 → 4–6 per GPU</text>
+      <text class="fa" x="227" y="148">w/ Vera Rubin</text>
+      <text class="lbl" x="227" y="170" style="font-size:10px;fill:#46b87f">priced: PARTLY</text>
+      <text class="fa" x="227" y="186">tailwind, but a</text>
+      <text class="fa" x="227" y="200">2027+ event</text>
+
+      <line x1="540" y1="78" x2="540" y2="96" stroke="#e0a23b" stroke-width="1.6"/>
+      <rect x="430" y="96" width="220" height="120" rx="8" fill="#1c232c" stroke="#e0a23b"/>
+      <text class="m" x="442" y="116" style="font-size:11px;fill:#e0a23b">③ PER-PORT InP INTENSITY</text>
+      <text class="fa" x="442" y="134" style="fill:#df6258">chips/port FALL 50–75%</text>
+      <text class="fa" x="442" y="148">(8 EML → 2–4 CW+SiPho)</text>
+      <text class="fa" x="442" y="162">offset: "UHP CW = 5–10×</text>
+      <text class="fa" x="442" y="176" style="fill:#e0a23b">reactor-time" — UNVERIFIED</text>
+      <text class="lbl" x="442" y="198" style="font-size:10px;fill:#df6258">priced: BULL SIDE — the crux</text>
+
+      <line x1="755" y1="78" x2="755" y2="96" stroke="#3a444f"/>
+      <rect x="665" y="96" width="180" height="120" rx="8" fill="#1c232c" stroke="#3a444f"/>
+      <text class="m" x="677" y="116" style="font-size:11px">④ GaN/SiC RECOVERY</text>
+      <text class="fa" x="677" y="134">~half the franchise;</text>
+      <text class="fa" x="677" y="148">SiC soft, GaN low</text>
+      <text class="lbl" x="677" y="170" style="font-size:10px;fill:#dca24a">priced: OPTION, not in</text>
+      <text class="fa" x="677" y="186">backlog; H2-26/'27</text>
+      <text class="fa" x="677" y="200">— timeline risk</text>
+
+      <line x1="970" y1="78" x2="970" y2="96" stroke="#3a444f"/>
+      <rect x="860" y="96" width="200" height="120" rx="8" fill="#1c232c" stroke="#3a444f"/>
+      <text class="m" x="872" y="116" style="font-size:11px">⑤ MARGIN RE-EXPAND</text>
+      <text class="fa" x="872" y="134">18% (FY25) → 25–28%</text>
+      <text class="fa" x="872" y="148">i.e. a NEW record high</text>
+      <text class="lbl" x="872" y="170" style="font-size:10px;fill:#df6258">priced: FULLY (peak+)</text>
+      <text class="fa" x="872" y="186">prior peak was 25%;</text>
+      <text class="fa" x="872" y="200">price needs above it</text>
+    </g>
+  </svg>
+  </div>
+  <table>
+    <thead><tr><th>Driver</th><th>What €56 assumes</th><th>My variant read</th><th>Delta</th><th>Priced?</th></tr></thead>
+    <tbody>
+      <tr><td><b class="h">① Unit volume</b></td><td>2.6× 800G+ ramp sustains a multi-year opto tool pull; opto rev €102M('25)→€232M('26)→€320M('27).</td><td>Real and primary-sourced (Q1 opto orders €118M, ~70% mix). I broadly agree the volume vector is durable.</td><td class="mut">small / aligned</td><td><span class="pill warn">partly — agree</span></td></tr>
+      <tr><td><b class="h">② Attach ratio</b></td><td>GPU→module attach 2–3 → 4–6 with Rubin; optical TAM ~10× GB300→Rubin-Ultra.</td><td>Directionally right but back-loaded to 2027+. A tailwind the price already spends.</td><td class="mut">timing, not level</td><td><span class="pill warn">partly</span></td></tr>
+      <tr><td style="border-left:2px solid var(--accent)"><b class="h amber">③ Per-port InP intensity</b></td><td><span class="teal">The bull side:</span> reactor-hours/laser RISE enough (UHP CW 5–10×) to <i>more than</i> offset 50–75% fewer InP chips/port.</td><td><span class="red">The single load-bearing, least-verified node.</span> SiPho &gt;50% share by '26; the offset is ONE unverified blog estimate; the opposing physics search was inconclusive. See the CPO-vs-EML bridge below.</td><td class="red">large — disputed</td><td><span class="pill no">bull side priced</span></td></tr>
+      <tr><td><b class="h">④ GaN/SiC recovery</b></td><td>The ~half of the franchise in glut re-accelerates and becomes a 2027 tailwind.</td><td>Not in the backlog. SiC "soft," GaN "low"; recovery pushed to H2-26/2027. Every quarter without orders pushes the hockey-stick right.</td><td class="mut">timing risk</td><td><span class="pill warn">option, not priced-in cash</span></td></tr>
+      <tr><td><b class="h">⑤ Margin re-expansion</b></td><td>EBIT margin re-expands from 18% to a <b class="h">new all-time-high 25–28%</b> on higher volume, and holds.</td><td>Prior peak was 25% (2023). Q1-26 showed margins can go <span class="red">negative</span> (−38%) on reverse operating leverage. Asking for a record, durably, is the most aggressive ask in the stack.</td><td class="red">aggressive</td><td><span class="pill no">fully priced (peak+)</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="card">
+  <h3>Driver ③ deep-dive · the CPO-vs-EML bridge (per optical port)</h3>
+  <p class="kicker">The bear "fewer lasers" headline and the bull "more reactor-hours" claim can both be true. What matters for AIXTRON is <b class="h">reactor-hours per optical port</b>, not chip count. This bridge lays out the physical inputs side-by-side. The architecture-agnostic anchor (as actually linked in §9): <b class="h">NVIDIA's silicon-photonics material confirms CPO uses InP CW external-laser sources</b> (Quantum-X markets ~8 lasers/module) — so CPO does not remove InP from the system; it restructures demand from per-module to per-lane. <span class="src">The "Coherent OFC-2026" corroboration is cited separately only where a Coherent release is the linked source; the load-bearing anchor here is the NVIDIA page.</span></p>
+  <table>
+    <thead><tr><th>Per 800G+ optical port</th><th class="num">EML pluggable</th><th class="num">SiPho / CPO (CW+ELS)</th><th>Net for AIXTRON reactor-hours</th></tr></thead>
+    <tbody>
+      <tr><td>Lasers per port</td><td class="num">~8 (one EML per lane)</td><td class="num">~2–4 CW</td><td class="mut">fewer discrete lasers</td></tr>
+      <tr><td>InP chips per port</td><td class="num">8 EML</td><td class="num">2–4 CW + SiPho</td><td class="red">−50% to −75% chip count</td></tr>
+      <tr><td>CW laser spec</td><td class="num">standard ~100mW EML</td><td class="num amber">~400mW UHP-CW (~4× power)</td><td class="amber">higher power → more/thicker epi, lower yield</td></tr>
+      <tr><td>Epitaxy reactor-hours/port</td><td class="num">baseline</td><td class="num amber">claimed 5–10× per laser <span class="blogflag">[unverified]</span></td><td class="amber">the swing variable — see flag</td></tr>
+      <tr><td>Yield</td><td class="num">mature</td><td class="num">lower (UHP-CW newer)</td><td class="mut">lower yield → more wafer starts → more tool demand</td></tr>
+    </tbody>
+  </table>
+  <p class="kicker" style="margin-top:8px"><b class="h amber">The single crux, flagged:</b> whether aggregate InP-tool demand compounds hinges on <code>chips/port × reactor-hours/laser × yield-loss × attach</code> OUTRUNNING the 50–75% per-port chip-count decline. The one input that makes the bull math work — <span class="blogflag">"UHP-CW needs 5–10× the reactor-time"</span> — is a <b class="h red">single blog-tier estimate (jasonschips) with no primary corroboration</b>, and the opposing physics search was inconclusive. The architecture-agnostic <i>fact</i> (NVIDIA silicon-photonics page: CPO uses InP CW external-laser sources) means InP is not displaced; the contested <i>magnitude</i> is whether per-port reactor-intensity rises enough. NVIDIA itself markets CPO as "4× fewer lasers." This is the assumption that, if wrong, collapses the bull terminal revenue — and it is the <i>least</i> verified input in the memo.</p>
+  </div>
+
+  <!-- ===================== 4. DURABILITY CHECK ===================== -->
+  <h2><span class="n">4</span>Business-quality durability check (compressed 8-point) — does the moat justify the terminal multiple?</h2>
+  <p class="sub">The reverse model needs the monopoly to <i>persist</i> and margins to hold for a decade. The 8-point teardown validates the moat is real and <b class="h">correctly recognized</b> — which is exactly why this is not a mispriced asset. A real moat at a peak price is still a peak price.</p>
+  <div class="grid2">
+    <div class="card">
+      <table>
+        <tbody>
+          <tr><td class="mono teal">①怎麼賺錢</td><td>MOCVD/CVD epitaxy tools (~80% rev) + high-margin spares/service (~20%, annuity tail). G10-AsP ASP ~€3.5M, orders 3–few-dozen tools/customer.</td></tr>
+          <tr><td class="mono teal">②營收結構</td><td>FY25 system rev: power (SiC/GaN) 57% · opto 23% · LED 15%. Q1-26 flipped: opto 52%, power 17% — opto is now the engine.</td></tr>
+          <tr><td class="mono teal">③成長來源</td><td>AI-datacentre optical interconnect (InP lasers): 800G/1.6T + CPO. TAM: semiconductor lasers ~$3.1B→$5.2B by '29 (Yole, ~8.7% CAGR).</td></tr>
+          <tr><td class="mono teal">④終端市場</td><td>Datacom optics (growth leg) · EV/server power (glut) · 3D-sensing · microLED. Asia ~60% of revenue (FX exposure).</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <table>
+        <tbody>
+          <tr><td class="mono teal">⑤主要客戶</td><td>Lumentum, Coherent, Broadcom, Trumpf, Furukawa, SMART Photonics, Nokia/Infinera. <b class="h">No single customer ever &gt;low-teens % of revenue</b> — captive risk LOW.</td></tr>
+          <tr><td class="mono teal">⑥護城河</td><td><b class="h">Planetary Reactor dual-rotation IP</b> — angstrom uniformity InP lasers need; never replicated for high-volume InP. Veeco single-wafer TurboDisc loses on edges/TCO. <span class="teal">Real chokepoint.</span></td></tr>
+          <tr><td class="mono teal">⑦管理層展望</td><td>FY26 guide RAISED (€520M→€560M) — first raise after years of cuts. But guidance history is <span class="amber">cut-prone</span> (FY24/FY25 each cut twice) and DPS was <span class="red">cut €0.40→€0.15 (−62.5%)</span>.</td></tr>
+          <tr><td class="mono teal">⑧為何是卡點</td><td>No credible near-term InP second source: Veeco = single-wafer disadvantage; Chinese AMEC/NAURA = GaN/LED/SiC, not InP-laser. Only TES/Hermes-Epitek "qualifying." <span class="teal">Moat durable 3–5yr.</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="kicker" style="margin-top:8px"><b class="h">Honest durability verdict:</b> the moat is genuine, chokepoint-grade, and pricing power is demonstrated (40–42% GM and 17–20% EBIT held even at trough volume). <span class="amber">But it is correctly recognized</span> — the multiple already pays for the monopoly persisting AND opto margin expanding toward the mid-50s%. Watch-points: (a) Veeco's 300mm BTO-MBE end-run for datacom modulators (adjacent tech, not a Planetary clone); (b) the "&gt;90% InP" figure is <span class="blogflag">mgmt-stated / analyst-amplified, not audited</span> (Yole's audited number is the blended 77%); (c) China InP export-permit (Feb-2025) + the AMEC-took-Veeco-from-30%-to-12% LED precedent as the long-horizon insourcing risk.</p>
+
+  <!-- ===================== 5. SCENARIOS / FOOTBALL FIELD ===================== -->
+  <h2><span class="n">5</span>Bull / base / bear — the scenario value · exit-multiple / trading-multiple distribution</h2>
+  <p class="sub">Three anchored scenarios, each tied to explicit <b class="h">revenue · EBIT margin · EPS · diluted share count · exit multiple</b>. <b class="h amber">Critically — and reconciling with §2 — all three implicitly assume the premium multiple HOLDS</b> in proportion to how good the world gets; they are a <i>multiple-regime</i> distribution sitting on top of the §2 reverse-DCF. <b class="h">§2 is the de-rate DCF anchor (~€20–30 if the multiple normalizes to a cyclical terminal) while §5 is the trading-multiple distribution (~€30–80 if the premium multiple persists in proportion to the outcome)</b> — so the two are deliberately stacked, not added, and the probability-weighted EV is <span class="red">NOT</span> double-counting the premium multiple. The probability-weighted EV lands <span class="red">below</span> spot, with the downside leg roughly double the upside.</p>
+  <div class="card">
+  <table>
+    <thead><tr><th>Scenario</th><th class="num">Prob.</th><th class="num">'28 Rev</th><th class="num">EBIT marg.</th><th class="num">'28 EPS (dil.)</th><th class="num">Exit mult.</th><th class="num">Value</th><th class="num">vs €56.2</th></tr></thead>
+    <tbody>
+      <tr><td class="red"><b class="h">Bear</b></td><td class="num">35%</td><td class="num">~€800M</td><td class="num">~26%</td><td class="num">~€1.20</td><td class="num">~16× (cyclical)</td><td class="num">€30</td><td class="num red">−47%</td></tr>
+      <tr><td class="amber"><b class="h">Base</b></td><td class="num">45%</td><td class="num">~€906M</td><td class="num">~26%</td><td class="num">~€1.32</td><td class="num">~20× (de-rated)</td><td class="num">€44.5</td><td class="num red">−21%</td></tr>
+      <tr><td class="teal"><b class="h">Bull</b></td><td class="num">20%</td><td class="num">~€1.0–1.06B</td><td class="num">~28%</td><td class="num">~€1.86</td><td class="num">~33× (held peer)</td><td class="num">€72</td><td class="num pos">+28%</td></tr>
+      <tr style="border-top:2px solid var(--line2)"><td><b class="h">Prob-weighted EV</b></td><td class="num"></td><td class="num" colspan="4"><span class="mono">0.35×30 + 0.45×44.5 + 0.20×72</span></td><td class="num amber"><b class="h">€44.9</b></td><td class="num red"><b class="h">−20%</b></td></tr>
+    </tbody>
+  </table>
+  <p class="kicker" style="margin-top:6px"><span class="src">EPS on DILUTED ~121.6M shares (if-converted). Bull €1.86 dil. = €2.00 pre-convert (Kerrisdale) ÷ +7.8% dilution. Bear/base EPS on the same diluted base. Bull "value" uses ~33× held peer P/E; the implied per-share is on the diluted count.</span></p>
+  <svg viewBox="0 0 1080 300" role="img" aria-label="Football field: bear base bull value ranges vs spot">
+    <line x1="70" y1="232" x2="1040" y2="232" stroke="#3a444f" stroke-width="1.4"/>
+    <g class="fa" text-anchor="middle">
+      <text x="70" y="254">€10</text><text x="226" y="254">€25</text><text x="382" y="254">€40</text><text x="538" y="254">€55</text><text x="694" y="254">€70</text><text x="850" y="254">€85</text><text x="1006" y="254">€100</text>
+    </g>
+    <!-- scale: €10 at x=70, €100 at x=1006 -> 10.4px per € -->
+    <!-- spot €56.2 -> x=550 -->
+    <line x1="550" y1="30" x2="550" y2="240" stroke="#e6edf3" stroke-width="1.4" stroke-dasharray="5 4"/>
+    <text class="m" x="550" y="24" text-anchor="middle" style="font-size:12px">spot €56.2</text>
+    <!-- prob-wtd EV €44.9 -> x=70+(44.9-10)*10.4=70+362.9=432.9 -->
+    <line x1="433" y1="46" x2="433" y2="232" stroke="#e0a23b" stroke-width="1.4" stroke-dasharray="3 3"/>
+    <text class="m" x="433" y="40" text-anchor="middle" style="fill:#e0a23b;font-size:11px">prob-wtd EV ~€44.9</text>
+    <!-- BEAR €24-35, mark €30 -> x:70+(24-10)*10.4=215.6 ; w (35-24)*10.4=114.4 ; mid30 x=70+(30-10)*10.4=278 -->
+    <g transform="translate(0,66)">
+      <rect x="216" y="0" width="114" height="32" rx="5" fill="#df6258" opacity="0.5"/>
+      <line x1="278" y1="-4" x2="278" y2="36" stroke="#df6258" stroke-width="2"/>
+      <text class="lbl" x="80" y="21">BEAR  35%</text>
+      <text class="m" x="343" y="21" style="fill:#df6258;font-size:12px">~€24–35 · €30 mid · mwb DCF €29.9 · 16× cyclical</text>
+    </g>
+    <!-- BASE €40-49, mid 44.5 -> x:382 ; w 93.6 ; mid x=70+(44.5-10)*10.4=428.8 -->
+    <g transform="translate(0,116)">
+      <rect x="382" y="0" width="94" height="32" rx="5" fill="#dca24a" opacity="0.55"/>
+      <line x1="429" y1="-4" x2="429" y2="36" stroke="#e0a23b" stroke-width="2"/>
+      <text class="lbl" x="80" y="21">BASE  45%</text>
+      <text class="m" x="490" y="21" style="fill:#e0a23b;font-size:12px">~€40–49 · €44.5 mid · Street target / 20× de-rated</text>
+    </g>
+    <!-- BULL €65-80, mid 72 -> x:642 ; w 156 ; mid x=70+(72-10)*10.4=714.8 ; high80 x=70+(80-10)*10.4=798 -->
+    <g transform="translate(0,166)">
+      <rect x="642" y="0" width="156" height="32" rx="5" fill="#3fb6a8" opacity="0.5"/>
+      <line x1="715" y1="-4" x2="715" y2="36" stroke="#3fb6a8" stroke-width="2"/>
+      <text class="lbl" x="80" y="21">BULL  20%</text>
+      <text class="m" x="812" y="21" style="fill:#3fb6a8;font-size:11px">~€65–80 · €72 mid / €80 high · Kerrisdale · 33× held</text>
+    </g>
+    <!-- asymmetry bracket: EV vs spot -->
+    <path d="M433,214 L433,206 L550,206 L550,214" fill="none" stroke="#df6258" stroke-width="1"/>
+    <text class="fa" x="491" y="202" text-anchor="middle" style="fill:#df6258">EV sits −20% below spot</text>
+  </svg>
+  <p class="kicker" style="margin-top:8px"><b class="h">Asymmetry (one convention — midpoint-to-midpoint):</b> bull-mid €72 = <span class="pos">+28%</span>, bear-mid €30 = <span class="red">−47%</span> → up/down ≈ <span class="red">0.60×</span> (risking ~1.7 units to make 1). A <i>separate</i> bull-HIGH sensitivity at €80 = <span class="pos">+42%</span>. <span class="amber">This corrects the v1 "~0.5× / +43%" callbox, which mixed the bull-high return with a mid-to-mid ratio.</span> The prob-weighting is deliberately not bear-stacked (45% base, only 35% bear); even a generous book lands the EV ~€11 below spot. <span class="src">Bear: mwb research 27-Mar-26. Base: investing.com / TradingView / stockanalysis consensus. Bull: Kerrisdale Nov-2025. See §9.</span></p>
+  </div>
+
+  <!-- ===================== 6. DECISION + SIZING ===================== -->
+  <h2><span class="n">6</span>The decision &amp; sizing — own the violent cyclical at the trough, not after the run</h2>
+  <div class="grid2">
+    <div class="card" style="border-color:#5e3331">
+      <span class="tag" style="color:var(--neg)">THE CALL</span>
+      <ul>
+        <li><b class="h red">AVOID / no new money at €56.</b> Negative expected return; spot is above every consensus target; multiple at a cyclical peak on a flat-revenue year.</li>
+        <li><b class="h teal">WATCHLIST · buy-below ~€35–40.</b> That is the fair-value/bear zone (mwb DCF €29.9 · base €42–47 · bull-ramp DCF €22–30). A re-test toward the low-€30s on a single soft H2 print is realistic, given ~11% average WEEKLY moves.</li>
+        <li><b class="h amber">If already owned → precise bands, not just "trim into strength":</b>
+          <ul style="margin-top:3px">
+            <li><b class="h">Trim materially above €56</b> absent fresh <i>upward</i> estimate revisions — a multiple-only re-rate above the Street target is the sell signal.</li>
+            <li><b class="h">Hold only a residual</b> for monopoly optionality — define a hard max, e.g. <b class="h">≤ a half-position (≤~1.5% of the book)</b>, and be honest it is a hold-not-add.</li>
+            <li><b class="h red">Reset toward 0%</b> if the Q2/H1-26 falsifier trips: shipment slip / guide cut / opto book-to-bill &lt;1 (see §7). That is a thesis-break, not a dip to ride.</li>
+          </ul>
+        </li>
+        <li><b class="h red">Not a short.</b> Monopoly + +30% order momentum + book-to-bill ~2.9× can squeeze violently; the bear thesis is timing/valuation, not collapse.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag teal">SIZING — IN PORTFOLIO TERMS</span>
+      <ul>
+        <li><b class="h">Now (€56): 0% of the book.</b> No starter. The discipline of a violent cyclical is to pre-commit a buy-below and let the tape come to you.</li>
+        <li><b class="h">At €35–40: a 0.5–1.0% starter</b> (¼–⅓ of a notional ~3% full position), scaling on further weakness toward the low-€30s — averaging <i>into</i> the trough, the way the €13.88 entry worked.</li>
+        <li><b class="h">Scale to a max 2–3%</b> ONLY if H2 execution AND reactor-intensity evidence confirm (§7 greens). Absent that, cap at the starter.</li>
+        <li><b class="h red">Loss budget / mental stop ~25%</b> from entry — sized to AIXTRON's ~11% average weekly move (a normal two-week drawdown), so the stop is a thesis-break, not noise. <b class="h">Trim/exit if price returns above the Street target WITHOUT estimate revisions</b> (multiple-only re-rate = sell the strength).</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card">
+    <span class="tag teal">SHARE-COUNT &amp; CONVERTIBLE BRIDGE (dilution into the bull case)</span>
+    <table style="margin-top:8px">
+      <thead><tr><th>Bridge</th><th class="num">Shares (M)</th><th class="num">Δ</th><th>Per-share effect on the bull</th></tr></thead>
+      <tbody>
+        <tr><td>Pre-convert (basic)</td><td class="num">~112.8</td><td class="num">—</td><td class="mut">the count used for spot EV (€56.2 × 112.8M)</td></tr>
+        <tr><td>If-converted (~€450M Apr-2026 convert)</td><td class="num">~121.6</td><td class="num amber">+7.5–7.9%</td><td class="mut">the count that matters at a high stock price (bull case)</td></tr>
+        <tr><td>Bull EPS impact</td><td class="num" colspan="2">€2.00 → ~€1.86</td><td class="red">~€0.14 EPS / ~7% of the bull per-share value is dilution</td></tr>
+      </tbody>
+    </table>
+    <p class="kicker" style="margin-top:6px"><b class="h">EV is ~cash/debt-neutral</b> from the convert (it grosses up cash ≈ the bond face), so the <i>reverse-DCF EV</i> is unchanged — but the <i>per-share</i> bull math must use the diluted ~121.6M count, which is exactly the case the dilution bites. The §5 bull €72 already uses the €1.86 diluted EPS. <span class="src">eqs-news convertible placement 23-Apr-26; stockanalysis share count.</span></p>
+  </div>
+  <div class="card">
+    <span class="tag teal">VENUE (under liquidity constraint)</span>
+    <ul>
+      <li><b class="h">Trade the liquid primary line <span class="mono">AIXA.DE</span> (XETRA)</b>, not the thin <span class="mono">AIXXY</span> ADR — the ADR's spread/illiquidity is a real execution drag. Confirm IBKR XETRA access/FX.</li>
+      <li><b class="h red">IBKR is READ-ONLY — place any order yourself.</b> Everything here is personal research, not advice.</li>
+    </ul>
+  </div>
+
+  <div class="card" style="border-color:#5e4f2f;background:linear-gradient(180deg,#211d12,#161b22)">
+    <div class="eyebrow" style="color:var(--accent)">REFRESH BEFORE AN AGGRESSIVE PULLBACK ENTRY · honest deferred-hardening list</div>
+    <p class="kicker" style="margin-top:8px;max-width:100ch">This memo is <b class="h">decision-grade for the call it actually makes — 0% now / no-chase at €56</b>. The items below do <i>not</i> move that conclusion (spot above every target, neg. expected return), but they DO matter once you are sizing real money at the €35–40 buy-below zone. Treat them as the pre-flight checklist before scaling past a starter:</p>
+    <ul style="margin-top:8px">
+      <li><b class="h">(a) Multi-vendor consensus reconciliation table (FY26/27/28).</b> One row per vendor (stockanalysis · TradingView · investing.com · Fintel · any broker note) with analyst count, FY26/27/28 rev·EBIT·EPS·target, and 30/60/90-day revisions. <span class="amber">Today FY27/FY28 lean on Fintel</span> — fine for "priced above consensus," not yet two-independent-source audit-grade for the out-years.</li>
+      <li><b class="h">(b) FCF reinvestment bridge FY26–30.</b> EBIT → tax → +D&A → −capex → −working-capital → FCF, run at 70% / 85% / 100% of NOPAT conversion. <span class="amber">§2 currently uses the FCF ≈ NOPAT shortcut</span> (defensible for an asset-light tool model with ~33% FY25 FCF margin), but a true super-cycle ramp can absorb inventory/receivables/Malaysia capacity — the bridge would confirm the numerator survives the ramp.</li>
+      <li><b class="h">(c) CPO reactor-hours/port bear·base·bull 3-case table.</b> <code>chips/port × reactor-hours/laser × yield-loss × attach</code> as three explicit columns. This converts the §3 driver-③ crux (the single <span class="blogflag">unverified blog-tier</span> "UHP-CW 5–10× reactor-time" offset) into a sized range — and the bull/base/bear of <i>that</i> is what should set the exact entry band below €40.</li>
+      <li><b class="h">(d) Exact 2016 / 2018-19 drawdown dates &amp; prices.</b> The §8 table marks these (est.) — backfill precise peak/trough dates and lows from a price-history source and tie each to the relevant filing, to harden the cyclicality/sizing discipline.</li>
+    </ul>
+    <p class="kicker" style="margin-top:8px"><b class="h amber">Framing:</b> the memo is decision-grade for 0%-now; <b class="h">sharpen (a)–(d) before sizing aggressively at €35–40.</b> None of them is a gate on the current no-buy call; all of them are gates on the future <i>buy</i> call.</p>
+  </div>
+
+  <!-- ===================== 7. CATALYST PATH ===================== -->
+  <h2><span class="n">7</span>Catalyst path — green / yellow / red bands with dated falsifiers</h2>
+  <p class="sub">The €56 thesis lives or dies on H2-26 execution and the GaN/SiC + per-port-InP debates resolving. <b class="h">Next hard calendar gate: the Q2-26 print ~Jul 30 2026</b> (stockanalysis). The single biggest near-term test: the <b class="h">~€391M (~70% of FY26) that must be recognized in H2</b> after a €169M H1 (Q1 €59M + Q2 guide €110M).</p>
+  <table>
+    <thead><tr><th>Catalyst</th><th>Date / window</th><th class="num"><span class="pos">GREEN</span> · bull</th><th class="num"><span class="warn">YELLOW</span> · watch</th><th class="num"><span class="red">RED / falsifier</span></th></tr></thead>
+    <tbody>
+      <tr><td><b class="h">Q2-26 print + H2 bar</b></td><td><b class="h">~Jul 30 2026</b></td><td class="pos">Q2 rev ≥ guide (€110M); book-to-bill &gt;1×; H2 €391M reaffirmed; opto orders &gt;€100M</td><td class="warn">guide maintained but book-to-bill fades toward 1×</td><td class="red">shipment slip / guide cut / opto book-to-bill &lt;1</td></tr>
+      <tr><td><b class="h">GaN/SiC order inflection</b></td><td>H2-26 / early '27</td><td class="pos">first GaN-power / SiC orders into backlog; 800VDC tool-of-record win</td><td class="warn">commentary improves but no firm orders booked</td><td class="red">SiC still "soft," GaN still "low"; 800VDC lost to Veeco</td></tr>
+      <tr><td><b class="h">Opto digestion / CW flood</b></td><td>2026–27</td><td class="pos">opto orders stay &gt;€100M/qtr; multi-year framework extends</td><td class="warn">orders positive but lumpier; one soft quarter</td><td class="red">Coherent 5× CW + new InP foundries deflate panic-ordering → b-t-b &lt;1×</td></tr>
+      <tr><td><b class="h">Per-port InP intensity</b></td><td>continuous</td><td class="pos">AIXTRON IR / customer data confirms UHP-CW reactor-intensity offset</td><td class="warn">ambiguous; only blog-tier evidence either way</td><td class="red">SiPho/CPO scales with "4× fewer lasers"; tool/port demand plateaus</td></tr>
+      <tr><td><b class="h">China InP licenses</b></td><td>ongoing</td><td class="pos">licenses flow; no AMEC/NAURA InP-laser qualification</td><td class="warn">delays/friction but no outright block</td><td class="red">export throttling on InP tools; Chinese InP second-source qualifies</td></tr>
+    </tbody>
+  </table>
+  <p class="kicker" style="margin-top:8px"><b class="h amber">Watch-only at €56; act at ~€35–40.</b> A green H2 print does NOT make €56 a buy — it makes the <i>bull case more likely</i>, which you express by being willing to pay a bit more on the next pullback, not by chasing through the high. <b class="h">The dated falsifier of the whole bull thesis:</b> if the Jul-30 print shows a shipment slip or a guide cut, the H2 hockey-stick breaks and the de-rate leg of §5 is live.</p>
+
+  <!-- ===================== 8. RISK REGISTER ===================== -->
+  <h2><span class="n">8</span>Risk register &amp; the cyclicality discipline</h2>
+  <table>
+    <thead><tr><th>Risk</th><th class="num">Likelihood</th><th class="num">Impact</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td><b class="h">Valuation / de-rate</b></td><td class="num red">High</td><td class="num red">High</td><td>~74× FY25 EPS, above every target; cyclical toolmakers de-rate to sub-20× at peaks. The core risk — and the entire §2 thesis.</td></tr>
+      <tr><td><b class="h">Proven cyclicality</b></td><td class="num red">High</td><td class="num red">High</td><td>−67% peak-to-trough 2024-25; ~11% avg WEEKLY move; reverse operating leverage took Q1-26 EBIT to −38%. See drawdown table.</td></tr>
+      <tr><td><b class="h">Order pull-forward</b></td><td class="num amber">Med</td><td class="num red">High</td><td>Coherent ramping 5× CW capacity; NVIDIA pre-allocating EML past 2027 — today's orders may front-load a flatter 2028.</td></tr>
+      <tr><td><b class="h">SiPho per-port erosion</b></td><td class="num amber">Med-High</td><td class="num amber">Med-High</td><td>SiPho &gt;50% share by '26; per-port InP chips −50–75%. The reactor-intensity offset is unverified (see ③).</td></tr>
+      <tr><td><b class="h">Reactor-intensity assumption</b></td><td class="num amber">—</td><td class="num red">High</td><td><span class="blogflag">Single blog source, no primary corroboration</span> — the most load-bearing AND least-verified input. If false, the bull terminal revenue collapses.</td></tr>
+      <tr><td><b class="h">GaN/SiC timing</b></td><td class="num amber">Med</td><td class="num amber">Med</td><td>~half the franchise; recovery slipped to H2-26/'27, not in backlog. Every quarter pushes the hockey-stick right.</td></tr>
+      <tr><td><b class="h">China InP export-permit</b></td><td class="num amber">Med</td><td class="num amber">Med</td><td>Feb-2025 InP permit; AMEC/NAURA insourcing precedent (took Veeco 30%→12% in LED). Long-horizon cap on the premium.</td></tr>
+      <tr><td><b class="h">Convertible dilution</b></td><td class="num pos">Low</td><td class="num amber">Med</td><td>~€450M convert (Apr-26), ~7.5–7.9% dilution optionality; raising at peak valuation is a soft signal. Modeled into §5/§6.</td></tr>
+      <tr><td><b class="h">FX (EUR/Asia)</b></td><td class="num amber">Med</td><td class="num pos">Low-Med</td><td>Asia ~60% of rev; a softening USD cost ~€2M of GM in a single quarter (Q3-25).</td></tr>
+    </tbody>
+  </table>
+  <div class="card">
+  <h3>Historical drawdown table — what "violent cyclical" means in practice</h3>
+  <table>
+    <thead><tr><th>Episode</th><th>Move</th><th>Cause</th><th>Rough recovery</th></tr></thead>
+    <tbody>
+      <tr><td><b class="h">2016 Chinese-takeover block</b></td><td class="num red">~€6 → €3.86, ~−36% <span class="mut">(est.)</span></td><td>US (CFIUS) blocked the Fujian Grand Chip / Chinese takeover; LED-MOCVD glut underneath.</td><td class="mut">multi-year; trough into 2016–17 (~2.4% EBIT margin)</td></tr>
+      <tr><td><b class="h">2018–19 trade-war decline</b></td><td class="num red">cyclical drawdown <span class="mut">(est.)</span></td><td>LED/power capex cooled into the US-China trade war; orders rolled over.</td><td class="mut">recovered into the 2021–23 up-cycle</td></tr>
+      <tr><td><b class="h">2024–25 margin-warning bust</b></td><td class="num red">−67% peak-to-trough; €50 → €13–14; <b class="h">−22% single day</b></td><td>FY24 margin warning; SiC/GaN power glut; traded €13–14 for months.</td><td class="mut">~1 yr basing before the 2026 opto re-rating (€13.88 → €56)</td></tr>
+    </tbody>
+  </table>
+  <p class="kicker" style="margin-top:6px"><b class="h amber">Discipline translation:</b> a stock that loses two-thirds of its value in a normal down-cycle and gaps −22% on a single guide cut <b class="h">must be entered small and patiently</b> — hence the 0% now / 0.5–1.0% starter at €35–40 / 2–3% max only on confirmation, with re-entry patience measured in quarters, not days. The €13.88 Kerrisdale entry is the template: you buy the violent cyclical when it has been left for dead, not after a 5× run. <span class="src">2024-25 figures: stockanalysis / simplywall.st price history + AIXTRON reports. 2016 / 2018-19 figures marked (est.) — exact daily lows not independently re-sourced here.</span></p>
+  </div>
+
+  <!-- ===================== 9. SOURCES + DISCLAIMER ===================== -->
+  <h2><span class="n">9</span>Sources — audit-grade, honestly tiered (claim · value · tier · as-of)</h2>
+  <p class="sub"><b class="h amber">v3 source tiers (re-bucketed for auditability):</b> <span class="pill edge">company-primary</span> = AIXTRON AR2025 / Q1-2026 report / ad-hoc · <span class="pill yel">original sell-side</span> = mwb, Kerrisdale, UBS (original research — NOT "primary") · <span class="pill warn">market-data aggregator</span> = stockanalysis / tradingview / investing / fintel · <span class="pill ctx">industry press</span> = compoundsemiconductor / semiconductor-today / trendforce / lightcounting / NVIDIA · <span class="blogflag">blog</span> = jasonschips / substacks (flagged where load-bearing). FY25/Q1-26/guidance anchor to <b class="h">company-primary</b> docs; the most load-bearing crux ("UHP-CW 5–10× reactor-time") stays the single <b class="h red">unverified blog-tier</b> input. Modeled figures tagged (est.).</p>
+  <table>
+    <thead><tr><th>Claim</th><th>Value</th><th class="num">Tier</th><th>As-of</th><th>URL</th></tr></thead>
+    <tbody>
+      <tr><td>Spot price</td><td>€56.22 (16-Jun close); €58.64 intraday 15-Jun</td><td class="num"><span class="pill warn">aggregator</span></td><td>2026-06-16</td><td><a href="https://www.investing.com/equities/aixtron">investing.com/equities/aixtron</a></td></tr>
+      <tr><td>Consensus 12-mo target (fresh)</td><td>~€46.4–46.8 (stockanalysis €46.83; TradingView €46.38; investing.com €46.83); below spot</td><td class="num"><span class="pill warn">aggregator</span></td><td>2026-06-16</td><td><a href="https://stockanalysis.com/quote/etr/AIXA/forecast/">stockanalysis · AIXA forecast</a></td></tr>
+      <tr><td>Consensus target (brief midpoint / older)</td><td>€42.70 (low anchor / older panel; reconciled vs €46.8, not blended)</td><td class="num"><span class="pill warn">aggregator</span></td><td>2026-06-16</td><td><a href="https://www.investing.com/equities/aixtron-consensus-estimates">investing.com · consensus</a></td></tr>
+      <tr><td>Next earnings date</td><td>Q2-26 ~Jul 30 2026</td><td class="num"><span class="pill warn">aggregator</span></td><td>2026-06-16</td><td><a href="https://stockanalysis.com/quote/etr/AIXA/">stockanalysis · AIXA</a></td></tr>
+      <tr><td>Rating distribution</td><td>5 Buy / 13 Hold / 1 Sell (19; Hold-skewed); investing.com 5/9/1 "Neutral"</td><td class="num"><span class="pill warn">aggregator</span></td><td>2026-06-01</td><td><a href="https://fintel.io/sfo/us/aixxf">fintel.io/sfo/us/aixxf</a></td></tr>
+      <tr><td>FY26/27/28 EPS &amp; revisions</td><td>FY26 EPS €0.67–0.69 (fintel) / €0.73 (SA); FY27 €1.18; revisions UP <span class="mut">(FY27/28 lean on Fintel — see refresh box)</span></td><td class="num"><span class="pill warn">aggregator</span></td><td>2026-06-08</td><td><a href="https://fintel.io/sfo/us/aixxf">fintel.io/sfo/us/aixxf</a></td></tr>
+      <tr><td>FY25 results (rev / EBIT / net / EPS / FCF)</td><td>Rev €556.6M; EBIT €100.3M (18%); net €85.3M; EPS €0.76; FCF €181.9M (~33%)</td><td class="num"><span class="pill edge">company</span></td><td>FY2025</td><td><a href="https://www.aixtron.com/investoren/publikationen/2025/en/Annual%20Report%202025.pdf">AIXTRON Annual Report 2025</a></td></tr>
+      <tr><td>FY25 revenue / margin (press corroboration)</td><td>€556.6M −12% YoY; GM 40%; EBIT 18% (vs 21%/25%)</td><td class="num"><span class="pill ctx">press</span></td><td>2026-02-26</td><td><a href="https://compoundsemiconductor.net/article/123615/Aixtron_posts_robust_results_in_a_tough_market">compoundsemiconductor · 123615</a></td></tr>
+      <tr><td>DPS cut</td><td>€0.40 → €0.15 (−62.5%)</td><td class="num"><span class="pill warn">aggregator</span></td><td>2026-02-26</td><td><a href="https://eulerpool.com/stock/Aixtron-Stock-DE000A0WMPJ6">eulerpool · AIXTRON</a></td></tr>
+      <tr><td>Q1-26 actuals</td><td>Rev €59.4M (−47%); EBIT −€22.3M (−38%); EPS −€0.19; intake €171.4M (+30%); backlog €359.1M</td><td class="num"><span class="pill edge">company</span></td><td>2026-03-31</td><td><a href="https://www.aixtron.com/investoren/publikationen/2026/englisch/3-Months-Report-2026.pdf">AIXTRON 3-Months Report 2026</a></td></tr>
+      <tr><td>Q1-26 opto intake / book-to-bill</td><td>Opto €118.0M (~70%); b-t-b ~2.9×</td><td class="num"><span class="pill ctx">press</span></td><td>2026-04-30</td><td><a href="https://www.semiconductor-today.com/news_items/2026/may/aixtron-040526.shtml">semiconductor-today · 040526</a></td></tr>
+      <tr><td>Balance sheet (Q1-26)</td><td>Cash €272.7M; equity 85%; debt ~0 → net cash ~€273M</td><td class="num"><span class="pill edge">company</span></td><td>2026-03-31</td><td><a href="https://www.aixtron.com/investoren/publikationen/2026/englisch/3-Months-Report-2026.pdf">AIXTRON 3-Months Report 2026</a></td></tr>
+      <tr><td>€450M convertible</td><td>Due Apr-2031; ~7.5–7.9% dilution; net-cash-neutral; 112.8M → 121.6M if-converted</td><td class="num"><span class="pill edge">company</span></td><td>2026-04-23</td><td><a href="https://www.eqs-news.com/news/ad-hoc/aixtron-se-successfully-placed-eur-450-million-convertible-bonds/6ee30c29-eafe-487a-ba22-e36888135bb7_en">eqs-news · convertible</a></td></tr>
+      <tr><td>FY26 guide (raised)</td><td>Rev €560M ±30 (from €520M); GM ~42%; EBIT 17–20%</td><td class="num"><span class="pill ctx">press</span></td><td>2026-04-14</td><td><a href="https://compoundsemiconductor.net/article/123997/AIXTRON_SE_increases_FY_2026_guidance">compoundsemiconductor · 123997</a></td></tr>
+      <tr><td>H2 back-loading</td><td>H1 ~€169M → ~€391M (~70%) needed in H2 (est.)</td><td class="num"><span class="pill edge">company</span></td><td>2026-04-30</td><td><a href="https://www.aixtron.com/investoren/events/telefonkonferenz/2026/Q1-2026%20Results%20Speech.pdf">AIXTRON Q1-26 results speech</a></td></tr>
+      <tr><td>Out-year consensus (rev)</td><td>FY27 rev ~€727M; FY28 rev ~€906M <span class="mut">(FY27/28 lean on Fintel — see refresh box)</span></td><td class="num"><span class="pill warn">aggregator</span></td><td>2026-06-08</td><td><a href="https://fintel.io/sfo/us/aixxf">fintel.io/sfo/us/aixxf</a></td></tr>
+      <tr><td>Share count / EV</td><td>~112.8M sh; basic mkt cap ~€6.34B; if-converted ~€6.8B (~121.6M); EV ~€6.07B</td><td class="num"><span class="pill warn">aggregator</span></td><td>2026-06-16</td><td><a href="https://stockanalysis.com/quote/etr/AIXA/statistics/">stockanalysis · AIXA</a></td></tr>
+      <tr><td>Bear anchor (full estimate set)</td><td>mwb SELL, PT €30, DCF €29.94; 2027 rev €678.5M/EBIT €166.2M/EPS €1.04; 2028 rev €800.7M/EBIT €208.2M/EPS €1.30</td><td class="num"><span class="pill yel">sell-side</span></td><td>2026-03-27</td><td><a href="https://downloads.research-hub.de/2026%2003%2026%20AIXTRON%20update___kexs52l3.pdf">mwb research · AIXTRON update</a></td></tr>
+      <tr><td>Bull anchor</td><td>Kerrisdale LONG (entry €13.88); '28 rev ~€1.06B, EPS ~€2.00 (pre-convert)</td><td class="num"><span class="pill yel">sell-side</span></td><td>2025-11-01</td><td><a href="https://www.kerrisdalecap.com/wp-content/uploads/2025/11/AIXA-Kerrisdale.pdf">Kerrisdale · AIXA PDF</a></td></tr>
+      <tr><td>Blended MOCVD share</td><td>AIXTRON 77% (Yole 2024); Veeco 8%</td><td class="num"><span class="pill edge">company</span></td><td>FY2024</td><td><a href="https://www.aixtron.com/investoren/publikationen/2025/en/Annual%20Report%202025.pdf">AIXTRON Annual Report 2025 (p.83)</a></td></tr>
+      <tr><td class="amber">&gt;90% InP-MOCVD share <span class="blogflag">[blog · load-bearing]</span></td><td>"well north of 90%" — <b class="h">mgmt-stated / analyst-amplified, NOT audited</b></td><td class="num"><span class="blogflag">blog</span></td><td>2025-26</td><td><a href="https://www.jasonschips.ai/p/the-aixtron-series-part-2-the-optoelectronics">jasonschips · optoelectronics</a></td></tr>
+      <tr><td>Customer concentration / pricing power</td><td>No customer &gt;low-teens %; G10-AsP ASP ~€3.5M</td><td class="num"><span class="blogflag">blog</span></td><td>2026</td><td><a href="https://cleanprint.substack.com/p/aixtron-after-a-300-rally">cleanprint · after a 300% rally</a></td></tr>
+      <tr><td>800G+ unit ramp</td><td>~24M → ~63M units (2.6×) into 2026</td><td class="num"><span class="pill ctx">press</span></td><td>2025-12-08</td><td><a href="https://www.trendforce.com/presscenter/news/20251208-12823.html">trendforce · 20251208</a></td></tr>
+      <tr><td>Attach ratio / optical TAM</td><td>2–3 → 4–6 w/ Rubin; TAM ~10× GB300→Rubin-Ultra</td><td class="num"><span class="blogflag">blog</span></td><td>2026</td><td><a href="https://damnang2.substack.com/p/the-real-bottleneck-in-the-optical-886">damnang2 · optical bottleneck</a></td></tr>
+      <tr><td>CPO uses InP CW external-laser source (architecture-agnostic anchor)</td><td><b class="h">NVIDIA silicon photonics: CPO light source = InP CW external laser; Quantum-X ~8 lasers/module</b> (label matched to the linked URL)</td><td class="num"><span class="pill ctx">press</span></td><td>2026</td><td><a href="https://www.nvidia.com/en-us/networking/products/silicon-photonics/">nvidia · silicon photonics</a></td></tr>
+      <tr><td class="amber">Per-port InP chips FALL <span class="blogflag">[blog]</span></td><td>8 EML → 2–4 CW+SiPho (−50–75%); SiPho &gt;50% share by '26</td><td class="num"><span class="blogflag">blog</span></td><td>2026</td><td><a href="https://photoncap.net/p/the-silicon-photonics-light-source">photoncap · SiPho light source</a></td></tr>
+      <tr><td class="amber">UHP-CW = 5–10× reactor-time <span class="blogflag">[FLAG] load-bearing &amp; unverified</span></td><td>the crux offset — <b class="h red">single blog source, no primary corroboration</b></td><td class="num"><span class="blogflag">blog</span></td><td>2026</td><td><a href="https://www.jasonschips.ai/p/the-aixtron-series-part-2-the-optoelectronics">jasonschips · optoelectronics</a></td></tr>
+      <tr><td>EML shortage structural</td><td>Demand &gt; supply ~30%; persists into H2-2027</td><td class="num"><span class="pill ctx">press</span></td><td>2026-04</td><td><a href="https://www.lightcounting.com/newsletter/en/april-2026-market-forecast-379">lightcounting · Apr-2026 forecast</a></td></tr>
+      <tr><td>China InP export-permit</td><td>Feb-2025 InP permit (after GaAs Aug-2023)</td><td class="num"><span class="pill ctx">press</span></td><td>2025-11-10</td><td><a href="https://www.semiconductor-today.com/news_items/2025/nov/axt-101125.shtml">semiconductor-today · axt 101125</a></td></tr>
+      <tr><td>China MOCVD insourcing precedent</td><td>AMEC took Veeco from ~30% → ~12% epi share (LED)</td><td class="num"><span class="pill ctx">press</span></td><td>2026</td><td><a href="https://compoundsemiconductor.net/article/102814/China_MOCVD_players_break_Veeco-Aixtron_dominance">compoundsemiconductor · 102814</a></td></tr>
+      <tr><td>Cyclicality / weekly vol / drawdowns</td><td>−67% peak-to-trough 2024-25; −22% single day; ~11% avg weekly move</td><td class="num"><span class="pill warn">aggregator</span></td><td>2026-06-16</td><td><a href="https://simplywall.st/stocks/de/semiconductors/etr-aixa/aixtron-shares">simplywall.st · AIXA</a></td></tr>
+    </tbody>
+  </table>
+
+  <p class="legend" style="margin-top:22px"><b class="h">Disclaimer.</b> Personal research for a private knowledge base — <b class="h">NOT investment advice</b>. All figures are point-in-time as-of 2026-06-16 and decay quickly; modeled values are marked (est.). The reverse-DCF, the Panel-C grid, and the probability weights are the author's assumptions, not consensus. Two load-bearing inputs are <span class="blogflag">blog-tier</span> and explicitly flagged: the "&gt;90% InP share" (mgmt-stated, not audited) and the "UHP-CW 5–10× reactor-time" offset (single source, no primary corroboration) — the latter is the most consequential and least-verified claim in the memo. 2016 and 2018-19 drawdown figures are marked (est.) where exact daily lows were not independently re-sourced. <b class="h">IBKR is READ-ONLY; never trade through it.</b> Always place any order yourself on the liquid AIXA.DE line.</p>
+
+</div></body>
+</html>

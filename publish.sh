@@ -40,6 +40,13 @@ sync_slug 'AI-Infra_Substrates_*_v5_*.html'                  substrates.html
 # --- sync the latest weekly Macro-Flow Monitor ---
 sync_slug 'Macro-Flow-Monitor_*.html' macro.html
 
+# --- sync the Expectations-Layer Alpha Map (Engine C, weekly) ---
+sync_slug 'AI-Infra_AlphaMap_ConsensusGap_*.html'    alpha-map.html
+sync_slug 'AI-Infra_AlphaMap_FrameworkBlueprint_*.html' alpha-map-blueprint.html
+
+# --- sync single-name reverse-model teardowns (on-demand) ---
+sync_slug 'AIXTRON_ReverseModel_*.html' aixtron.html
+
 # --- commit ---
 git add -A
 if git diff --cached --quiet; then

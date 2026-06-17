@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Engine C — Consensus-Gap & Nowcast Alpha Layer · Framework Blueprint v1</title>
+<style>
+  :root{
+    --bg:#0e1116;--panel:#161b22;--panel2:#1c232c;--line:#2a323d;--line2:#3a444f;
+    --ink:#e6edf3;--muted:#9aa7b4;--faint:#8692a0;
+    --accent:#e0a23b;--accent2:#3fb6a8;--pos:#46b87f;--neg:#df6258;--warn:#dca24a;--violet:#9a8cd6;
+    --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55}
+  .wrap{max-width:1120px;margin:0 auto;padding:34px 26px 80px}
+  h1{font-size:27px;letter-spacing:-.02em;margin:0 0 4px}
+  h2{font-size:16px;letter-spacing:.01em;margin:34px 0 6px;padding-top:14px;border-top:1px solid var(--line)}
+  h2 .n{font-family:var(--mono);color:var(--accent2);font-size:13px;margin-right:8px}
+  .sub{color:var(--muted);max-width:84ch}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .mono{font-family:var(--mono)}
+  .teal{color:var(--accent2)} .red{color:var(--neg)} .amber{color:var(--accent)} .pos{color:var(--pos)} .mut{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  @media(max-width:820px){.grid2,.grid3{grid-template-columns:1fr}}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint)}
+  .pill{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:999px;border:1px solid var(--line2);white-space:nowrap;display:inline-block}
+  .pill.edge{color:var(--accent2);border-color:#2f5e57} .pill.no{color:var(--neg);border-color:#5e3331} .pill.ctx{color:var(--faint)}
+  svg{display:block;width:100%;height:auto}
+  svg text{font-family:var(--sans);fill:var(--ink);font-size:12px}
+  svg text.m{font-family:var(--mono)}
+  svg text.lbl{fill:var(--muted);font-size:11px}
+  svg text.fa{fill:var(--faint);font-size:10px}
+  .legend{color:var(--faint);font-size:12px;margin-top:18px}
+  .kicker{color:var(--muted);font-size:13px;margin:2px 0 0}
+  b.h{color:var(--ink)}
+  ul{margin:6px 0 0;padding-left:18px} li{margin:3px 0;color:var(--muted)}
+  code{font-family:var(--mono);font-size:12px;background:var(--panel2);padding:1px 5px;border-radius:4px;color:var(--ink)}
+  .tag{font-family:var(--mono);font-size:10px;color:var(--faint)}
+</style>
+</head>
+<body><div class="wrap">
+
+  <div class="eyebrow">AI-Infra Research System · proposed Engine C · planning blueprint v1.1 · Codex-reviewed ×3</div>
+  <h1>The Expectations Layer — Consensus-Gap &amp; Nowcast Alpha</h1>
+  <p class="kicker mono">As-of 2026-06-16 · Codex gpt-5.5/xhigh reviewed (2 rounds) · personal research, NOT investment advice · IBKR READ-ONLY</p>
+  <p class="sub" style="margin-top:10px">The two existing engines sense <b class="h">tightness</b> (chokepoint deep-dive) and <b class="h">regime + tape</b> (macro monitor) — but never <b class="h">expectations</b>. This layer makes the gap between your bottom-up estimate and Street consensus, and the second derivative of that gap, into first-class dated objects. <span class="teal">The alpha is the window between the gap opening and the revision completing.</span></p>
+
+  <!-- ===================== 1. ALPHA MECHANISM ===================== -->
+  <h2><span class="n">1</span>The alpha mechanism — and where the retail edge actually is</h2>
+  <p class="sub">You position inside one causal chain. For a mega-cap, steps [B] and [C] collapse to a single afternoon (the print hits every desk and algo at once) → <span class="red">no edge</span>. Edge survives in only two places.</p>
+  <div class="card">
+  <svg viewBox="0 0 1080 240" role="img" aria-label="Alpha mechanism chain A to B to C to D">
+    <defs>
+      <marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#8692a0"/></marker>
+      <marker id="ahT" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#3fb6a8"/></marker>
+    </defs>
+    <!-- stage boxes -->
+    <g>
+      <rect x="20" y="40" width="220" height="70" rx="9" fill="#1c232c" stroke="#3a444f"/>
+      <text class="m" x="34" y="64" style="fill:#e0a23b;font-size:13px">[A] physical tightness</text>
+      <text class="fa" x="34" y="84">lead-time · book-to-bill ·</text>
+      <text class="fa" x="34" y="98">capacity · $-content/rack</text>
+    </g>
+    <g>
+      <rect x="290" y="40" width="220" height="70" rx="9" fill="#1c232c" stroke="#3a444f"/>
+      <text class="m" x="304" y="64" style="fill:#e0a23b;font-size:13px">[B] leading indicator</text>
+      <text class="fa" x="304" y="84">orders inflect · monthly</text>
+      <text class="fa" x="304" y="98">sales · customs exports</text>
+    </g>
+    <g>
+      <rect x="560" y="40" width="220" height="70" rx="9" fill="#13302c" stroke="#2f5e57"/>
+      <text class="m" x="574" y="64" style="fill:#3fb6a8;font-size:13px">[C] consensus</text>
+      <text class="fa" x="574" y="84">Street est. forced to</text>
+      <text class="fa" x="574" y="98">REVISE (the trigger)</text>
+    </g>
+    <g>
+      <rect x="830" y="40" width="220" height="70" rx="9" fill="#1c232c" stroke="#3a444f"/>
+      <text class="m" x="844" y="64" style="fill:#df6258;font-size:13px">[D] price re-rates</text>
+      <text class="fa" x="844" y="84">multiple expands as the</text>
+      <text class="fa" x="844" y="98">crowd converges</text>
+    </g>
+    <!-- arrows -->
+    <line x1="240" y1="75" x2="286" y2="75" stroke="#8692a0" stroke-width="1.4" marker-end="url(#ah)"/>
+    <line x1="510" y1="75" x2="556" y2="75" stroke="#3fb6a8" stroke-width="2.2" marker-end="url(#ahT)"/>
+    <line x1="780" y1="75" x2="826" y2="75" stroke="#8692a0" stroke-width="1.4" marker-end="url(#ah)"/>
+    <!-- edge window bracket -->
+    <path d="M300,128 L300,140 L770,140 L770,128" fill="none" stroke="#3fb6a8" stroke-width="1.3"/>
+    <text class="m" x="535" y="162" text-anchor="middle" style="fill:#3fb6a8;font-size:12px">the [B]→[C] alpha window — be long while GAP ≠ 0 AND revision ≈ 0</text>
+    <!-- not-an-edge note -->
+    <rect x="20" y="186" width="500" height="44" rx="8" fill="#1c232c" stroke="#5e3331"/>
+    <text class="fa" x="34" y="206" style="fill:#df6258">NOT an edge:</text>
+    <text class="fa" x="120" y="206">reading a statutory release faster — it hits</text>
+    <text class="fa" x="34" y="221">every analyst the same second (mega-cap [B]≡[C])</text>
+    <rect x="540" y="186" width="510" height="44" rx="8" fill="#13302c" stroke="#2f5e57"/>
+    <text class="fa" x="554" y="206" style="fill:#3fb6a8">The two real edges:</text>
+    <text class="fa" x="676" y="206">(1) a differentiated $-content model the</text>
+    <text class="fa" x="554" y="221">Street under-weights;  (2) under-covered links with no tight consensus</text>
+  </svg>
+  </div>
+  <div class="grid2">
+    <div class="card" style="border-color:#2f5e57">
+      <span class="tag teal">MODE 1 · CONSENSUS-GAP</span>
+      <p class="kicker" style="margin-top:6px">Where a real Street number exists (<span class="mono">REPORTED</span> or validated <span class="mono">RECONSTRUCTED</span> consensus). <b class="h">Be early to a forced revision.</b> EARLY = GAP_z&gt;2 · completed workbook · reverse-margin&gt;σ · dated catalyst · <span class="teal mono">revision_progress&lt;0.33</span>.</p>
+    </div>
+    <div class="card" style="border-color:#5e4f2f">
+      <span class="tag amber">MODE 2 · DISCOVERY / PRICE-IMPLIED</span>
+      <p class="kicker" style="margin-top:6px">For under-covered names with <span class="mono">NO_CONS</span> — exactly where the alpha lives. <b class="h">No fake consensus.</b> Anchor on the <span class="amber">price-implied expectation</span>; EARLY = MINE beats it by &gt;σ in the <i>conservative</i> case · dated catalyst · tradeable expression. <span class="mut">Plus the identifiability gate: SOTP-isolate the AI sliver · prove the driver isn’t already in price · catalyst must reveal that exact driver — else research-only.</span></p>
+    </div>
+  </div>
+  <p class="kicker" style="margin-top:8px"><b class="h amber">The hard gate (mode-aware):</b> miss any required gate → at most a <i>variant baseline</i>, logged CONTEXT, never funded. <span class="mut">This two-mode split resolves the framework's deepest tension — the best alpha terrain (under-covered) is exactly where free consensus is weakest. Default verdict for most mega-caps in mid-2026: “real but already priced — no edge.” The most valuable output is sometimes a veto.</span></p>
+
+  <!-- ===================== 2. SYSTEM ARCHITECTURE / INTEGRATION ===================== -->
+  <h2><span class="n">2</span>How it integrates — a shared state-layer, not a third report engine (Q8)</h2>
+  <p class="sub">Engine C is the <span class="teal">missing middle</span>. It writes one append-only ledger that the existing engines read and write; a thin event-driven tripwire keeps it warm between deep-dives and <span class="amber">queue-jumps on divergence</span>.</p>
+  <div class="card">
+  <svg viewBox="0 0 1080 400" role="img" aria-label="System architecture: three engines around a shared state ledger">
+    <defs><marker id="a2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#9aa7b4"/></marker>
+      <marker id="a2a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#e0a23b"/></marker></defs>
+    <!-- Engine B -->
+    <rect x="30" y="30" width="430" height="64" rx="10" fill="#1c232c" stroke="#3a444f"/>
+    <text class="m" x="48" y="55" style="fill:#9a8cd6;font-size:13px">ENGINE B · macro monitor</text>
+    <text class="fa" x="48" y="74">weekly · regime → overheat → backtest gate →</text>
+    <text class="fa" x="48" y="87">L1/L3 momentum-vs-mean-reversion → action sheet</text>
+    <text class="lbl" x="470" y="58">the tide</text>
+    <text class="fa" x="470" y="74">reads gap+revision;</text>
+    <text class="fa" x="470" y="87">writes price block</text>
+    <!-- Engine C (center, teal) -->
+    <rect x="30" y="150" width="600" height="100" rx="10" fill="#13302c" stroke="#3fb6a8" stroke-width="1.6"/>
+    <text class="m" x="48" y="176" style="fill:#3fb6a8;font-size:14px">ENGINE C · the expectations layer  (NEW)</text>
+    <text class="fa" x="48" y="197">consensus-gap engine · price-implied reverse-model ·</text>
+    <text class="fa" x="48" y="211">revision_progress clock · event-calendar tripwire ·</text>
+    <text class="fa" x="48" y="225">weekly pre-MINE stub · EV-score alpha map</text>
+    <text class="lbl" x="48" y="244" style="fill:#3fb6a8">the missing middle — measures the gap &amp; arms the tripwire</text>
+    <!-- Engine A -->
+    <rect x="30" y="306" width="430" height="64" rx="10" fill="#1c232c" stroke="#3a444f"/>
+    <text class="m" x="48" y="331" style="fill:#e0a23b;font-size:13px">ENGINE A · chokepoint deep-dive</text>
+    <text class="fa" x="48" y="350">every 2 days · binding chokepoint + severity + the</text>
+    <text class="fa" x="48" y="363">8-pt teardown names · writes full card-backed MINE</text>
+    <text class="lbl" x="470" y="334">the x-ray</text>
+    <text class="fa" x="470" y="350">reads queue-jump;</text>
+    <text class="fa" x="470" y="363">measures variant box</text>
+    <!-- shared state + alphamap on the right -->
+    <rect x="720" y="120" width="330" height="92" rx="10" fill="#161b22" stroke="#5e4f2f"/>
+    <text class="m" x="738" y="146" style="fill:#e0a23b;font-size:13px">ai-infra-state.json</text>
+    <text class="fa" x="738" y="166">append-only ledger = the product</text>
+    <text class="fa" x="738" y="181">MINE · CONS_label · σ-components ·</text>
+    <text class="fa" x="738" y="196">reverse-margin · revision_progress · stub</text>
+    <rect x="720" y="226" width="330" height="74" rx="10" fill="#161b22" stroke="#3a444f"/>
+    <text class="m" x="738" y="251" style="fill:#3fb6a8;font-size:13px">AI-Infra_ALPHAMAP.html</text>
+    <text class="fa" x="738" y="270">dashboard-of-dashboards (V1–V5),</text>
+    <text class="fa" x="738" y="284">regenerated each run · opened every morning</text>
+    <!-- vertical flow arrows B->C->A -->
+    <line x1="230" y1="94" x2="230" y2="146" stroke="#9aa7b4" stroke-width="1.4" marker-end="url(#a2)"/>
+    <line x1="230" y1="250" x2="230" y2="302" stroke="#9aa7b4" stroke-width="1.4" marker-end="url(#a2)"/>
+    <!-- C <-> state (read/write) -->
+    <line x1="630" y1="180" x2="716" y2="166" stroke="#9aa7b4" stroke-width="1.4" marker-end="url(#a2)"/>
+    <line x1="630" y1="200" x2="716" y2="250" stroke="#9aa7b4" stroke-width="1.4" marker-end="url(#a2)"/>
+    <!-- queue-jump amber arrow C->A -->
+    <path d="M70,250 C70,278 70,288 70,302" fill="none" stroke="#e0a23b" stroke-width="1.8" marker-end="url(#a2a)"/>
+    <text class="m" x="84" y="288" style="fill:#e0a23b;font-size:10px">queue-jump</text>
+    <text class="m" x="84" y="300" style="fill:#e0a23b;font-size:10px">on divergence</text>
+    <!-- A writes back up to state -->
+    <path d="M460,330 C660,330 700,300 718,290" fill="none" stroke="#9aa7b4" stroke-width="1.2" marker-end="url(#a2)" stroke-dasharray="4 3"/>
+    <text class="fa" x="540" y="324">full MINE write-back upgrades the stub</text>
+  </svg>
+  </div>
+  <p class="kicker"><b class="h">MECE check:</b> B = regime &amp; rotation · C = expectations gap &amp; revision (the missing middle) · A = the binding chokepoint &amp; names. No function lives in two engines.</p>
+
+  <!-- ===================== 3. TAXONOMY ===================== -->
+  <h2><span class="n">3</span>Is the dashboard MECE? — corrected taxonomy (Q2)</h2>
+  <p class="sub">The current 6 layers are a clean <i>physical bill-of-materials</i> but not MECE for an <i>expectations</i> engine: <span class="red">demand is absent</span>, HBM is buried in compute fabric, and two demand-adjacent clusters are missing. Corrected: <b class="h">1 master driver + 7 supply clusters</b> (S6 split into facility vs rack), with a two-axis exposure matrix for multi-socket names.</p>
+  <div class="card">
+  <svg viewBox="0 0 1080 300" role="img" aria-label="Corrected MECE taxonomy tree">
+    <!-- D0 master -->
+    <rect x="330" y="20" width="420" height="50" rx="9" fill="#161b22" stroke="#9a8cd6"/>
+    <text class="m" x="350" y="42" style="fill:#9a8cd6;font-size:13px">D0 · DEMAND / CAPEX  (master denominator)</text>
+    <text class="fa" x="350" y="60">hyperscaler + neocloud + sovereign + enterprise — never round-robin'd</text>
+    <line x1="540" y1="70" x2="540" y2="92" stroke="#3a444f"/>
+    <line x1="120" y1="92" x2="980" y2="92" stroke="#3a444f"/>
+    <!-- 8 buckets -->
+    <g font-size="11">
+      <!-- col positions -->
+      <!-- each bucket box -->
+      <g>
+        <rect x="40" y="108" width="220" height="52" rx="8" fill="#1c232c" stroke="#3a444f"/>
+        <text class="m" x="52" y="128" style="font-size:11px">S1 · Compute silicon / foundry</text>
+        <text class="fa" x="52" y="145">TSMC N3/N2 · merchant vs ASIC</text>
+        <line x1="150" y1="92" x2="150" y2="108" stroke="#3a444f"/>
+      </g>
+      <g>
+        <rect x="280" y="108" width="220" height="52" rx="8" fill="#1c232c" stroke="#3a444f"/>
+        <text class="m" x="292" y="128" style="font-size:11px">S2 · Advanced packaging</text>
+        <text class="fa" x="292" y="145">CoWoS / SoIC capacity (kwpm)</text>
+        <line x1="390" y1="92" x2="390" y2="108" stroke="#3a444f"/>
+      </g>
+      <g>
+        <rect x="520" y="108" width="220" height="52" rx="8" fill="#1c232c" stroke="#5e3331"/>
+        <text class="m" x="532" y="128" style="font-size:11px;fill:#df6258">S3 · Memory / HBM</text>
+        <text class="fa" x="532" y="145">EARLY-ineligible (desk-saturated)</text>
+        <line x1="630" y1="92" x2="630" y2="108" stroke="#3a444f"/>
+      </g>
+      <g>
+        <rect x="760" y="108" width="220" height="52" rx="8" fill="#1c232c" stroke="#3a444f"/>
+        <text class="m" x="772" y="128" style="font-size:11px">S4 · Interconnect</text>
+        <text class="fa" x="772" y="145">optical EML/CPO ⇄ copper AEC</text>
+        <line x1="870" y1="92" x2="870" y2="108" stroke="#3a444f"/>
+      </g>
+      <g>
+        <rect x="40" y="176" width="220" height="52" rx="8" fill="#1c232c" stroke="#3a444f"/>
+        <text class="m" x="52" y="196" style="font-size:11px">S5 · Networking silicon</text>
+        <text class="fa" x="52" y="213">switch-ASIC · DSP</text>
+      </g>
+      <g>
+        <rect x="280" y="176" width="220" height="52" rx="8" fill="#13302c" stroke="#2f5e57"/>
+        <text class="m" x="292" y="196" style="font-size:11px;fill:#3fb6a8">S6a · Power: facility / shell</text>
+        <text class="fa" x="292" y="213">grid · HV transformer · genset · land</text>
+      </g>
+      <g>
+        <rect x="520" y="176" width="220" height="52" rx="8" fill="#1c232c" stroke="#3a444f"/>
+        <text class="m" x="532" y="196" style="font-size:11px">S6b · Power: rack / board</text>
+        <text class="fa" x="532" y="213">VRM · PSU · BBU · magnetics</text>
+      </g>
+      <g>
+        <rect x="760" y="176" width="220" height="52" rx="8" fill="#1c232c" stroke="#3a444f"/>
+        <text class="m" x="772" y="196" style="font-size:11px">S7 · Cooling &amp; thermal</text>
+        <text class="fa" x="772" y="213">cold-plate · QD/UQD · CDU</text>
+      </g>
+    </g>
+    <!-- footnotes -->
+    <text class="fa" x="40" y="258" style="fill:#3fb6a8">S6a = the freshest setup (least financialized, longest lead) — the old taxonomy buried it.</text>
+    <text class="fa" x="40" y="276" style="fill:#df6258">S3 / mega-caps (&gt;15 analysts, deep options) → EARLY-ineligible by the financialization filter; they are the priced-check denominators.</text>
+  </svg>
+  </div>
+
+  <!-- ===================== 4. LEAD-LAG SPECTRUM ===================== -->
+  <h2><span class="n">4</span>Leading vs lagging — honest lead-time vs PRICE, not vs the filing (Q3 · Q4)</h2>
+  <p class="sub">Every design's “−1 to −3 month lead” is lead vs the <i>10-Q</i>, mislabeled as lead vs the <i>price</i>. Plotted against price, statutory feeds collapse to ~0 for covered names. A real negative lead survives only for the <span class="teal">model-driven $-content</span> row and <span class="teal">thinly-covered</span> names — and only if the event-study proves under-reaction.</p>
+  <div class="card">
+  <svg viewBox="0 0 1080 250" role="img" aria-label="Leading to lagging spectrum on a lead-time axis">
+    <!-- axis -->
+    <line x1="60" y1="180" x2="1020" y2="180" stroke="#3a444f" stroke-width="1.4"/>
+    <g class="fa" text-anchor="middle">
+      <text x="150" y="205">-18m</text><text x="330" y="205">-9m</text><text x="540" y="205">-3m</text><text x="720" y="205">0 (price re-rate)</text><text x="930" y="205">+3m</text>
+    </g>
+    <!-- alpha window band -->
+    <rect x="150" y="40" width="390" height="130" fill="#13302c" opacity="0.5"/>
+    <line x1="540" y1="34" x2="540" y2="180" stroke="#3fb6a8" stroke-width="1.2" stroke-dasharray="4 3"/>
+    <text class="m" x="345" y="56" text-anchor="middle" style="fill:#3fb6a8;font-size:11px">edge lives here (under-covered / $-content only)</text>
+    <!-- dots: cx by lead, size by reliability -->
+    <!-- $-content roadmap -->
+    <circle cx="300" cy="96" r="11" fill="#3fb6a8"/>
+    <text class="fa" x="318" y="92">$-content roadmap (model-driven)</text>
+    <text class="fa" x="318" y="106" style="fill:#46b87f">KEPT — the genuine model edge</text>
+    <!-- lead-time / sold-out -->
+    <circle cx="380" cy="132" r="8" fill="#dca24a"/>
+    <text class="fa" x="396" y="136">lead-time / "sold out" prose — provisional (event-study pending)</text>
+    <!-- company b2b -->
+    <circle cx="560" cy="100" r="6" fill="#9aa7b4"/>
+    <text class="fa" x="574" y="104">company book-to-bill (on call) — priced at the print for covered names</text>
+    <!-- monthly sales -->
+    <circle cx="650" cy="140" r="6" fill="#9aa7b4"/>
+    <text class="fa" x="664" y="144">Taiwan MOPS / Korea exports — statutory → ~0 lead vs price (CONTEXT)</text>
+    <!-- estimate revision -->
+    <circle cx="720" cy="74" r="9" fill="#e0a23b"/>
+    <text class="fa" x="700" y="64" text-anchor="end" style="fill:#e0a23b">revision = TRIGGER, not entry</text>
+    <!-- reported / price -->
+    <circle cx="860" cy="120" r="6" fill="#df6258"/>
+    <text class="fa" x="846" y="124" text-anchor="end" style="fill:#df6258">reported rev/EPS, RS — lagging / coincident</text>
+    <!-- dot-size legend -->
+    <text class="fa" x="60" y="40">dot size = backtest reliability:</text>
+    <circle cx="270" cy="36" r="9" fill="#3fb6a8"/><text class="fa" x="284" y="40">KEPT</text>
+    <circle cx="360" cy="36" r="6" fill="#9aa7b4"/><text class="fa" x="372" y="40">CONTEXT</text>
+    <circle cx="470" cy="36" r="4" fill="none" stroke="#8692a0"/><text class="fa" x="482" y="40">DROPPED</text>
+  </svg>
+  </div>
+
+  <!-- ===================== 5. GAP TORNADO ===================== -->
+  <h2><span class="n">5</span>The output you asked for — “backlog/capex XXX vs consensus XXX” rendered (Q5 · Q6)</h2>
+  <p class="sub"><b class="h">Illustrative mock</b> (not live data) — <span class="teal">Consensus-Gap mode</span>. Each bar = signed (MINE − Street)/Street; whisker = σ<sub>total</sub>; the <span class="amber">caret</span> = how far consensus has already revised toward you. <span class="teal">Solid teal bar + tight whisker + caret near 0</span> = a credible gap with consensus still asleep = the cell to be long. <span class="mut">Hatched/grey = no valid consensus → it routes to Discovery mode (anchored on price-implied expectation, no caret) or CONTEXT — never a confident consensus bar.</span></p>
+  <div class="card">
+  <svg viewBox="0 0 1080 320" role="img" aria-label="Consensus-gap tornado chart, illustrative">
+    <defs>
+      <pattern id="hatch" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+        <line x1="0" y1="0" x2="0" y2="6" stroke="#5b6573" stroke-width="2"/>
+      </pattern>
+    </defs>
+    <!-- zero line -->
+    <line x1="540" y1="40" x2="540" y2="290" stroke="#3a444f" stroke-width="1.4"/>
+    <text class="fa" x="540" y="306" text-anchor="middle">0 — in line with Street</text>
+    <text class="fa" x="300" y="306" text-anchor="middle" style="fill:#df6258">below consensus</text>
+    <text class="fa" x="800" y="306" text-anchor="middle" style="fill:#3fb6a8">above consensus →</text>
+    <!-- scale ticks -->
+    <g class="fa" text-anchor="middle"><text x="380" y="32">-15%</text><text x="700" y="32">+15%</text><text x="860" y="32">+30%</text></g>
+    <!-- rows -->
+    <!-- S6a backlog: big credible positive, caret near 0 -> EARLY -->
+    <g transform="translate(0,56)">
+      <text class="lbl" x="40" y="14">S6a facility-power MW</text>
+      <rect x="540" y="2" width="260" height="18" rx="3" fill="#3fb6a8"/>
+      <line x1="770" y1="-2" x2="770" y2="24" stroke="#9aa7b4" stroke-width="1"/><line x1="830" y1="-2" x2="830" y2="24" stroke="#9aa7b4" stroke-width="1"/>
+      <polygon points="548,2 556,11 548,20" fill="#e0a23b"/>
+      <text class="m" x="810" y="16" style="fill:#3fb6a8;font-size:11px">+24%</text>
+      <text class="pill edge" x="0" y="0"></text>
+    </g>
+    <text class="m" x="980" y="74" text-anchor="end" style="fill:#3fb6a8;font-size:10px">EARLY</text>
+    <!-- S7 cooling content: moderate positive, caret mid -> CONFIRMING -->
+    <g transform="translate(0,98)">
+      <text class="lbl" x="40" y="14">S7 cooling $-content/rack</text>
+      <rect x="540" y="2" width="150" height="18" rx="3" fill="#3fb6a8" opacity="0.85"/>
+      <line x1="650" y1="-2" x2="650" y2="24" stroke="#9aa7b4" stroke-width="1"/><line x1="700" y1="-2" x2="700" y2="24" stroke="#9aa7b4" stroke-width="1"/>
+      <polygon points="612,2 620,11 612,20" fill="#e0a23b"/>
+      <text class="m" x="700" y="16" style="fill:#3fb6a8;font-size:11px">+13%</text>
+    </g>
+    <text class="m" x="980" y="116" text-anchor="end" style="fill:#dca24a;font-size:10px">CONFIRMING</text>
+    <!-- S4 optical: positive but caret far out -> priced -->
+    <g transform="translate(0,140)">
+      <text class="lbl" x="40" y="14">S4 optical 1.6T $-content</text>
+      <rect x="540" y="2" width="120" height="18" rx="3" fill="#3fb6a8" opacity="0.6"/>
+      <line x1="600" y1="-2" x2="600" y2="24" stroke="#9aa7b4" stroke-width="1"/><line x1="640" y1="-2" x2="640" y2="24" stroke="#9aa7b4" stroke-width="1"/>
+      <polygon points="650,2 642,11 650,20" fill="#e0a23b"/>
+      <text class="m" x="668" y="16" style="fill:#9aa7b4;font-size:11px">+10%</text>
+    </g>
+    <text class="m" x="980" y="158" text-anchor="end" style="fill:#df6258;font-size:10px">PRICED (caret≈MINE)</text>
+    <!-- S2 packaging: NO_CONS hatched -->
+    <g transform="translate(0,182)">
+      <text class="lbl" x="40" y="14">S2 CoWoS allocation</text>
+      <rect x="540" y="2" width="175" height="18" rx="3" fill="url(#hatch)" stroke="#5b6573"/>
+      <text class="fa" x="724" y="16">NO_CONS → variant baseline, CONTEXT</text>
+    </g>
+    <text class="m" x="980" y="200" text-anchor="end" style="fill:#8692a0;font-size:10px">NOT FUNDABLE</text>
+    <!-- S3 HBM: negative / ineligible greyed -->
+    <g transform="translate(0,224)">
+      <text class="lbl" x="40" y="14">S3 HBM bit-ASP</text>
+      <rect x="455" y="2" width="85" height="18" rx="3" fill="#df6258" opacity="0.45"/>
+      <text class="fa" x="300" y="16" text-anchor="start">EARLY-ineligible (desk-saturated)</text>
+    </g>
+    <text class="m" x="980" y="242" text-anchor="end" style="fill:#8692a0;font-size:10px">CONTEXT only</text>
+    <!-- whisker legend -->
+    <text class="fa" x="40" y="284">whisker = σ_total (wide = noisy gap)</text>
+  </svg>
+  </div>
+
+  <!-- ===================== 6. DECISION ===================== -->
+  <h2><span class="n">6</span>Is it actionable? — the four gates &amp; the trap-avoiding 2×2 (Q7)</h2>
+  <div class="grid2">
+    <div class="card">
+      <span class="tag teal">THE FOUR GATES (all required for EARLY)</span>
+      <table>
+        <tr><td class="mono teal">G1</td><td>Model card complete <span class="mut">(else GAP disabled)</span></td></tr>
+        <tr><td class="mono teal">G2</td><td>CONS valid — REPORTED or validated-RECONSTRUCTED</td></tr>
+        <tr><td class="mono teal">G3</td><td>Reverse-model margin &gt; σ<sub>total</sub> <span class="mut">(price doesn’t already embed MINE)</span></td></tr>
+        <tr><td class="mono teal">G4</td><td>Dated catalyst <span class="mut">(doubles as the falsifier)</span></td></tr>
+      </table>
+      <p class="kicker" style="margin-top:10px"><b class="h">revision_progress</b> = |CONSₜ − CONS@open| / |MINE − CONS@open| &nbsp; → &nbsp;<span class="teal">&lt;0.33 EARLY</span> · <span class="amber">0.33–0.80 CONFIRMING</span> · <span class="red">&gt;0.80 LATE</span></p>
+    </div>
+    <div class="card">
+      <span class="tag amber">THE KILLER CROSS-CHECK</span>
+      <svg viewBox="0 0 460 230" role="img" aria-label="Decision 2x2 real alpha vs trap">
+        <line x1="40" y1="20" x2="40" y2="200" stroke="#3a444f"/><line x1="40" y1="200" x2="440" y2="200" stroke="#3a444f"/>
+        <text class="fa" x="150" y="218">un-priced (margin&gt;σ)</text><text class="fa" x="350" y="218">priced (margin≤σ)</text>
+        <text class="fa" x="20" y="60" transform="rotate(-90 20 60)">gap real</text>
+        <rect x="50" y="26" width="185" height="80" rx="8" fill="#13302c" stroke="#2f5e57"/>
+        <text class="m" x="60" y="50" style="fill:#3fb6a8;font-size:12px">★ REAL ALPHA</text>
+        <text class="fa" x="60" y="70">INITIATE / ADD;</text>
+        <text class="fa" x="60" y="85">size by EV_score;</text>
+        <text class="fa" x="60" y="100">illiquid → expression sizing</text>
+        <rect x="245" y="26" width="185" height="80" rx="8" fill="#2a1c1d" stroke="#5e3331"/>
+        <text class="m" x="255" y="50" style="fill:#df6258;font-size:12px">⚠ THE TRAP</text>
+        <text class="fa" x="255" y="70">Street will beat but the</text>
+        <text class="fa" x="255" y="85">stock already embeds MINE</text>
+        <text class="fa" x="255" y="100">→ DO NOT CHASE; ride only</text>
+        <rect x="50" y="112" width="185" height="74" rx="8" fill="#1c232c" stroke="#3a444f"/>
+        <text class="fa" x="60" y="134" style="fill:#9aa7b4">◌ WATCHLIST</text>
+        <text class="fa" x="60" y="152">small gap / no card —</text>
+        <text class="fa" x="60" y="168">wait for the gap</text>
+        <rect x="245" y="112" width="185" height="74" rx="8" fill="#1c232c" stroke="#3a444f"/>
+        <text class="fa" x="255" y="134" style="fill:#9aa7b4">○ AVOID / TRIM</text>
+        <text class="fa" x="255" y="152">priced for a beat that</text>
+        <text class="fa" x="255" y="168">may not come; crowded</text>
+      </svg>
+      <p class="kicker">The system’s current blind spot is the top-right quadrant — now closed by the reverse-model.</p>
+    </div>
+  </div>
+
+  <!-- ===================== 7. CADENCE ===================== -->
+  <h2><span class="n">7</span>Cadence — the tiered clock, and capturing daily/weekly data timely</h2>
+  <table>
+    <thead><tr><th>Clock</th><th>Cadence</th><th>Job</th><th>Cost</th></tr></thead>
+    <tbody>
+      <tr><td class="mono teal">T0 nowcast</td><td>event-calendar (MOPS ~11th · KR ~1st/21st · earnings · filings) + daily price/FRED</td><td>pull AF feeds, recompute, refresh pre-MINE stub, fire flags, regenerate ALPHAMAP, propose queue-jumps</td><td class="mut mono">~min, auto</td></tr>
+      <tr><td class="mono violet" style="color:#9a8cd6">T1 macro (B)</td><td>weekly, Mon</td><td>Tier 0–3; L3 scorecard now reads gap/revision from state</td><td class="mut mono">existing</td></tr>
+      <tr><td class="mono amber">T2 chokepoint (A)</td><td>every 2 days (or queue-jumped)</td><td>deep-dive; variant box measures vs ledger; writes full card-MINE back</td><td class="mut mono">existing</td></tr>
+      <tr><td class="mono">TE event</td><td>data-driven</td><td>forces nowcast refresh + may queue-jump</td><td class="mut mono">cheap</td></tr>
+    </tbody>
+  </table>
+  <p class="kicker" style="margin-top:8px"><b class="h amber">Queue-jump on divergence, not inflection:</b> promote a cluster when the cheap weekly <b class="h">pre-MINE stub</b> diverges from CONS <i>while price is still flat</i> and the name is under-covered. A public spike with price already moving <span class="red">lowers</span> priority. This collapses the ~12-day blind spot to ~2 days — for the right reason — and the stub breaks the circularity (Engine A is what produces the full MINE).</p>
+
+  <!-- ===================== 8. OPEN DECISIONS ===================== -->
+  <h2><span class="n">8</span>What needs your call before the build (Loops 2–4)</h2>
+  <div class="grid3">
+    <div class="card"><span class="tag amber">① consensus build-vs-buy</span><p class="kicker">Fragile weekly free-scrape (REPORTED_CONS where it exists) <i>or</i> robust quarterly-only RECONSTRUCTED_BASELINE? Sets revision-tracker frequency.</p></div>
+    <div class="card"><span class="tag amber">② smallcap expression</span><p class="kicker">A separate illiquid basket with expression-layer sizing, <i>or</i> EARLY signals there stay research-only / via a liquid confirming proxy?</p></div>
+    <div class="card"><span class="tag amber">③ DXI paywall</span><p class="kicker">Accept S3-HBM as CONTEXT, <i>or</i> pay TrendForce? <span class="mut">(edge already compressed — likely not worth it)</span></p></div>
+    <div class="card"><span class="tag amber">④ queue-jump authority</span><p class="kicker">Auto-redirect the next deep-dive, <i>or</i> propose-then-approve? <span class="teal">(recommend: propose until the gate’s hit-rate is proven)</span></p></div>
+    <div class="card"><span class="tag amber">⑤ nowcast cadence</span><p class="kicker">Confirm event-calendar <span class="teal">(recommended)</span> vs a daily cron <span class="mut">(rejected — scraper-babysitting liability)</span>.</p></div>
+    <div class="card" style="border-color:#2f5e57"><span class="tag teal">PHASED ROLLOUT</span><p class="kicker">P0 ledger (1 afternoon) → P1 two pilots: VRT control + 1 under-covered S6a name → P2 nowcast spine → P3 wire engines + ALPHAMAP → P4 calibration ledger.</p></div>
+  </div>
+
+  <p class="legend">Personal research for a private knowledge base — not investment advice. Gap/severity scores measure information edge and constraint, not stock attractiveness; figures are point-in-time and decay quickly. The §5 chart is an illustrative mock, not live data. IBKR read-only; never trade.</p>
+</div></body>
+</html>

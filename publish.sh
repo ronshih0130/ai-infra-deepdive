@@ -44,6 +44,9 @@ sync_slug 'Macro-Flow-Monitor_*.html' macro.html
 sync_slug 'AI-Infra_AlphaMap_ConsensusGap_*.html'    alpha-map.html
 sync_slug 'AI-Infra_AlphaMap_FrameworkBlueprint_*.html' alpha-map-blueprint.html
 
+# --- sync the Leading-Data Map (Engine-C data-acquisition layer) ---
+sync_slug 'AI-Infra_LeadingDataMap_*.html' leading-data-map.html
+
 # --- sync single-name reverse-model teardowns (on-demand) ---
 sync_slug 'AIXTRON_ReverseModel_*.html' aixtron.html
 

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-Infra Leading-Data Map — 2026-06-19</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e1116;--panel:#161b22;--panel2:#1b212b;--ink:#e6edf3;--mut:#aab2bd;--teal:#3fb6a8;--red:#df6258;--amber:#d9a544;--line:#262d38;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:40px 24px 80px}
+.num{font-family:'JetBrains Mono',ui-monospace,monospace}
+h1{font-size:30px;font-weight:700;margin:0 0 6px;letter-spacing:-.5px}
+h2{font-size:20px;font-weight:600;margin:44px 0 6px;letter-spacing:-.3px}
+.sub{color:var(--mut);font-size:14px;margin:0 0 4px}
+.tag{display:inline-block;font-size:11px;color:var(--teal);border:1px solid var(--teal);border-radius:20px;padding:2px 10px;margin-bottom:18px;letter-spacing:.5px}
+.lead{color:var(--mut);font-size:15px;max-width:78ch}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px 24px;margin-top:14px}
+.bw{background:var(--panel2);border-left:3px solid var(--teal);border-radius:8px;padding:16px 18px;margin:14px 0}
+.bw b{color:var(--teal)}
+svg text{font-family:'Space Grotesk',sans-serif;fill:var(--ink)}
+svg text.num,svg .num{font-family:'JetBrains Mono',monospace}
+.hd{font-size:10.5px;fill:var(--mut)}
+.rw{font-size:12.5px;fill:var(--ink)}
+.cl{font-size:11px;font-weight:600}
+.sm{font-size:12px;fill:var(--mut)}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mut);font-weight:500;font-size:12px}
+td.num{font-family:'JetBrains Mono',monospace}
+td.pos{color:var(--teal);font-weight:600}
+td.note{color:var(--mut);font-size:12px}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-top:12px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:14px;height:14px;border-radius:3px;display:inline-block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+.foot{color:var(--mut);font-size:12px;margin-top:40px;border-top:1px solid var(--line);padding-top:16px}
+.k{color:var(--teal)} .r{color:var(--red)} .a{color:var(--amber)}
+@media print{body{background:#fff;color:#111}.panel,.bw{border-color:#ccc;background:#fff}.wrap{max-width:100%}svg text{fill:#111}.tag{color:#111;border-color:#111}}
+</style></head>
+<body><div class="wrap">
+<div class="tag">AI-INFRA · LEADING-DATA MAP · ENGINE-C DATA LAYER</div>
+<h1>Where the leading data is — and which sub-segment has alpha</h1>
+<p class="sub">Data-acquisition map for catching AI-infra shortages / content-value shifts before they print. As-of 2026-06-19. Personal research — NOT investment advice. IBKR read-only.</p>
+<p class="lead">The game is the product cycle: a new platform (Rubin now, Feynman next) raises some component's <b>content-value per board</b> while capacity expands on a slow physical clock. The alpha is to spot that node — and the <i>under-covered</i> vendor exposed to it — while it's still latent. You can only do that where you actually <b>hold leading data</b>. This map shows, per sub-segment, which of the 8 signal layers a retail investor can source as truly-leading (free), leading (paid/effort), confirming, or blind — then ranks sub-segments by <b>alpha-catchability</b> (leading-data richness × how under-covered the names are).</p>
+
+<div class="bw">
+<b>白話版 (plain-language).</b> 好資料 = 好結果；落後資料 = 落後決策。要在缺貨/規格升級「被新聞寫出來之前」就看到，你需要<b>領先指標資料</b>：設計用量↑、產能慢、交期拉長、報價漲、月營收衝高。這張圖把 10 個 AI 基建次產業 × 8 種訊號層做成熱力圖——綠色=有領先且免費的資料（看得到→可能有 alpha），紅色=看不到（結構上很難賺）。結論：<b>被動元件/MLCC、機櫃電源、載板、散熱、光通訊</b>這幾個「台日韓供應鏈、月營收看得到、且法人覆蓋少」的次產業，是散戶最容易抓到領先訊號的地方；GPU/HBM/CoWoS 雖然重要，但要嘛被即時定價、要嘛看不到交期，散戶沒有資訊優勢。
+</div>
+
+<h2>1 · The leading-indicator stack, by lead-time</h2>
+<p class="sub">Eight signal layers ordered by how many months they fire ahead of the equity re-rate. <span class="k">Teal = leading (own it)</span> · <span class="a">amber = size it</span> · <span class="r">red = confirm/late</span>. "Lead" here means lead vs <i>price</i>; for covered mega-caps a public release is ~0-day lead (priced same session) — the lead is real only for under-covered names.</p>
+<div class="panel"><svg viewBox="0 0 730 300" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Lead-time ladder">
+<text x="200" y="39" text-anchor="end" class="rw">L1 Design / BOM</text>
+<rect x="210" y="23" width="460" height="22" rx="4" fill="#3fb6a8"/>
+<text x="678" y="39" class="num sm">~18mo</text>
+<text x="200" y="73" text-anchor="end" class="rw">L2 Capacity / capex</text>
+<rect x="210" y="57" width="383" height="22" rx="4" fill="#3fb6a8"/>
+<text x="601" y="73" class="num sm">~15mo</text>
+<text x="200" y="107" text-anchor="end" class="rw">L7 Narrative (Asia)</text>
+<rect x="210" y="91" width="230" height="22" rx="4" fill="#3fb6a8"/>
+<text x="448" y="107" class="num sm">~9mo</text>
+<text x="200" y="141" text-anchor="end" class="rw">L8 Demand / regime</text>
+<rect x="210" y="125" width="230" height="22" rx="4" fill="#3fb6a8"/>
+<text x="448" y="141" class="num sm">~9mo</text>
+<text x="200" y="175" text-anchor="end" class="rw">L3 Orders / lead-time</text>
+<rect x="210" y="159" width="102" height="22" rx="4" fill="#d9a544"/>
+<text x="320" y="175" class="num sm">~4mo</text>
+<text x="200" y="209" text-anchor="end" class="rw">L5 Inventory / channel</text>
+<rect x="210" y="193" width="77" height="22" rx="4" fill="#d9a544"/>
+<text x="295" y="209" class="num sm">~3mo</text>
+<text x="200" y="243" text-anchor="end" class="rw">L4 Pricing (catalyst)</text>
+<rect x="210" y="227" width="77" height="22" rx="4" fill="#d9a544"/>
+<text x="295" y="243" class="num sm">~3mo</text>
+<text x="200" y="277" text-anchor="end" class="rw">L6 Monthly sales</text>
+<rect x="210" y="261" width="51" height="22" rx="4" fill="#df6258"/>
+<text x="269" y="277" class="num sm">~2mo</text>
+</svg></div>
+
+<h2>2 · Data-coverage heatmap — where you can actually see it</h2>
+<p class="sub">Rows = AI-infra sub-segments (most data-rich at top). Columns = the 8 signal layers. Each cell = the best a retail investor can source.</p>
+<div class="panel"><svg viewBox="0 0 728 488" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Data coverage heatmap">
+<text x="209" y="38" text-anchor="middle" class="hd">L1</text>
+<text x="209" y="50" text-anchor="middle" class="hd">Design</text>
+<text x="275" y="38" text-anchor="middle" class="hd">L2</text>
+<text x="275" y="50" text-anchor="middle" class="hd">Capacity</text>
+<text x="341" y="38" text-anchor="middle" class="hd">L3</text>
+<text x="341" y="50" text-anchor="middle" class="hd">Lead-time</text>
+<text x="407" y="38" text-anchor="middle" class="hd">L4</text>
+<text x="407" y="50" text-anchor="middle" class="hd">Pricing</text>
+<text x="473" y="38" text-anchor="middle" class="hd">L5</text>
+<text x="473" y="50" text-anchor="middle" class="hd">Inventory</text>
+<text x="539" y="38" text-anchor="middle" class="hd">L6</text>
+<text x="539" y="50" text-anchor="middle" class="hd">Monthly</text>
+<text x="539" y="62" text-anchor="middle" class="hd">sales</text>
+<text x="605" y="38" text-anchor="middle" class="hd">L7</text>
+<text x="605" y="50" text-anchor="middle" class="hd">Narrative</text>
+<text x="671" y="38" text-anchor="middle" class="hd">L8</text>
+<text x="671" y="50" text-anchor="middle" class="hd">Demand</text>
+<text x="166" y="88" text-anchor="end" class="rw">Passives / MLCC</text>
+<rect x="178" y="66" width="62" height="36" rx="4" fill="#3fb6a8"/>
+<text x="209" y="88" text-anchor="middle" class="cl" fill="#0e1116">LF</text>
+<rect x="244" y="66" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="275" y="88" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<rect x="310" y="66" width="62" height="36" rx="4" fill="#3fb6a8"/>
+<text x="341" y="88" text-anchor="middle" class="cl" fill="#0e1116">LF</text>
+<rect x="376" y="66" width="62" height="36" rx="4" fill="#3fb6a8"/>
+<text x="407" y="88" text-anchor="middle" class="cl" fill="#0e1116">LF</text>
+<rect x="442" y="66" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="473" y="88" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<rect x="508" y="66" width="62" height="36" rx="4" fill="#3fb6a8"/>
+<text x="539" y="88" text-anchor="middle" class="cl" fill="#0e1116">LF</text>
+<rect x="574" y="66" width="62" height="36" rx="4" fill="#3fb6a8"/>
+<text x="605" y="88" text-anchor="middle" class="cl" fill="#0e1116">LF</text>
+<rect x="640" y="66" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="671" y="88" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<text x="166" y="128" text-anchor="end" class="rw">Power (rack + facility)</text>
+<rect x="178" y="106" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="209" y="128" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<rect x="244" y="106" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="275" y="128" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="310" y="106" width="62" height="36" rx="4" fill="#3fb6a8"/>
+<text x="341" y="128" text-anchor="middle" class="cl" fill="#0e1116">LF</text>
+<rect x="376" y="106" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="407" y="128" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="442" y="106" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="473" y="128" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="508" y="106" width="62" height="36" rx="4" fill="#3fb6a8"/>
+<text x="539" y="128" text-anchor="middle" class="cl" fill="#0e1116">LF</text>
+<rect x="574" y="106" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="605" y="128" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<rect x="640" y="106" width="62" height="36" rx="4" fill="#3fb6a8"/>
+<text x="671" y="128" text-anchor="middle" class="cl" fill="#0e1116">LF</text>
+<text x="166" y="168" text-anchor="end" class="rw">Substrate / PCB</text>
+<rect x="178" y="146" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="209" y="168" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<rect x="244" y="146" width="62" height="36" rx="4" fill="#3fb6a8"/>
+<text x="275" y="168" text-anchor="middle" class="cl" fill="#0e1116">LF</text>
+<rect x="310" y="146" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="341" y="168" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<rect x="376" y="146" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="407" y="168" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="442" y="146" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="473" y="168" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="508" y="146" width="62" height="36" rx="4" fill="#3fb6a8"/>
+<text x="539" y="168" text-anchor="middle" class="cl" fill="#0e1116">LF</text>
+<rect x="574" y="146" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="605" y="168" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<rect x="640" y="146" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="671" y="168" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<text x="166" y="208" text-anchor="end" class="rw">Cooling (liquid)</text>
+<rect x="178" y="186" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="209" y="208" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<rect x="244" y="186" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="275" y="208" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="310" y="186" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="341" y="208" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<rect x="376" y="186" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="407" y="208" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="442" y="186" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="473" y="208" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="508" y="186" width="62" height="36" rx="4" fill="#3fb6a8"/>
+<text x="539" y="208" text-anchor="middle" class="cl" fill="#0e1116">LF</text>
+<rect x="574" y="186" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="605" y="208" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<rect x="640" y="186" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="671" y="208" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<text x="166" y="248" text-anchor="end" class="rw">Optics / interconnect</text>
+<rect x="178" y="226" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="209" y="248" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<rect x="244" y="226" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="275" y="248" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<rect x="310" y="226" width="62" height="36" rx="4" fill="#df6258"/>
+<text x="341" y="248" text-anchor="middle" class="cl" fill="#0e1116">—</text>
+<rect x="376" y="226" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="407" y="248" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="442" y="226" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="473" y="248" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="508" y="226" width="62" height="36" rx="4" fill="#3fb6a8"/>
+<text x="539" y="248" text-anchor="middle" class="cl" fill="#0e1116">LF</text>
+<rect x="574" y="226" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="605" y="248" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<rect x="640" y="226" width="62" height="36" rx="4" fill="#3fb6a8"/>
+<text x="671" y="248" text-anchor="middle" class="cl" fill="#0e1116">LF</text>
+<text x="166" y="288" text-anchor="end" class="rw">Adv packaging (CoWoS)</text>
+<rect x="178" y="266" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="209" y="288" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<rect x="244" y="266" width="62" height="36" rx="4" fill="#3fb6a8"/>
+<text x="275" y="288" text-anchor="middle" class="cl" fill="#0e1116">LF</text>
+<rect x="310" y="266" width="62" height="36" rx="4" fill="#df6258"/>
+<text x="341" y="288" text-anchor="middle" class="cl" fill="#0e1116">—</text>
+<rect x="376" y="266" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="407" y="288" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="442" y="266" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="473" y="288" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="508" y="266" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="539" y="288" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="574" y="266" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="605" y="288" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<rect x="640" y="266" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="671" y="288" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<text x="166" y="328" text-anchor="end" class="rw">Memory / HBM core</text>
+<rect x="178" y="306" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="209" y="328" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<rect x="244" y="306" width="62" height="36" rx="4" fill="#3fb6a8"/>
+<text x="275" y="328" text-anchor="middle" class="cl" fill="#0e1116">LF</text>
+<rect x="310" y="306" width="62" height="36" rx="4" fill="#df6258"/>
+<text x="341" y="328" text-anchor="middle" class="cl" fill="#0e1116">—</text>
+<rect x="376" y="306" width="62" height="36" rx="4" fill="#3fb6a8"/>
+<text x="407" y="328" text-anchor="middle" class="cl" fill="#0e1116">LF</text>
+<rect x="442" y="306" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="473" y="328" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="508" y="306" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="539" y="328" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="574" y="306" width="62" height="36" rx="4" fill="#3fb6a8"/>
+<text x="605" y="328" text-anchor="middle" class="cl" fill="#0e1116">LF</text>
+<rect x="640" y="306" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="671" y="328" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<text x="166" y="368" text-anchor="end" class="rw">Networking silicon</text>
+<rect x="178" y="346" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="209" y="368" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<rect x="244" y="346" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="275" y="368" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="310" y="346" width="62" height="36" rx="4" fill="#df6258"/>
+<text x="341" y="368" text-anchor="middle" class="cl" fill="#0e1116">—</text>
+<rect x="376" y="346" width="62" height="36" rx="4" fill="#1a1f27"/>
+<text x="407" y="368" text-anchor="middle" class="cl" fill="#3a414c"></text>
+<rect x="442" y="346" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="473" y="368" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="508" y="346" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="539" y="368" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="574" y="346" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="605" y="368" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<rect x="640" y="346" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="671" y="368" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<text x="166" y="408" text-anchor="end" class="rw">Compute silicon</text>
+<rect x="178" y="386" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="209" y="408" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<rect x="244" y="386" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="275" y="408" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<rect x="310" y="386" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="341" y="408" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="376" y="386" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="407" y="408" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="442" y="386" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="473" y="408" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="508" y="386" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="539" y="408" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="574" y="386" width="62" height="36" rx="4" fill="#3fb6a8"/>
+<text x="605" y="408" text-anchor="middle" class="cl" fill="#0e1116">LF</text>
+<rect x="640" y="386" width="62" height="36" rx="4" fill="#3fb6a8"/>
+<text x="671" y="408" text-anchor="middle" class="cl" fill="#0e1116">LF</text>
+<text x="166" y="448" text-anchor="end" class="rw">Demand / hyperscaler</text>
+<rect x="178" y="426" width="62" height="36" rx="4" fill="#2b6f6a"/>
+<text x="209" y="448" text-anchor="middle" class="cl" fill="#cfe9e6">LP</text>
+<rect x="244" y="426" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="275" y="448" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="310" y="426" width="62" height="36" rx="4" fill="#1a1f27"/>
+<text x="341" y="448" text-anchor="middle" class="cl" fill="#3a414c"></text>
+<rect x="376" y="426" width="62" height="36" rx="4" fill="#1a1f27"/>
+<text x="407" y="448" text-anchor="middle" class="cl" fill="#3a414c"></text>
+<rect x="442" y="426" width="62" height="36" rx="4" fill="#5b6472"/>
+<text x="473" y="448" text-anchor="middle" class="cl" fill="#aab2bd">C</text>
+<rect x="508" y="426" width="62" height="36" rx="4" fill="#1a1f27"/>
+<text x="539" y="448" text-anchor="middle" class="cl" fill="#3a414c"></text>
+<rect x="574" y="426" width="62" height="36" rx="4" fill="#3fb6a8"/>
+<text x="605" y="448" text-anchor="middle" class="cl" fill="#0e1116">LF</text>
+<rect x="640" y="426" width="62" height="36" rx="4" fill="#3fb6a8"/>
+<text x="671" y="448" text-anchor="middle" class="cl" fill="#0e1116">LF</text>
+</svg>
+<div class="legend">
+<span><span class="sw" style="background:#3fb6a8"></span> LF — leading &amp; free (best)</span>
+<span><span class="sw" style="background:#2b6f6a"></span> LP — leading, paid/effort</span>
+<span><span class="sw" style="background:#5b6472"></span> C — confirming / coincident</span>
+<span><span class="sw" style="background:#df6258"></span> — blind / context-only (hard)</span>
+<span><span class="sw" style="background:#1a1f27;border:1px solid #262d38"></span> n/a</span>
+</div></div>
+
+<h2>3 · Alpha-catchability ranking</h2>
+<p class="sub">Leading-data richness × under-coverage factor, indexed to 100. High = you can see the signal early <i>and</i> the names aren't fully priced. Low = either blind, or priced the same day (no retail edge).</p>
+<div class="panel"><svg viewBox="0 0 766 370" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Alpha-catchability ranking">
+<text x="166" y="41" text-anchor="end" class="rw">Passives / MLCC</text>
+<rect x="176" y="25" width="520" height="22" rx="4" fill="#3fb6a8"/>
+<text x="704" y="41" class="num sm">100</text>
+<text x="166" y="75" text-anchor="end" class="rw">Power (rack + facility)</text>
+<rect x="176" y="59" width="386" height="22" rx="4" fill="#3fb6a8"/>
+<text x="570" y="75" class="num sm">74</text>
+<text x="166" y="109" text-anchor="end" class="rw">Substrate / PCB</text>
+<rect x="176" y="93" width="344" height="22" rx="4" fill="#3fb6a8"/>
+<text x="528" y="109" class="num sm">66</text>
+<text x="166" y="143" text-anchor="end" class="rw">Cooling (liquid)</text>
+<rect x="176" y="127" width="322" height="22" rx="4" fill="#3fb6a8"/>
+<text x="506" y="143" class="num sm">62</text>
+<text x="166" y="177" text-anchor="end" class="rw">Optics / interconnect</text>
+<rect x="176" y="161" width="228" height="22" rx="4" fill="#7a9a7e"/>
+<text x="412" y="177" class="num sm">44</text>
+<text x="166" y="211" text-anchor="end" class="rw">Adv packaging (CoWoS)</text>
+<rect x="176" y="195" width="118" height="22" rx="4" fill="#5b6472"/>
+<text x="302" y="211" class="num sm">23</text>
+<text x="166" y="245" text-anchor="end" class="rw">Memory / HBM core</text>
+<rect x="176" y="229" width="115" height="22" rx="4" fill="#5b6472"/>
+<text x="299" y="245" class="num sm">22</text>
+<text x="166" y="279" text-anchor="end" class="rw">Networking silicon</text>
+<rect x="176" y="263" width="91" height="22" rx="4" fill="#5b6472"/>
+<text x="275" y="279" class="num sm">18</text>
+<text x="166" y="313" text-anchor="end" class="rw">Compute silicon</text>
+<rect x="176" y="297" width="72" height="22" rx="4" fill="#5b6472"/>
+<text x="256" y="313" class="num sm">14</text>
+<text x="166" y="347" text-anchor="end" class="rw">Demand / hyperscaler</text>
+<rect x="176" y="331" width="37" height="22" rx="4" fill="#5b6472"/>
+<text x="221" y="347" class="num sm">7</text>
+</svg>
+<p class="sub" style="margin-top:10px">The data-rich, under-covered Taiwan/Japan/Korea supply-chain nodes (<span class="k">passives, power, cooling, substrate, optics</span>) are where a retail investor can realistically be early. The financialized mega-cap nodes (<span class="r">compute silicon, HBM, demand</span>) have data but no edge — covered names reprice the same afternoon any tell appears.</p></div>
+
+<h2>4 · Proof it works — measured point-in-time replay</h2>
+<p class="sub">Forward returns from the <b>retail-available date</b> of each free signal (Yahoo daily closes). d60 = 60 trading days; peak = max to 2026-06-19. Both real cases led the move — with honest early drawdown noted. Full tables: <span class="num">pit_replay.md</span>.</p>
+<div class="panel"><table>
+<tr><th>Case</th><th>Ticker</th><th>Signal (retail-available)</th><th>date</th><th>d60</th><th>peak</th><th>note</th></tr>
+<tr><td>CPU</td><td>INTC</td><td>Intel Q3&#x27;25 transcript &#x27;sold out of Xeon&#x27;</td><td class="num">2025-10-24</td><td class="num pos">+41.9%</td><td class="num">+238%</td><td class="note">L7 tone, −9.9% d20 drawdown</td></tr>
+<tr><td>CPU</td><td>INTC</td><td>KeyBanc &#x27;sold out of 2026 capacity&#x27;</td><td class="num">2026-01-13</td><td class="num pos">+31.9%</td><td class="num">+174%</td><td class="note">L3/L4, +14.7% in 5d</td></tr>
+<tr><td>MLCC</td><td>Yageo</td><td>Record Jan rev (MOPS release)</td><td class="num">2026-02-10</td><td class="num pos">+123.4%</td><td class="num">+322%</td><td class="note">L6 hard-confirm, cleanest entry</td></tr>
+<tr><td>MLCC</td><td>Walsin</td><td>Record Jan rev (MOPS release)</td><td class="num">2026-02-10</td><td class="num pos">+115.4%</td><td class="num">+354%</td><td class="note">L6 hard-confirm</td></tr>
+<tr><td>MLCC</td><td>Taiyo Y.</td><td>TrendForce MLCC-tightening PR</td><td class="num">2025-11-28</td><td class="num pos">+32.8%</td><td class="num">+521%</td><td class="note">L7/L4, biggest abs mover</td></tr>
+</table>
+<p class="sub" style="margin-top:10px">The cleanest retail entry was the <b>L6 Taiwan monthly-revenue confirm</b> (free, knowable the 10th): Yageo <span class="num k">+123%</span> / Walsin <span class="num k">+115%</span> in 60 trading days. The earliest signals paid more (INTC +238%, Taiyo Yuden +521% to peak) but demanded sitting through drawdown — so size small on the early deduction, add on the L6 confirm.</p></div>
+
+<h2>5 · The acquisition stack — alpha-per-dollar</h2>
+<div class="grid2">
+<div class="panel"><b class="k">Phase 0 — FREE ($0/mo) · ~80-90% of signal</b>
+<p class="sub" style="margin-top:8px">Taiwan MOPS monthly rev · DigiKey+Mouser lead-time/stock (seed basket: <span class="num">mpn_basket_starter.csv</span>) · SEC EDGAR commitments/DIO · ImportYeti bill-of-lading · Taiwan 法說會/重大訊息 · export-orders + Korea 20-day · free narrative radar (TrendForce PR, passive-components.eu, KED, UDN/ctee) · OCP/Hot Chips/GTC content-Δ mining · commodity+FX spot.</p></div>
+<div class="panel"><b class="a">Phase 1 — CHEAP (~$85/mo, price-verified)</b>
+<p class="sub" style="margin-top:8px"><b>DIGITIMES News</b> $550/yr (~$46/mo) — Asia channel checks, the one true cheap edge. <b>Koyfin Plus</b> $39/mo — analyst estimates (the consensus you're front-running). <br><span class="r">SemiAnalysis removed</span> — price not public, likely $2k+/yr; free OCP/teardown-press/法說會 + §3.5 extraction checklist replaces it.</p>
+<p class="sub"><b>Phase 2</b> — à-la-carte per fired signal only (TrendForce single-component, one expert call, single DigiTimes report). Skip Bloomberg/AlphaSense.</p></div>
+</div>
+
+<h2>6 · Trigger logic (fire on content-driven shortage, not capex beta)</h2>
+<div class="panel"><p class="sub" style="margin:0">A sub-segment fires when <b>≥4 of 6</b> agree, with steps 1 &amp; 2 <b>mandatory</b>:</p>
+<ol class="sub" style="margin:10px 0 0;line-height:1.8">
+<li><b class="k">1. Content-UP</b> (L1) — next-platform teardown/OCP shows $/board or units/board ↑ GoG <i>[mandatory]</i></li>
+<li><b class="k">2. Capacity-SLOW</b> (L2) — supplier capacity timeline >12mo out <i>[mandatory]</i></li>
+<li>3. Design-win named (L1/L7) — bill-of-lading + DigiTimes/法說會 name the exposed (ideally under-covered) vendor</li>
+<li>4. Tightness confirming (L3) — basket lead-time stair-steps + stock drains across ≥2 distis, OR utilization >90%</li>
+<li>5. Input/price pre-stage (L4) — raw-input/FX move or adjacent-passive price rise <i>(corroborator)</i></li>
+<li>6. Hard confirm (L6) — the named vendor's monthly revenue (MOPS) inflects up</li>
+</ol>
+<p class="sub" style="margin-top:12px">Then Engine-C gates: <b>financialization veto</b> (&gt;15 analysts + deep options ⇒ not EARLY, route to under-covered exposure) · <b>reverse-model priced-test</b> (enter only if modeled content jump &gt; what price discounts) · cross-read on the <b>same-quarter cross-section</b>, never the pooled time-series. Thresholds above are <span class="a">uncalibrated starting points</span> — run the negative-control/base-rate pass before trading them.</p></div>
+
+<p class="foot">Sources: framework <span class="num">data-acquisition-framework.md</span> (v3) · replay <span class="num">pit_replay.md</span> · prices Yahoo Finance (daily) · DigiTimes/Koyfin/ImportGenius pricing pages (verified 2026-06-19) · MOPS TWSE OpenAPI · SEC EDGAR · workflow forensic reconstruction (14 agents). Cross-reviewed to convergence by Codex gpt-5.5/xhigh as the retail end-user (fits_objective=true, round 2). Modeled content numbers marked (est.); cross-check ≥2 independent sources before sizing. Personal research for a private knowledge base — NOT investment advice. IBKR is read-only; never trade on this.</p>
+</div></body></html>

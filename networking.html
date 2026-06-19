@@ -3,473 +3,1118 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Infra Run #5 v5 — Networking Silicon: 224G SerDes / Retimer / AEC Chokepoint</title>
+<title>AI Infra Run #11 v5 — Networking Silicon / 224G→448G SerDes / Connectivity-IP Chokepoint</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#0b0d12;--panel:#13161e;--panel2:#1a1e28;--panel3:#212634;--line:#2a3040;--line2:#363d4f;--txt:#e8eaf0;--mut:#9aa3b5;--dim:#697283;--accent:#2dd4bf;--choke:#e0686a;--up:#5b81c4;--l3:#8b84cf;--pkg:#c47a9e;--l2:#d2a24a;--l1:#4faf8e;--dup:#e0a458;--dout:#5aa9e0;--dacr:#5fc98a}
+  :root{
+    --bg:#0b0d12; --panel:#13161e; --panel2:#1a1e28; --panel3:#212634; --line:#2a3040; --line2:#363d4f;
+    --txt:#e8eaf0; --mut:#9aa3b5; --dim:#697283;
+    --accent:#2dd4bf;        /* single brand accent (desaturated teal) */
+    --choke:#e0686a;         /* desaturated red */
+    /* categorical: supply layers */
+    --up:#5b81c4; --l3:#8b84cf; --pkg:#c47a9e; --l2:#d2a24a; --l1:#4faf8e;
+    /* categorical: network domains */
+    --dup:#e0a458; --dout:#5aa9e0; --dacr:#5fc98a;
+  }
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px;-webkit-font-smoothing:antialiased}
-  .num,.m{font-family:"JetBrains Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
-  svg text{font-family:"Space Grotesk",sans-serif}
-  svg text.m{font-family:"JetBrains Mono",monospace}
+  .num{font-family:"JetBrains Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
   .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
-  header{border-bottom:1px solid var(--line);padding:36px 0 28px;margin-bottom:8px;background:radial-gradient(900px 320px at 12% -40%,rgba(45,212,191,.10),transparent 60%),radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
-  .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+  /* ---- header ---- */
+  header{border-bottom:1px solid var(--line);padding:38px 0 30px;margin-bottom:8px;background:
+     radial-gradient(900px 320px at 12% -40%,rgba(45,212,191,.10),transparent 60%),
+     radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
+  .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
   .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
-  h1{font-size:30px;font-weight:700;letter-spacing:-.6px;line-height:1.14;max-width:900px}
-  .sub{font-size:14.5px;color:var(--mut);margin-top:12px;max-width:860px}
-  .meta{margin-top:18px;display:flex;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
-  .meta div{padding-right:24px;margin-right:24px;border-right:1px solid var(--line)}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.6px;line-height:1.12;max-width:940px}
+  .sub{font-size:15px;font-weight:400;color:var(--mut);margin-top:12px;max-width:840px}
+  .meta{margin-top:20px;display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+  .meta div{padding-right:26px;margin-right:26px;border-right:1px solid var(--line)}
   .meta div:last-child{border:0}
   .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
   .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
-  .gauges{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
-  .gauge{border:1px solid var(--line);border-radius:10px;padding:9px 14px;background:var(--panel)}
-  .gauge .gl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim)}
-  .gauge .gv{font-size:18px;font-weight:600}
-  section{padding:32px 0 2px}
+  /* ---- sticky toc ---- */
+  .toc{position:sticky;top:0;z-index:40;background:rgba(11,13,18,.86);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin-bottom:6px}
+  .toc .wrap{display:flex;gap:4px;flex-wrap:wrap;padding-top:9px;padding-bottom:9px}
+  .toc a{font-size:11px;color:var(--mut);text-decoration:none;padding:4px 9px;border-radius:7px;border:1px solid transparent}
+  .toc a:hover{color:var(--txt);border-color:var(--line2);background:var(--panel2)}
+  @media(max-width:780px){.toc{display:none}}
+  /* ---- section ---- */
+  section{padding:34px 0 2px;scroll-margin-top:56px}
   .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
-  .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600}
-  .sh h2{font-size:20px;font-weight:600;letter-spacing:-.3px}
-  .sh .cn{font-size:13px;color:var(--dim);margin-left:auto}
-  .lead{color:var(--mut);font-size:13.5px;max-width:880px;margin-bottom:16px}
-  .lead b{color:var(--txt)}
-  .kpis{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.05em}
+  .sh h2{font-size:21px;font-weight:600;letter-spacing:-.3px}
+  .sh .cn{font-size:13px;color:var(--dim);font-weight:400;margin-left:auto}
+  .lead{color:var(--mut);font-size:13.5px;max-width:880px;margin-bottom:18px}
+  .lead b{color:var(--txt);font-weight:600}
+  /* ---- KPI strip ---- */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
   @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
-  .kpi{padding:17px 19px;border-right:1px solid var(--line)}
+  .kpi{padding:18px 20px;border-right:1px solid var(--line)}
   .kpi:last-child{border-right:0}
-  .kpi .v{font-size:23px;font-weight:600;letter-spacing:-.5px}
+  .kpi .v{font-size:25px;font-weight:600;letter-spacing:-.5px}
   .kpi .l{font-size:11.5px;color:var(--mut);margin-top:4px}
-  .kpi .d{font-size:11px;color:var(--dim);margin-top:7px}
+  .kpi .d{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.4}
   .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  /* ---- matrix ---- */
+  .matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .matrix th{background:var(--panel2);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);font-weight:600;padding:12px 14px;text-align:left;border-bottom:1px solid var(--line)}
+  .matrix td{padding:14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
+  .matrix tr:last-child td{border-bottom:0}
+  .matrix .dom{font-weight:600;font-size:14px;color:var(--txt);display:flex;align-items:center;gap:9px}
+  .matrix .dom .sw{width:10px;height:10px;border-radius:3px;flex:none}
+  .matrix .dom small{display:block;font-weight:400;font-size:10.5px;color:var(--dim);margin-top:2px}
+  .matrix td b{color:var(--txt);font-weight:600}
+  .chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--panel3);color:var(--mut);margin:2px 4px 2px 0;border:1px solid var(--line2)}
+  .chip.hot{background:rgba(224,104,106,.12);border-color:#5a3236;color:#efa0a1}
+  /* ---- SVG gallery cards ---- */
+  .gal{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:900px){.gal{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.gal{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column}
+  .card .svgbox{background:linear-gradient(180deg,#0e1117,#161a24);padding:14px;border-bottom:1px solid var(--line)}
+  .card .body{padding:14px 16px 16px}
+  .card h4{font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .card .role{font-size:12px;color:var(--mut);margin-top:6px;line-height:1.45}
+  .card .who{font-size:11px;color:var(--dim);margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px}
+  .card .who b{color:var(--l3)}
+  .badge{font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:5px;letter-spacing:.03em;flex:none}
+  .b-hot{background:rgba(224,104,106,.14);color:#eda3a4}
+  .b-now{background:rgba(45,212,191,.13);color:var(--accent)}
+  .b-next{background:rgba(90,169,224,.14);color:var(--dout)}
+  .b-emrg{background:rgba(210,162,74,.14);color:var(--dup)}
+  /* ---- assembly + topo full-width svg ---- */
   .svgwide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
   .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
-  .two{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
-  @media(max-width:780px){.two{grid-template-columns:1fr}}
-  table{width:100%;border-collapse:collapse;font-size:12.5px}
-  th{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
-  td{padding:9px 11px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
-  td b{color:var(--txt)}
-  .lyr{font-family:"JetBrains Mono",monospace;font-size:10.5px;padding:1px 7px;border-radius:5px;font-weight:600}
-  .lyu{background:rgba(91,129,196,.15);color:#8aa7df}.ly3{background:rgba(139,132,207,.15);color:#aaa3e6}.lyp{background:rgba(196,122,158,.15);color:#dba0bf}.ly2{background:rgba(210,162,74,.15);color:#e3bd76}.ly1{background:rgba(79,175,142,.15);color:#7cc9ad}
-  .choke{border:1px solid #5a3236;border-radius:14px;padding:20px 22px;background:linear-gradient(135deg,rgba(224,104,106,.10),transparent 55%),var(--panel)}
-  .choke h3{font-size:16px;font-weight:600;color:var(--choke);margin-bottom:9px;display:flex;align-items:center;gap:10px}
-  .choke p{font-size:13px;color:#d9c4c6;max-width:900px}.choke p b{color:#fff}
-  .choke .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:16px;border-top:1px solid #4a2c2f;padding-top:14px}
+  /* ---- timeline ---- */
+  .tlgrid{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .tlhead{display:grid;grid-template-columns:120px repeat(4,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
+  .tlhead div{padding:11px 12px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);border-right:1px solid var(--line)}
+  .tlhead div:first-child{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-family:"Space Grotesk",sans-serif;display:flex;align-items:center}
+  .tlrow{display:grid;grid-template-columns:120px repeat(4,1fr);border-bottom:1px solid var(--line)}
+  .tlrow:last-child{border-bottom:0}
+  .tlrow .lab{padding:13px 12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;border-right:1px solid var(--line);background:var(--panel2)}
+  .tlrow .lab .sw{width:9px;height:9px;border-radius:3px;flex:none}
+  .tlrow .cell{padding:11px 12px;border-right:1px solid var(--line);font-size:11.5px;color:var(--mut);line-height:1.4}
+  .tlrow .cell:last-child{border-right:0}
+  .tlrow .cell b{color:var(--txt);font-weight:600;display:block;margin-bottom:2px;font-size:11.5px}
+  .tlrow .cell.hot{background:rgba(224,104,106,.06)}
+  @media(max-width:780px){.tlhead,.tlrow{grid-template-columns:80px repeat(4,1fr);font-size:10px}.tlrow .cell{font-size:10px}}
+  /* ---- chokepoint ---- */
+  .choke{border:1px solid #5a3236;border-radius:14px;padding:22px 24px;background:
+    linear-gradient(135deg,rgba(224,104,106,.10),transparent 55%),var(--panel)}
+  .choke .ttl{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+  .choke .ttl svg{flex:none}
+  .choke .ttl h3{font-size:17px;font-weight:600;color:var(--choke)}
+  .choke p{font-size:13.5px;color:#d9c4c6;max-width:980px}.choke p b{color:#fff}
+  .choke .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:18px;border-top:1px solid #4a2c2f;padding-top:16px}
   @media(max-width:780px){.choke .stats{grid-template-columns:1fr 1fr}}
-  .choke .stats b{display:block;font-size:19px;color:var(--choke);font-weight:600}
+  .choke .stats div{padding-right:18px}
+  .choke .stats b{display:block;font-size:21px;color:var(--choke);font-weight:600}
   .choke .stats span{font-size:10.5px;color:var(--dim)}
-  .variant{border-left:3px solid var(--accent);background:rgba(45,212,191,.06);border-radius:8px;padding:13px 16px;margin:14px 0}
-  .variant .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:5px}
-  .variant p{font-size:12.8px;color:var(--mut);line-height:1.5}.variant p b{color:var(--txt)}
-  .tabbtn{font-family:inherit;background:var(--panel2);border:1px solid var(--line);color:var(--mut);padding:11px 15px;border-radius:10px 10px 0 0;font-size:13px;font-weight:600;cursor:pointer;border-bottom:none;display:flex;flex-direction:column;gap:2px;min-width:150px;text-align:left}
+  /* ---- tables ---- */
+  .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  .tbl th{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .tbl td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--mut)}
+  .tbl td b{color:var(--txt)}
+  .lyr{font-family:"JetBrains Mono",monospace;font-size:10.5px;padding:1px 7px;border-radius:5px;font-weight:600}
+  .ly3{background:rgba(139,132,207,.15);color:#aaa3e6}
+  .ly2{background:rgba(210,162,74,.15);color:#e3bd76}
+  .ly1{background:rgba(79,175,142,.15);color:#7cc9ad}
+  .lyu{background:rgba(91,129,196,.15);color:#8aa7df}
+  .lyp{background:rgba(196,122,158,.15);color:#dba0bf}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .two{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+  @media(max-width:780px){.two{grid-template-columns:1fr}}
+  /* legend */
+  .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:2px 0 16px}
+  .leg span{display:flex;align-items:center;gap:7px}
+  .leg .sw{width:11px;height:11px;border-radius:3px}
+  .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
+  footer{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}
+  footer b{color:var(--mut)}
+  .svglabel{font-family:"JetBrains Mono",monospace;font-size:9px;fill:var(--dim)}
+  /* SVG fonts via CSS rule — CSS vars do NOT resolve as SVG presentation attributes */
+  svg text{font-family:"Space Grotesk",sans-serif}
+  svg text.m{font-family:"JetBrains Mono",monospace}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #11 · v5 · Networking Silicon (deeper)</div>
+    <h1>The SerDes-IP Chokepoint — the scarce link everyone licenses and almost no one can buy clean</h1>
+    <p class="sub">AI fabric → connectivity silicon → the analog <b style="color:#fff">SerDes / PHY IP</b> beneath it. Two axes (<b style="color:#fff">where</b> the link runs: scale-up / out / across × <b style="color:#fff">what</b> it is: L3 IP → L2 chip → L1 system), a visual end-to-end supply chain, and a top-3 at <b style="color:#fff">different</b> links — staged on the awareness curve so you can see what's still early (SNPS) versus already priced (MRVL, ALAB).</p>
+    <div class="meta">
+      <div><div class="k">Date</div><div class="vv num">18 Jun 2026</div></div>
+      <div><div class="k">Stack path</div><div class="vv">EDA/foundry → SerDes IP → connectivity chip → module/cable → switch/GPU</div></div>
+      <div><div class="k">Universe</div><div class="vv">Global · US / TW</div></div>
+      <div><div class="k">Top-3</div><div class="vv">SNPS · MRVL · ALAB</div></div>
+      <div><div class="k">Prices</div><div class="vv">IBKR read-only · personal research, not advice</div></div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc"><div class="wrap">
+  <a href="#s1">01 Snapshot</a><a href="#s2">02 Framework</a><a href="#s3">03 Components</a><a href="#s4">04 Assembly</a>
+  <a href="#s5">05 Where it runs</a><a href="#s6">06 Supply chain</a><a href="#s7">07 Timeline</a><a href="#s8">08 Chokepoint</a>
+  <a href="#s9">09 Are we early?</a><a href="#s10">10 Top-3</a><a href="#s11">11 Beneficiaries/risk</a><a href="#s12">12 Decision</a>
+</div></nav>
+
+<div class="wrap">
+
+<!-- 1. SNAPSHOT -->
+<section id="s1">
+  <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">為什麼是現在</span></div>
+  <p class="lead">Every AI fabric — GPUs talking inside a rack, racks talking across a hall, datacenters talking across a region — moves bits through one tiny, brutally hard analog circuit: the <b>SerDes</b> (serializer/deserializer). At 224 Gbit/s per lane it is the link that gates 1.6T ports; 448G is next. The headline names (switch chips, retimers, cables) all <b>embed</b> it. Going one layer below them lands on the <b>SerDes / connectivity-IP capability</b> itself — owned by ~4–5 organizations, and (the twist) the cleanest listed pure-play was just bought out, while the one IP gate still listed is the only networking name that hasn't run.</p>
+  <div class="kpis">
+    <div class="kpi"><div class="v num teal">224→448G</div><div class="l">per-lane SerDes roadmap</div><div class="d">224G underpins 1.6T ports today; OIF CEI-448G targets 1.6T/3.2T (PAM4/6/8)</div></div>
+    <div class="kpi"><div class="v num red">~$2.4B</div><div class="l">Qualcomm buys Alphawave (Dec-2025)</div><div class="d">the cleanest listed SerDes-IP pure-play vanished into a buyer</div></div>
+    <div class="kpi"><div class="v num amb">−1% vs +261%</div><div class="l">SNPS vs MRVL · YTD</div><div class="d">the IP gate flat; the chips that license/embed it euphoric</div></div>
+    <div class="kpi"><div class="v num grn">$2.5→6.7B</div><div class="l">interface-IP TAM, 2026→2034</div><div class="d">~13–22% CAGR (est. range); SerDes is the largest slice</div></div>
+  </div>
+
+  <div style="border:1px solid var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px;background:var(--panel)">
+    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px">EXPLAIN IT SIMPLY · 白話版</div>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6;max-width:980px">Imagine the AI datacenter as a postal network. The GPUs and switches are sorting offices; the parcels are data. To send a parcel between offices you need a very specialized <b style="color:var(--txt)">loading dock that can fling boxes onto a conveyor at insane speed and catch them perfectly at the other end</b> — that dock is the <b style="color:var(--txt)">SerDes</b>. Almost every chip in the network has one inside. Designing a leading-edge dock (224 → 448 billion bits a second) is so hard that only a handful of teams on Earth can do it, and — unlike normal chips — it does <b style="color:var(--txt)">not get cheaper or smaller as technology advances</b> (it's analog). That makes the SerDes the <b style="color:var(--txt)">chokepoint</b>. The investing twist: the best docks are kept <b style="color:var(--txt)">in-house</b> by Broadcom and Marvell (not for sale), the cleanest "sell-the-dock" company (Alphawave) was just <b style="color:var(--txt)">bought by Qualcomm</b>, and the one remaining listed "dock toolmaker" (Synopsys) is the <b style="color:var(--txt)">only networking name that is still cheap</b> — because the market is busy worrying about its China and Ansys problems, not its dock business.</p>
+  </div>
+</section>
+
+<!-- 2. TWO-AXIS FRAMEWORK -->
+<section id="s2">
+  <div class="sh"><span class="n">02</span><h2>The framework — two orthogonal axes</h2><span class="cn">MECE 框架</span></div>
+  <p class="lead">Every connectivity chip lives at one <b>(network domain × stack layer)</b> coordinate. The <b>domain</b> answers <i>where</i> the link runs and how far; the <b>layer</b> answers <i>what</i> physical part it is. Hold both in view and the chokepoint pops out: the same <b>L3 SerDes IP</b> sits inside the chip that wins every domain — scale-up, scale-out and scale-across all pass through it.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+    <div class="panel" style="padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">THE LAYER STACK · 分層 (read this first)</div>
+      <div style="font-size:12px;color:var(--mut);line-height:1.8">
+        <span class="lyr ly1">L1</span> the <b>switch / GPU system</b> that needs to move data &nbsp;·&nbsp;
+        <span class="lyr ly2">L2</span> the <b>connectivity chip</b> (switch ASIC, retimer, AEC, optical DSP) that drives the bits &nbsp;·&nbsp;
+        <span class="lyr ly3">L3</span> the <b>SerDes / PHY IP block</b> inside every one of those chips that actually launches/recovers the 100+ GHz signal &nbsp;·&nbsp;
+        <span class="lyr lyu">UP</span> upstream: the <b>EDA tools + foundry + analog-design know-how</b> that create the IP.
+      </div>
+    </div>
+    <div class="panel" style="padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">6-TERM GLOSSARY · 名詞</div>
+      <div style="font-size:11.5px;color:var(--mut);line-height:1.7">
+        <b>SerDes</b> turns parallel on-chip data into one fast serial lane &amp; back · <b>PHY</b> the analog physical-layer circuit that drives/recovers it · <b>Retimer</b> chip that cleans &amp; re-clocks a 224G signal so it travels farther · <b>AEC</b> active electrical cable — copper with SerDes chips in the ends · <b>LPO</b> linear pluggable optics — an optical module with the DSP <i>removed</i> · <b>IP / EDA</b> licensable circuit blocks / the software used to design chips
+      </div>
+    </div>
+  </div>
+  <table class="matrix">
+    <tr>
+      <th style="width:175px">Network domain (where)</th>
+      <th style="width:120px">Reach</th>
+      <th>Connectivity silicon used (and the SerDes inside)</th>
+      <th style="width:235px">Who wins · key players</th>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--dup)"></span>Scale-UP<small>GPU↔GPU in a rack/pod</small></div></td>
+      <td>&lt; 1 m – 10 m</td>
+      <td><b>Highest bandwidth, shortest reach.</b> Copper today (NVLink) + 224G AECs + scale-up fabric switches. Reach collapses at 224G → demands the <i>strongest</i> SerDes. <span class="chip hot">SerDes binds hardest here</span></td>
+      <td>NVIDIA (NVLink), Broadcom (Tomahawk/SUE), Astera (Scorpio), Marvell, Credo (AECs)</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--dout)"></span>Scale-OUT<small>rack↔rack across the hall</small></div></td>
+      <td>10 m – 2 km</td>
+      <td><b>The volume engine.</b> Ethernet switch ASICs (102T Tomahawk 6), 224G optical DSP / retimers, pluggable 1.6T + LPO. <span class="chip hot">LPO deletes the module DSP → SerDes burden rises</span></td>
+      <td>Broadcom, Marvell (Inphi DSP), Astera (Taurus), Credo, MACOM (LPO)</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--dacr)"></span>Scale-ACROSS<small>DC↔DC, campus↔region</small></div></td>
+      <td>2 km – 1000+ km</td>
+      <td><b>The new frontier.</b> Coherent DSP / ZR+ optics link datacenters as power forces training to fragment geographically. Still SerDes-gated on the host side. <span class="chip">Emerging 2026→</span></td>
+      <td>Marvell (coherent DSP), Broadcom, Cisco/Acacia, Ciena, Nokia</td>
+    </tr>
+  </table>
+  <p class="cap">The 224G→448G SerDes scarcity originates wherever bandwidth doubles, but radiates across all three domains — one analog constraint, three demand pools. The chokepoint sits at the (any-domain × L3 IP) cell.</p>
+</section>
+
+<!-- 3. LAYER 3 GALLERY -->
+<section id="s3">
+  <div class="sh"><span class="n">03</span><h2>Layer 3 — the connectivity silicon, illustrated</h2><span class="cn">連網元件</span></div>
+  <p class="lead">The building blocks of networking silicon. Five of the six below are <b>different chips</b> — but every one of them embeds the same scarce thing: a leading-edge <b>SerDes / PHY</b>. That shared dependency is exactly why the bottleneck is structural, not a one-product story.</p>
+  <div class="gal">
+    <!-- SerDes / PHY IP -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <rect x="14" y="30" width="92" height="50" rx="5" fill="#1c2030" stroke="#3a3f55"/>
+          <text x="18" y="24" class="svglabel">host die (parallel data)</text>
+          <!-- serializer -->
+          <rect x="22" y="42" width="34" height="26" rx="3" fill="url(#g1)"/>
+          <text x="39" y="58" text-anchor="middle" font-size="7.5" fill="#fff">SER</text>
+          <!-- driver -->
+          <rect x="60" y="42" width="40" height="26" rx="3" fill="#3a3f63" stroke="#8b84cf"/>
+          <text x="80" y="55" text-anchor="middle" font-size="7" fill="#cfc9f2">driver</text>
+          <text x="80" y="64" text-anchor="middle" font-size="6.5" fill="#9aa3b5">+ EQ/DSP</text>
+          <!-- serial lane -->
+          <line x1="106" y1="55" x2="184" y2="55" stroke="#e0686a" stroke-width="2.4"/>
+          <polygon points="184,55 176,51 176,59" fill="#e0686a"/>
+          <text x="150" y="48" text-anchor="middle" font-size="7.5" fill="#eda3a4" class="m">224G / lane</text>
+          <text x="14" y="96" class="svglabel">one ultra-fast serial lane on/off chip</text>
+        </svg>
+        <defs><linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#8b84cf"/><stop offset="1" stop-color="#6f68b8"/></linearGradient></defs>
+      </div>
+      <div class="body">
+        <h4>SerDes / PHY IP <span class="badge b-hot">CHOKEPOINT</span></h4>
+        <p class="role">The mixed-signal block that turns slow parallel on-die data into one 100+ GHz serial lane and recovers it at the far end. Analog-dominated, so it does <i>not</i> shrink with Moore's law. Every chip below contains many of them.</p>
+        <p class="who">Captive: <b>Broadcom · Marvell</b>; Merchant IP: <b>Synopsys · Cadence · Qualcomm/Alphawave</b></p>
+      </div>
+    </div>
+    <!-- Switch ASIC -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <rect x="50" y="28" width="100" height="54" rx="6" fill="#11261f" stroke="#3a6b54"/>
+          <text x="100" y="22" class="svglabel" text-anchor="middle">switch ASIC die</text>
+          <rect x="70" y="42" width="60" height="26" rx="3" fill="#1c3a2d"/>
+          <text x="100" y="58" text-anchor="middle" font-size="8" fill="#7cc9ad">packet engine</text>
+          <!-- SerDes ring around the die -->
+          <g fill="#8b84cf">
+            <rect x="50" y="32" width="6" height="9" rx="1"/><rect x="50" y="46" width="6" height="9" rx="1"/><rect x="50" y="60" width="6" height="9" rx="1"/>
+            <rect x="144" y="32" width="6" height="9" rx="1"/><rect x="144" y="46" width="6" height="9" rx="1"/><rect x="144" y="60" width="6" height="9" rx="1"/>
+          </g>
+          <text x="100" y="96" class="svglabel" text-anchor="middle">SerDes lanes ring the perimeter</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Switch ASIC <span class="badge b-now">VOLUME</span></h4>
+        <p class="role">The 102 Tbit/s Ethernet switch (Tomahawk 6) or router (Jericho 4) at the heart of scale-out. Its bandwidth = lane-rate × lane-count, so a switch is essentially hundreds of SerDes wrapped around a packet engine.</p>
+        <p class="who">Make: <b>Broadcom</b>, Marvell, NVIDIA (Spectrum-X)</p>
+      </div>
+    </div>
+    <!-- Retimer -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <text x="14" y="22" class="svglabel">degraded 224G in → clean 224G out</text>
+          <!-- noisy eye in -->
+          <path d="M16 70 q 10 -28 20 0 q -10 28 -20 0" fill="none" stroke="#7a6f3a" stroke-width="1.6"/>
+          <line x1="40" y1="55" x2="64" y2="55" stroke="#d2a24a" stroke-width="1.6"/>
+          <rect x="64" y="40" width="60" height="30" rx="4" fill="#33302a" stroke="#d2a24a"/>
+          <text x="94" y="59" text-anchor="middle" font-size="8" fill="#e3bd76">retimer</text>
+          <line x1="124" y1="55" x2="148" y2="55" stroke="#2dd4bf" stroke-width="1.6"/>
+          <!-- clean eye out -->
+          <path d="M150 70 q 12 -32 24 0 q -12 32 -24 0" fill="none" stroke="#2dd4bf" stroke-width="1.8"/>
+          <text x="94" y="96" text-anchor="middle" class="svglabel">re-clocks the signal (a full SerDes pair)</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Retimer (PCIe / Ethernet) <span class="badge b-now">SCALE-UP</span></h4>
+        <p class="role">A chip that receives a worn-out 224G signal, fully recovers the data, and re-launches a pristine copy — extending reach on a board. It is, by construction, two back-to-back SerDes. Astera's Aries is the canonical example.</p>
+        <p class="who">Make: <b>Astera</b>, Broadcom, Montage, Parade</p>
+      </div>
+    </div>
+    <!-- AEC -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <text x="14" y="22" class="svglabel">active electrical cable</text>
+          <rect x="20" y="46" width="26" height="22" rx="3" fill="#2a2540" stroke="#8b84cf"/>
+          <text x="33" y="60" text-anchor="middle" font-size="7" fill="#cfc9f2">DSP</text>
+          <rect x="154" y="46" width="26" height="22" rx="3" fill="#2a2540" stroke="#8b84cf"/>
+          <text x="167" y="60" text-anchor="middle" font-size="7" fill="#cfc9f2">DSP</text>
+          <!-- copper -->
+          <path d="M46 57 C 80 57, 120 57, 154 57" fill="none" stroke="#c47a9e" stroke-width="3"/>
+          <path d="M46 53 C 80 53, 120 53, 154 53" fill="none" stroke="#c47a9e" stroke-width="3" opacity="0.5"/>
+          <text x="100" y="46" text-anchor="middle" font-size="7" fill="#dba0bf">copper twin-ax</text>
+          <text x="100" y="96" text-anchor="middle" class="svglabel">SerDes in each end drives copper farther</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>AEC — active electrical cable <span class="badge b-next">NVLINK COPPER</span></h4>
+        <p class="role">Copper cable with a SerDes/DSP in each connector, letting copper reach a few meters at 224G — NVIDIA's preferred scale-up medium "out to 2027–2028." Credo's "purple cables." More SerDes, sold as a cable.</p>
+        <p class="who">Make: <b>Credo</b>, Astera (Taurus), Amphenol</p>
+      </div>
+    </div>
+    <!-- Optical DSP / LPO -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <text x="14" y="22" class="svglabel">optical module: with vs without DSP</text>
+          <!-- with DSP -->
+          <rect x="16" y="34" width="80" height="30" rx="4" fill="#1a1e28" stroke="#5aa9e0"/>
+          <rect x="22" y="42" width="26" height="14" rx="2" fill="#2a2540" stroke="#8b84cf"/><text x="35" y="52" text-anchor="middle" font-size="6.5" fill="#cfc9f2">DSP</text>
+          <rect x="56" y="42" width="34" height="14" rx="2" fill="#11261f" stroke="#3a6b54"/><text x="73" y="52" text-anchor="middle" font-size="6.5" fill="#7cc9ad">optics</text>
+          <text x="56" y="74" text-anchor="middle" font-size="7" fill="#8ec4ee">classic (14–17 W)</text>
+          <!-- LPO -->
+          <rect x="104" y="34" width="80" height="30" rx="4" fill="#1a1e28" stroke="#2dd4bf"/>
+          <g opacity="0.32"><rect x="110" y="42" width="26" height="14" rx="2" fill="#2a2e38" stroke="#697283" stroke-dasharray="3 3"/><text x="123" y="52" text-anchor="middle" font-size="6.5" fill="#697283">DSP ✕</text></g>
+          <rect x="144" y="42" width="34" height="14" rx="2" fill="#11261f" stroke="#3a6b54"/><text x="161" y="52" text-anchor="middle" font-size="6.5" fill="#7cc9ad">optics</text>
+          <text x="144" y="74" text-anchor="middle" font-size="7" fill="#2dd4bf">LPO (~8.5 W)</text>
+          <text x="100" y="96" text-anchor="middle" class="svglabel">LPO removes the DSP → host SerDes must do more</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Optical DSP &amp; the LPO threat <span class="badge b-emrg">DISAGGREGATION</span></h4>
+        <p class="role">The PAM4 DSP retimes/cleans the optical signal. <b>LPO deletes it</b> to save ~40–50% power — bearish this specific chip, but it pushes the equalization burden back onto the host switch/XPU SerDes (bullish the chokepoint).</p>
+        <p class="who">DSP: <b>Marvell</b> (Inphi), Broadcom; LPO analog: MACOM, Semtech</p>
+      </div>
+    </div>
+    <!-- Custom XPU -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <text x="14" y="22" class="svglabel">custom accelerator (XPU)</text>
+          <rect x="40" y="30" width="120" height="54" rx="6" fill="#161a24" stroke="#5b81c4"/>
+          <rect x="62" y="42" width="76" height="20" rx="3" fill="#1b2740"/><text x="100" y="56" text-anchor="middle" font-size="7.5" fill="#8aa7df">compute core</text>
+          <rect x="62" y="66" width="36" height="12" rx="2" fill="#221c2e" stroke="#5a4a7a"/><text x="80" y="75" text-anchor="middle" font-size="6.5" fill="#bcb3e6">SerDes</text>
+          <rect x="102" y="66" width="36" height="12" rx="2" fill="#221c2e" stroke="#5a4a7a"/><text x="120" y="75" text-anchor="middle" font-size="6.5" fill="#bcb3e6">SerDes</text>
+          <text x="100" y="98" text-anchor="middle" class="svglabel">hyperscaler ASIC — licenses SerDes IP</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Custom XPU <span class="badge b-next">THE NEW BUYER</span></h4>
+        <p class="role">Every hyperscaler building its own AI chip (TPU, Trainium, Maia) needs leading-edge SerDes — and most license it from Synopsys/Cadence/Alphawave or buy a custom-silicon partner (Broadcom, Marvell). This is what grows the merchant-IP TAM.</p>
+        <p class="who">Buyers: Google, Amazon, Microsoft, Meta · via <b>AVGO/MRVL + SNPS/CDNS</b></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. L3 -> L2 -> L1 ASSEMBLY -->
+<section id="s4">
+  <div class="sh"><span class="n">04</span><h2>From SerDes IP to chip to system</h2><span class="cn">IP 如何變成晶片與系統</span></div>
+  <p class="lead">The same SerDes IP block is the common ancestor of every networking chip. What differs downstream is which silicon survives — and the LPO transition <b>removes</b> a chip (the module DSP) while making the host SerDes work harder.</p>
+  <div class="svgwide">
+    <svg viewBox="0 0 1060 300" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="ar4" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#5a6377"/></marker>
+      </defs>
+      <!-- source IP -->
+      <rect x="20" y="118" width="124" height="64" rx="8" fill="#2a2540" stroke="#8b84cf"/>
+      <text x="82" y="144" text-anchor="middle" font-size="12" fill="#cfc9f2" font-weight="600">L3 SerDes IP</text>
+      <text x="82" y="162" text-anchor="middle" font-size="9.5" fill="#9aa3b5">224G PHY block</text>
+      <line x1="144" y1="150" x2="194" y2="150" stroke="#5a6377" stroke-width="1.5" marker-end="url(#ar4)"/>
+
+      <!-- A: switch ASIC -->
+      <rect x="204" y="18" width="300" height="76" rx="9" fill="#1a1e28" stroke="#4faf8e"/>
+      <text x="218" y="38" font-size="11" fill="#7cc9ad" font-weight="600">A · Switch ASIC (102T)</text>
+      <rect x="218" y="48" width="120" height="34" rx="4" fill="#11261f" stroke="#3a6b54"/><text x="278" y="69" text-anchor="middle" font-size="8" fill="#7cc9ad">packet engine</text>
+      <g fill="#8b84cf"><rect x="344" y="48" width="10" height="10" rx="1"/><rect x="344" y="60" width="10" height="10" rx="1"/><rect x="344" y="72" width="10" height="10" rx="1"/><rect x="358" y="48" width="10" height="10" rx="1"/><rect x="358" y="60" width="10" height="10" rx="1"/><rect x="358" y="72" width="10" height="10" rx="1"/></g>
+      <text x="392" y="60" font-size="8.5" fill="#9aa3b5">512 × 200G</text>
+      <text x="392" y="72" font-size="8.5" fill="#9aa3b5">SerDes lanes</text>
+      <text x="218" y="92" font-size="8.5" fill="#697283">bandwidth = lane-rate × lane-count · Broadcom/Marvell</text>
+
+      <!-- B: retimer / AEC -->
+      <rect x="204" y="110" width="300" height="78" rx="9" fill="#1a1e28" stroke="#d2a24a"/>
+      <text x="218" y="130" font-size="11" fill="#e3bd76" font-weight="600">B · Retimer / AEC</text>
+      <rect x="218" y="140" width="44" height="34" rx="4" fill="#221c2e" stroke="#5a4a7a"/><text x="240" y="161" text-anchor="middle" font-size="8" fill="#bcb3e6">SerDes</text>
+      <rect x="266" y="140" width="44" height="34" rx="4" fill="#221c2e" stroke="#5a4a7a"/><text x="288" y="161" text-anchor="middle" font-size="8" fill="#bcb3e6">SerDes</text>
+      <text x="320" y="160" font-size="8.5" fill="#9aa3b5">= two back-to-back PHYs</text>
+      <text x="218" y="186" font-size="8.5" fill="#697283">extends reach on board/cable · Astera/Credo</text>
+
+      <!-- C: optical module (LPO) -->
+      <rect x="204" y="204" width="300" height="82" rx="9" fill="#1a1e28" stroke="#5aa9e0"/>
+      <text x="218" y="224" font-size="11" fill="#8ec4ee" font-weight="600">C · Optical module → LPO</text>
+      <g opacity="0.34"><rect x="218" y="234" width="44" height="34" rx="4" fill="#2a2e38" stroke="#697283" stroke-dasharray="3 3"/><text x="240" y="255" text-anchor="middle" font-size="7.5" fill="#697283">DSP ✕</text></g>
+      <rect x="266" y="234" width="44" height="34" rx="4" fill="#11261f" stroke="#3a6b54"/><text x="288" y="255" text-anchor="middle" font-size="8" fill="#7cc9ad">optics</text>
+      <text x="320" y="250" font-size="8.5" fill="#697283">LPO removes the module DSP →</text>
+      <text x="320" y="263" font-size="8.5" fill="#eda3a4">host SerDes must equalize the whole link</text>
+      <text x="218" y="282" font-size="8.5" fill="#697283">−40–50% power · MACOM/Semtech analog front-end</text>
+
+      <!-- arrows to systems -->
+      <line x1="504" y1="56" x2="540" y2="56" stroke="#5a6377" stroke-width="1.5" marker-end="url(#ar4)"/>
+      <line x1="504" y1="150" x2="540" y2="150" stroke="#5a6377" stroke-width="1.5" marker-end="url(#ar4)"/>
+      <line x1="504" y1="245" x2="540" y2="245" stroke="#5a6377" stroke-width="1.5" marker-end="url(#ar4)"/>
+
+      <!-- right: systems + note -->
+      <rect x="548" y="36" width="200" height="228" rx="10" fill="#0e1a14" stroke="#24533c"/>
+      <text x="648" y="58" text-anchor="middle" font-size="11" fill="#7cc9ad" font-weight="600">L1 systems</text>
+      <rect x="566" y="72" width="164" height="30" rx="5" fill="#123124" stroke="#3a6b54"/><text x="648" y="91" text-anchor="middle" font-size="9" fill="#9fe0c0">Ethernet switch / router</text>
+      <rect x="566" y="110" width="164" height="30" rx="5" fill="#123124" stroke="#3a6b54"/><text x="648" y="129" text-anchor="middle" font-size="9" fill="#9fe0c0">GPU / XPU fabric (NVLink)</text>
+      <rect x="566" y="148" width="164" height="30" rx="5" fill="#123124" stroke="#3a6b54"/><text x="648" y="167" text-anchor="middle" font-size="9" fill="#9fe0c0">AEC cables / line cards</text>
+      <rect x="566" y="186" width="164" height="30" rx="5" fill="#123124" stroke="#3a6b54"/><text x="648" y="205" text-anchor="middle" font-size="9" fill="#9fe0c0">coherent DCI gear</text>
+      <text x="648" y="240" text-anchor="middle" font-size="8.5" fill="#697283">Arista · Cisco · NVIDIA · ODMs</text>
+
+      <rect x="770" y="36" width="270" height="228" rx="10" fill="#13161e" stroke="#2a3040"/>
+      <text x="788" y="60" font-size="11" fill="#e8eaf0" font-weight="600">What stays scarce as you go A → C</text>
+      <text x="788" y="86" font-size="10.5" fill="#9aa3b5">• The packet engine, the optics, the DSP</text>
+      <text x="798" y="102" font-size="10.5" fill="#9aa3b5">can each be designed around or deleted.</text>
+      <text x="788" y="126" font-size="10.5" fill="#9aa3b5">• The SerDes cannot — every path needs it,</text>
+      <text x="798" y="142" font-size="10.5" fill="#9aa3b5">and it doesn't shrink with the node.</text>
+      <text x="788" y="166" font-size="10.5" fill="#9aa3b5">• LPO even <tspan fill="#eda3a4">deletes</tspan> a chip (module DSP)</text>
+      <text x="798" y="182" font-size="10.5" fill="#9aa3b5">and loads more onto the host SerDes.</text>
+      <text x="788" y="208" font-size="10.5" fill="#eda3a4">• Net: as networking evolves, the SerDes IP</text>
+      <text x="798" y="224" font-size="10.5" fill="#eda3a4">gets MORE central, not less.</text>
+      <text x="788" y="248" font-size="9" fill="#697283">— the structural case for the chokepoint</text>
+    </svg>
+  </div>
+  <p class="cap">Assembly view — the SerDes IP (left) is common to all three chip types; the rest of the silicon is optional or deletable. That asymmetry is the thesis.</p>
+</section>
+
+<!-- 5. DEPLOYMENT TOPOLOGIES -->
+<section id="s5">
+  <div class="sh"><span class="n">05</span><h2>Where it runs — scale-up / out / across</h2><span class="cn">部署拓樸</span></div>
+  <p class="lead">The three network domains as physical topologies. Reach grows left-to-right by ~3 orders of magnitude — a different connectivity chip dominates each, but the SerDes is the common denominator everywhere.</p>
+  <div class="svgwide">
+    <svg viewBox="0 0 1060 250" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <!-- SCALE-UP -->
+      <text x="40" y="28" font-size="12" fill="#e0a458" font-weight="600">SCALE-UP</text>
+      <text x="40" y="44" font-size="9.5" fill="#697283">GPU↔GPU · &lt;10 m · NVLink + 224G AEC</text>
+      <rect x="34" y="58" width="280" height="150" rx="10" fill="#1a160e" stroke="#5a4624"/>
+      <g>
+        <rect x="60" y="80" width="46" height="30" rx="4" fill="#2a2412" stroke="#e0a458"/><text x="83" y="99" text-anchor="middle" font-size="8" fill="#e3bd76">GPU</text>
+        <rect x="60" y="120" width="46" height="30" rx="4" fill="#2a2412" stroke="#e0a458"/><text x="83" y="139" text-anchor="middle" font-size="8" fill="#e3bd76">GPU</text>
+        <rect x="60" y="160" width="46" height="30" rx="4" fill="#2a2412" stroke="#e0a458"/><text x="83" y="179" text-anchor="middle" font-size="8" fill="#e3bd76">GPU</text>
+        <rect x="200" y="80" width="46" height="30" rx="4" fill="#2a2412" stroke="#e0a458"/><text x="223" y="99" text-anchor="middle" font-size="8" fill="#e3bd76">GPU</text>
+        <rect x="200" y="120" width="46" height="30" rx="4" fill="#2a2412" stroke="#e0a458"/><text x="223" y="139" text-anchor="middle" font-size="8" fill="#e3bd76">GPU</text>
+        <rect x="200" y="160" width="46" height="30" rx="4" fill="#2a2412" stroke="#e0a458"/><text x="223" y="179" text-anchor="middle" font-size="8" fill="#e3bd76">GPU</text>
+        <g stroke="#e0a458" stroke-width="1" opacity="0.55">
+          <line x1="106" y1="95" x2="200" y2="95"/><line x1="106" y1="95" x2="200" y2="135"/>
+          <line x1="106" y1="135" x2="200" y2="95"/><line x1="106" y1="135" x2="200" y2="135"/><line x1="106" y1="135" x2="200" y2="175"/>
+          <line x1="106" y1="175" x2="200" y2="135"/><line x1="106" y1="175" x2="200" y2="175"/>
+        </g>
+      </g>
+      <text x="174" y="202" text-anchor="middle" font-size="8.5" fill="#e0a458">dense all-to-all · copper/AEC · strongest SerDes</text>
+
+      <!-- SCALE-OUT -->
+      <text x="380" y="28" font-size="12" fill="#5aa9e0" font-weight="600">SCALE-OUT</text>
+      <text x="380" y="44" font-size="9.5" fill="#697283">rack↔rack · 10 m–2 km · 1.6T pluggable/LPO</text>
+      <rect x="374" y="58" width="280" height="150" rx="10" fill="#0e1722" stroke="#244258"/>
+      <rect x="470" y="74" width="90" height="22" rx="4" fill="#13283a" stroke="#5aa9e0"/><text x="515" y="89" text-anchor="middle" font-size="8" fill="#8ec4ee">102T switch</text>
+      <rect x="392" y="150" width="54" height="22" rx="4" fill="#13283a" stroke="#5aa9e0"/><text x="419" y="165" text-anchor="middle" font-size="7.5" fill="#8ec4ee">rack</text>
+      <rect x="488" y="150" width="54" height="22" rx="4" fill="#13283a" stroke="#5aa9e0"/><text x="515" y="165" text-anchor="middle" font-size="7.5" fill="#8ec4ee">rack</text>
+      <rect x="584" y="150" width="54" height="22" rx="4" fill="#13283a" stroke="#5aa9e0"/><text x="611" y="165" text-anchor="middle" font-size="7.5" fill="#8ec4ee">rack</text>
+      <g stroke="#5aa9e0" stroke-width="1.6">
+        <line x1="500" y1="96" x2="419" y2="150"/><line x1="515" y1="96" x2="515" y2="150"/><line x1="530" y1="96" x2="611" y2="150"/>
+      </g>
+      <g fill="#2dd4bf"><circle cx="455" cy="123" r="3"/><circle cx="515" cy="123" r="3"/><circle cx="575" cy="123" r="3"/></g>
+      <text x="514" y="202" text-anchor="middle" font-size="8.5" fill="#5aa9e0">spine-leaf · optical DSP / LPO · retimers</text>
+
+      <!-- SCALE-ACROSS -->
+      <text x="720" y="28" font-size="12" fill="#5fc98a" font-weight="600">SCALE-ACROSS</text>
+      <text x="720" y="44" font-size="9.5" fill="#697283">DC↔DC · 2–1000+ km · coherent DCI</text>
+      <rect x="714" y="58" width="312" height="150" rx="10" fill="#0e1a14" stroke="#24533c"/>
+      <g>
+        <rect x="736" y="96" width="70" height="74" rx="5" fill="#123124" stroke="#5fc98a"/><text x="771" y="138" text-anchor="middle" font-size="8.5" fill="#7cc9ad">DC A</text>
+        <rect x="934" y="96" width="70" height="74" rx="5" fill="#123124" stroke="#5fc98a"/><text x="969" y="138" text-anchor="middle" font-size="8.5" fill="#7cc9ad">DC B</text>
+      </g>
+      <line x1="806" y1="133" x2="934" y2="133" stroke="#5fc98a" stroke-width="2.4" stroke-dasharray="2 5"/>
+      <circle cx="820" cy="133" r="4" fill="#2dd4bf"/><circle cx="920" cy="133" r="4" fill="#2dd4bf"/>
+      <text x="870" y="124" text-anchor="middle" font-size="8" fill="#5fc98a">coherent DSP</text>
+      <text x="870" y="150" text-anchor="middle" font-size="7.5" fill="#697283">ZR / ZR+ · 400G–1.6T</text>
+      <text x="870" y="202" text-anchor="middle" font-size="8.5" fill="#5fc98a">power/land limits → training spans sites</text>
+    </svg>
+  </div>
+  <p class="cap">Topology view — same fabric, three radii. NVIDIA is pushing copper (AEC) for scale-up out to 2027–2028 to avoid optics, which keeps the 224G/448G <i>electrical</i> SerDes the binding constraint there.</p>
+</section>
+
+<!-- 6. SUPPLY CHAIN -->
+<section id="s6">
+  <div class="sh"><span class="n">06</span><h2>End-to-end supply chain</h2><span class="cn">上下游全鏈</span></div>
+  <div class="leg">
+    <span><span class="sw" style="background:var(--up)"></span>Upstream (EDA / foundry / talent)</span>
+    <span><span class="sw" style="background:var(--l3)"></span>SerDes / connectivity IP</span>
+    <span><span class="sw" style="background:var(--pkg)"></span>Connectivity silicon</span>
+    <span><span class="sw" style="background:var(--l2)"></span>Modules / cables</span>
+    <span><span class="sw" style="background:var(--l1)"></span>Systems + buyers</span>
+    <span><span class="sw" style="background:var(--choke)"></span>Chokepoint</span>
+  </div>
+  <div class="svgwide">
+    <svg viewBox="-12 -2 1124 486" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="aT6" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5a6377"/></marker>
+        <marker id="aR6" markerWidth="9" markerHeight="9" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e0686a"/></marker>
+      </defs>
+
+      <!-- direction header -->
+      <text x="22" y="20" font-size="11" fill="#697283" font-weight="600">UPSTREAM</text>
+      <line x1="110" y1="16" x2="980" y2="16" stroke="#2a3040" stroke-width="1"/>
+      <polygon points="982,16 974,12 974,20" fill="#2a3040"/>
+      <text x="1078" y="20" font-size="11" fill="#697283" font-weight="600" text-anchor="end">DOWNSTREAM</text>
+
+      <!-- flow connectors (thin/red into & out of chokepoint, thick/grey elsewhere) -->
+      <line x1="180" y1="180" x2="200" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR6)"/>
+      <line x1="360" y1="180" x2="380" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR6)"/>
+      <line x1="540" y1="180" x2="560" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
+      <line x1="720" y1="180" x2="740" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
+      <line x1="900" y1="180" x2="920" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
+
+      <!-- C1 Upstream -->
+      <rect x="20" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="20" y="40" width="5" height="262" rx="2" fill="#5b81c4"/>
+      <text x="36" y="60" font-size="12" fill="#e8eaf0" font-weight="600">EDA / foundry</text>
+      <text x="36" y="74" font-size="9" fill="#8aa7df" font-weight="600">UPSTREAM</text>
+      <g font-size="9">
+        <rect x="32" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="98" fill="#fff" font-weight="600">EDA tools</text><text x="40" y="110" fill="#9aa3b5">Synopsys · Cadence · Siemens</text>
+        <rect x="32" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="136" fill="#fff" font-weight="600">Foundry PDK</text><text x="40" y="148" fill="#9aa3b5">TSMC N3/N2 high-speed</text>
+        <rect x="32" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="174" fill="#fff" font-weight="600">Analog talent</text><text x="40" y="186" fill="#9aa3b5">scarce mixed-signal teams</text>
+      </g>
+      <text x="36" y="214" font-size="9" fill="#eda3a4">the true scarce input: analog talent</text>
+      <text x="36" y="228" font-size="8.5" fill="#697283">EDA is a 3-firm oligopoly</text>
+
+      <!-- C2 CHOKEPOINT -->
+      <rect x="200" y="40" width="160" height="262" rx="10" fill="#1c1518" stroke="#5a3236" stroke-width="1.5"/>
+      <rect x="200" y="40" width="5" height="262" rx="2" fill="#8b84cf"/>
+      <rect x="206" y="26" width="148" height="20" rx="5" fill="#e0686a"/><text x="280" y="40" font-size="9.5" fill="#1c1518" font-weight="700" text-anchor="middle">CHOKEPOINT · L3 IP</text>
+      <text x="216" y="62" font-size="12" fill="#e8eaf0" font-weight="600">SerDes / conn. IP</text>
+      <text x="216" y="76" font-size="9" fill="#aaa3e6" font-weight="600">224G → 448G PHY</text>
+      <g font-size="9">
+        <rect x="212" y="86" width="136" height="32" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="220" y="100" fill="#fff" font-weight="700">Captive ★</text><text x="220" y="112" fill="#eda3a4">Broadcom · Marvell (best)</text>
+        <rect x="212" y="124" width="136" height="32" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="220" y="138" fill="#fff" font-weight="600">Merchant IP</text><text x="220" y="150" fill="#bcb3e6">Synopsys · Cadence</text>
+        <rect x="212" y="162" width="136" height="32" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="220" y="176" fill="#fff" font-weight="600">Alphawave</text><text x="220" y="188" fill="#bcb3e6">→ Qualcomm (Dec-25)</text>
+      </g>
+      <text x="216" y="216" font-size="9" fill="#eda3a4">everything downstream embeds it</text>
+      <text x="216" y="230" font-size="8.5" fill="#697283">analog — no Moore-law shrink</text>
+
+      <!-- C3 Connectivity silicon -->
+      <rect x="380" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="380" y="40" width="5" height="262" rx="2" fill="#c47a9e"/>
+      <text x="396" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Connectivity Si</text>
+      <text x="396" y="74" font-size="9" fill="#dba0bf" font-weight="600">LAYER 2 · CHIPS</text>
+      <g font-size="9">
+        <rect x="392" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="98" fill="#fff" font-weight="600">Switch ASIC</text><text x="400" y="110" fill="#9aa3b5">Broadcom TH6 · Jericho</text>
+        <rect x="392" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="136" fill="#fff" font-weight="600">Retimer / AEC</text><text x="400" y="148" fill="#9aa3b5">Astera · Credo · Marvell</text>
+        <rect x="392" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="174" fill="#fff" font-weight="600">Optical / coh. DSP</text><text x="400" y="186" fill="#9aa3b5">Marvell (Inphi) · MACOM</text>
+      </g>
+      <text x="396" y="214" font-size="9" fill="#dba0bf">captive owners earn the biggest $ rent here</text>
+      <text x="396" y="228" font-size="8.5" fill="#697283">2nd value pool (see bars)</text>
+
+      <!-- C4 Modules / cables -->
+      <rect x="560" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="560" y="40" width="5" height="262" rx="2" fill="#d2a24a"/>
+      <text x="576" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Modules / cables</text>
+      <text x="576" y="74" font-size="9" fill="#e3bd76" font-weight="600">INTEGRATION</text>
+      <g font-size="9">
+        <rect x="572" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="98" fill="#fff" font-weight="600">1.6T pluggable</text><text x="580" y="110" fill="#9aa3b5">Innolight · Coherent</text>
+        <rect x="572" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="136" fill="#fff" font-weight="600">LPO modules</text><text x="580" y="148" fill="#9aa3b5">DSP removed (host SerDes)</text>
+        <rect x="572" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="174" fill="#fff" font-weight="600">AEC cables</text><text x="580" y="186" fill="#9aa3b5">Credo · Amphenol</text>
+      </g>
+      <text x="576" y="214" font-size="9" fill="#e3bd76">commoditizing; thin scarcity rent</text>
+      <text x="576" y="228" font-size="8.5" fill="#697283">LPO shifts value back upstream</text>
+
+      <!-- C5 Systems -->
+      <rect x="740" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="740" y="40" width="5" height="262" rx="2" fill="#4faf8e"/>
+      <text x="756" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Systems</text>
+      <text x="756" y="74" font-size="9" fill="#7cc9ad" font-weight="600">LAYER 1</text>
+      <g font-size="9">
+        <rect x="752" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="98" fill="#fff" font-weight="600">Switch systems</text><text x="760" y="110" fill="#9aa3b5">Arista · Cisco · ODMs</text>
+        <rect x="752" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="136" fill="#fff" font-weight="600">GPU fabric</text><text x="760" y="148" fill="#9aa3b5">NVIDIA NVLink/Spectrum-X</text>
+        <rect x="752" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="174" fill="#fff" font-weight="600">Coherent DCI</text><text x="760" y="186" fill="#9aa3b5">Ciena · Cisco/Acacia</text>
+      </g>
+      <text x="756" y="214" font-size="9" fill="#7cc9ad">white-box pressures system margin</text>
+      <text x="756" y="228" font-size="8.5" fill="#697283">value sits in the silicon, not the box</text>
+
+      <!-- C6 Buyers -->
+      <rect x="920" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="920" y="40" width="5" height="262" rx="2" fill="#4faf8e"/>
+      <text x="936" y="60" font-size="12" fill="#e8eaf0" font-weight="600">End buyers</text>
+      <text x="936" y="74" font-size="9" fill="#7cc9ad" font-weight="600">DEMAND</text>
+      <g font-size="9">
+        <rect x="932" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="98" fill="#fff" font-weight="600">Hyperscalers</text><text x="940" y="110" fill="#9aa3b5">Goog · MSFT · Meta · AMZN</text>
+        <rect x="932" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="136" fill="#fff" font-weight="600">Custom XPU teams</text><text x="940" y="148" fill="#9aa3b5">license merchant SerDes IP</text>
+        <rect x="932" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="174" fill="#fff" font-weight="600">Neoclouds</text><text x="940" y="186" fill="#9aa3b5">CoreWeave · sovereign AI</text>
+      </g>
+      <text x="936" y="214" font-size="9" fill="#7cc9ad">more in-house ASICs = more IP licensing</text>
+      <text x="936" y="228" font-size="8.5" fill="#697283">demand visibility = high</text>
+
+      <!-- scarcity premium bar chart -->
+      <line x1="40" y1="432" x2="1080" y2="432" stroke="#2a3040" stroke-width="1"/>
+      <text x="40" y="328" font-size="9" fill="#697283">value capture / scarcity premium (per unit of value)</text>
+      <g>
+        <rect x="80" y="386" width="40" height="46" rx="2" fill="#5b81c4" opacity="0.5"/>
+        <rect x="260" y="340" width="40" height="92" rx="2" fill="#e0686a"/>
+        <rect x="440" y="370" width="40" height="62" rx="2" fill="#5fc98a" opacity="0.78"/>
+        <rect x="620" y="410" width="40" height="22" rx="2" fill="#2dd4bf" opacity="0.3"/>
+        <rect x="800" y="404" width="40" height="28" rx="2" fill="#2dd4bf" opacity="0.4"/>
+        <rect x="980" y="412" width="40" height="20" rx="2" fill="#2dd4bf" opacity="0.3"/>
+      </g>
+      <text x="280" y="332" font-size="9" fill="#eda3a4" text-anchor="middle" font-weight="600">rent peaks at the SerDes IP</text>
+      <text x="460" y="362" font-size="8.5" fill="#7cc9ad" text-anchor="middle">2nd pool: captive chip</text>
+      <g font-size="8.5" fill="#697283" text-anchor="middle">
+        <text x="100" y="446">EDA/foundry</text><text x="280" y="446">SerDes IP</text><text x="460" y="446">conn. silicon</text><text x="640" y="446">modules</text><text x="820" y="446">systems</text><text x="1000" y="446">buyers</text>
+      </g>
+      <text x="550" y="468" font-size="9" fill="#697283" text-anchor="middle">Red arrows = constricted throughput — everything downstream waits on the SerDes IP. Note the 2nd (green) bar at "conn. silicon": that's where captive owners (AVGO/MRVL) convert the IP into the biggest <tspan font-style="italic">dollar</tspan> rent.</text>
+    </svg>
+  </div>
+  <p class="cap">A 102T switch (Tomahawk 6) needs ~512 × 200G SerDes; the next generation moves to 224G then 448G; a retimer is two SerDes; an LPO link pushes equalization onto the host's. The IP capability — not the box — captures the scarcity premium, and the highest-<i>margin</i> slice (merchant royalties) and biggest-<i>dollar</i> slice (captive chips) sit one stage apart.</p>
+</section>
+
+<!-- 7. TIMELINE -->
+<section id="s7">
+  <div class="sh"><span class="n">07</span><h2>Multi-year evolution — by domain</h2><span class="cn">多年發展時間軸</span></div>
+  <p class="lead">How each network domain migrates 2026→2029. The <b style="color:#eda3a4">tinted</b> cells mark SerDes-stress / catalyst windows. The hinge is <b>2027–2028</b>: the LPO inflection plus the OIF CEI-448G spec freeze that opens the next IP cycle.</p>
+  <div class="tlgrid">
+    <div class="tlhead"><div>Domain ↓ / Year →</div><div>2026</div><div>2027</div><div>2028</div><div>2029</div></div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--dup)"></span>Scale-up</div>
+      <div class="cell"><b>Copper NVLink + 224G AEC</b>NVIDIA avoids optics</div>
+      <div class="cell hot"><b>224G scale-up fabric</b>UALink 1.0; Astera Scorpio ramps; AEC content surges</div>
+      <div class="cell hot"><b>448G electrical begins</b>copper reach crisis → strongest SerDes wins; first scale-up optics pilots</div>
+      <div class="cell"><b>448G + co-packaged copper</b>scale-up optics where copper can't reach</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--dout)"></span>Scale-out</div>
+      <div class="cell hot"><b>1.6T volume (224G)</b>Tomahawk 6 (102T); LPO pilots</div>
+      <div class="cell hot"><b>LPO scales</b>module DSP under pressure; LPO/linear optics share rising (LightCounting; near-term share contested by Cignal AI)</div>
+      <div class="cell"><b>CEI-448G specs freeze</b>3.2T early; next SerDes-IP licensing cycle opens</div>
+      <div class="cell"><b>448G / 3.2T volume</b>full-rate deployment</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--dacr)"></span>Scale-across</div>
+      <div class="cell"><b>Coherent DCI 400–800ZR</b>multi-DC links</div>
+      <div class="cell hot"><b>Regional training mesh</b>coherent DSP demand; power forces site-splitting</div>
+      <div class="cell"><b>1.6T coherent</b>campus fabrics scale</div>
+      <div class="cell"><b>Long-haul AI mainstream</b>cross-region training normal</div>
+    </div>
+  </div>
+  <p class="cap">Reading down a column shows what's live in a given year; reading across a row shows one domain's arc. 448G is the next forced re-licensing of SerDes IP — the catalyst that re-opens the merchant-IP TAM.</p>
+</section>
+
+<!-- 8. CHOKEPOINT -->
+<section id="s8">
+  <div class="sh"><span class="n">08</span><h2>The chokepoint — and the variant view</h2><span class="cn">卡點與變異認知</span></div>
+  <div class="choke">
+    <div class="ttl">
+      <svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 2 L22 20 H2 Z" fill="none" stroke="#e0686a" stroke-width="2" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="14" stroke="#e0686a" stroke-width="2"/><circle cx="12" cy="17" r="1.2" fill="#e0686a"/></svg>
+      <h3>Leading-edge SerDes / connectivity IP (224G shipping, 448G next)</h3>
+    </div>
+    <p>The analog mixed-signal block that launches and recovers a 100+ GHz serial lane. It gates every switch ASIC, retimer, AEC, optical/coherent DSP and custom XPU — and it does <b>not</b> shrink with the process node, so capacity is bounded by a tiny pool of mixed-signal design talent. Only <b>~4–5 organizations</b> field it at the leading edge: Broadcom and Marvell keep their best SerDes <b>captive</b> (not for sale); Synopsys and Cadence license it as merchant IP; the cleanest listed pure-play, <b>Alphawave, was absorbed by Qualcomm in December 2025</b>. So there is no clean way to <i>buy</i> the chokepoint directly — you buy the toll-gates around it.</p>
+    <div class="stats">
+      <div><b class="num">~4–5</b><span>orgs with leading-edge 224G SerDes</span></div>
+      <div><b class="num">2</b><span>keep their best SerDes captive (AVGO, MRVL)</span></div>
+      <div><b class="num">$2.4B</b><span>Qualcomm/Alphawave — pure-play removed</span></div>
+      <div><b class="num">448G</b><span>next forced re-license cycle (OIF CEI)</span></div>
+      <div><b class="num">0</b><span>Moore-law shrink — analog, talent-bound</span></div>
+    </div>
+  </div>
+
+  <!-- severity scorecard -->
+  <div class="panel" style="margin-top:14px">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
+      <h4 style="font-size:13px;font-weight:600">Chokepoint-severity scorecard <span style="color:var(--dim);font-weight:400;font-size:11px">· for the SerDes/connectivity-IP link · 1 = mild, 5 = acute · per-name links scored in §12</span></h4>
+      <div style="text-align:right"><span class="num" style="font-size:26px;font-weight:600;color:var(--choke)">18</span><span class="num" style="font-size:13px;color:var(--dim)">/20</span><div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em">composite · SEVERE</div></div>
+    </div>
+    <div style="display:grid;gap:11px">
+      <div style="display:grid;grid-template-columns:175px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Supply concentration</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:#3a3040"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">4</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">~4–5 leading-edge players — an oligopoly, not a single source (so not a 5)</div>
+      </div>
+      <div style="display:grid;grid-template-columns:175px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Lead time to add capacity</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:#3a3040"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">4</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">Multi-year analog design per node/rate; bounded by scarce mixed-signal talent, not fabs</div>
+      </div>
+      <div style="display:grid;grid-template-columns:175px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Low substitutability</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">5</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">No way to move bits off-die without it; analog → no Moore shrink; LPO raises the bar further</div>
+      </div>
+      <div style="display:grid;grid-template-columns:175px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Demand-growth pressure</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">5</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">Every port doubling (112→224→448G) and every new custom XPU multiplies SerDes content</div>
+      </div>
+    </div>
+    <p class="cap" style="margin-top:12px">Severity 18/20 — a genuine, durable chokepoint. The two sub-max scores reflect that it's an oligopoly (not a single source) and that capacity can be added by hiring/training, just slowly. <b>Tightness ≠ a good buy</b> — see the remaining-asymmetry read in §9–§12.</p>
+  </div>
+
+  <!-- variant box + schematic -->
+  <div style="display:grid;grid-template-columns:1.05fr .95fr;gap:14px;margin-top:14px">
+    <div class="panel" style="border-left:3px solid var(--accent)">
+      <h4 style="font-size:13px;margin-bottom:6px;font-weight:600;color:var(--accent)">Variant perception vs consensus · 變異認知</h4>
+      <p style="font-size:12.5px;color:var(--mut);line-height:1.55"><b style="color:var(--txt)">Consensus</b> trades "networking silicon" as a chip-volume story and buys the hot chips: MRVL +261%, ALAB +133%, CRDO +79%, MACOM +121% YTD. <b style="color:var(--txt)">The variant:</b> the deepest, most durable rent is the analog SerDes/connectivity IP — and (a) its cleanest pure-play (Alphawave) was just bought by Qualcomm, so listed SerDes-IP exposure is vanishing, while (b) the one remaining listed merchant-IP gate, <b style="color:var(--txt)">Synopsys (−1% YTD)</b>, is the only networking-adjacent name that didn't run — mispriced as a China-EDA / Ansys-troubled roll-up even as the connectivity-IP toll (224G→448G, UCIe, PCIe6) keeps growing. <i style="color:var(--dim)">(Honest caveat: the LPO host-SerDes tailwind flows mostly to the captive owners (AVGO/MRVL) and hyperscaler ASIC teams — it supports the chokepoint thesis more than the specific SNPS call.)</i></p>
+      <p style="font-size:12px;color:var(--mut);line-height:1.5;margin-top:9px"><b style="color:#eda3a4">If we're wrong, it's most likely because:</b> (1) SNPS's de-rating reflects a <i>durable</i> franchise problem (China revenue permanently impaired; Ansys value-destructive) and IP is too small a slice (~$1.75B of ~$7B) to re-rate it; (2) hyperscalers in-source SerDes (or buy via Qualcomm), eroding the merchant-IP TAM; (3) the <i>best</i> SerDes stays captive at AVGO/MRVL, so the listed "IP gate" never captures the headline rent. <b>SNPS is a relative-value "unloved arms-dealer" idea, not a pure SerDes bet.</b></p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">The disaggregation, drawn · LPO</h4>
+      <div class="svgwide" style="border:0;padding:0;background:transparent">
+        <svg viewBox="0 0 470 200" width="100%" xmlns="http://www.w3.org/2000/svg">
+          <!-- left: classic module -->
+          <text x="10" y="20" font-size="10" fill="#8ec4ee" font-weight="600">CLASSIC pluggable</text>
+          <rect x="10" y="30" width="200" height="64" rx="6" fill="#0e1722" stroke="#244258"/>
+          <rect x="22" y="44" width="48" height="36" rx="4" fill="#2a2540" stroke="#8b84cf"/><text x="46" y="65" text-anchor="middle" font-size="8" fill="#cfc9f2">DSP</text>
+          <rect x="82" y="44" width="48" height="36" rx="4" fill="#11261f" stroke="#3a6b54"/><text x="106" y="65" text-anchor="middle" font-size="8" fill="#7cc9ad">optics</text>
+          <rect x="142" y="44" width="56" height="36" rx="4" fill="#1c3a2d"/><text x="170" y="65" text-anchor="middle" font-size="7.5" fill="#9fe0c0">fiber</text>
+          <text x="110" y="112" text-anchor="middle" font-size="8.5" fill="#697283">module DSP does the retiming</text>
+
+          <!-- right: LPO -->
+          <text x="258" y="20" font-size="10" fill="#2dd4bf" font-weight="600">LPO (linear)</text>
+          <rect x="258" y="30" width="200" height="64" rx="6" fill="#0e1722" stroke="#1f4f49"/>
+          <g opacity="0.32"><rect x="270" y="44" width="48" height="36" rx="4" fill="#2a2e38" stroke="#697283" stroke-dasharray="3 3"/><text x="294" y="65" text-anchor="middle" font-size="8" fill="#697283">DSP ✕</text></g>
+          <rect x="330" y="44" width="48" height="36" rx="4" fill="#11261f" stroke="#3a6b54"/><text x="354" y="65" text-anchor="middle" font-size="8" fill="#7cc9ad">optics</text>
+          <rect x="390" y="44" width="56" height="36" rx="4" fill="#1c3a2d"/><text x="418" y="65" text-anchor="middle" font-size="7.5" fill="#9fe0c0">fiber</text>
+          <text x="358" y="112" text-anchor="middle" font-size="8.5" fill="#eda3a4">no DSP → host SerDes equalizes</text>
+
+          <!-- host SerDes burden arrow -->
+          <rect x="120" y="138" width="230" height="44" rx="7" fill="#1c1518" stroke="#5a3236"/>
+          <text x="235" y="156" text-anchor="middle" font-size="9" fill="#eda3a4" font-weight="600">host switch / XPU SerDes</text>
+          <text x="235" y="172" text-anchor="middle" font-size="8.5" fill="#d9c4c6">burden ↑ — bullish the chokepoint, bearish the module DSP</text>
+          <line x1="294" y1="94" x2="240" y2="136" stroke="#e0686a" stroke-width="1.4" stroke-dasharray="3 3"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. AWARENESS CURVE / ALPHA -->
+<style>
+  .axis-zone{font-family:"JetBrains Mono",monospace;font-size:9px;letter-spacing:.04em}
+  .liw{width:100%;border-collapse:collapse;font-size:12px}
+  .liw th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .liw td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+  .liw td b{color:var(--txt)}
+  .dotR{color:var(--choke);font-weight:600}.dotA{color:var(--dup);font-weight:600}.dotG{color:var(--dacr);font-weight:600}
+  .tabbtn{font-family:"Space Grotesk",sans-serif;background:var(--panel2);border:1px solid var(--line);color:var(--mut);padding:11px 16px;border-radius:10px 10px 0 0;font-size:13px;font-weight:600;cursor:pointer;border-bottom:none;display:flex;flex-direction:column;gap:2px;min-width:165px;text-align:left}
   .tabbtn small{font-size:10px;font-weight:400;color:var(--dim)}
-  .tabbtn[aria-selected="true"]{background:var(--panel);color:var(--txt);border-color:var(--line2)}
-  .tabbtn[aria-selected="true"] small{color:var(--accent)}
-  .stagebadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px}
-  .sg-early{background:rgba(95,201,138,.16);color:var(--dacr)}.sg-recog{background:rgba(210,162,74,.16);color:var(--dup)}.sg-eu{background:rgba(224,104,106,.16);color:var(--choke)}
-  .mini{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
-  @media(max-width:780px){.mini{grid-template-columns:1fr 1fr 1fr}}
-  .mini div{padding:11px 13px;border-right:1px solid var(--line)}.mini div:last-child{border-right:0}
-  .mini .v{font-size:17px;font-weight:600}.mini .l{font-size:10px;color:var(--mut);margin-top:2px}
+  .tabbtn.on{background:var(--panel);color:var(--txt);border-color:var(--line2)}
+  .tabbtn.on small{color:var(--accent)}
+  .tabbtn:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+  .stagebadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.04em}
+  .sg-early{background:rgba(95,201,138,.16);color:var(--dacr)}
+  .sg-recog{background:rgba(210,162,74,.16);color:var(--dup)}
+  .sg-eu{background:rgba(224,104,106,.16);color:var(--choke)}
+  .mini{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+  .mini div{padding:11px 13px;border-right:1px solid var(--line)}
+  .mini div:last-child{border-right:0}
+  .mini .v{font-family:"JetBrains Mono",monospace;font-size:17px;font-weight:600}
+  .mini .l{font-size:10px;color:var(--mut);margin-top:2px}
+  .gap{border-left:3px solid var(--accent);background:rgba(45,212,191,.06);border-radius:8px;padding:12px 15px;margin:14px 0}
+  .gap .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:5px}
+  .gap p{font-size:12.5px;color:var(--mut);line-height:1.5}.gap p b{color:var(--txt)}
   .mtd{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
-  @media(max-width:780px){.mtd{grid-template-columns:1fr}}
+  @media(max-width:780px){.mtd{grid-template-columns:1fr}.mini{grid-template-columns:1fr 1fr 1fr}.tabbtn{min-width:0;flex:1}}
   .mtc{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
   .mtc .h{font-size:11.5px;font-weight:600;color:var(--accent);margin-bottom:3px}
   .mtc p{font-size:11.5px;color:var(--mut);line-height:1.45}.mtc p b{color:var(--txt)}
   .bbr{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
   .bbr div{border-radius:8px;padding:9px 12px;font-size:11.5px;line-height:1.45;color:var(--mut)}
-  .bbr .bl{border-left:3px solid var(--dacr);background:var(--panel2)}.bbr .be{border-left:3px solid var(--choke);background:var(--panel2)}
+  .bbr .bl{border-left:3px solid var(--dacr);background:var(--panel2)}
+  .bbr .be{border-left:3px solid var(--choke);background:var(--panel2)}
   .bbr b{display:block;font-size:10.5px;margin-bottom:2px}
-  .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
-  footer{margin-top:16px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}
-  footer b{color:var(--mut)}
-  @media print{.tabpane{display:block!important}.tabbtn{display:none}}
+  .scn{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:10px}
+  .scn th{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+  .scn td{padding:7px 9px;border-bottom:1px solid var(--line);color:var(--mut)}
+  .scn td b{color:var(--txt)}
 </style>
-</head>
-<body>
-<header>
-  <div class="wrap">
-    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #5 · v5</div>
-    <h1>Networking Silicon — the wires can't keep up, so the chips that fix them win</h1>
-    <p class="sub">As lane speeds hit <b style="color:#fff">224 Gbps</b> and GPUs link into million-chip "scale-up" fabrics, copper and PCB lose the signal. The fix is connectivity silicon — <b style="color:#fff">SerDes, retimers, and active electrical cables</b> — the picks-and-shovels between the GPUs. The twist: the pure-plays are euphoric while the incumbent gate is the cheapest of the three.</p>
-    <div class="meta">
-      <div><div class="k">Date</div><div class="vv m">13 Jun 2026</div></div>
-      <div><div class="k">Layer</div><div class="vv">Networking · SerDes → switch → fabric</div></div>
-      <div><div class="k">Chokepoint</div><div class="vv">224G SerDes / retimer / AEC</div></div>
-      <div><div class="k">Top-3</div><div class="vv">AVGO · ALAB · CRDO</div></div>
-    </div>
-    <div class="gauges">
-      <div class="gauge"><div class="gl">Chokepoint severity</div><div class="gv red m">16/20</div></div>
-      <div class="gauge"><div class="gl">Remaining asymmetry</div><div class="gv amb m">~8/20</div></div>
-      <div class="gauge"><div class="gl">Stance</div><div class="gv" style="color:var(--mut)">Not advice · research</div></div>
-    </div>
-  </div>
-</header>
+<section id="s9">
+  <div class="sh"><span class="n">09</span><h2>Are we early? The awareness curve</h2><span class="cn">現在是早期嗎</span></div>
+  <p class="lead">The whole game is owning a chokepoint <b>before</b> the crowd prices it — the way the 2018 MLCC and 2021 CPU/substrate shortages showed up in lead-times and pricing weeks before the stocks moved. The hard truth here: nearly every networking-silicon chip has <i>already</i> run. The one exception is the deepest, most durable link — the IP gate — which the market has written off for unrelated reasons. That asymmetry is the finding.</p>
 
-<div class="wrap">
-
-<!-- 01 SNAPSHOT -->
-<section>
-  <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">為什麼是現在</span></div>
-  <p class="lead">AI training needs thousands of GPUs to act like one giant chip — a "scale-up" fabric. At 224 Gbps/lane the electrical signal degrades over even a half-rack of copper, so you need chips that <b>clean and re-drive the signal</b> (retimers/SerDes) and smarter cables (AECs). That connectivity silicon is the binding link — and the scale-up networking market is headed past <b>$40B by 2030</b>.</p>
-  <div class="kpis">
-    <div class="kpi"><div class="v m teal">224G</div><div class="l">per-lane speed (3nm SerDes)</div><div class="d">copper/PCB signal falls apart</div></div>
-    <div class="kpi"><div class="v m amb">40+ dB</div><div class="l">reach a 224G retimer recovers</div><div class="d">Credo Blue Heron; 30-tap FFE</div></div>
-    <div class="kpi"><div class="v m grn">$40B+</div><div class="l">scale-up networking TAM by 2030</div><div class="d">UALink / ESUN / Ethernet converge at 224G</div></div>
-    <div class="kpi"><div class="v m red">Q3'26</div><div class="l">224G retimer volume</div><div class="d">production ramp this year</div></div>
-  </div>
-  <div class="panel" style="margin-top:14px">
-    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px">EXPLAIN IT SIMPLY · 白話版</div>
-    <p style="font-size:13px;color:var(--mut);line-height:1.6;max-width:900px">To train a giant AI model, thousands of GPUs must talk to each other at once, super fast, as if they were one chip. The signals run so fast (224 billion bits/second per wire) that the electrical pulse smears out after barely a few feet of copper. So you need a little chip called a <b style="color:var(--txt)">SerDes / retimer</b> to "redraw" the signal cleanly, and smart cables (<b style="color:var(--txt)">AECs</b>) with chips inside. These are the <b style="color:var(--txt)">picks-and-shovels between the GPUs</b>. The investor question: own the <b style="color:var(--txt)">incumbent that makes the switch chips and owns the best SerDes</b> (Broadcom), or the <b style="color:var(--txt)">pure-play specialists</b> (Astera retimers, Credo cables) — and notice that the specialists have already run while the incumbent hasn't.</p>
-  </div>
-  <div class="panel" style="margin-top:12px">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-      <div><div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px">THE PATH · 分層 (read first)</div>
-        <div style="font-size:12px;color:var(--mut);line-height:1.7"><b>SerDes IP</b> the circuit that sends/receives high-speed bits · <b>Retimer</b> a chip that cleans &amp; re-drives a fading signal · <b>AEC</b> a copper cable with retimer chips inside · <b>Switch / XPU ASIC</b> the big chip that routes traffic / the custom AI chip · <b>Fabric</b> how it all connects (scale-up vs scale-out).</div></div>
-      <div><div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px">6-TERM GLOSSARY · 名詞</div>
-        <div style="font-size:11.5px;color:var(--mut);line-height:1.6"><b>SerDes</b> serializer/deserializer · <b>Retimer</b> signal cleaner/re-driver · <b>AEC</b> active electrical cable · <b>UALink</b> open scale-up fabric (NVLink rival) · <b>Scale-up</b> GPU↔GPU in a rack · <b>XPU</b> custom AI accelerator (TPU/Trainium).</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- 02 SUPPLY CHAIN -->
-<section>
-  <div class="sh"><span class="n">02</span><h2>End-to-end supply chain</h2><span class="cn">上下游全鏈</span></div>
-  <p class="lead">From SerDes IP to the rack fabric. The flow constricts hardest at the <b>224G connectivity silicon</b> (SerDes/retimers) — the signal-integrity link nothing else can route around. The switch/XPU ASIC is the secondary value pool.</p>
-  <div class="svgwide">
-    <svg viewBox="-12 -2 1124 470" width="100%" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <marker id="aT" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5a6377"/></marker>
-        <marker id="aR" markerWidth="9" markerHeight="9" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e0686a"/></marker>
-      </defs>
-      <text x="22" y="20" class="m" font-size="11" fill="#697283">UPSTREAM (IP)</text>
-      <line x1="120" y1="16" x2="980" y2="16" stroke="#2a3040"/><polygon points="982,16 974,12 974,20" fill="#2a3040"/>
-      <text x="1078" y="20" class="m" font-size="11" fill="#697283" text-anchor="end">DOWNSTREAM (fabric)</text>
-      <line x1="180" y1="180" x2="200" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR)"/>
-      <line x1="360" y1="180" x2="380" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR)"/>
-      <line x1="540" y1="180" x2="560" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT)"/>
-      <line x1="720" y1="180" x2="740" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT)"/>
-      <line x1="900" y1="180" x2="920" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT)"/>
-
-      <!-- C1 IP/EDA -->
-      <rect x="20" y="40" width="160" height="200" rx="10" fill="#141822" stroke="#2a3040"/><rect x="20" y="40" width="5" height="200" rx="2" fill="#5b81c4"/>
-      <text x="36" y="60" font-size="12" fill="#e8eaf0" font-weight="600">SerDes IP / EDA</text><text x="36" y="74" class="m" font-size="9" fill="#8aa7df">UPSTREAM</text>
-      <g font-size="9"><rect x="32" y="84" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="97" fill="#fff" font-weight="600">SerDes IP</text><text x="40" y="108" fill="#9aa3b5">Alphawave · Synopsys</text>
-      <rect x="32" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="133" fill="#fff" font-weight="600">EDA tools</text><text x="40" y="144" fill="#9aa3b5">Synopsys · Cadence</text>
-      <rect x="32" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="169" fill="#fff" font-weight="600">Foundry (3nm)</text><text x="40" y="180" fill="#9aa3b5">TSMC</text></g>
-      <text x="36" y="208" font-size="8.5" fill="#697283">SerDes IP = latent angle</text>
-
-      <!-- C2 Connectivity IC CHOKE -->
-      <rect x="200" y="40" width="160" height="200" rx="10" fill="#1c1518" stroke="#5a3236" stroke-width="1.5"/><rect x="200" y="40" width="5" height="200" rx="2" fill="#e0686a"/>
-      <rect x="214" y="26" width="132" height="20" rx="5" fill="#e0686a"/><text x="280" y="40" class="m" font-size="9" fill="#1c1518" font-weight="700" text-anchor="middle">CHOKEPOINT</text>
-      <text x="216" y="62" font-size="12" fill="#e8eaf0" font-weight="600">Connectivity ICs</text><text x="216" y="76" class="m" font-size="9" fill="#eda3a4">224G SIGNAL INTEGRITY</text>
-      <g font-size="9"><rect x="212" y="84" width="136" height="30" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="220" y="97" fill="#fff" font-weight="700">Retimers</text><text x="220" y="108" fill="#eda3a4">Astera · Credo · Broadcom</text>
-      <rect x="212" y="120" width="136" height="30" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="220" y="133" fill="#fff" font-weight="700">224G SerDes</text><text x="220" y="144" fill="#eda3a4">Broadcom · Marvell · Credo</text>
-      <rect x="212" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="220" y="169" fill="#fff" font-weight="600">DSP / gearbox</text><text x="220" y="180" fill="#9aa3b5">Marvell · Montage</text></g>
-      <text x="216" y="208" font-size="8.5" fill="#eda3a4">copper dies without it at 224G</text>
-
-      <!-- C3 Cables/connectors -->
-      <rect x="380" y="40" width="160" height="200" rx="10" fill="#141822" stroke="#2a3040"/><rect x="380" y="40" width="5" height="200" rx="2" fill="#c47a9e"/>
-      <text x="396" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Cables / connectors</text><text x="396" y="74" class="m" font-size="9" fill="#dba0bf">PHYSICAL LINK</text>
-      <g font-size="9"><rect x="392" y="84" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="97" fill="#fff" font-weight="600">AEC (smart copper)</text><text x="400" y="108" fill="#9aa3b5">Credo (leader)</text>
-      <rect x="392" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="133" fill="#fff" font-weight="600">Connectors</text><text x="400" y="144" fill="#9aa3b5">Amphenol · TE</text>
-      <rect x="392" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="169" fill="#fff" font-weight="600">Optics (long reach)</text><text x="400" y="180" fill="#9aa3b5">see Run #1</text></g>
-      <text x="396" y="208" font-size="8.5" fill="#697283">copper short-reach, optics long</text>
-
-      <!-- C4 Switch/XPU 2nd peak -->
-      <rect x="560" y="40" width="160" height="200" rx="10" fill="#1c1518" stroke="#5a3236"/><rect x="560" y="40" width="5" height="200" rx="2" fill="#8b84cf"/>
-      <rect x="574" y="26" width="132" height="20" rx="5" fill="#aaa3e6"/><text x="640" y="40" class="m" font-size="9" fill="#1c1518" font-weight="700" text-anchor="middle">2nd RENT POOL</text>
-      <text x="576" y="62" font-size="12" fill="#e8eaf0" font-weight="600">Switch / XPU ASIC</text><text x="576" y="76" class="m" font-size="9" fill="#aaa3e6">THE BIG CHIPS</text>
-      <g font-size="9"><rect x="572" y="84" width="136" height="30" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="580" y="97" fill="#fff" font-weight="700">Switch ASIC</text><text x="580" y="108" fill="#bcb3e6">Broadcom · Marvell</text>
-      <rect x="572" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="133" fill="#fff" font-weight="600">Custom XPU</text><text x="580" y="144" fill="#9aa3b5">Broadcom (TPU/Meta)</text>
-      <rect x="572" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="169" fill="#fff" font-weight="600">NVSwitch</text><text x="580" y="180" fill="#9aa3b5">Nvidia (NVLink)</text></g>
-      <text x="576" y="208" font-size="8.5" fill="#bcb3e6">huge value capture (diluted)</text>
-
-      <!-- C5 Fabric -->
-      <rect x="740" y="40" width="160" height="200" rx="10" fill="#141822" stroke="#2a3040"/><rect x="740" y="40" width="5" height="200" rx="2" fill="#d2a24a"/>
-      <text x="756" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Fabric</text><text x="756" y="74" class="m" font-size="9" fill="#e3bd76">INTERCONNECT</text>
-      <g font-size="9"><rect x="752" y="84" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="97" fill="#fff" font-weight="600">Scale-up</text><text x="760" y="108" fill="#9aa3b5">NVLink · UALink</text>
-      <rect x="752" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="133" fill="#fff" font-weight="600">Scale-out</text><text x="760" y="144" fill="#9aa3b5">Ethernet (Tomahawk)</text>
-      <rect x="752" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="169" fill="#fff" font-weight="600">Scale-across</text><text x="760" y="180" fill="#9aa3b5">coherent DCI (Run #1)</text></g>
-      <text x="756" y="208" font-size="8.5" fill="#697283">UALink = open NVLink rival</text>
-
-      <!-- C6 Buyers -->
-      <rect x="920" y="40" width="160" height="200" rx="10" fill="#141822" stroke="#2a3040"/><rect x="920" y="40" width="5" height="200" rx="2" fill="#4faf8e"/>
-      <text x="936" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Buyers / demand</text><text x="936" y="74" class="m" font-size="9" fill="#7cc9ad">DEMAND</text>
-      <g font-size="9"><rect x="932" y="84" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="97" fill="#fff" font-weight="600">Nvidia</text><text x="940" y="108" fill="#9aa3b5">NVLink scale-up</text>
-      <rect x="932" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="133" fill="#fff" font-weight="600">Hyperscalers</text><text x="940" y="144" fill="#9aa3b5">Google · Meta (XPU)</text>
-      <rect x="932" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="169" fill="#fff" font-weight="600">Neoclouds</text><text x="940" y="180" fill="#9aa3b5">CoreWeave</text></g>
-      <text x="936" y="208" font-size="8.5" fill="#697283">UALink adopters vs NVLink</text>
-
-      <!-- rent bars -->
-      <line x1="40" y1="420" x2="1080" y2="420" stroke="#2a3040"/>
-      <text x="40" y="320" font-size="9" fill="#697283">value capture / scarcity premium</text>
-      <g>
-        <rect x="80" y="388" width="40" height="32" rx="2" fill="#2dd4bf" opacity="0.35"/>
-        <rect x="260" y="330" width="40" height="90" rx="2" fill="#e0686a"/>
-        <rect x="440" y="386" width="40" height="34" rx="2" fill="#2dd4bf" opacity="0.5"/>
-        <rect x="620" y="344" width="40" height="76" rx="2" fill="#aaa3e6" opacity="0.78"/>
-        <rect x="800" y="392" width="40" height="28" rx="2" fill="#2dd4bf" opacity="0.45"/>
-        <rect x="980" y="396" width="40" height="24" rx="2" fill="#2dd4bf" opacity="0.3"/>
-      </g>
-      <text x="280" y="322" class="m" font-size="8.5" fill="#eda3a4" text-anchor="middle">rent peaks at 224G SerDes/retimer</text>
-      <text x="640" y="336" class="m" font-size="8" fill="#aaa3e6" text-anchor="middle">2nd pool: switch/XPU ASIC</text>
-      <g class="m" font-size="8.5" fill="#697283" text-anchor="middle"><text x="100" y="436">IP / EDA</text><text x="280" y="436">connectivity IC</text><text x="460" y="436">cables/conn.</text><text x="640" y="436">switch/XPU</text><text x="820" y="436">fabric</text><text x="1000" y="436">buyers</text></g>
-      <text x="550" y="458" font-size="9" fill="#697283" text-anchor="middle">Red = constricted throughput. Rent peaks at the 224G connectivity silicon; the switch/XPU ASIC is huge but its rent is diluted inside a mega-cap (Broadcom).</text>
-    </svg>
-  </div>
-</section>
-
-<!-- 03 CHOKEPOINT + SEVERITY -->
-<section>
-  <div class="sh"><span class="n">03</span><h2>The chokepoint &amp; severity</h2><span class="cn">卡點與嚴重度</span></div>
-  <div class="choke">
-    <h3><svg width="20" height="20" viewBox="0 0 24 24"><path d="M12 2 L22 20 H2 Z" fill="none" stroke="#e0686a" stroke-width="2" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="14" stroke="#e0686a" stroke-width="2"/><circle cx="12" cy="17" r="1.2" fill="#e0686a"/></svg> 224G connectivity silicon (SerDes · retimers · AECs)</h3>
-    <p>At 224 Gbps/lane the electrical signal collapses across even a half-rack of copper — so the link physically cannot exist without chips that clean and re-drive it. That makes the <b>224G SerDes and retimers</b> the binding link of scale-up networking, and the smart cables (AECs) that carry them. The honest caveat: leading-edge SerDes is held by a handful of players (Broadcom, Marvell, Astera, Credo, plus IP from Alphawave/Synopsys), so it's an oligopoly, not a monopoly — and these are chips, which ramp fast. The forcing function is real: UALink, ESUN and Ethernet all converge on the 224G standard, so demand is non-optional.</p>
-    <div class="stats">
-      <div><b class="m">16/20</b><span>severity (supply 3 · lead-time 4 · substitut. 4 · demand 5)</span></div>
-      <div><b class="m">224G</b><span>where copper/PCB fails</span></div>
-      <div><b class="m">$40B+</b><span>scale-up TAM by 2030</span></div>
-      <div><b class="m">4–5</b><span>credible 224G SerDes players</span></div>
-      <div><b class="m">Q3'26</b><span>224G retimer volume</span></div>
-    </div>
-  </div>
-  <div class="variant"><div class="h">VARIANT PERCEPTION vs CONSENSUS · 變異認知</div><p>Consensus: "AI networking is a winner — buy the high-flying pure-plays (Astera, Credo)." The disaggregation: the pure-plays <b>are</b> the chokepoint, but they're already euphoric (+121% / +84%), while the company that owns the dominant <b>switch ASIC, the leading 224G SerDes IP, AND the custom-XPU franchise</b> — Broadcom — is up just <b>+11%</b> and trades <i>below</i> its 52-week high, because that rent is diluted inside a mega-cap with software and legacy semis. So the binding link's <i>scarcest IP</i> sits in the cheapest stock. The contrarian sub-claim: own the gate (AVGO) for risk-adjusted asymmetry; the pure-plays need the scale-up TAM to compound flawlessly to justify the price. If we're wrong on AVGO, it's that custom-XPU competition (Marvell, in-house designs) erodes its franchise faster than networking grows.</p></div>
-</section>
-
-<!-- 04 AWARENESS -->
-<section>
-  <div class="sh"><span class="n">04</span><h2>Are we early? Awareness curve</h2><span class="cn">現在是早期嗎</span></div>
-  <p class="lead">The pure-plays are firmly in euphoria; the incumbent gate is the laggard. That inversion — scarcest IP in the cheapest stock — is the read worth acting on.</p>
-  <div class="svgwide" style="margin-bottom:6px">
-    <svg viewBox="0 0 1060 300" width="100%" xmlns="http://www.w3.org/2000/svg">
-      <defs><linearGradient id="az" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5fc98a" stop-opacity="0.22"/><stop offset="1" stop-color="#5fc98a" stop-opacity="0"/></linearGradient></defs>
+  <div class="svgwide" style="margin-bottom:14px">
+    <svg viewBox="0 0 1060 320" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="alphaz9" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5fc98a" stop-opacity="0.22"/><stop offset="1" stop-color="#5fc98a" stop-opacity="0"/></linearGradient></defs>
       <rect x="40" y="40" width="190" height="230" fill="#11141c"/>
-      <rect x="230" y="40" width="200" height="230" fill="url(#az)" stroke="#2c5a40" stroke-dasharray="3 4"/>
+      <rect x="230" y="40" width="200" height="230" fill="url(#alphaz9)" stroke="#2c5a40" stroke-dasharray="3 4"/>
       <rect x="630" y="40" width="200" height="230" fill="#1a1216" opacity="0.5"/>
-      <text x="135" y="32" class="m" font-size="9" fill="#697283" text-anchor="middle">LATENT</text>
-      <text x="330" y="32" class="m" font-size="9" fill="#5fc98a" text-anchor="middle" font-weight="600">EARLY · ALPHA</text>
-      <text x="530" y="32" class="m" font-size="9" fill="#d2a24a" text-anchor="middle">RECOGNITION</text>
-      <text x="730" y="32" class="m" font-size="9" fill="#e0686a" text-anchor="middle">EUPHORIA</text>
-      <text x="930" y="32" class="m" font-size="9" fill="#697283" text-anchor="middle">FULLY PRICED</text>
+      <text x="135" y="32" text-anchor="middle" class="axis-zone" fill="#697283">LATENT</text>
+      <text x="330" y="32" text-anchor="middle" class="axis-zone" fill="#5fc98a" font-weight="600">EARLY SIGNAL · ALPHA</text>
+      <text x="530" y="32" text-anchor="middle" class="axis-zone" fill="#d2a24a">RECOGNITION</text>
+      <text x="730" y="32" text-anchor="middle" class="axis-zone" fill="#e0686a">EUPHORIA</text>
+      <text x="930" y="32" text-anchor="middle" class="axis-zone" fill="#697283">FULLY PRICED</text>
       <path d="M40,258 C 260,250 280,205 430,150 C 560,104 640,70 760,62 C 880,56 980,58 1020,58" fill="none" stroke="#4a5570" stroke-width="2.5"/>
-      <text x="48" y="288" font-size="10" fill="#697283">time · market awareness →</text>
-      <!-- AVGO recognition (laggard, off high) -->
-      <circle cx="500" cy="128" r="7" fill="#5fc98a" stroke="#0b0d12" stroke-width="2"/>
-      <text x="500" y="116" class="m" font-size="11" fill="#7cd6a0" text-anchor="middle" font-weight="700">AVGO</text>
-      <text x="500" y="154" class="m" font-size="9" fill="#9aa3b5" text-anchor="middle">+11% · off hi</text>
-      <!-- CRDO euphoria -->
-      <circle cx="700" cy="70" r="7" fill="#d2a24a" stroke="#0b0d12" stroke-width="2"/>
-      <text x="700" y="58" class="m" font-size="11" fill="#e3bd76" text-anchor="middle" font-weight="700">CRDO</text>
-      <text x="700" y="96" class="m" font-size="9" fill="#9aa3b5" text-anchor="middle">+84% YTD</text>
-      <!-- ALAB euphoria deeper -->
-      <circle cx="790" cy="62" r="7" fill="#e0686a" stroke="#0b0d12" stroke-width="2"/>
-      <text x="790" y="50" class="m" font-size="11" fill="#eda3a4" text-anchor="middle" font-weight="700">ALAB</text>
-      <text x="805" y="78" class="m" font-size="9" fill="#9aa3b5" text-anchor="start">+121% YTD</text>
-      <circle cx="320" cy="195" r="6" fill="none" stroke="#5fc98a" stroke-width="2" stroke-dasharray="2 2"/>
-      <text x="320" y="183" class="m" font-size="9" fill="#7cd6a0" text-anchor="middle">next entry hides here ↙</text>
-      <text x="330" y="262" font-size="9.5" fill="#5fc98a" text-anchor="middle">↑ enter here — AVGO is closest, the pure-plays are right</text>
+      <text x="48" y="288" font-size="10" fill="#697283">time · market awareness  →</text>
+      <text x="20" y="150" font-size="10" fill="#697283" transform="rotate(-90 20 150)">price / crowding →</text>
+      <!-- SNPS dot (early) -->
+      <circle cx="360" cy="178" r="7" fill="#5fc98a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="360" y="166" text-anchor="middle" font-size="11" fill="#7cd6a0" font-weight="700">SNPS</text>
+      <text x="360" y="204" text-anchor="middle" font-size="9" fill="#9aa3b5" class="m">−1% YTD · ~32x fwd</text>
+      <!-- AVGO faint reference (recognition) -->
+      <circle cx="560" cy="104" r="6" fill="none" stroke="#d2a24a" stroke-width="2"/>
+      <text x="560" y="92" text-anchor="middle" font-size="9.5" fill="#e3bd76">AVGO ref</text>
+      <text x="560" y="124" text-anchor="middle" font-size="8.5" fill="#9aa3b5" class="m">+17% YTD</text>
+      <!-- MRVL dot (euphoria) -->
+      <circle cx="740" cy="70" r="7" fill="#e0686a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="740" y="58" text-anchor="middle" font-size="11" fill="#eda3a4" font-weight="700">MRVL</text>
+      <text x="740" y="96" text-anchor="middle" font-size="9" fill="#9aa3b5" class="m">+261% YTD · ~57x fwd</text>
+      <!-- ALAB dot (euphoria) -->
+      <circle cx="822" cy="64" r="7" fill="#e0686a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="838" y="56" text-anchor="start" font-size="11" fill="#eda3a4" font-weight="700">ALAB</text>
+      <text x="838" y="78" text-anchor="start" font-size="9" fill="#9aa3b5" class="m">+133% · ~110x fwd</text>
+      <!-- latent watchlist marker -->
+      <circle cx="285" cy="214" r="6" fill="none" stroke="#5fc98a" stroke-width="2" stroke-dasharray="2 2"/>
+      <text x="285" y="234" text-anchor="middle" font-size="9" fill="#7cd6a0">where the NEXT entry hides ↙</text>
+      <text x="160" y="250" text-anchor="middle" font-size="8.5" fill="#697283">QCOM/Alphawave · 448G IP · LPO front-end</text>
+      <text x="330" y="262" text-anchor="middle" font-size="9.5" fill="#5fc98a">↑ you want to enter here</text>
+      <text x="781" y="250" text-anchor="middle" font-size="9.5" fill="#eda3a4">most retail buys here — too late</text>
     </svg>
   </div>
-  <p class="cap">Horizontal = awareness stage (qualitative). The inversion is the story: AVGO holds the scarcest SerDes IP yet is the laggard (+11%, off its high); ALAB &amp; CRDO are the pure chokepoint but euphoric. Genuinely-early entry sits in the SerDes-IP / UALink / optical-I/O latent watchlist.</p>
+  <p class="cap" style="margin-top:-4px;margin-bottom:14px">Horizontal position = awareness stage (qualitative), not a linear return scale. Dot height = how much of each story is already in the price as of 18 Jun 2026 — SNPS least, MRVL/ALAB most. AVGO shown as a faint reference (recognition, not a top-3 pick this run; covered in Run #5).</p>
 
-  <div class="panel" style="margin:14px 0;border-color:#2c5a40;background:rgba(95,201,138,.05)">
+  <div class="panel" style="margin-bottom:14px;border-color:#2c5a40;background:rgba(95,201,138,.05)">
     <h4 style="font-size:13px;margin-bottom:6px;font-weight:600;color:var(--dacr)">Still-latent watchlist — where the NEXT early entry hides <span class="cn" style="font-weight:400;color:var(--dim)">尚未被發現的早期標的</span></h4>
-    <p style="font-size:12px;color:var(--mut);line-height:1.55">The connectivity pure-plays have run. The unpriced links are the IP beneath them and the next architectural shift:</p>
-    <table style="margin-top:8px">
-      <tr><th>Latent candidate (link)</th><th>Why it could be next</th><th>Trigger / tripwire</th><th>Where to track it</th></tr>
-      <tr><td><b>448G SerDes IP</b> — Alphawave (Qualcomm), Synopsys, Cadence IP</td><td>The next-gen of the chokepoint; whoever owns 448G IP gates the generation after 224G</td><td>First 448G SerDes tape-out / design win</td><td>IP-vendor disclosures; OFC/DesignCon; foundry PDKs</td></tr>
-      <tr><td><b>UALink ecosystem</b> — open scale-up fabric beyond the big-3</td><td>An open NVLink rival could spread rent to new switch/retimer entrants</td><td>UALink 1.0 production silicon; hyperscaler adoption</td><td>UALink Consortium news; member earnings calls</td></tr>
-      <tr><td><b>Optical I/O / co-packaged crossover</b> — links to Run #1 optics</td><td>When copper finally fails entirely, scale-up goes optical — the bridge name wins</td><td>First optical scale-up (in-rack CPO) deployment</td><td>Nvidia/Broadcom CPO roadmaps; OFC</td></tr>
+    <p style="font-size:12px;color:var(--mut);line-height:1.55">The chips already ran (MRVL +261%, ALAB +133%, CRDO +79%, MACOM +121% YTD). Even SNPS is a relative-value call, not a true latent one. To buy <i>before</i> the crowd, watch the links still unpriced today:</p>
+    <table class="tbl" style="margin-top:8px">
+      <tr><th>Latent candidate (link)</th><th>Why it could be next</th><th>Trigger that wakes it up · where to watch</th></tr>
+      <tr><td><b>Qualcomm (QCOM)</b> — post-Alphawave data-center / SerDes-IP optionality</td><td>Owns the absorbed pure-play + Tony Pialis runs its DC business; the Street prices QCOM as a fading handset name, not a SerDes-IP owner</td><td>First QCOM data-center custom-silicon design wins / revenue · QCOM earnings calls, DC-segment disclosure</td></tr>
+      <tr><td><b>448G SerDes IP + UCIe chiplet-interconnect IP</b></td><td>The next forced re-license cycle; pre-revenue and pre-coverage today</td><td>OIF CEI-448G parameter freeze; first 448G IP tape-outs / UCIe chiplet design wins · oiforum.com (free), DesignCon</td></tr>
+      <tr><td><b>LPO linear analog front-end</b> — MACOM, Semtech</td><td>If LPO scales, the scarce link becomes the linear driver/TIA (bearish module DSP, bullish front-end)</td><td>LightCounting linear-optics share crossing thresholds; hyperscaler LPO qualification · OFC, LightCounting notes</td></tr>
     </table>
-    <p class="cap" style="margin-top:6px">Watch-only ideas, not recommendations — most latent bets fail. Scan here while the crowd buys the high-flying pure-plays.</p>
+    <p class="cap" style="margin-top:6px">Watch-only ideas, not recommendations — most latent bets fail. The discipline: keep scanning <i>here</i> while the crowd buys what has already run.</p>
   </div>
 
   <div class="two">
     <div class="panel">
-      <h4 style="font-size:13px;margin-bottom:4px;font-weight:600">Leading indicators</h4>
-      <p style="font-size:11px;color:var(--dim);margin-bottom:10px">Watch these before the print.</p>
-      <table>
+      <h4 style="font-size:13px;margin-bottom:4px;font-weight:600">Leading indicators — the early-signal dashboard</h4>
+      <p style="font-size:11px;color:var(--dim);margin-bottom:10px">These move BEFORE reported revenue. Watch them to catch the next leg early.</p>
+      <table class="liw">
         <tr><th>Signal · trigger</th><th>Where an amateur can actually read it</th></tr>
-        <tr><td><b>224G retimer / SerDes ramp</b><br><span class="m" style="font-size:10px;color:var(--dim)">sampling→volume Q3'26</span></td><td>Credo / Astera / Broadcom earnings + product PRs</td></tr>
-        <tr><td><b>Broadcom AI semi revenue</b><br><span class="m" style="font-size:10px;color:var(--dim)">switch + custom XPU growth</span></td><td>AVGO quarterly results (AI/networking disclosure)</td></tr>
-        <tr><td><b>Custom-XPU share shifts</b><br><span class="m" style="font-size:10px;color:var(--dim)">AVGO vs Marvell vs in-house</span></td><td>Sell-side channel checks; hyperscaler ASIC news</td></tr>
-        <tr><td><b>UALink / scale-up adoption</b><br><span class="m" style="font-size:10px;color:var(--dim)">production silicon = catalyst</span></td><td>UALink Consortium; OCP; member PRs</td></tr>
-        <tr><td><b>Hyperscaler capex</b><br><span class="m" style="font-size:10px;color:var(--dim)">rising · a cut = exit</span></td><td>MSFT/GOOG/META/AMZN 10-Q capex line</td></tr>
+        <tr><td><b>Synopsys Design IP segment growth</b><br><span class="dotG" style="font-size:11px">return to &gt;10% YoY = confirm · further decline = falsifier</span></td><td>SNPS quarterly 8-K segment table (free on SEC EDGAR); earnings-call IP commentary</td></tr>
+        <tr><td><b>China EDA demand recovery</b><br><span class="dotA" style="font-size:11px">2025 ban rescinded — re-acceleration = catalyst</span></td><td>US BIS &amp; China MOFCOM notices; SNPS / CDNS 8-Ks + China-revenue commentary</td></tr>
+        <tr><td><b>224G/448G + UCIe design-win cadence</b><br><span class="dotG" style="font-size:11px">accel = bullish IP gate</span></td><td>SNPS/CDNS calls; OIF / DesignCon / OCP press; company PRs</td></tr>
+        <tr><td><b>LPO / linear-optics adoption share</b><br><span class="dotA" style="font-size:11px">rising = bearish module DSP, bullish host SerDes (forecasts vary widely)</span></td><td>LightCounting / Cignal AI notes; OFC conference remarks</td></tr>
+        <tr><td><b>Custom-XPU socket wins/losses (MRVL/AVGO)</b><br><span class="dotR" style="font-size:11px">a loss = MRVL bear trigger</span></td><td>AVGO/MRVL earnings calls; hyperscaler chip announcements</td></tr>
+        <tr><td><b>OIF CEI-448G milestones</b><br><span class="dotG" style="font-size:11px">parameter freeze = next IP cycle opens</span></td><td>oiforum.com working-group updates (free)</td></tr>
+        <tr><td><b>ALAB PCIe6/Scorpio attach + competition</b><br><span class="dotR" style="font-size:11px">AVGO/Marvell entry = ALAB bear</span></td><td>ALAB earnings calls; OCP; hyperscaler scale-up roadmaps</td></tr>
       </table>
-      <p style="font-size:10px;color:var(--dim);margin-top:8px">All readable from free public sources weeks before reported revenue. Thresholds illustrative — calibrate to your own risk.</p>
+      <p style="font-size:10px;color:var(--dim);margin-top:8px">Thresholds are illustrative starting points — calibrate to your own risk. Every signal is readable from <b>free public sources</b> (SEC filings, BIS/MOFCOM notices, OIF, conference talks) weeks before it shows up in reported revenue.</p>
     </div>
     <div class="panel">
-      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Who captures the rent?</h4>
-      <p style="font-size:12.5px;color:var(--mut);line-height:1.55">Margins settle it. <b style="color:var(--txt)">AVGO</b> holds the scarcest IP (224G SerDes) plus the switch ASIC and custom-XPU franchise — fat margins, but the AI-networking rent is diluted inside a $T+ company with software and legacy chips. <b style="color:var(--txt)">ALAB</b> and <b style="color:var(--txt)">CRDO</b> are pure connectivity plays — every dollar is the chokepoint, which is why they re-rated so hard, but they need the scale-up TAM to compound flawlessly. <b style="color:var(--txt)">Conclusion:</b> the scarcest IP sits in the cheapest stock (AVGO); the purest exposure sits in the priciest (ALAB/CRDO). Pick your trade-off.</p>
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">How to be early next time <span class="cn" style="font-weight:400;color:var(--dim)">如何提前布局</span></h4>
+      <div class="mtc" style="margin-bottom:9px"><div class="h">1 · Buy the unloved arms-dealer</div><p>When the deepest link's listed proxy is cheap for <b>unrelated</b> reasons (SNPS's China/Ansys overhang) while its toll keeps growing, that gap is the asymmetry.</p></div>
+      <div class="mtc" style="margin-bottom:9px"><div class="h">2 · Watch where the rent is captive</div><p>The best SerDes (AVGO/MRVL) is never sold — so "buy the chokepoint" means buying the owner of the chip, or the merchant gate that arms everyone else.</p></div>
+      <div class="mtc" style="margin-bottom:9px"><div class="h">3 · A buy-out removes a pure-play</div><p>Qualcomm taking Alphawave <b>shrinks</b> listed SerDes-IP supply — the remaining proxies get scarcer, not less valuable. Track who the M&amp;A leaves behind.</p></div>
+      <div class="mtc"><div class="h">4 · Sell the recognition, not the news</div><p>Once a chip name has tripled and upgrades flood in, the asymmetry is gone. MRVL (+261%) and ALAB (+133%) are <b>past</b> that point — own them for compounding, not a re-rating.</p></div>
     </div>
   </div>
 </section>
 
-<!-- 05 TOP-3 TABS -->
-<section>
-  <div class="sh"><span class="n">05</span><h2>Top-3 plays</h2><span class="cn">三大標的 · 分頁</span></div>
-  <p class="lead">Three different links — incumbent switch/SerDes gate, retimer/fabric pure-play, AEC/retimer pure-play — ordered by remaining asymmetry per unit of risk.</p>
-  <div role="tablist" aria-label="Top 3 plays" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:-1px">
-    <button class="tabbtn" role="tab" aria-selected="true" aria-controls="t1" id="b1" tabindex="0" onclick="showTab('t1',this)">① Broadcom · AVGO<small>switch+SerDes gate · the laggard</small></button>
-    <button class="tabbtn" role="tab" aria-selected="false" aria-controls="t2" id="b2" tabindex="-1" onclick="showTab('t2',this)">② Astera Labs · ALAB<small>retimers/fabric · euphoric</small></button>
-    <button class="tabbtn" role="tab" aria-selected="false" aria-controls="t3" id="b3" tabindex="-1" onclick="showTab('t3',this)">③ Credo · CRDO<small>AEC + 224G retimer · euphoric</small></button>
+<!-- 10. TOP-3 MULTI-TAB -->
+<section id="s10">
+  <div class="sh"><span class="n">10</span><h2>Top-3 chokepoint plays</h2><span class="cn">三大卡點標的 · 分頁</span></div>
+  <p class="lead">Three companies, three <i>different</i> links of the SerDes-IP chain, deliberately spread across the awareness curve. Ranked by <b>remaining asymmetry</b> (how much is still NOT priced): the merchant-IP gate is the only one still early; the in-house giant and the fabless pure-play have both run hard.</p>
+
+  <div role="tablist" aria-label="Top-3 plays" style="display:flex;gap:6px;margin-bottom:-1px;flex-wrap:wrap">
+    <button class="tabbtn on" role="tab" id="tab1" aria-controls="t1" aria-selected="true" tabindex="0" onclick="showTab('t1',this)">① Synopsys · SNPS<small>Merchant IP gate · earliest</small></button>
+    <button class="tabbtn" role="tab" id="tab2" aria-controls="t2" aria-selected="false" tabindex="-1" onclick="showTab('t2',this)">② Marvell · MRVL<small>In-house SerDes + custom · euphoric</small></button>
+    <button class="tabbtn" role="tab" id="tab3" aria-controls="t3" aria-selected="false" tabindex="-1" onclick="showTab('t3',this)">③ Astera Labs · ALAB<small>PCIe/CXL fabric pure-play · euphoric</small></button>
   </div>
 
-  <div class="tabpane" id="t1" role="tabpanel" aria-labelledby="b1" style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
-    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap"><h3 style="font-size:18px;font-weight:600">Broadcom <span style="color:var(--dim);font-weight:400">NASDAQ: AVGO</span></h3><span class="stagebadge sg-recog">RECOGNITION · the gate, and the laggard</span></div>
-    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">Owns the dominant Ethernet switch ASIC (Tomahawk/Jericho), the leading 224G SerDes IP, <b>and</b> the custom-XPU franchise (Google TPU, Meta). It is the gate of AI networking — yet up just +11% YTD and below its 52-week high, because the rent is diluted inside a mega-cap with VMware software and legacy semis. The scarcest IP in the cheapest stock.</p>
+  <!-- TAB 1: SNPS -->
+  <div class="tabpane" id="t1" role="tabpanel" aria-labelledby="tab1" style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">Synopsys <span style="color:var(--dim);font-weight:400">NASDAQ: SNPS</span></h3>
+      <span class="stagebadge sg-early">EARLY · most remaining asymmetry</span>
+      <span style="font-size:12px;color:var(--mut)">Link: <b style="color:var(--txt)">merchant SerDes / PCIe / UCIe / HBM IP + EDA gate</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The neutral <b>arms-dealer</b>: licenses the SerDes/interface IP (and the EDA tools) that every custom-silicon team — hyperscaler ASIC groups, fabless chip houses — needs to build 224G/448G connectivity. It is the only networking-adjacent name that <b>didn't run</b> — flat YTD and ~29% off its high — because the market is fixated on its 2025 China-EDA disruption (the export ban was imposed in May then rescinded in July 2025, but dented the year) and its $35B Ansys integration, not its connectivity-IP toll. Genuinely diluted (IP is ~$1.75B of ~$7B revenue), so this is a <b>relative-value</b> idea, not a pure SerDes bet.</p>
     <div class="mini">
-      <div><div class="v m">$385.57</div><div class="l">Last</div></div>
-      <div><div class="v m grn">+11%</div><div class="l">YTD</div></div>
-      <div><div class="v m">52wk</div><div class="l">$243–495</div></div>
-      <div><div class="v m red">−22%</div><div class="l">off 52wk high</div></div>
-      <div><div class="v m grn">gate</div><div class="l">switch+SerDes+XPU</div></div>
+      <div><div class="v">$465.00</div><div class="l">Last price</div></div>
+      <div><div class="v" style="color:var(--mut)">−1.0%</div><div class="l">YTD return (flat = the setup)</div></div>
+      <div><div class="v">~$88B</div><div class="l">Market cap</div></div>
+      <div><div class="v">~32x</div><div class="l">Fwd P/E est.*</div></div>
+      <div><div class="v" style="color:var(--dacr)">+15%</div><div class="l">FY25 rev growth</div></div>
     </div>
-    <div class="variant"><div class="h">ASYMMETRIC INFO GAP</div><p>The market treats AVGO as a mature mega-cap that "already won," so it's lagged the AI-networking euphoria. The variant: it owns the <b>scarcest input</b> (224G SerDes IP) of the whole layer plus the switch and custom-XPU franchises — and at +11% / below its high, it prices in far less optimism than the pure-plays. Lowest fundamental risk, the dilution is the cost. The real swing factor is the durability of its custom-XPU share.</p></div>
+    <div class="gap"><div class="h">ASYMMETRIC INFO GAP · 變異認知</div><p>Consensus models SNPS as a troubled EDA roll-up: a 2025 China-sales ban (since rescinded, but it dented the year), Ansys debt + dilution, FY26 guide cuts, a 10% layoff. The variant view: underneath that sits the <b>#1 merchant interface-IP franchise</b> (SerDes/PCIe6/UCIe/HBM) feeding the custom-silicon boom — the only listed way to "arm everyone" now that Alphawave is gone. At ~32x forward (vs CDNS ~50x+) on a recovering EDA duopoly with a written-off AI-IP call option, the connectivity story is essentially free.</p></div>
     <div class="mtd">
-      <div class="mtc"><div class="h">① 怎麼賺錢</div><p>Semis (switch ASIC, SerDes, custom XPU, wireless) + infrastructure software (VMware); chips + recurring software.</p></div>
-      <div class="mtc"><div class="h">② 營收結構</div><p>AI semis (switch + custom accelerators) the growth engine; broad semi + software base.</p></div>
-      <div class="mtc"><div class="h">③ 成長來源</div><p>Custom XPU (TPU/Meta), Tomahawk switch share, 224G SerDes, scale-up fabric, software attach.</p></div>
-      <div class="mtc"><div class="h">④ 終端市場</div><p>AI datacenter (networking + custom silicon), enterprise software, broadband, wireless.</p></div>
-      <div class="mtc"><div class="h">⑤ 主要客戶</div><p>Hyperscalers (Google, Meta custom XPU), switch OEMs; broad.</p></div>
-      <div class="mtc"><div class="h">⑥ 護城河</div><p>Best-in-class SerDes IP + switch ASIC scale + custom-silicon relationships + software annuity.</p></div>
-      <div class="mtc"><div class="h">⑦ 管理層展望</div><p>AI revenue guided to compound; expanding custom-XPU pipeline; high FCF.</p></div>
-      <div class="mtc"><div class="h">⑧ 為何是卡點</div><p>Owns the 224G SerDes IP + dominant switch — the binding link AND the big chip that uses it.</p></div>
+      <div class="mtc"><div class="h">① Business model 怎麼賺錢</div><p>Recurring licenses + royalties for EDA software and silicon IP; ~80% gross margin, multi-year contracts. Royalties on shipped SerDes/interface IP are near-pure margin.</p></div>
+      <div class="mtc"><div class="h">② Segments 營收結構</div><p>FY25 rev $7.05B: Design Automation $5.30B (75%), <b>Design IP $1.75B (−8%)</b>. Ansys adds simulation. Interface IP (SerDes/PCIe/UCIe) is the AI-connectivity slice within IP.</p></div>
+      <div class="mtc"><div class="h">③ Growth drivers 成長來源</div><p>Custom-ASIC proliferation (every hyperscaler), 224G→448G + UCIe chiplet IP, PCIe6/CXL, AI-driven EDA (design-tech co-optimization), China normalization.</p></div>
+      <div class="mtc"><div class="h">④ End market 終端市場</div><p>Every leading-edge chip designer on Earth — logic, AI accelerators, networking, memory; the broadest end-market in the rotation.</p></div>
+      <div class="mtc"><div class="h">⑤ Customers 主要客戶</div><p>TSMC ecosystem, all major fabless + IDMs, and the hyperscaler custom-silicon teams building XPUs that license SerDes IP rather than build it.</p></div>
+      <div class="mtc"><div class="h">⑥ Moat 護城河</div><p>EDA is a 3-firm oligopoly (SNPS/CDNS/Siemens) with deep switching costs; #1 in IP by license revenue; qualified IP across TSMC/Samsung/Intel nodes = years to replicate.</p></div>
+      <div class="mtc"><div class="h">⑦ Guidance 管理層展望</div><p>FY26 guide $9.56–9.66B rev, non-GAAP EPS $14.32–14.40; restructuring to refocus; China a swing factor. Management framing AI-IP + design as the growth engine.</p></div>
+      <div class="mtc"><div class="h">⑧ Why chokepoint 為何卡點</div><p>The custom-silicon long tail can't field 224G/448G SerDes in-house — they license it. SNPS is the largest merchant source, and the only clean listed one left after Alphawave.</p></div>
     </div>
-    <div class="bbr"><div class="bl"><b style="color:var(--dacr)">BULL</b>Scarcest IP + custom-XPU franchise; cheapest of the three; software annuity cushions the cycle.</div><div class="be"><b style="color:var(--choke)">BEAR</b>Custom-XPU competition (Marvell, in-house) erodes the franchise; mega-cap dilution caps AI upside.</div></div>
+    <table class="scn">
+      <tr><th>Scenario (~12–18m)</th><th>What happens</th><th>Prob.</th><th>Return</th></tr>
+      <tr><td><b>Bull</b></td><td>China EDA re-opens; AI-IP re-accelerates; Ansys synergies land; re-rates to ~40x</td><td class="num">35%</td><td class="num dotG">+50%</td></tr>
+      <tr><td><b>Base</b></td><td>EDA duopoly compounds mid-teens; IP stabilizes; multiple drifts to ~35x</td><td class="num">45%</td><td class="num">+17%</td></tr>
+      <tr><td><b>Bear</b></td><td>China impairment durable; IP keeps shrinking; macro/EDA softness</td><td class="num">20%</td><td class="num dotR">−20%</td></tr>
+    </table>
+    <p class="cap" style="margin-top:6px">Probability-weighted EV ≈ <b style="color:var(--dacr)">+21%</b> — the best risk/reward of the three (probabilities are subjective author priors — the EV is only as good as them). <b>Entry discipline:</b> start ~$440–465 (~31–32x fwd ≈ $465 ÷ ~$14.36 FY26 non-GAAP EPS), add &lt;$400 (~28x), trim/stop &gt;$580 (~40x). <b>Dated falsifier:</b> if the Design IP segment fails to return to growth by the FQ2–FQ3 FY26 prints, or China demand fails to recover, the thesis breaks — exit.</p>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--dacr)">BULL</b>The unloved arms-dealer re-rates as China clears and AI-IP compounds; only clean listed SerDes-IP proxy left.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>Diluted exposure: IP is ~25% of revenue; a durable China hit + value-destructive Ansys means the connectivity call option never pays.</div>
+    </div>
   </div>
 
-  <div class="tabpane" id="t2" role="tabpanel" aria-labelledby="b2" hidden style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
-    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap"><h3 style="font-size:18px;font-weight:600">Astera Labs <span style="color:var(--dim);font-weight:400">NASDAQ: ALAB</span></h3><span class="stagebadge sg-eu">EUPHORIA · the pure-play, fully priced</span></div>
-    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The connectivity pure-play — retimers (Aries), fabric switches (Scorpio), and smart cable modules for PCIe/CXL/UALink scale-up. Every dollar is the chokepoint, which is why it has re-rated to +121% YTD near its all-time high. Highest-quality pure exposure, but priced for the scale-up TAM to compound flawlessly.</p>
+  <!-- TAB 2: MRVL -->
+  <div class="tabpane" id="t2" role="tabpanel" aria-labelledby="tab2" hidden style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">Marvell <span style="color:var(--dim);font-weight:400">NASDAQ: MRVL</span></h3>
+      <span class="stagebadge sg-eu">EUPHORIA · low remaining asymmetry</span>
+      <span style="font-size:12px;color:var(--mut)">Link: <b style="color:var(--txt)">in-house 224G SerDes + merchant custom XPU + optical DSP</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The vertically-integrated owner: best-in-class in-house 224G LR SerDes (2.5 m copper), a merchant custom-silicon business building hyperscaler XPUs, and the Inphi optical/coherent DSP franchise. It captures the biggest <i>dollar</i> rent by selling the whole chip at the scarcity premium — but the market knows: <b>+261% YTD</b>, ~57x forward. Own for compounding, not re-rating.</p>
     <div class="mini">
-      <div><div class="v m">$367.47</div><div class="l">Last</div></div>
-      <div><div class="v m red">+121%</div><div class="l">YTD</div></div>
-      <div><div class="v m">52wk</div><div class="l">$85–391</div></div>
-      <div><div class="v m red">near ATH</div><div class="l">~4x off lows</div></div>
-      <div><div class="v m grn">pure-play</div><div class="l">retimer/fabric</div></div>
+      <div><div class="v">$306.99</div><div class="l">Last price</div></div>
+      <div><div class="v" style="color:var(--dacr)">+261%</div><div class="l">YTD return (already run)</div></div>
+      <div><div class="v">~$265B</div><div class="l">Market cap est.</div></div>
+      <div><div class="v" style="color:var(--choke)">~57x</div><div class="l">Fwd P/E est.*</div></div>
+      <div><div class="v" style="color:var(--dacr)">+42%</div><div class="l">FY26 rev growth</div></div>
     </div>
-    <div class="variant"><div class="h">ASYMMETRIC INFO GAP</div><p>Bull and bear are both well-aired: it's the connectivity leader (bull), trading at a steep multiple near ATH after a 4x run (bear). The residual variant is <b>content expansion</b> — moving from retimers into fabric switches (Scorpio) and gaining UALink share could grow dollar-content per GPU faster than consensus. The risk is symmetric: any scale-up-TAM disappointment or competitive entry de-rates a richly-priced name hard.</p></div>
+    <div class="gap" style="border-left-color:var(--dup);background:rgba(210,162,74,.06)"><div class="h" style="color:var(--dup)">ASYMMETRIC INFO GAP · 變異認知</div><p>Mostly closed. The 2025 fear (losing custom-ASIC share to in-housing / Broadcom) flipped to euphoria as AI revenue compounded; FY26 hit $8.2B (+42%). Residual debate: the durability of its custom-XPU sockets and whether 224G/448G SerDes leadership holds vs Broadcom. At ~57x forward, a single socket loss or guide-down compresses the multiple fast.</p></div>
     <div class="mtd">
-      <div class="mtc"><div class="h">① 怎麼賺錢</div><p>Fabless connectivity chips + modules (retimers, fabric switches, smart cable modules); high gross margin.</p></div>
-      <div class="mtc"><div class="h">② 營收結構</div><p>Aries retimers the base; Scorpio fabric switches + Taurus modules expanding the mix.</p></div>
-      <div class="mtc"><div class="h">③ 成長來源</div><p>Scale-up content per GPU, UALink, PCIe/CXL gen transitions, fabric-switch attach.</p></div>
-      <div class="mtc"><div class="h">④ 終端市場</div><p>AI datacenter scale-up connectivity (pure).</p></div>
-      <div class="mtc"><div class="h">⑤ 主要客戶</div><p>Nvidia ecosystem + hyperscaler AI platforms; concentrated.</p></div>
-      <div class="mtc"><div class="h">⑥ 護城河</div><p>Design-in lead + software (COSMOS) + reference-design lock-in; but well-capitalised rivals.</p></div>
-      <div class="mtc"><div class="h">⑦ 管理層展望</div><p>Guides strong scale-up content growth; expanding into fabric switching.</p></div>
-      <div class="mtc"><div class="h">⑧ 為何是卡點</div><p>The retimer is what lets 224G scale-up links physically exist — pure exposure to the binding link.</p></div>
+      <div class="mtc"><div class="h">① Business model 怎麼賺錢</div><p>Sells data-infrastructure silicon: custom XPUs (NRE + per-unit), merchant networking/SerDes, optical/coherent DSP, storage. AI now the dominant driver.</p></div>
+      <div class="mtc"><div class="h">② Segments 營收結構</div><p>Data center dominant (AI custom + connectivity); enterprise networking, carrier, consumer shrinking as a share. FY26 rev $8.2B.</p></div>
+      <div class="mtc"><div class="h">③ Growth drivers 成長來源</div><p>Custom XPU ramps, 1.6T optics (Inphi DSP), 224G→448G SerDes, scale-up/scale-inside copper, CXL. Custom silicon path to ~$1B+/yr.</p></div>
+      <div class="mtc"><div class="h">④ End market 終端市場</div><p>Hyperscale AI datacenters primarily; also carrier/enterprise networking and storage as the legacy ballast.</p></div>
+      <div class="mtc"><div class="h">⑤ Customers 主要客戶</div><p>Multiple hyperscalers for custom XPUs + a broad merchant base for optical DSP and SerDes; customer concentration is a watch-item.</p></div>
+      <div class="mtc"><div class="h">⑥ Moat 護城河</div><p>One of two merchant houses (with Broadcom) that can pair leading-edge in-house SerDes with full custom-ASIC design; Inphi optical-DSP leadership; deep IP library.</p></div>
+      <div class="mtc"><div class="h">⑦ Guidance 管理層展望</div><p>Strong AI-led growth guidance; custom-silicon pipeline expansion; management emphasizing connectivity + custom as the twin engines.</p></div>
+      <div class="mtc"><div class="h">⑧ Why chokepoint 為何卡點</div><p>Its in-house 224G SerDes is one of the few that can drive scale-up copper at length — and it keeps the best of it captive, converting the chokepoint into whole-chip dollar rent.</p></div>
     </div>
-    <div class="bbr"><div class="bl"><b style="color:var(--dacr)">BULL</b>Content expands retimer→fabric→UALink; pure scale-up leverage; dollar-content per GPU compounds.</div><div class="be"><b style="color:var(--choke)">BEAR</b>+121% near ATH prices perfection; competitive entry or TAM slip de-rates a rich multiple fast.</div></div>
+    <table class="scn">
+      <tr><th>Scenario (~12–18m)</th><th>What happens</th><th>Prob.</th><th>Return</th></tr>
+      <tr><td><b>Bull</b></td><td>Custom-XPU wins compound; 224G SerDes share holds; AI rev re-accelerates</td><td class="num">30%</td><td class="num dotG">+30%</td></tr>
+      <tr><td><b>Base</b></td><td>AI rev grows but ~57x fwd compresses toward ~45x</td><td class="num">45%</td><td class="num">+5%</td></tr>
+      <tr><td><b>Bear</b></td><td>Custom-silicon share loss (in-sourcing / AVGO) + multiple de-rate</td><td class="num">25%</td><td class="num dotR">−30%</td></tr>
+    </table>
+    <p class="cap" style="margin-top:6px">Probability-weighted EV ≈ <b style="color:var(--dup)">+4%</b> — thin; entry discipline matters more than the thesis. <b>Entry discipline:</b> starter only &lt;$250 (~45x fwd); avoid chasing &gt;$320. <b>Dated falsifier:</b> a marquee custom-XPU socket loss or an AI-revenue guide-down on the next one or two prints → exit.</p>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--dacr)">BULL</b>Custom + connectivity twin engines compound; captive SerDes keeps it on the right side of the chokepoint.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>~57x leaves no room: socket loss, in-sourcing, or a capex pause and the multiple halves. The story is in the price.</div>
+    </div>
   </div>
 
-  <div class="tabpane" id="t3" role="tabpanel" aria-labelledby="b3" hidden style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
-    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap"><h3 style="font-size:18px;font-weight:600">Credo <span style="color:var(--dim);font-weight:400">NASDAQ: CRDO</span></h3><span class="stagebadge sg-eu">EUPHORIA · AEC leader, fully priced</span></div>
-    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The active-electrical-cable (AEC) leader — "smart copper" with retimer chips inside that extends 224G scale-up links past the half-rack limit — plus its own 224G SerDes and the new Blue Heron multiprotocol retimer (UALink/ESUN/Ethernet). Pure connectivity exposure, +84% YTD near its all-time high.</p>
+  <!-- TAB 3: ALAB -->
+  <div class="tabpane" id="t3" role="tabpanel" aria-labelledby="tab3" hidden style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">Astera Labs <span style="color:var(--dim);font-weight:400">NASDAQ: ALAB</span></h3>
+      <span class="stagebadge sg-eu">EUPHORIA · alpha window largely gone</span>
+      <span style="font-size:12px;color:var(--mut)">Link: <b style="color:var(--txt)">PCIe/CXL connectivity-fabric pure-play</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The purest listed connectivity-fabric play: Aries PCIe/CXL retimers, Scorpio scale-up fabric switches (320-lane X-Series), Taurus Ethernet AECs, Leo CXL memory. Explosive growth (FY25 +115%, Q1-FY26 +93% YoY) — and a valuation to match: <b>~110–125x earnings</b>, near its 52-week high. Included as the "what late looks like" comp: a wonderful business at a price that already discounts years of perfection.</p>
     <div class="mini">
-      <div><div class="v m">$264.76</div><div class="l">Last</div></div>
-      <div><div class="v m red">+84%</div><div class="l">YTD</div></div>
-      <div><div class="v m">52wk</div><div class="l">$76–270</div></div>
-      <div><div class="v m red">near ATH</div><div class="l">~3.5x off lows</div></div>
-      <div><div class="v m grn">AEC leader</div><div class="l">+ 224G retimer</div></div>
+      <div><div class="v">$387.87</div><div class="l">Last price</div></div>
+      <div><div class="v" style="color:var(--dacr)">+133%</div><div class="l">YTD return (already run)</div></div>
+      <div><div class="v">~$61B</div><div class="l">Market cap</div></div>
+      <div><div class="v" style="color:var(--choke)">~110x</div><div class="l">Fwd P/E est.*</div></div>
+      <div><div class="v" style="color:var(--dacr)">+93%</div><div class="l">Q1-FY26 rev YoY</div></div>
     </div>
-    <div class="variant"><div class="h">ASYMMETRIC INFO GAP</div><p>Credo is typecast as "the AEC company," but the variant is that its <b>224G SerDes + multiprotocol retimer (Blue Heron)</b> moves it up the value chain into the same chokepoint silicon as Astera/Broadcom — broadening the TAM beyond cables. Offset: customer concentration (a single hyperscaler has historically been a big chunk) and a near-ATH multiple that punishes any order lumpiness.</p></div>
+    <div class="gap" style="border-left-color:var(--choke);background:rgba(224,104,106,.06)"><div class="h" style="color:var(--choke)">ASYMMETRIC INFO GAP · 變異認知</div><p>Now <b>negative</b>: the market is fully awake to ALAB as the scale-up-connectivity winner. The remaining variant is whether PCIe6/Scorpio attach can keep compounding fast enough to grow into ~110–125x while Broadcom and Marvell push into the same scale-up fabric — and whether NVLink/UALink standards capture the fabric value Astera is pricing in. This is a momentum/quality trade, not an early entry; sizing and stops dominate the thesis.</p></div>
     <div class="mtd">
-      <div class="mtc"><div class="h">① 怎麼賺錢</div><p>Sells AECs (smart cables), SerDes chiplets, retimers, and SerDes IP licences; hardware + IP.</p></div>
-      <div class="mtc"><div class="h">② 營收結構</div><p>AEC the base; retimers + 224G SerDes + IP the expanding mix.</p></div>
-      <div class="mtc"><div class="h">③ 成長來源</div><p>Scale-up AEC adoption, 224G retimer ramp (Q3'26), UALink/ESUN, IP licensing.</p></div>
-      <div class="mtc"><div class="h">④ 終端市場</div><p>AI datacenter scale-up + short-reach connectivity.</p></div>
-      <div class="mtc"><div class="h">⑤ 主要客戶</div><p>Hyperscalers (historically concentrated); broadening.</p></div>
-      <div class="mtc"><div class="h">⑥ 護城河</div><p>AEC reliability + low-power SerDes; first-to-224G-retimer; but competition from Astera/Broadcom.</p></div>
-      <div class="mtc"><div class="h">⑦ 管理層展望</div><p>224G retimer sampling, volume Q3'26; pushing multiprotocol + IP.</p></div>
-      <div class="mtc"><div class="h">⑧ 為何是卡點</div><p>AECs + retimers are what keep 224G copper alive in-rack — pure exposure, but more contested.</p></div>
+      <div class="mtc"><div class="h">① Business model 怎麼賺錢</div><p>Fabless connectivity silicon + COSMOS software; sells retimers, fabric switches, AECs and CXL controllers per-unit into AI platforms.</p></div>
+      <div class="mtc"><div class="h">② Segments 營收結構</div><p>Aries (PCIe/CXL retimers) the base; Scorpio (fabric switches) + Taurus (AEC) + Leo (CXL) the growth. Q1-FY26 rev $308.4M, FY25 $852.5M.</p></div>
+      <div class="mtc"><div class="h">③ Growth drivers 成長來源</div><p>PCIe6 ramp, Scorpio X-Series 320-lane scale-up fabric, custom-ASIC + merchant-GPU platforms, NVLink Fusion ecosystem attach.</p></div>
+      <div class="mtc"><div class="h">④ End market 終端市場</div><p>AI scale-up/scale-out fabrics inside hyperscaler and merchant-GPU racks; the connectivity layer of the AI server.</p></div>
+      <div class="mtc"><div class="h">⑤ Customers 主要客戶</div><p>Hyperscalers + GPU/ASIC platform vendors; deep design-in with the NVIDIA scale-up ecosystem. Concentration is real.</p></div>
+      <div class="mtc"><div class="h">⑥ Moat 護城河</div><p>First-mover in PCIe/CXL retimers + COSMOS fleet software lock-in + fast product cadence; but multiple competitors (AVGO, MRVL, Montage, Parade) circling.</p></div>
+      <div class="mtc"><div class="h">⑦ Guidance 管理層展望</div><p>Record revenue, strong sequential growth, expanding Scorpio family; management guiding continued PCIe6-led ramp.</p></div>
+      <div class="mtc"><div class="h">⑧ Why chokepoint 為何卡點</div><p>Productizes SerDes into the scale-up fabric every accelerator needs — but the SerDes itself is partly licensed/competed, so it captures fabric rent, not the deepest IP rent.</p></div>
     </div>
-    <div class="bbr"><div class="bl"><b style="color:var(--dacr)">BULL</b>Moves up-stack from cables into 224G SerDes/retimer silicon; TAM broadens; IP licensing optionality.</div><div class="be"><b style="color:var(--choke)">BEAR</b>Customer concentration + near-ATH multiple; Astera/Broadcom compete; order lumpiness de-rates fast.</div></div>
+    <table class="scn">
+      <tr><th>Scenario (~12–18m)</th><th>What happens</th><th>Prob.</th><th>Return</th></tr>
+      <tr><td><b>Bull</b></td><td>PCIe6/Scorpio attach compounds; NVLink-Fusion ecosystem pulls fabric content</td><td class="num">30%</td><td class="num dotG">+25%</td></tr>
+      <tr><td><b>Base</b></td><td>Growth strong but ~110–125x compresses</td><td class="num">40%</td><td class="num">−5%</td></tr>
+      <tr><td><b>Bear</b></td><td>Scale-up fabric value captured by NVLink/UALink or AVGO/MRVL; multiple crush</td><td class="num">30%</td><td class="num dotR">−40%</td></tr>
+    </table>
+    <p class="cap" style="margin-top:6px">Probability-weighted EV ≈ <b style="color:var(--choke)">−7%</b> — negative on these inputs; this is the cautionary "late" slot. <b>Entry discipline:</b> watch-only; consider only on a reset to &lt;$250 (~70x). <b>Dated falsifier (for shorts/avoiders):</b> a hyperscaler designing Astera fabric <i>out</i> in favor of in-house/NVLink → thesis that "it's priced for perfection" confirmed.</p>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--dacr)">BULL</b>The default scale-up connectivity layer; software lock-in + PCIe6 cadence keep it ahead; content per rack compounds.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>~110–125x prices perfection; standards (NVLink/UALink) or AVGO/MRVL take fabric share; any deceleration de-rates hard.</div>
+    </div>
   </div>
-  <p class="cap" style="margin-top:12px">*Multiples/financials are estimates from live IBKR quotes + reported run-rate; verify on a terminal. Marvell (MRVL, custom ASIC + electro-optics), Montage and Alphawave/Synopsys (SerDes IP) are co-plays not detailed here.</p>
+  <p class="cap" style="margin-top:12px">*Valuation multiples are estimates from live price, latest reported revenue/EPS run-rate and approximate share counts; verify on a data terminal before sizing. SNPS GAAP P/E (~105) is depressed by Ansys amortization, so a forward non-GAAP estimate (~32x) is shown.</p>
 </section>
 
-<!-- 06 DECISION -->
-<section>
-  <div class="sh"><span class="n">06</span><h2>The decision — one table</h2><span class="cn">投資決策總表</span></div>
-  <div style="overflow-x:auto">
-  <table style="min-width:900px">
-    <tr><th>#</th><th>Ticker</th><th>Chokepoint link</th><th>Severity</th><th>Stage</th><th>Valuation</th><th>Asymmetry</th><th>Framework lean</th><th>Key trigger</th></tr>
-    <tr><td class="m">1</td><td><b>AVGO</b></td><td><span class="lyr ly3">SILICON</span> switch + 224G SerDes + XPU</td><td class="m">17/20<br><span style="font-size:9px;color:var(--dim)">owns the IP</span></td><td><span class="stagebadge sg-recog">RECOG</span></td><td class="m">+11% · off hi</td><td class="grn">Highest (lowest-risk)</td><td><b>Own the gate / relative value</b></td><td>AI-semi rev; custom-XPU share</td></tr>
-    <tr><td class="m">2</td><td><b>ALAB</b></td><td><span class="lyr lyp">RETIMER</span> Aries / Scorpio fabric</td><td class="m">14/20</td><td><span class="stagebadge sg-eu">EUPHORIA</span></td><td class="m">+121% · near ATH</td><td class="red">Low (priced)</td><td><b>Purest, but fully priced</b></td><td>Scale-up content; UALink share</td></tr>
-    <tr><td class="m">3</td><td><b>CRDO</b></td><td><span class="lyr ly2">AEC</span> smart cable + 224G retimer</td><td class="m">14/20</td><td><span class="stagebadge sg-eu">EUPHORIA</span></td><td class="m">+84% · near ATH</td><td class="red">Low (concentrated)</td><td><b>AEC leader, customer-concentrated</b></td><td>224G retimer ramp Q3'26; customer mix</td></tr>
-  </table>
-  </div>
-  <p class="cap"><b>How each severity is derived</b> (0–20, four factors each 0–5: supply concentration · lead-time · low substitutability · demand): <b>AVGO = 17</b> (4+4+4+5 — owns the dominant switch + scarcest 224G SerDes IP + custom-XPU). <b>ALAB = 14</b> (3+3+3+5 — leading retimer but several rivals, chips ramp fast). <b>CRDO = 14</b> (3+3+3+5 — AEC leader but contested + customer-concentrated). The headline link (224G connectivity) scores <b>16</b>; AVGO scores <b>17</b> because it owns both the scarce SerDes IP <i>and</i> the dominant switch — it sits at the intersection of the chokepoint and the secondary pool, so it can exceed any single link. Tightness ≠ a good buy — yet here, unusually, the highest-severity name is also the <i>cheapest</i> stock: on valuation AVGO trades at roughly a third the forward multiple of the pure-plays (mega-cap ~mid-30s× P/E vs hyper-growth ALAB/CRDO ~70–100× — <b>est., verify on a terminal</b>). <b>If you can only do one thing:</b> lowest-risk gate + relative value → <b>AVGO</b>; purest exposure (fully priced) → <b>ALAB</b>; AEC leader (concentrated) → <b>CRDO</b>; genuine early asymmetry → the <b>448G SerDes IP / UALink / optical-I/O</b> watchlist.</p>
-</section>
-
-<!-- 07 RISKS -->
-<section>
-  <div class="sh"><span class="n">07</span><h2>Open questions &amp; risks</h2><span class="cn">未解與風險</span></div>
+<!-- 11. BENEFICIARY MAP + RISKS -->
+<section id="s11">
+  <div class="sh"><span class="n">11</span><h2>Beneficiary map &amp; key risks</h2><span class="cn">受惠族群與風險</span></div>
   <div class="two">
     <div class="panel">
-      <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">Honest open questions (self-critique)</h4>
-      <p style="font-size:12px;color:var(--mut);line-height:1.6">Valuation multiples are <b>est.</b> — we did not model AVGO's AI-networking revenue as a share of the whole, so "diluted rent" is directional. The "AVGO is the cheap gate" call hinges on its custom-XPU franchise holding vs Marvell and in-house designs — a real, unresolved competitive question. ALAB/CRDO severity (14) reflects more competition than the optics laser, but these markets are young and shares can shift fast. The latent names (448G IP, UALink) are pre-catalyst and hard to size today.</p>
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Who benefits — by link</h4>
+      <table class="tbl">
+        <tr><th>Company</th><th>Link</th><th>Angle</th></tr>
+        <tr><td><b>Synopsys</b> · SNPS</td><td><span class="lyr ly3">L3</span></td><td>#1 merchant SerDes/interface IP + EDA gate (early)</td></tr>
+        <tr><td><b>Cadence</b> · CDNS</td><td><span class="lyr ly3">L3</span></td><td>The other IP/EDA gate; IP rev +25–40%; already re-rated (+26% YTD)</td></tr>
+        <tr><td><b>Qualcomm</b> · QCOM</td><td><span class="lyr ly3">L3</span></td><td>Absorbed Alphawave (Dec-25) → backdoor SerDes-IP + DC platform</td></tr>
+        <tr><td><b>Broadcom</b> · AVGO</td><td><span class="lyr ly2">L2</span> <span class="lyr ly3">L3</span></td><td>Best captive SerDes + Tomahawk 6 (102T) + custom XPU; recognition</td></tr>
+        <tr><td><b>Marvell</b> · MRVL</td><td><span class="lyr ly2">L2</span> <span class="lyr ly3">L3</span></td><td>In-house SerDes + custom XPU + Inphi DSP; euphoria</td></tr>
+        <tr><td><b>Astera</b> · ALAB</td><td><span class="lyr ly2">L2</span></td><td>PCIe/CXL fabric + retimers + AEC; euphoria</td></tr>
+        <tr><td><b>Credo</b> · CRDO</td><td><span class="lyr ly2">L2</span></td><td>AEC ("purple cables") + SerDes + optical DSP; recognition→euphoria</td></tr>
+        <tr><td><b>MACOM</b> · MTSI</td><td><span class="lyr ly2">L2</span></td><td>LPO linear analog front-end (driver/TIA); the disaggregation beneficiary</td></tr>
+      </table>
+      <p class="cap" style="margin-top:10px">Layer key — <span class="lyr lyu">UP</span> upstream · <span class="lyr ly3">L3</span> SerDes/IP · <span class="lyr ly2">L2</span> connectivity chip · <span class="lyr ly1">L1</span> system.</p>
     </div>
     <div class="panel">
-      <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">Risk register</h4>
-      <table>
-        <tr><td><b>Custom-XPU competition</b></td><td>AVGO franchise erodes (Marvell, in-house)</td></tr>
-        <tr><td><b>Pure-play valuation</b></td><td>ALAB/CRDO priced for perfection near ATH</td></tr>
-        <tr><td><b>Customer concentration</b></td><td>CRDO/ALAB single-customer exposure</td></tr>
-        <tr><td><b>Optical substitution</b></td><td>Scale-up goes optical → AEC/retimer TAM shifts</td></tr>
-        <tr><td><b>AI-capex air-pocket</b></td><td>Hits highest-beta (ALAB/CRDO) hardest</td></tr>
-        <tr><td><b>Standards risk</b></td><td>UALink vs NVLink outcome reshuffles winners</td></tr>
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Risks to the thesis</h4>
+      <table class="tbl">
+        <tr><th>Risk</th><th>Watch</th></tr>
+        <tr><td><b>Mislocated chokepoint</b></td><td>If a co-bottleneck (low-loss PCB, connectors, foundry node) binds tighter, SerDes IP isn't the scarcest link</td></tr>
+        <tr><td><b>SNPS dilution</b></td><td>IP is ~25% of revenue; EDA/China dominate the stock — connectivity may never move it</td></tr>
+        <tr><td><b>In-sourcing</b></td><td>Hyperscalers build SerDes in-house or via Qualcomm → merchant-IP TAM erodes</td></tr>
+        <tr><td><b>Captive rent</b></td><td>The best SerDes (AVGO/MRVL) never reaches the merchant market</td></tr>
+        <tr><td><b>Valuation (MRVL/ALAB)</b></td><td>~57x / ~110x leave no margin for a stumble</td></tr>
+        <tr><td><b>AI-capex cyclicality</b></td><td>A capex pause hits connectivity-silicon volume and IP royalties together</td></tr>
       </table>
     </div>
   </div>
 </section>
 
-<section>
-  <div class="sh"><span class="n">08</span><h2>Framework — use cases × layers &amp; 3-year roadmap</h2><span class="cn">框架與路線圖</span></div>
-  <p class="lead">Networking spans three reach domains. Two axes: the network domain (rows) × the layer (columns). The 224G connectivity chokepoint binds hardest in scale-up; scale-across eventually hands off to optics (Run #1).</p>
-  <table style="margin-bottom:18px">
-    <tr><th>Use case ↓ / layer →</th><th>What it stresses</th><th>Binding chokepoint</th><th>Who wins</th></tr>
-    <tr><td><b>Scale-up</b> (GPU↔GPU, in-rack)</td><td>224G over copper; retimers + AECs</td><td><span class="lyr lyp">CONNECT</span> retimer / AEC / SerDes</td><td>Astera · Credo · Broadcom</td></tr>
-    <tr><td><b>Scale-out</b> (rack↔rack)</td><td>Ethernet switching at 224G</td><td><span class="lyr ly3">SWITCH</span> switch ASIC + SerDes</td><td>Broadcom · Marvell</td></tr>
-    <tr><td><b>Scale-across</b> (DC↔DC)</td><td>Coherent reach &gt;2 km</td><td><span class="lyr ly1">OPTICS</span> coherent DCI (→ Run #1)</td><td>Coherent · Marvell · Ciena</td></tr>
+<!-- 12. DECISION TABLE -->
+<section id="s12">
+  <div class="sh"><span class="n">12</span><h2>The decision — one table</h2><span class="cn">投資決策總表</span></div>
+  <p class="lead">Everything above reconciled into a single view, ranked by <b>remaining asymmetry</b> (how much is still NOT in the price). The one-row lesson: the deepest, most durable link (the IP gate) is the only one the market hasn't bid — but it comes diluted; the names with the cleanest exposure (MRVL, ALAB) have already run.</p>
+  <div style="overflow-x:auto">
+  <table class="tbl" style="min-width:920px">
+    <tr><th>#</th><th>Ticker</th><th>Link</th><th>Severity</th><th>Awareness stage</th><th>Valuation</th><th>Remaining asymmetry</th><th>Framework lean</th><th>Key trigger to watch</th></tr>
+    <tr>
+      <td class="num">1</td><td><b>SNPS</b> · Synopsys</td><td><span class="lyr ly3">L3</span> merchant SerDes/IP gate</td>
+      <td class="num">16/20</td><td><span class="stagebadge sg-early">EARLY</span></td><td class="num">~32x fwd · −1% YTD</td>
+      <td class="dotG">Highest</td><td><b>Accumulate / starter</b></td><td>Design-IP segment back to growth; China demand recovery</td>
+    </tr>
+    <tr>
+      <td class="num">2</td><td><b>MRVL</b> · Marvell</td><td><span class="lyr ly2">L2</span><span class="lyr ly3">L3</span> in-house SerDes + custom</td>
+      <td class="num">16/20</td><td><span class="stagebadge sg-eu">EUPHORIA</span></td><td class="num">~57x fwd · +261% YTD</td>
+      <td class="dotA">Low</td><td><b>Own quality, don't chase</b></td><td>Custom-XPU socket wins/losses; AI-rev guide</td>
+    </tr>
+    <tr>
+      <td class="num">3</td><td><b>ALAB</b> · Astera Labs</td><td><span class="lyr ly2">L2</span> PCIe/CXL fabric</td>
+      <td class="num">14/20</td><td><span class="stagebadge sg-eu">EUPHORIA</span></td><td class="num">~110x fwd · +133% YTD</td>
+      <td class="dotR">Negative</td><td><b>Watch only / avoid chasing</b></td><td>Scale-up fabric competition (AVGO/MRVL/NVLink)</td>
+    </tr>
   </table>
-  <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">3-year evolution timeline</h4>
-  <div style="overflow-x:auto"><table style="min-width:760px">
-    <tr><th>Sub-layer ↓ / year →</th><th>2025</th><th>2026</th><th>2027</th><th>2028</th></tr>
-    <tr><td><b>SerDes speed</b></td><td>224G starts</td><td style="background:rgba(224,104,106,.08)">224G volume (Q3'26)</td><td>448G SerDes IP</td><td>448G ramp / 3.2T</td></tr>
-    <tr><td><b>Fabric</b></td><td>NVLink dominant</td><td>UALink 1.0 emerges</td><td style="background:rgba(224,104,106,.08)">UALink vs NVLink contest</td><td>open scale-up scales</td></tr>
-    <tr><td><b>Optical crossover</b></td><td>copper in-rack</td><td>CPO scale-out pilots</td><td>scale-up optics trials</td><td style="background:rgba(224,104,106,.08)">in-rack optical (Rubin)</td></tr>
-  </table></div>
-  <p class="cap">Reading down a column = what's live that year; across a row = one sub-layer's arc. Stressed/catalyst cells tinted.</p>
+  </div>
+  <p class="cap"><b>How each per-link severity is derived</b> (same 0–20 rubric, four factors each 0–5: supply concentration · lead-time · low substitutability · demand): <b>SNPS merchant IP = 16</b> (4+4+3+5 — duopoly w/ Cadence + in-house alternatives soften substitutability). <b>MRVL in-house SerDes+custom = 16</b> (4+4+3+5 — AVGO/MRVL duopoly; hyperscalers can dual-source). <b>ALAB PCIe/CXL fabric = 14</b> (3+3+3+5 — multiple retimer sources; standards can shift). The composite link severity is 18 because, taken as a whole, the SerDes-IP <i>capability</i> is scarcer than any single product slice. So the same scarcity logic ranks the links — yet the lowest-severity-tie name (SNPS) is the best <i>entry</i> because it's the only unpriced one: <b>tightness ≠ a good buy.</b> "Framework lean" is analysis, not advice.</p>
+  <div class="panel" style="margin-top:14px;border-left:3px solid var(--accent)">
+    <p style="font-size:12.5px;color:var(--mut);line-height:1.55"><b style="color:var(--txt)">If you can only do one thing:</b> recognize that in networking silicon today, the chips have run and the IP gate hasn't. The single most <i>defensible</i> idea is the unloved arms-dealer (<b style="color:var(--txt)">SNPS</b>) bought on its China/Ansys overhang as a relative-value proxy for an intact, growing SerDes-IP toll — sized small, with the Design-IP segment re-acceleration as the thing to confirm and the dated falsifier to respect. Everything else here is "own quality you already missed the entry on" (MRVL) or "admire from a distance" (ALAB). Personal opinion, not advice.</p>
+  </div>
 </section>
 
-<div class="disc"><b>Not investment advice.</b> Personal research for a private knowledge base; not a recommendation or solicitation. Figures from public reporting and live IBKR quotes as of 13 Jun 2026; multiples marked est.; approximations may be wrong or stale. IBKR read-only — no trades. Do your own due diligence.</div>
+<div class="disc"><b>Not investment advice.</b> Automated research synthesis for idea generation only. Figures drawn from public reporting, SEC filings, company releases and third-party estimates as of 18 Jun 2026; live quotes via IBKR read-only and may be intraday; multiples are estimates that decay fast. Estimates marked (est.); verify against primary filings and a data terminal before sizing. No buy/sell recommendation implied. IBKR read-only — no trades placed.</div>
 
 <footer>
-  <p><b>Sources:</b> Credo / BusinessWire / Converge Digest / StorageNewsletter (Blue Heron 224G multiprotocol retimer, 3nm, 30-tap FFE, 40+dB, UALink/ESUN/Ethernet, Q3'26 volume; scale-up TAM &gt;$40B by 2030) · investors.credosemi.com · IBKR live quotes (AVGO, ALAB, CRDO). Live quotes: IBKR (read-only).</p>
-  <p style="margin-top:10px">Automated AI-Infra workflow · Run #5 v5 · built to the optics-v5 gold standard · Next: Substrates &amp; materials (final layer).</p>
+  <p><b>Sources:</b> Qualcomm / BusinessWire / Yahoo / Paul Weiss (Alphawave acquisition completed 18 Dec 2025, ~$2.4B) · Synopsys FY2025 8-K/press release + investor.synopsys.com (rev $7.05B, Design IP $1.75B, FY26 guide) · Reuters / Investing / SiliconANGLE / RCR Wireless (China EDA suspension, Ansys close, guidance cuts, restructuring) · Marvell FY2026 8-K/10-Q + marvell.com (rev $8.2B, 224G LR SerDes) · Astera Labs Q1-FY2026 8-K / ir.asteralabs.com (rev $308.4M, Scorpio/Aries) · Broadcom FY2025 8-K / Futurum (Tomahawk 6 102T, AI rev, backlog) · Credo FY25/FY26 releases (rev $436.8M→$1.3B) · OIF CEI-448G docs / Semiwiki / Gazettabyte (448G roadmap, PAM6) · LightCounting / Cignal AI / Semtech / IEEE EPS (LPO removes DSP, adoption) · Stats Market Research / design-reuse / IPnest (interface-IP TAM, IP share) · live quotes IBKR (read-only, 18 Jun 2026).</p>
+  <p style="margin-top:10px">Automated AI-Infra workflow · Run #11 v5 · Networking Silicon (deeper) · one layer below Run #5's 224G connectivity silicon → the SerDes/connectivity-IP capability · review-driven build (supply-chain bar visual, LPO-disaggregation schematic, where-to-watch dashboard, latent watchlist, per-link severity, scenario EV) · recurs every 2 days.</p>
 </footer>
+
 </div>
 <script>
 function showTab(id,btn){
-  document.querySelectorAll('.tabpane').forEach(function(p){p.hidden=true;p.style.display='none';});
-  var el=document.getElementById(id); if(el){el.hidden=false;el.style.display='block';}
-  document.querySelectorAll('.tabbtn').forEach(function(b){b.setAttribute('aria-selected','false');b.tabIndex=-1;});
-  if(btn){btn.setAttribute('aria-selected','true');btn.tabIndex=0;btn.focus();}
+  document.querySelectorAll('.tabpane').forEach(function(p){p.hidden=true;});
+  var el=document.getElementById(id); if(el){el.hidden=false;}
+  document.querySelectorAll('.tabbtn').forEach(function(b){b.classList.remove('on');b.setAttribute('aria-selected','false');b.tabIndex=-1;});
+  if(btn){btn.classList.add('on');btn.setAttribute('aria-selected','true');btn.tabIndex=0;}
 }
-document.querySelectorAll('[role=tablist]').forEach(function(tl){
-  tl.addEventListener('keydown',function(e){
-    var tabs=[].slice.call(tl.querySelectorAll('.tabbtn'));
-    var i=tabs.indexOf(document.activeElement);
-    if(e.key==='ArrowRight'){e.preventDefault();var n=tabs[(i+1)%tabs.length];showTab(n.getAttribute('aria-controls'),n);}
-    if(e.key==='ArrowLeft'){e.preventDefault();var p=tabs[(i-1+tabs.length)%tabs.length];showTab(p.getAttribute('aria-controls'),p);}
+(function(){
+  var tabs=Array.prototype.slice.call(document.querySelectorAll('[role=tab]'));
+  tabs.forEach(function(tab,i){
+    tab.addEventListener('keydown',function(e){
+      var n=null;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'){n=tabs[(i+1)%tabs.length];}
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){n=tabs[(i-1+tabs.length)%tabs.length];}
+      else if(e.key==='Home'){n=tabs[0];}
+      else if(e.key==='End'){n=tabs[tabs.length-1];}
+      if(n){e.preventDefault();showTab(n.getAttribute('aria-controls'),n);n.focus();}
+    });
   });
-});
+})();
 </script>
+<style media="print">
+  .tabpane[hidden]{display:block!important}
+  .toc{display:none!important}
+  [role=tablist]{display:none!important}
+  svg text{fill:#111}
+</style>
 </body>
 </html>

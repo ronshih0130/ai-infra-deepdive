@@ -50,6 +50,9 @@ sync_slug 'AI-Infra_LeadingDataMap_*.html' leading-data-map.html
 # --- sync the BOM Alpha Scan (live free-data BOM x leading-data scan, weekly) ---
 sync_slug 'AI-Infra_BOM_AlphaScan_*.html' bom-alpha-scan.html
 
+# --- sync the Leading-Indicators Command Center (flagship MECE dashboard, weekly) ---
+sync_slug 'AI-Infra_LeadingIndicators_*.html' leading-indicators.html
+
 # --- sync single-name reverse-model teardowns (on-demand) ---
 sync_slug 'AIXTRON_ReverseModel_*.html' aixtron.html
 

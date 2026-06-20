@@ -47,6 +47,9 @@ sync_slug 'AI-Infra_AlphaMap_FrameworkBlueprint_*.html' alpha-map-blueprint.html
 # --- sync the Leading-Data Map (Engine-C data-acquisition layer) ---
 sync_slug 'AI-Infra_LeadingDataMap_*.html' leading-data-map.html
 
+# --- sync the BOM Alpha Scan (live free-data BOM x leading-data scan, weekly) ---
+sync_slug 'AI-Infra_BOM_AlphaScan_*.html' bom-alpha-scan.html
+
 # --- sync single-name reverse-model teardowns (on-demand) ---
 sync_slug 'AIXTRON_ReverseModel_*.html' aixtron.html
 

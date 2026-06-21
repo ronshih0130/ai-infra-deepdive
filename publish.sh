@@ -81,6 +81,42 @@ for f in "$VAULT"/*20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]*.html; do
 done
 shopt -u nullglob
 
+# --- regenerate the rotation table in index.html from index-rows.tsv ---
+# The landing-page table used to be hand-edited and silently drifted out of sync
+# with the slugs on every run. Now each row's DATE is auto-stamped from the live
+# report filename (so it can never go stale), and the curated columns (layer label,
+# chokepoint, tightness) live one-per-line in index-rows.tsv — edit the TSV, not the HTML.
+if [ -f index-rows.tsv ] && grep -q 'ROTATION-ROWS:START' index.html; then
+  rows_tmp=$(mktemp)
+  while IFS=$'\t' read -r num layer slug glob choke tight; do
+    case "$num" in ''|'#'*) continue;; esac
+    f=$(ls -t "$VAULT"/$glob 2>/dev/null | head -1 || true)
+    base=$(basename "${f:-}")
+    d=$(printf '%s' "$base" | grep -oE '20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]' | head -1 || true)
+    [ -z "$d" ] && d="pending"
+    badge=""
+    case "$base" in *_v5_*) badge=' <span class="mono" style="font-size:10px;color:var(--faint)">v5</span>';; esac
+    {
+      printf '      <tr>\n'
+      printf '        <td class="mono">%s</td><td>%s</td>\n' "$num" "$layer"
+      printf '        <td><span class="pill done">Done · %s</span></td>\n' "$d"
+      printf '        <td>%s</td>\n' "$choke"
+      printf '        <td class="sev">%s/20</td>\n' "$tight"
+      printf '        <td><a href="%s">Open ↗</a>%s</td>\n' "$slug" "$badge"
+      printf '      </tr>\n'
+    } >> "$rows_tmp"
+  done < index-rows.tsv
+
+  idx_tmp=$(mktemp)
+  awk -v rows="$rows_tmp" '
+    /ROTATION-ROWS:START/ {print; while ((getline line < rows) > 0) print line; close(rows); skip=1; next}
+    /ROTATION-ROWS:END/   {skip=0}
+    !skip {print}
+  ' index.html > "$idx_tmp" && mv "$idx_tmp" index.html
+  rm -f "$rows_tmp"
+  echo "regenerated rotation table from index-rows.tsv"
+fi
+
 # --- commit ---
 git add -A
 if git diff --cached --quiet; then

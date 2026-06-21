@@ -1,0 +1,274 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-Infra BOM Alpha Scan — 2026-06-19</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e1116;--panel:#161b22;--panel2:#1b212b;--ink:#e6edf3;--mut:#aab2bd;--teal:#3fb6a8;--red:#df6258;--amber:#d9a544;--line:#262d38;}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;line-height:1.5}
+.wrap{max-width:1060px;margin:0 auto;padding:40px 24px 80px} .num{font-family:'JetBrains Mono',monospace}
+h1{font-size:29px;font-weight:700;margin:0 0 6px;letter-spacing:-.5px} h2{font-size:20px;margin:42px 0 6px}
+.sub{color:var(--mut);font-size:14px;margin:0 0 4px} .lead{color:var(--mut);font-size:15px;max-width:80ch}
+.tag{display:inline-block;font-size:11px;color:var(--teal);border:1px solid var(--teal);border-radius:20px;padding:2px 10px;margin-bottom:18px;letter-spacing:.5px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin-top:14px}
+.bw{background:var(--panel2);border-left:3px solid var(--teal);border-radius:8px;padding:16px 18px;margin:14px 0} .bw b{color:var(--teal)}
+svg text{font-family:'Space Grotesk',sans-serif;fill:var(--ink)} svg .num{font-family:'JetBrains Mono',monospace}
+.ax{font-size:10px;fill:var(--mut)} .axt{font-size:11px;fill:var(--mut)} .pl{font-size:10.5px;font-weight:600} .qlab{font-size:11px;font-weight:600}
+.rw{font-size:11.5px;fill:var(--ink)} .sm{font-size:11px;fill:var(--mut)}
+table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px} th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mut);font-weight:500;font-size:11.5px} td.num{font-family:'JetBrains Mono',monospace} td.pos{color:var(--teal)} td.neg{color:var(--red)}
+.sid{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--mut)} .st{color:var(--mut);font-size:12px} .vd{font-size:12.5px}
+.pill{font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 7px;border-radius:10px;border:1px solid}
+.leg{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--mut);margin-top:10px} .leg span{display:inline-flex;align-items:center;gap:5px} .sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+.foot{color:var(--mut);font-size:12px;margin-top:38px;border-top:1px solid var(--line);padding-top:14px}
+.k{color:var(--teal)} .a{color:var(--amber)} .r{color:var(--red)}
+@media print{body{background:#fff;color:#111}.panel,.bw{border-color:#ccc;background:#fff}svg text{fill:#111}}
+</style></head><body><div class="wrap">
+<div class="tag">AI-INFRA · BOM ALPHA SCAN · LIVE DATA</div>
+<h1>The bill-of-materials, scored with live leading data</h1>
+<p class="sub">82-line-item BOM decomposition (Blackwell→Rubin→Feynman) crossed with free monthly leading data. As-of 2026-06-19. Personal research — NOT investment advice. IBKR read-only.</p>
+<p class="lead">Each AI-rack component is a BOM line whose <b>content-value</b> shifts as the platform changes. This scan takes the 66-name watchlist drawn from the BOM's under-covered, monthly-reporting vendors and scores each on two live axes: <b>fundamental acceleration</b> (Taiwan monthly-revenue 3-mo YoY accel, or US quarterly YoY accel — the leading signal) and <b>awareness</b> (52-week price position — how priced it already is). The alpha is the <span class="k">bottom-right quadrant: accelerating fundamentals the price has not yet recognised</span>.</p>
+
+<div class="bw"><b>白話版.</b> 把 AI 機櫃拆成 82 個料件（BOM），每個料件的「用量/單價」會隨平台世代（Blackwell→Rubin→Feynman）改變。這份掃描用<b>免費的台股月營收</b>當領先訊號，對 66 檔「法人覆蓋少、且每月公布營收」的供應鏈個股打分：橫軸=基本面加速度（月營收年增的加速），縱軸=股價在52週位置（被定價程度）。<b>右下角＝營收還在加速、但股價還沒反應</b>＝alpha。重點發現：很多「題材對的」名字（LandMark 雷射 +281%、Nuvoton 安全晶片股價+284%但營收只+2%）<b>其實已經先漲、或基本面沒跟上</b>。<b>本月資料整合性修正</b>：原先被列為 alpha 的「Cyntec 電感」是<b>抓錯標的</b>（6231＝系微/firmware，非電感；真正的 TLVR 純玩家臺慶科 3357 已大漲 +117%、pos 1.0＝已被定價）；「Sintai 光纖」實為光聖 6442（已 ~64x 本益比、非還早）；奇力新 2456 已下市併入國巨。修掉假訊號後，仍相對還早、惟須配合 AI 純度檢查的是 <span class="k">AcBel／光寶（電源，AI 佔比僅 ~8–20%）、GUC（ASIC）、廣達／鴻海（ODM）</span>。資料修正了題材，也修正了標的。</div>
+
+<div class="panel" style="border-left:3px solid var(--red)"><b class="r">Verification finding (read before acting) — the raw scan surfaces accelerating TICKERS, not vetted theses.</b>
+<p class="sub" style="margin-top:6px">A name-level verification pass on the top picks found <b>two ticker-identity errors</b> and a purity problem (`top-bom-alpha-names-verification.md`): <b>6231 = Insyde (系微, BMC/UEFI firmware)</b>, NOT the TLVR-inductor maker "Cyntec" (which is 2452, delisted into Delta in 2010) — the accel signal is real but belongs to firmware, not power-inductors (real inductor exposure routes via the listed pure-play Tai-Tech 臺慶科 3357 or diluted parent Delta 2308 — though 3357 has itself already run, +117% YTD). <b>6442 = Insilight (光聖, AI-fiber)</b>, NOT "Sintai" — a real high-purity fiber name but already recognition/euphoria (~64× P/E), so the "un-run" tag was wrong. <b>AcBel / Lite-On</b> are heavily blended (true AI revenue ~8–20%), so their monthly tape is a noisy AI proxy. <b>Lesson:</b> this L6+awareness scan is a DISCOVERY/triage layer — every candidate needs an identity + AI-revenue-purity + valuation check before it's a position. Names below are corrected; only the top-4 were deep-verified.</p></div>
+
+<h2>1 · The alpha quadrant (live)</h2>
+<div class="panel"><svg viewBox="0 0 720 440" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Alpha quadrant scatter">
+<rect x="263" y="130" width="307" height="264" fill="#3fb6a8" opacity="0.07"/>
+<text x="564" y="386" text-anchor="end" class="qlab" fill="#3fb6a8">ALPHA: accelerating &amp; not-yet-priced</text>
+<line x1="263" y1="30" x2="263" y2="394" stroke="#3a444f" stroke-dasharray="4 4"/>
+<line x1="58" y1="130" x2="570" y2="130" stroke="#3a444f" stroke-dasharray="4 4"/>
+<text x="50" y="42" text-anchor="end" class="ax">priced 1.0</text>
+<text x="50" y="306" text-anchor="end" class="ax">early 0.5</text>
+<text x="263" y="410" text-anchor="middle" class="ax">accel 0</text>
+<text x="519" y="410" text-anchor="middle" class="ax">+50pp</text>
+<text x="109" y="410" text-anchor="middle" class="ax">-30pp</text>
+<text x="314" y="434" text-anchor="middle" class="axt">← decelerating    FUNDAMENTAL ACCELERATION (pp)    accelerating →</text>
+<text x="14" y="212" transform="rotate(-90 14 212)" text-anchor="middle" class="axt">52w price position (awareness) →</text>
+<circle cx="275.6" cy="300.1" r="3.5" fill="#3fb6a8" opacity="0.9"/>
+<circle cx="513.7" cy="176.8" r="3.5" fill="#3fb6a8" opacity="0.9"/>
+<circle cx="318.1" cy="288.3" r="3.5" fill="#3fb6a8" opacity="0.9"/>
+<text x="325" y="291" text-anchor="start" class="pl" fill="#3fb6a8">Insyde 系微</text>
+<circle cx="519.3" cy="170.9" r="3.5" fill="#3fb6a8" opacity="0.9"/>
+<text x="512" y="174" text-anchor="end" class="pl" fill="#3fb6a8">Insilight 光聖</text>
+<circle cx="435.9" cy="188.5" r="3.5" fill="#3fb6a8" opacity="0.9"/>
+<text x="443" y="192" text-anchor="start" class="pl" fill="#3fb6a8">Quanta</text>
+<circle cx="397.5" cy="153.3" r="5" fill="#3fb6a8" opacity="0.9"/>
+<text x="404" y="156" text-anchor="start" class="pl" fill="#3fb6a8">GUC</text>
+<circle cx="330.4" cy="194.4" r="3.5" fill="#3fb6a8" opacity="0.9"/>
+<circle cx="391.3" cy="141.5" r="5" fill="#3fb6a8" opacity="0.9"/>
+<text x="398" y="145" text-anchor="start" class="pl" fill="#3fb6a8">Chunghwa Precision Test CHPT</text>
+<circle cx="312.0" cy="206.1" r="3.5" fill="#3fb6a8" opacity="0.9"/>
+<text x="319" y="209" text-anchor="start" class="pl" fill="#3fb6a8">AcBel 康舒</text>
+<circle cx="318.6" cy="200.3" r="3.5" fill="#3fb6a8" opacity="0.9"/>
+<text x="326" y="203" text-anchor="start" class="pl" fill="#3fb6a8">Lite-On 光寶科</text>
+<circle cx="280.7" cy="165.0" r="3.5" fill="#3fb6a8" opacity="0.9"/>
+<circle cx="288.9" cy="135.7" r="5" fill="#3fb6a8" opacity="0.9"/>
+<circle cx="266.4" cy="141.5" r="5" fill="#3fb6a8" opacity="0.9"/>
+<circle cx="481.9" cy="200.3" r="3.5" fill="#6b86b0" opacity="0.9"/>
+<text x="489" y="203" text-anchor="start" class="pl" fill="#6b86b0">NVIDIA</text>
+<circle cx="416.4" cy="241.4" r="3.5" fill="#6b86b0" opacity="0.9"/>
+<text x="423" y="244" text-anchor="start" class="pl" fill="#6b86b0">Alchip</text>
+<circle cx="267.9" cy="217.9" r="3.5" fill="#6b86b0" opacity="0.9"/>
+<circle cx="301.7" cy="141.5" r="3.5" fill="#6b86b0" opacity="0.9"/>
+<text x="309" y="145" text-anchor="start" class="pl" fill="#6b86b0">Delta Electronics</text>
+<circle cx="570.0" cy="129.8" r="3.5" fill="#d9a544" opacity="0.9"/>
+<text x="563" y="133" text-anchor="end" class="pl" fill="#d9a544">Phison</text>
+<circle cx="570.0" cy="41.7" r="3.5" fill="#d9a544" opacity="0.9"/>
+<text x="563" y="45" text-anchor="end" class="pl" fill="#d9a544">Credo</text>
+<circle cx="445.6" cy="123.9" r="5" fill="#d9a544" opacity="0.9"/>
+<circle cx="570.0" cy="41.7" r="3.5" fill="#d9a544" opacity="0.9"/>
+<text x="563" y="45" text-anchor="end" class="pl" fill="#d9a544">Micron</text>
+<circle cx="331.4" cy="106.3" r="5" fill="#d9a544" opacity="0.9"/>
+<circle cx="482.4" cy="41.7" r="5" fill="#d9a544" opacity="0.9"/>
+<circle cx="285.8" cy="47.6" r="3.5" fill="#d9a544" opacity="0.9"/>
+<circle cx="435.3" cy="41.7" r="3.5" fill="#d9a544" opacity="0.9"/>
+<circle cx="483.5" cy="41.7" r="5" fill="#d9a544" opacity="0.9"/>
+<text x="490" y="45" text-anchor="start" class="pl" fill="#d9a544">Taiwan Union</text>
+<circle cx="267.4" cy="106.3" r="3.5" fill="#d9a544" opacity="0.9"/>
+<circle cx="279.7" cy="129.8" r="3.5" fill="#d9a544" opacity="0.9"/>
+<circle cx="283.3" cy="88.7" r="5" fill="#d9a544" opacity="0.9"/>
+<circle cx="286.4" cy="77.0" r="3.5" fill="#d9a544" opacity="0.9"/>
+<circle cx="386.7" cy="41.7" r="5" fill="#d9a544" opacity="0.9"/>
+<circle cx="291.5" cy="41.7" r="5" fill="#d9a544" opacity="0.9"/>
+<text x="298" y="45" text-anchor="start" class="pl" fill="#d9a544">Tai-Tech 臺慶科</text>
+<circle cx="272.5" cy="112.2" r="3.5" fill="#d9a544" opacity="0.9"/>
+<circle cx="292.5" cy="41.7" r="3.5" fill="#d9a544" opacity="0.9"/>
+<circle cx="278.2" cy="118.1" r="5" fill="#d9a544" opacity="0.9"/>
+<text x="285" y="121" text-anchor="start" class="pl" fill="#d9a544">Nuvoton</text>
+<circle cx="296.6" cy="41.7" r="3.5" fill="#d9a544" opacity="0.9"/>
+<text x="304" y="45" text-anchor="start" class="pl" fill="#d9a544">Walsin</text>
+<circle cx="307.3" cy="41.7" r="3.5" fill="#d9a544" opacity="0.9"/>
+<circle cx="198.3" cy="370.5" r="3.5" fill="#7f8a99" opacity="0.9"/>
+<circle cx="232.6" cy="253.1" r="5" fill="#7f8a99" opacity="0.9"/>
+<text x="240" y="256" text-anchor="start" class="pl" fill="#7f8a99">Browave</text>
+<circle cx="223.9" cy="264.8" r="5" fill="#7f8a99" opacity="0.9"/>
+<text x="231" y="268" text-anchor="start" class="pl" fill="#7f8a99">BizLink</text>
+<circle cx="232.1" cy="235.5" r="5" fill="#7f8a99" opacity="0.9"/>
+<text x="239" y="238" text-anchor="start" class="pl" fill="#7f8a99">Lotes</text>
+<circle cx="144.0" cy="229.6" r="3.5" fill="#7f8a99" opacity="0.9"/>
+<circle cx="107.7" cy="188.5" r="3.5" fill="#7f8a99" opacity="0.9"/>
+<circle cx="215.7" cy="141.5" r="3.5" fill="#7f8a99" opacity="0.9"/>
+<circle cx="249.0" cy="147.4" r="5" fill="#7f8a99" opacity="0.9"/>
+<circle cx="213.1" cy="217.9" r="3.5" fill="#7f8a99" opacity="0.9"/>
+<circle cx="178.3" cy="188.5" r="5" fill="#7f8a99" opacity="0.9"/>
+<text x="185" y="192" text-anchor="start" class="pl" fill="#7f8a99">LandMark Opto</text>
+<circle cx="208.0" cy="135.7" r="3.5" fill="#7f8a99" opacity="0.9"/>
+<circle cx="58.0" cy="141.5" r="3.5" fill="#7f8a99" opacity="0.9"/>
+<circle cx="182.9" cy="118.1" r="3.5" fill="#df6258" opacity="0.9"/>
+<circle cx="221.3" cy="53.5" r="3.5" fill="#df6258" opacity="0.9"/>
+<circle cx="244.9" cy="53.5" r="3.5" fill="#df6258" opacity="0.9"/>
+<circle cx="123.0" cy="41.7" r="3.5" fill="#df6258" opacity="0.9"/>
+<circle cx="241.3" cy="41.7" r="3.5" fill="#df6258" opacity="0.9"/>
+<circle cx="220.8" cy="94.6" r="3.5" fill="#df6258" opacity="0.9"/>
+<circle cx="211.1" cy="77.0" r="3.5" fill="#df6258" opacity="0.9"/>
+<circle cx="58.0" cy="41.7" r="3.5" fill="#df6258" opacity="0.9"/>
+<circle cx="253.6" cy="82.8" r="5" fill="#df6258" opacity="0.9"/>
+<text x="261" y="86" text-anchor="start" class="pl" fill="#df6258">Kinsus</text>
+<circle cx="58.0" cy="71.1" r="3.5" fill="#df6258" opacity="0.9"/>
+</svg>
+<div class="leg"><span><span class="sw" style="background:#3fb6a8"></span> EARLY-ASYMMETRIC (own — under-covered)</span><span><span class="sw" style="background:#6b86b0"></span> ACCEL-ANCHOR (accelerating but covered = demand signal)</span><span><span class="sw" style="background:#d9a544"></span> PRICED-MOMENTUM (late)</span><span><span class="sw" style="background:#df6258"></span> DECEL-EXIT (avoid)</span><span><span class="sw" style="background:#7f8a99"></span> LATENT-WATCH</span></div></div>
+
+<h2>2 · L3 distributor cross-check — the second source (live DigiKey + Mouser)</h2>
+<p class="sub">Part-number lead-times from both distributors, rolled up to BOM segments. <span class="r">Red = median lead &gt;16wk (tight)</span>. A <b class="k">✓</b> in the tables below marks <b>L6×L3-CONFIRMED</b>: revenue accelerating AND component lead-times blown out — two independent sources agreeing on a forming shortage (the highest-conviction flag).</p>
+<div class="panel"><svg viewBox="0 0 590 186" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="L3 lead-time by segment">
+<text x="132" y="17" text-anchor="end" class="rw">PWR-VRM-SPS</text>
+<rect x="140" y="8" width="300" height="15" rx="3" fill="#df6258"/>
+<text x="448" y="17" class="num sm">61.0wk · 2/3 tight</text>
+<text x="132" y="39" text-anchor="end" class="rw">PWR-VRM-CTRL</text>
+<rect x="140" y="30" width="234" height="15" rx="3" fill="#df6258"/>
+<text x="382" y="39" class="num sm">47.5wk · 1/3 tight</text>
+<text x="132" y="61" text-anchor="end" class="rw">MEM-MOD-CHIPSET</text>
+<rect x="140" y="52" width="148" height="15" rx="3" fill="#df6258"/>
+<text x="296" y="61" class="num sm">30.0wk · 1/2 tight</text>
+<text x="132" y="83" text-anchor="end" class="rw">SI-RETIMER</text>
+<rect x="140" y="74" width="128" height="15" rx="3" fill="#df6258"/>
+<text x="276" y="83" class="num sm">26.0wk · 1/1 tight</text>
+<text x="132" y="105" text-anchor="end" class="rw">PWR-VRM-GAN</text>
+<rect x="140" y="96" width="128" height="15" rx="3" fill="#df6258"/>
+<text x="276" y="105" class="num sm">26.0wk · 1/1 tight</text>
+<text x="132" y="127" text-anchor="end" class="rw">PAS-MLCC-HC</text>
+<rect x="140" y="118" width="118" height="15" rx="3" fill="#df6258"/>
+<text x="266" y="127" class="num sm">24.0wk · 3/7 tight</text>
+<text x="132" y="149" text-anchor="end" class="rw">PWR-VRM-IND</text>
+<rect x="140" y="140" width="93" height="15" rx="3" fill="#df6258"/>
+<text x="241" y="149" class="num sm">19.0wk · 1/4 tight</text>
+<text x="132" y="171" text-anchor="end" class="rw">PWR-VRM-EFUSE</text>
+<rect x="140" y="162" width="59" height="15" rx="3" fill="#d9a544"/>
+<text x="207" y="171" class="num sm">12.0wk · 0/1 tight</text>
+</svg>
+<p class="sub" style="margin-top:10px">The binding L3 constraint right now is <b class="r">power-delivery silicon</b> — VRM power-stages (~61wk) and controllers (~47wk) lead even high-cap MLCC (~24wk) and inductors (~19wk). <b>L6×L3-CONFIRMED &amp; still-early:</b> <span class="k">Parade (26.0wk)</span>. <b>Confirmed but already-priced</b> (shortage real, market knows): Tai-Tech 臺慶科 (19.0wk), Yageo (24.0wk), Walsin (24.0wk). <i>Known blind spot: allocated/bespoke AI parts return non-stock — catalog distributors only see commodity parts.</i></p></div>
+
+<h2>3 · Data re-rates the thesis — registry pick vs live verdict</h2>
+<p class="sub">The BOM registry names candidates qualitatively; the live tape says which are <i>still</i> early. This is the point of layering leading data on the map.</p>
+<div class="panel"><table><tr><th>Registry pick</th><th>Live quadrant</th><th>Verdict</th></tr>
+<tr><td><b>LandMark 3081.TWO</b><br><span class="sid">NET-EML · #1 registry pick (laser chokepoint)</span></td><td><span class="pill" style="color:#7f8a99;border-color:#7f8a99">LATENT-WATCH</span></td><td class="vd">ALREADY RUN: +281% YTD, revenue decelerating (−16.5pp) → priced, not latent</td></tr>
+<tr><td><b>Tai-Tech 臺慶科 3357 (TLVR pure-play)</b><br><span class="sid">PWR-VRM-IND · inductor — IDENTITY FIX (was bogus &#x27;Cyntec 6231&#x27;)</span></td><td><span class="pill" style="color:#d9a544;border-color:#d9a544">PRICED-MOMENTUM</span></td><td class="vd">ALREADY RUN: the real listed TLVR pure-play 3357 is +117% YTD, pos 1.0 → priced. The prior &#x27;Cyntec inductor alpha, +27% YTD&#x27; was a TRIPLE mis-map (6231 = Insyde firmware ≈0% inductor; Cyntec 乾坤 2452 delisted into Delta). The inductor thesis is now PRICED, not early.</td></tr>
+<tr><td><b>Insyde 系微 6231 (the mis-mapped ticker)</b><br><span class="sid">SYS-BMC · where the bogus signal really came from</span></td><td><span class="pill" style="color:#3fb6a8;border-color:#3fb6a8">EARLY-ASYMMETRIC</span></td><td class="vd">RE-HOMED: the +10.8pp accel / +27% YTD / pos 0.58 that masqueraded as &#x27;Cyntec inductor alpha&#x27; is in fact Insyde&#x27;s UEFI/OpenBMC firmware-royalty momentum — real, but NOT an inductor business.</td></tr>
+<tr><td><b>Insilight 光聖 6442 (was mislabel &#x27;Sintai&#x27;)</b><br><span class="sid">NET-FIBER · CPO fiber passive — IDENTITY FIX</span></td><td><span class="pill" style="color:#3fb6a8;border-color:#3fb6a8">EARLY-ASYMMETRIC</span></td><td class="vd">REAL co., RE-STAGED: 6442 = 光聖 Insilight, not &#x27;Sintai&#x27;. Genuine high-purity AI fiber but already recognition→euphoria (~64x P/E). The still-early UC fiber name is Browave.</td></tr>
+<tr><td><b>Browave 3163.TWO</b><br><span class="sid">NET-FIBER · CPO fiber passive</span></td><td><span class="pill" style="color:#7f8a99;border-color:#7f8a99">LATENT-WATCH</span></td><td class="vd">RUN + decelerating: +113% YTD, accel −5.9 → watch, not fresh</td></tr>
+<tr><td><b>Nuvoton 4919.TW</b><br><span class="sid">SEC-ROT · &#x27;best risk/reward&#x27; security-content step</span></td><td><span class="pill" style="color:#d9a544;border-color:#d9a544">PRICED-MOMENTUM</span></td><td class="vd">NOT CONFIRMED: revenue flat +2% YoY but stock +284% YTD → priced ahead of fundamentals</td></tr>
+<tr><td><b>Taiwan Union 6274.TWO</b><br><span class="sid">PCB-CCL · M9/Q-glass laminate</span></td><td><span class="pill" style="color:#d9a544;border-color:#d9a544">PRICED-MOMENTUM</span></td><td class="vd">PRICED: +124% YoY accel +43 but pos 1.0, +281% YTD — own theme, no edge</td></tr>
+<tr><td><b>GUC 3443.TW / Alchip 3661</b><br><span class="sid">ASIC-DS · custom-ASIC monthly read</span></td><td><span class="pill" style="color:#3fb6a8;border-color:#3fb6a8">EARLY-ASYMMETRIC</span></td><td class="vd">EARLY-ish: GUC +132% accel +26 (recognition); Alchip turning +30pp from trough</td></tr>
+<tr><td><b>AcBel 6282 / Lite-On 2301</b><br><span class="sid">PWR-RPS · HVDC power-shelf 2nd source</span></td><td><span class="pill" style="color:#3fb6a8;border-color:#3fb6a8">EARLY-ASYMMETRIC</span></td><td class="vd">ACCEL but BLENDED: both accelerating (+10-11pp), +26-33% YTD; caveat — true AI mix only ~8-20% (blended-legacy tape).</td></tr></table></div>
+
+<h2>4 · EARLY-ASYMMETRIC shortlist — all 13 actionable names (accelerating, not-yet-priced, under-covered)</h2>
+<p class="sub">HC mega-caps are gated OUT of this list (they appear as ACCEL-ANCHOR below). Sorted by composite alpha (acceleration-dominant × under-coverage). <b>accel</b> = leading fundamental acceleration (pp); <b>pos</b> = 52w price position.</p>
+<div class="panel"><table><tr><th>Name</th><th>Segment</th><th>YoY%</th><th>accel pp</th><th>YTD%</th><th>pos52w</th><th>L3 lead</th><th>stage</th></tr>
+<tr><td><b style="color:#e6edf3">Parade (retimer/redriver)</b> <span class="sid">SI-RETIMER</span></td><td>Signal-integrity</td><td class="num">1.2</td><td class="num pos">2.5</td><td class="num">19.7</td><td class="num">0.56</td><td><span class="num" style="color:#df6258">26.0wk <b class="k">✓</b></span></td><td class="st">early</td></tr>
+<tr><td><b style="color:#e6edf3">ADATA (DDR5 module)</b> <span class="sid">MEM-RDIMM</span></td><td>Memory-module</td><td class="num">210.4</td><td class="num pos">49.0</td><td class="num">50.8</td><td class="num">0.77</td><td><span class="sid">—</span></td><td class="st">early</td></tr>
+<tr><td><b style="color:#e6edf3">Insyde 系微 (BMC/UEFI firmware; was mislabel &#x27;Cyntec&#x27;)</b> <span class="sid">SYS-BMC</span></td><td>BMC/firmware</td><td class="num">12.5</td><td class="num pos">10.8</td><td class="num">26.8</td><td class="num">0.58</td><td><span class="sid">—</span></td><td class="st">early</td></tr>
+<tr><td><b style="color:#e6edf3">Insilight 光聖 (AI-fiber; was mislabel &#x27;Sintai&#x27;)</b> <span class="sid">NET-FIBER</span></td><td>Optics-fiber</td><td class="num">116.0</td><td class="num pos">50.1</td><td class="num">40.9</td><td class="num">0.78</td><td><span class="sid">—</span></td><td class="st">early</td></tr>
+<tr><td><b style="color:#e6edf3">Quanta (ODM)</b> <span class="sid">ODM</span></td><td>ODM</td><td class="num">94.4</td><td class="num pos">33.8</td><td class="num">35.7</td><td class="num">0.75</td><td><span class="sid">—</span></td><td class="st">early</td></tr>
+<tr><td><b style="color:#3fb6a8">GUC (custom ASIC design)</b> <span class="sid">ASIC-DS</span></td><td>ASIC-design</td><td class="num">132.1</td><td class="num pos">26.3</td><td class="num">122.4</td><td class="num">0.81</td><td><span class="sid">—</span></td><td class="st">recognition</td></tr>
+<tr><td><b style="color:#e6edf3">Hon Hai (ODM)</b> <span class="sid">ODM</span></td><td>ODM</td><td class="num">39.6</td><td class="num pos">13.2</td><td class="num">15.7</td><td class="num">0.74</td><td><span class="sid">—</span></td><td class="st">early</td></tr>
+<tr><td><b style="color:#3fb6a8">Chunghwa Precision Test CHPT</b> <span class="sid">PKG-TEST</span></td><td>Pkg-test</td><td class="num">34.1</td><td class="num pos">25.1</td><td class="num">57.3</td><td class="num">0.83</td><td><span class="sid">—</span></td><td class="st">recognition</td></tr>
+<tr><td><b style="color:#e6edf3">AcBel 康舒 (HVDC power shelf; ~8-13% AI, blended)</b> <span class="sid">PWR-RPS</span></td><td>Power-shelf</td><td class="num">26.2</td><td class="num pos">9.6</td><td class="num">32.6</td><td class="num">0.72</td><td><span class="sid">—</span></td><td class="st">early</td></tr>
+<tr><td><b style="color:#e6edf3">Lite-On 光寶科 (power; ~20% AI, blended)</b> <span class="sid">PWR-RPS</span></td><td>Power-shelf</td><td class="num">29.6</td><td class="num pos">10.9</td><td class="num">26.0</td><td class="num">0.73</td><td><span class="sid">—</span></td><td class="st">early</td></tr>
+<tr><td><b style="color:#e6edf3">Lumentum (EML)</b> <span class="sid">NET-EML</span></td><td>Optics-EML</td><td class="num">101.0</td><td class="num pos">3.5</td><td class="num">120.1</td><td class="num">0.79</td><td><span class="sid">—</span></td><td class="st">early</td></tr>
+<tr><td><b style="color:#3fb6a8">Sensata (DC protection)</b> <span class="sid">PWR-DCBUS</span></td><td>Power-DC-protect</td><td class="num">-4.9</td><td class="num pos">5.1</td><td class="num">41.8</td><td class="num">0.84</td><td><span class="sid">—</span></td><td class="st">recognition</td></tr>
+<tr><td><b style="color:#3fb6a8">TXC (oscillator/timing)</b> <span class="sid">CLK-TIMING</span></td><td>Clock-timing</td><td class="num">10.5</td><td class="num pos">0.7</td><td class="num">169.3</td><td class="num">0.83</td><td><span class="sid">—</span></td><td class="st">recognition</td></tr></table>
+<p class="sub" style="margin-top:8px">Cleanest still-early (after the identity fixes): <b class="k">AcBel / Lite-On</b> (HVDC power-shelf 2nd-sources, accelerating — but true AI mix only ~8–20%, blended), <b class="k">GUC / Alchip</b> (custom-ASIC, program-driven inflection), <b class="k">Quanta / Hon Hai</b> (ODM, accelerating). The inductor & fiber legs the scan once flagged are now corrected out: the real TLVR pure-play <b>Tai-Tech 3357</b> has already run (+117% YTD, pos 1.0), and the prior "Cyntec inductor alpha" was a firmware mis-map (<b>6231 = Insyde</b>).</p></div>
+
+<h2>5 · ACCEL-ANCHOR (4) — accelerating but heavily-covered (demand signal, NOT retail alpha)</h2>
+<p class="sub">These (NVDA, AVGO, etc.) confirm the demand is real and feed the upstream thesis, but the Street already prices them — own the under-covered exposure instead.</p>
+<div class="panel"><table><tr><th>Name</th><th>Segment</th><th>YoY%</th><th>accel pp</th><th>YTD%</th><th>pos52w</th><th>L3 lead</th><th>stage</th></tr>
+<tr><td><b style="color:#e6edf3">NVIDIA</b> <span class="sid">FAB-GPUDIE</span></td><td>Compute-GPU</td><td class="num">132.6</td><td class="num pos">42.8</td><td class="num">11.6</td><td class="num">0.73</td><td><span class="sid">—</span></td><td class="st">early</td></tr>
+<tr><td><b style="color:#e6edf3">Alchip (custom ASIC)</b> <span class="sid">ASIC-DS</span></td><td>ASIC-design</td><td class="num">-33.5</td><td class="num pos">30.0</td><td class="num">20.5</td><td class="num">0.66</td><td><span class="sid">—</span></td><td class="st">early</td></tr>
+<tr><td><b style="color:#e6edf3">Broadcom (switch/ASIC)</b> <span class="sid">NET-SWASIC</span></td><td>Networking-ASIC</td><td class="num">48.7</td><td class="num pos">1.0</td><td class="num">18.3</td><td class="num">0.7</td><td><span class="sid">—</span></td><td class="st">early</td></tr>
+<tr><td><b style="color:#e6edf3">Delta Electronics (power)</b> <span class="sid">PWR-RPS</span></td><td>Power-shelf</td><td class="num">43.7</td><td class="num pos">7.6</td><td class="num">116.1</td><td class="num">0.83</td><td><span class="sid">—</span></td><td class="st">recognition</td></tr></table></div>
+
+<h2>6 · Already-priced (accelerating but euphoric — own the theme, no edge)</h2>
+<div class="panel"><table><tr><th>Name</th><th>Segment</th><th>YoY%</th><th>accel pp</th><th>YTD%</th><th>pos52w</th><th>L3 lead</th><th>stage</th></tr>
+<tr><td><b style="color:#e6edf3">Phison (NAND controller)</b> <span class="sid">MEM-NAND-SSD</span></td><td>NAND-SSD</td><td class="num">301.2</td><td class="num pos">102.7</td><td class="num">75.1</td><td class="num">0.85</td><td><span class="sid">—</span></td><td class="st">recognition</td></tr>
+<tr><td><b style="color:#e6edf3">Credo (AEC)</b> <span class="sid">INT-AEC</span></td><td>Interconnect-AEC</td><td class="num">465.0</td><td class="num pos">116.1</td><td class="num">89.8</td><td class="num">1.0</td><td><span class="sid">—</span></td><td class="st">euphoria</td></tr>
+<tr><td><b style="color:#3fb6a8">WinWay (test socket)</b> <span class="sid">PKG-TEST</span></td><td>Pkg-test</td><td class="num">119.8</td><td class="num pos">35.7</td><td class="num">226.4</td><td class="num">0.86</td><td><span class="sid">—</span></td><td class="st">recognition</td></tr>
+<tr><td><b style="color:#e6edf3">Micron (HBM/DRAM)</b> <span class="sid">MEM-HBM</span></td><td>Memory-HBM</td><td class="num">174.0</td><td class="num pos">73.7</td><td class="num">259.5</td><td class="num">1.0</td><td><span class="sid">—</span></td><td class="st">euphoria</td></tr>
+<tr><td><b style="color:#3fb6a8">Gold Circuit GCE (HDI/midplane PCB)</b> <span class="sid">PCB-MIDPLANE</span></td><td>PCB-midplane</td><td class="num">87.3</td><td class="num pos">13.4</td><td class="num">110.7</td><td class="num">0.89</td><td><span class="sid">—</span></td><td class="st">recognition</td></tr>
+<tr><td><b style="color:#3fb6a8">Elite Material EMC (CCL)</b> <span class="sid">PCB-CCL</span></td><td>PCB-CCL</td><td class="num">114.6</td><td class="num pos">42.9</td><td class="num">252.2</td><td class="num">1.0</td><td><span class="sid">—</span></td><td class="st">euphoria</td></tr>
+<tr><td><b style="color:#e6edf3">TSMC (foundry/CoWoS)</b> <span class="sid">FAB-GPUDIE</span></td><td>Foundry</td><td class="num">30.1</td><td class="num pos">4.5</td><td class="num">52.1</td><td class="num">0.99</td><td><span class="sid">—</span></td><td class="st">recognition</td></tr>
+<tr><td><b style="color:#e6edf3">ASPEED (BMC)</b> <span class="sid">SYS-BMC</span></td><td>BMC</td><td class="num">68.7</td><td class="num pos">33.7</td><td class="num">161.3</td><td class="num">1.0</td><td><span class="sid">—</span></td><td class="st">euphoria</td></tr></table></div>
+
+<h2>7 · Segment alpha ranking (live)</h2>
+<div class="panel"><svg viewBox="0 0 570 362" width="100%" xmlns="http://www.w3.org/2000/svg">
+<text x="142" y="17" text-anchor="end" class="rw">Memory-module</text>
+<rect x="300" y="8" width="150" height="15" rx="3" fill="#3fb6a8"/>
+<text x="458" y="17" class="num sm">1.1 · early 1/1</text>
+<text x="142" y="39" text-anchor="end" class="rw">Signal-integrity</text>
+<rect x="300" y="30" width="135" height="15" rx="3" fill="#3fb6a8"/>
+<text x="458" y="39" class="num sm">0.99 · early 1/2</text>
+<text x="142" y="61" text-anchor="end" class="rw">BMC/firmware</text>
+<rect x="300" y="52" width="134" height="15" rx="3" fill="#3fb6a8"/>
+<text x="458" y="61" class="num sm">0.98 · early 1/1</text>
+<text x="142" y="83" text-anchor="end" class="rw">Optics-fiber</text>
+<rect x="300" y="74" width="131" height="15" rx="3" fill="#3fb6a8"/>
+<text x="458" y="83" class="num sm">0.96 · early 1/2</text>
+<text x="142" y="105" text-anchor="end" class="rw">ODM</text>
+<rect x="300" y="96" width="123" height="15" rx="3" fill="#3fb6a8"/>
+<text x="458" y="105" class="num sm">0.9 · early 2/2</text>
+<text x="142" y="127" text-anchor="end" class="rw">ASIC-design</text>
+<rect x="300" y="118" width="112" height="15" rx="3" fill="#3fb6a8"/>
+<text x="458" y="127" class="num sm">0.82 · early 1/2</text>
+<text x="142" y="149" text-anchor="end" class="rw">Power-shelf</text>
+<rect x="300" y="140" width="104" height="15" rx="3" fill="#3fb6a8"/>
+<text x="458" y="149" class="num sm">0.76 · early 2/3</text>
+<text x="142" y="171" text-anchor="end" class="rw">Pkg-test</text>
+<rect x="300" y="162" width="74" height="15" rx="3" fill="#3fb6a8"/>
+<text x="458" y="171" class="num sm">0.54 · early 1/3</text>
+<text x="142" y="193" text-anchor="end" class="rw">Optics-EML</text>
+<rect x="300" y="184" width="50" height="15" rx="3" fill="#3fb6a8"/>
+<text x="458" y="193" class="num sm">0.37 · early 1/2</text>
+<text x="142" y="215" text-anchor="end" class="rw">Power-DC-protect</text>
+<rect x="300" y="206" width="10" height="15" rx="3" fill="#7f8a99"/>
+<text x="458" y="215" class="num sm">0.07 · early 1/2</text>
+<text x="142" y="237" text-anchor="end" class="rw">Clock-timing</text>
+<rect x="300" y="228" width="1" height="15" rx="3" fill="#7f8a99"/>
+<text x="458" y="237" class="num sm">0.01 · early 1/1</text>
+<text x="142" y="259" text-anchor="end" class="rw">Power-BBU</text>
+<rect x="245" y="250" width="55" height="15" rx="3" fill="#df6258"/>
+<text x="458" y="259" class="num sm">-0.4 · early 0/1</text>
+<text x="142" y="281" text-anchor="end" class="rw">Power-busbar-conn</text>
+<rect x="245" y="272" width="55" height="15" rx="3" fill="#df6258"/>
+<text x="458" y="281" class="num sm">-0.4 · early 0/1</text>
+<text x="142" y="303" text-anchor="end" class="rw">Connector-B2B</text>
+<rect x="245" y="294" width="55" height="15" rx="3" fill="#df6258"/>
+<text x="458" y="303" class="num sm">-0.4 · early 0/1</text>
+<text x="142" y="325" text-anchor="end" class="rw">Cooling-coldplate</text>
+<rect x="245" y="316" width="55" height="15" rx="3" fill="#df6258"/>
+<text x="458" y="325" class="num sm">-0.4 · early 0/2</text>
+<text x="142" y="347" text-anchor="end" class="rw">Cooling-CDU</text>
+<rect x="245" y="338" width="55" height="15" rx="3" fill="#df6258"/>
+<text x="458" y="347" class="num sm">-0.4 · early 0/1</text>
+<line x1="300" y1="0" x2="300" y2="362" stroke="#3a444f"/>
+</svg>
+<p class="sub" style="margin-top:8px">Single-name segments are noisy; read alongside the per-name quadrant. The structural read holds: the alpha sits in <span class="k">power-inductor, fiber-passive, ODM, custom-ASIC, power-shelf</span> — under-covered Taiwan-monthly names — while passives/MLCC, HBM, foundry, advanced-packaging are <span class="a">priced</span> (pos≈1.0).</p></div>
+
+<h2>8 · Method &amp; honest caveats — rerun monthly after MOPS posts (~10th)</h2>
+<div class="panel"><p class="sub" style="margin:0">
+<b>Leading signal</b> = Taiwan monthly operating revenue (FinMind, free, ~25mo history) → 3-mo-MA YoY <i>acceleration</i>; for US names, quarterly revenue YoY-acceleration (weaker, no monthly cadence — which is the thesis: TW monthly names are data-richer). <b>Awareness</b> = Yahoo 52-week price position + YTD. <b>Quadrant</b>: accel&gt;0 &amp; pos&lt;0.85 = EARLY-ASYMMETRIC. <br><br>
+<b>Caveats (do not over-trust):</b> (1) <b>Calibration done</b> (`calibration.md`, PIT month-clustered backtest): the acceleration signal shows a <span class="a">positive but unproven</span> cross-sectional lean (IC +0.079, positive in 15/19 months, but Newey-West t=1.54 — not significant after adjusting for overlapping windows). Pooled, momentum (PRICED) actually won this AI-bull regime, so the not-priced filter is a <b>risk/drawdown overlay</b>, not a return-maximizer. Suggestive triage, NOT proven alpha; parameters now locked for prospective out-of-sample reruns. (2) Several TW MOPS reads are <b>blended legacy-heavy</b> (Chenbro/GCE/Wus/ADATA/AcBel/LELON) — the monthly number is a noisy proxy for the AI line; verify AI mix share. (3) Acceleration is a fundamentals signal, not a price-timing signal — early names drew down before paying in the worked cases. (4) Korea/Japan/US names have NO monthly read (quarterly only) — their "lead" is weaker. (5) <b>L3 distributor layer now WIRED</b> (DigiKey + Mouser APIs) — adds the part-number lead-time cross-check; the L6×L3-CONFIRMED flag requires revenue accel AND lead-time blowout to agree. Known blind spot: allocated/bespoke AI parts are not in catalog so return non-stock. Bill-of-lading (ImportYeti) remains 403-blocked. (6) Extreme YoY (Credo +465%, Phison +301%, Micron +174%) are real AI inflections but sanity-check before sizing. Size small on the deduction; add on confirmation.</p>
+<p class="sub" style="margin-top:8px"><b>Rerun (free, no keys):</b> <span class="num">bash scripts/run_pipeline.sh data/watchlist.json &amp;&amp; python3 scripts/build_report.py</span> — refresh after Taiwan MOPS posts (~10th of each month). Data as-of 2026-06-19; prices end-of-day Yahoo.</p></div>
+
+<p class="foot">Sources: BOM registry `bom-segment-registry.md` (v1.1, 13-agent decomposition + MECE critic) · monthly revenue FinMind/TWSE MOPS · prices Yahoo Finance (daily) · US fundamentals SEC EDGAR XBRL (point-in-time). Free, no-key pipeline (`scripts/run_pipeline.sh`). Builds on `notes/leading-data-framework/data-acquisition-framework.md`. Cross-reviewed by Codex gpt-5.5/xhigh as the retail end-user. Modeled content numbers (est.); cross-check ≥2 sources before sizing. Personal research for a private KB — NOT investment advice. IBKR read-only; never trade on this.</p>
+</div></body></html>

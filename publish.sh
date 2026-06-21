@@ -55,6 +55,31 @@ sync_slug 'AI-Infra_LeadingIndicators_*.html' leading-indicators.html
 
 # --- sync single-name reverse-model teardowns (on-demand) ---
 sync_slug 'AIXTRON_ReverseModel_*.html' aixtron.html
+sync_slug 'XFAB_DeepDive_*.html'        xfab.html
+
+# --- catch-all archive: EVERY dated report lands in git, even un-slugged one-offs ---
+# Guarantees no report is ever silently dropped: any dated *.html in the vault is
+# version-controlled under archive/ (the curated slugs above stay the polished
+# homepage). To keep a report OUT of the repo entirely, add a filename glob (one
+# per line) to .publishignore next to this script.
+mkdir -p archive
+shopt -s nullglob
+for f in "$VAULT"/*20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]*.html; do
+  base=$(basename "$f")
+  skip=
+  if [ -f .publishignore ]; then
+    while IFS= read -r pat; do
+      case "$pat" in ''|'#'*) continue;; esac
+      case "$base" in $pat) skip=1; break;; esac
+    done < .publishignore
+  fi
+  if [ -n "$skip" ]; then echo "archive skip (.publishignore): $base"; continue; fi
+  if [ ! -f "archive/$base" ] || ! cmp -s "$f" "archive/$base"; then
+    cp "$f" "archive/$base"
+    echo "archived $base"
+  fi
+done
+shopt -u nullglob
 
 # --- commit ---
 git add -A

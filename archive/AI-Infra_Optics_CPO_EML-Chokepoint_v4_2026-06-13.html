@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AI Optical Interconnect — The EML Laser Chokepoint · AI-Infra Deep-Dive Run #1</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c232c; --line:#2a323d; --line2:#3a444f;
+    --ink:#e6edf3; --muted:#9aa7b4; --faint:#8692a0;
+    --accent:#e0a23b; --accent2:#3fb6a8; --pos:#46b87f; --neg:#df6258; --warn:#dca24a;
+    --mono:ui-monospace,"SFMono-Regular","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55;
+    font-size:15px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+  a{color:var(--accent2);text-decoration:none} a:hover{text-decoration:underline}
+  h1,h2,h3{line-height:1.16;letter-spacing:-0.02em;margin:0}
+  .mono,.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  section{padding:38px 0;border-top:1px solid var(--line)}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+  .lede{color:var(--muted);max-width:78ch}
+  .pos{color:var(--pos)} .neg{color:var(--neg)} .warn{color:var(--warn)} .acc{color:var(--accent)}
+  .est{font-family:var(--mono);font-size:.82em;color:var(--faint)}
+  sup.src{font-family:var(--mono);font-size:9.5px;color:var(--accent2);vertical-align:super;cursor:help}
+
+  /* SVG font defaults — CSS (not attributes) so var() resolves */
+  svg{display:block;width:100%;height:auto}
+  svg text{font-family:var(--sans);fill:var(--ink)}
+  svg text.m{font-family:var(--mono)}
+
+  header.mast{background:linear-gradient(180deg,#11161d 0%,#0e1116 100%);border-bottom:1px solid var(--line)}
+  .mast .row{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;padding:30px 0 8px}
+  .brand{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .mast h1{font-size:33px;font-weight:680;margin:14px 0 8px;max-width:21ch}
+  .mast .sub{color:var(--muted);max-width:80ch;font-size:16px}
+  .sevbadge{flex:0 0 auto;text-align:center;border:1px solid var(--line2);border-radius:14px;
+    padding:14px 18px;background:var(--panel);max-width:150px}
+  .sevbadge .n{font-family:var(--mono);font-size:30px;font-weight:700;color:var(--accent);line-height:1}
+  .sevbadge .l{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-top:6px;line-height:1.35}
+  .metaline{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 8px}
+  .chip{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid var(--line2);
+    border-radius:999px;padding:4px 11px;background:var(--panel)}
+  .chip b{color:var(--ink);font-weight:600}
+  .staleband{font-family:var(--mono);font-size:11.5px;color:#e6c98c;background:#1a1710;border:1px solid #5e4f2f;
+    border-radius:8px;padding:8px 12px;margin:14px 0 26px;display:inline-block}
+
+  .call{display:grid;grid-template-columns:1.4fr 1fr;gap:22px;align-items:stretch}
+  .callmain{background:var(--panel);border:1px solid var(--line2);border-left:3px solid var(--accent);
+    border-radius:12px;padding:22px 24px}
+  .callmain h2{font-size:20px;margin-bottom:10px}
+  .variant{margin-top:14px;padding:13px 15px;background:var(--panel2);border:1px solid var(--line2);border-radius:10px;font-size:13.5px}
+  .variant .t{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent2)}
+  .verdict{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .vpill{font-family:var(--mono);font-size:12px;border:1px solid var(--line2);border-radius:8px;
+    padding:8px 12px;background:var(--panel2)}
+  .vpill .t{color:var(--faint);font-size:10px;text-transform:uppercase;letter-spacing:.08em}
+  .tldr{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px 22px}
+  .tldr ul{margin:8px 0 0;padding-left:18px} .tldr li{margin:7px 0;color:var(--muted)}
+  .tldr li b{color:var(--ink)}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:8px}
+  .kpi{border-top:1px solid var(--line2);padding-top:12px}
+  .kpi .v{font-family:var(--mono);font-size:22px;font-weight:680;letter-spacing:-0.01em}
+  .kpi .k{font-size:11.5px;color:var(--faint);margin-top:3px}
+  .note{color:var(--faint);font-size:12.5px}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:14px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:600}
+  td.num,th.num{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+  tbody tr:hover{background:#11161d}
+
+  .mece{display:grid;grid-template-columns:150px repeat(3,1fr);gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:16px}
+  .mece>div{background:var(--panel);padding:12px 13px;font-size:12.5px}
+  .mece .hd{background:var(--panel2);font-family:var(--mono);font-size:10.5px;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--muted)}
+  .mece .rl{background:var(--panel2);font-family:var(--mono);font-size:11px;color:var(--muted);display:flex;align-items:center}
+  .mece .hot{box-shadow:inset 0 0 0 2px var(--accent);position:relative}
+  .mece .hot::after{content:"CHOKEPOINT";position:absolute;top:6px;right:8px;font-family:var(--mono);
+    font-size:8.5px;letter-spacing:.08em;color:var(--accent)}
+  .mece b{color:var(--ink)}
+
+  .score{display:grid;gap:12px;margin-top:14px}
+  .srow{display:grid;grid-template-columns:250px 1fr 46px;align-items:center;gap:14px}
+  .srow .lab{font-size:13px;color:var(--muted)}
+  .bar{height:11px;background:var(--panel2);border-radius:6px;overflow:hidden;border:1px solid var(--line2);position:relative}
+  .bar>span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#f0c06a)}
+  .bar::after{content:"";position:absolute;top:-1px;bottom:-1px;left:80%;width:1px;background:rgba(255,255,255,.22)}
+  .srow .sv{font-family:var(--mono);text-align:right;color:var(--ink)}
+
+  .tabs{display:flex;gap:6px;margin:16px 0 0;flex-wrap:wrap}
+  .tab{font-family:var(--mono);font-size:12.5px;border:1px solid var(--line2);background:var(--panel);
+    color:var(--muted);padding:9px 15px;border-radius:9px 9px 0 0;cursor:pointer;border-bottom:none}
+  .tab[aria-selected="true"]{background:var(--panel2);color:var(--ink);box-shadow:inset 0 2px 0 var(--accent)}
+  .tab:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+  .tabpanel{border:1px solid var(--line2);border-radius:0 12px 12px 12px;background:var(--panel);padding:22px 24px}
+  .tabpanel[hidden]{display:none}
+  .stage{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+    padding:3px 9px;border-radius:999px;border:1px solid var(--line2)}
+  .st-early{color:var(--pos);border-color:#2f5e47}
+  .st-rec{color:var(--warn);border-color:#5e4f2f}
+  .st-eu{color:var(--neg);border-color:#5e3330}
+
+  ul.clean{list-style:none;padding:0;margin:10px 0 0}
+  ul.clean li{padding:7px 0 7px 18px;position:relative;color:var(--muted);border-bottom:1px solid var(--line)}
+  ul.clean li::before{content:"";position:absolute;left:0;top:14px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+  ul.clean li b{color:var(--ink)}
+
+  .callout{border:1px solid var(--line2);border-left:3px solid var(--warn);background:#1a1710;
+    border-radius:10px;padding:14px 18px;margin-top:16px;color:#e8d9b6;font-size:13.5px}
+  .callout.crit{border-left-color:var(--accent2);background:#0f1816;color:#cfe7e2}
+  .callout.bear{border-left-color:var(--neg);background:#1a1110;color:#e9c9c5}
+
+  .foot{color:var(--faint);font-size:12px;padding:34px 0 60px}
+  .foot a{color:var(--muted)}
+  .toc{position:sticky;top:0;background:rgba(14,17,22,.9);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);z-index:5}
+  .toc .wrap{display:flex;gap:4px;flex-wrap:wrap;padding:9px 28px;font-family:var(--mono);font-size:11px}
+  .toc a{color:var(--muted);padding:4px 8px;border-radius:6px}
+  .toc a:hover{background:var(--panel2);text-decoration:none;color:var(--ink)}
+
+  .svgscroll{overflow-x:auto}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:10px}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+  @media(max-width:820px){
+    .call,.grid2,.grid3,.kpis{grid-template-columns:1fr}
+    .mece{grid-template-columns:104px 1fr}
+    .mece .hd:nth-child(n+2){display:none}
+    .srow{grid-template-columns:1fr}
+    .mast h1{font-size:25px}
+    .svgscroll svg{min-width:760px}
+  }
+  @media print{
+    body{background:#fff;color:#111;font-size:11px}
+    .toc,.tabs{display:none}
+    .tabpanel[hidden]{display:block!important}
+    .tabpanel{border-radius:12px;margin-top:10px;break-inside:avoid}
+    section{border-color:#ddd}
+    svg text{fill:#111}
+  }
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="wrap">
+    <div class="row">
+      <div>
+        <div class="brand">AI-Infra Deep-Dive · Run #1 of 6 · Optics / Connectivity Layer</div>
+        <h1>AI Optical Interconnect: the chokepoint has moved to the&nbsp;laser</h1>
+        <div class="sub">As AI clusters scale toward millions of GPUs, copper runs out of reach at the rack boundary and scale-out connectivity turns to light (intra-node GPU links remain largely copper). On our read of the data, the binding near-term constraint sits at the indium-phosphide 200G EML laser — really a DFB laser paired with an electro-absorption modulator — estimated ~40–60% undersupplied through 2027.<sup class="src" title="McKinsey via EE Times Asia / HDIN — estimate, forward-looking">[1]</sup> This note maps where the scarcity rent <i>could</i> sit, scores how tight the link is <i>within the optical light-source sub-layer</i>, and stages each play on the awareness curve.</div>
+      </div>
+      <div class="sevbadge">
+        <div class="n">19<span style="font-size:15px;color:var(--faint)">/20</span></div>
+        <div class="l">Chokepoint tightness</div>
+        <div class="n" style="font-size:23px;color:var(--warn);margin-top:11px">~6<span style="font-size:13px;color:var(--faint)">/20</span></div>
+        <div class="l">Remaining asymmetry<br/>(what's left to earn)</div>
+      </div>
+    </div>
+    <div class="metaline">
+      <span class="chip">Date <b>2026-06-13</b></span>
+      <span class="chip">Sector <b>AI Infra / Optics</b></span>
+      <span class="chip">Coverage <b>FN · LITE · AXTI</b></span>
+      <span class="chip">Universe <b>Global</b></span>
+      <span class="chip">Prices <b>IBKR (read-only)</b></span>
+      <span class="chip">Author <b class="acc">Personal research — not investment advice</b></span>
+    </div>
+    <div class="staleband">As-of 2026-06-13. Prices &amp; multiples (LITE +141%, AXTI +440% YTD) decay fast — the awareness-curve placement below may be invalid within weeks. Multiples marked (est.) are author approximations, not precise.</div>
+  </div>
+</header>
+
+<nav class="toc"><div class="wrap">
+  <a href="#call">The Call</a>
+  <a href="#sizing">Sizing &amp; Rent</a>
+  <a href="#mece">Framing</a>
+  <a href="#chain">Supply Chain</a>
+  <a href="#severity">Severity</a>
+  <a href="#cpo">CPO Risk</a>
+  <a href="#timeline">Timeline</a>
+  <a href="#plays">The Plays</a>
+  <a href="#awareness">Awareness</a>
+  <a href="#signals">Signals</a>
+  <a href="#risks">Risks</a>
+  <a href="#decision">Decision</a>
+  <a href="#critique">Open Questions</a>
+  <a href="#method">Method</a>
+</div></nav>
+
+<!-- THE CALL -->
+<section id="call"><div class="wrap">
+  <div class="eyebrow">Executive summary</div>
+  <div class="call" style="margin-top:14px">
+    <div class="callmain">
+      <h2>The call: the thesis is right and mostly recognised — pay for it carefully</h2>
+      <p class="lede">"AI needs light; the laser is scarce" appears well-supported, but it is also <i>largely consensus</i>: the obvious laser and substrate names have already re-rated hard. Of the three ways to play it, only the vendor-neutral packaging name still looks early on the awareness curve. The whole edge is in <b>where</b> you stand on that curve, not in the thesis itself.</p>
+      <div class="variant">
+        <div class="t">Variant perception vs. consensus</div>
+        The Street treats co-packaged optics as uniformly <i>laser-bullish</i> ("CPO = more lasers = buy LITE"). We think it <b>bifurcates</b>: CPO is bearish the <b>200G EML specifically</b> (it shifts to simpler external CW lasers) but bullish <b>vendor-neutral packaging/test</b> (FN), which gets harder and more gating. So the durable, still-underpriced rent is one layer over from the re-rated pure-play. If we are wrong, it is most likely because pluggables — and LPO, which keeps the EML — stay dominant longer than expected and laser pricing power proves more durable, in which case LITE outperforms FN.
+      </div>
+      <div class="verdict">
+        <div class="vpill"><div class="t">Most asymmetry left</div><b class="pos">Fabrinet (FN)</b></div>
+        <div class="vpill"><div class="t">Quality, priced</div><b class="warn">Lumentum (LITE)</b></div>
+        <div class="vpill"><div class="t">Late / binary</div><b class="neg">AXT (AXTI)</b></div>
+      </div>
+      <p class="note" style="margin-top:10px">Leans below reflect the author's personal view for a private knowledge base. <b>Not a recommendation</b> to buy or sell any security.</p>
+    </div>
+    <div class="tldr">
+      <div class="eyebrow">Why this matters in one screen</div>
+      <ul>
+        <li><b>The pinch:</b> 200G InP EML lasers est. ~<span class="num">40–60%</span> short through 2027; most capacity reported locked under LTAs to CY2027.<sup class="src" title="TrendForce; McKinsey via EE Times Asia">[1,2]</sup></li>
+        <li><b>The demand:</b> 800G+ transceivers forecast <span class="num">24M → ~63M</span> units (2025→2026e), ~2.6×.<sup class="src" title="TrendForce-style estimate; 2026 is a forecast">[2]</sup></li>
+        <li><b>The tell:</b> Nvidia reported to have committed ~<span class="num">$4B</span> toward laser supply — the buyer is rationing.<sup class="src" title="TrendForce — reported/approximate; distinct from the ~$2B LITE equity stake">[2]</sup></li>
+        <li><b>The edge:</b> value often peaks one layer below the headline. The laser names already ran; the asymmetry is in <b>packaging</b>.</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<!-- SIZING & RENT -->
+<section id="sizing"><div class="wrap">
+  <div class="eyebrow">Sizing the prize · who captures the rent</div>
+  <h2 style="font-size:21px;margin:8px 0 4px">A chokepoint only mints money if its owner — not the buyer — keeps the price</h2>
+  <p class="lede">The single most important open question: with Nvidia pre-committing capital and signing multi-year LTAs, is the scarcity rent accruing to the <i>laser maker</i> or has the <i>buyer</i> locked favourable pricing? Margins, not unit shortage, settle it. Figures below are illustrative author estimates anchored to the one disclosed TAM datapoint — directional, not precise.</p>
+  <table>
+    <thead><tr><th>Pool</th><th class="num">TAM 2024</th><th class="num">TAM 2026e</th><th>Who captures it</th><th>Rent evidence to watch</th></tr></thead>
+    <tbody>
+      <tr><td><b>AI optics total</b> <span class="est">(transceivers+LPO+CPO)</span></td><td class="num">~$5B</td><td class="num">$10B+</td><td>Spread across modules, lasers, packaging</td><td>Segment GM trajectory</td></tr>
+      <tr><td><b>200G EML laser chip</b> <span class="est">(the chokepoint)</span></td><td class="num">small</td><td class="num est">scarcity-priced</td><td><span class="warn">Contested:</span> LITE/COHR vs. Nvidia via LTA</td><td>LITE cloud/AI GM &amp; EML ASP trend</td></tr>
+      <tr><td><b>High-end optical packaging</b></td><td class="num est">—</td><td class="num est">grows w/ 1.6T+CPO</td><td>FN (neutral), Jabil, Luxshare</td><td>FN mix shift to advanced packaging</td></tr>
+    </tbody>
+  </table>
+  <div class="grid3" style="margin-top:18px">
+    <div><div class="eyebrow">Evidence rent is real</div><p class="note">LITE non-GAAP GM <b class="pos">47.9%</b>, op margin 32.2%, rev +90% YoY<sup class="src" title="Lumentum Q3 FY26, company-reported">[3]</sup> — margins inflecting <i>with</i> volume is consistent with pricing power, not cost-plus.</p></div>
+    <div><div class="eyebrow">Evidence buyer holds it</div><p class="note">LTAs + a ~$2B Nvidia equity stake<sup class="src" title="Reported">[2]</sup> can mean supply was locked at favourable buyer terms. The 2027 roll-off is when we find out. Until then, rent capture is <b class="warn">unproven</b>.</p></div>
+    <div><div class="eyebrow">Why FN sidesteps the debate</div><p class="note">FN sells <i>fee-for-build</i> capacity — it earns on volume regardless of who wins the laser-rent fight, so its thesis doesn't hinge on this unresolved question.</p></div>
+  </div>
+</div></section>
+
+<!-- MECE FRAMING -->
+<section id="mece"><div class="wrap">
+  <div class="eyebrow">Two-axis MECE framing</div>
+  <h2 style="font-size:21px;margin:8px 0 4px">Where in the stack does the constraint actually bind?</h2>
+  <p class="lede">Mapping the optical problem on two independent axes — <b>deployment domain</b> (how far the light travels) against <b>stack layer</b> (substrate → laser → module → switch) — isolates the cell every path runs through. All three domains pull on the same L3 laser today.</p>
+  <div class="mece">
+    <div class="hd"></div>
+    <div class="hd">Scale-up · in-rack / multi-rack</div>
+    <div class="hd">Scale-out · across the DC</div>
+    <div class="hd">Scale-across · DC–DC, 10s–100s km</div>
+
+    <div class="rl">L1 Switch / GPU</div>
+    <div>NVLink → CPO engines (2028+)</div>
+    <div>Tomahawk 6 · Spectrum-X · Quantum-X</div>
+    <div>Coherent ZR/ZR+ line cards</div>
+
+    <div class="rl">L2 Module</div>
+    <div>CPO optical engine (Rubin era)</div>
+    <div><b>1.6T pluggables</b> — volume engine</div>
+    <div>Coherent DCI 400/800ZR+</div>
+
+    <div class="rl">L3 Laser / PIC</div>
+    <div class="hot">200G EML <i>or</i> external CW laser*</div>
+    <div class="hot">200G InP EML (the pinch lives here)</div>
+    <div class="hot">InP coherent (DSP-driven) lasers</div>
+
+    <div class="rl">L4 Substrate</div>
+    <div>InP wafer</div>
+    <div>InP wafer</div>
+    <div>InP wafer</div>
+  </div>
+  <p class="note" style="margin-top:12px">*Scale-up CPO leans on simpler external <b>CW/DFB</b> light sources rather than the 200G <b>EML</b> — see the CPO risk section: this is the main path by which the <i>specific</i> EML chokepoint could loosen even as total InP-light demand rises.</p>
+</div></section>
+
+<!-- SUPPLY CHAIN MAP -->
+<section id="chain"><div class="wrap">
+  <div class="eyebrow">End-to-end supply chain</div>
+  <h2 style="font-size:21px;margin:8px 0 4px">Upstream → downstream, with the scarcity premium flagged</h2>
+  <p class="lede">Sand-to-cluster value chain. The amber node is where supply concentration, lead-time and substitutability all bind at once. Approximate competitive shares shown are author estimates <span class="est">(est.)</span> — directional only.</p>
+
+  <div class="svgscroll"><svg viewBox="0 0 1140 450" role="img" aria-label="AI optics supply chain from indium phosphide substrate to hyperscaler clusters, with the 200G EML laser flagged as the primary chokepoint">
+    <defs>
+      <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+        <path d="M0,0 L7,3 L0,6 Z" fill="#5a6672"/>
+      </marker>
+      <linearGradient id="hot" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#e9b258"/><stop offset="1" stop-color="#cf8f2c"/>
+      </linearGradient>
+    </defs>
+    <line x1="70" y1="124" x2="1080" y2="124" stroke="#222a33" stroke-width="2"/>
+    <g class="m" font-size="10.5" fill="#8b97a4" letter-spacing="0.8">
+      <text x="60" y="44">UPSTREAM · MATERIALS</text>
+      <text x="292" y="44">L3 · LASER / PIC</text>
+      <text x="546" y="44">PACKAGING / OSAT</text>
+      <text x="762" y="44">L2 · MODULE</text>
+      <text x="966" y="44">L1 · SWITCH/GPU</text>
+    </g>
+
+    <!-- Substrate -->
+    <rect x="60" y="96" width="170" height="56" rx="9" fill="#161b22" stroke="#3a444f"/>
+    <text x="74" y="120" font-size="13" font-weight="600">InP substrate</text>
+    <text x="74" y="138" class="m" fill="#9aa7b4" font-size="10.5">Sumitomo · JX · AXTI</text>
+
+    <!-- Chokepoint -->
+    <rect x="288" y="74" width="194" height="100" rx="11" fill="url(#hot)" stroke="#f0c879" stroke-width="2"/>
+    <text x="302" y="100" fill="#1a1205" font-size="14" font-weight="800">200G InP EML</text>
+    <text x="427" y="100" class="m" fill="#3a2a08" font-size="9.5">(DFB+EAM)</text>
+    <text x="302" y="120" class="m" fill="#3a2a08" font-size="10.5">LITE primary vol. (est.)</text>
+    <text x="302" y="137" class="m" fill="#3a2a08" font-size="10.5">COHR 2nd source ramping</text>
+    <polygon points="302,151 312,151 307,160" fill="#1a1205"/>
+    <text x="318" y="160" class="m" fill="#1a1205" font-size="10" font-weight="700">~40–60% SHORT · 19/20</text>
+
+    <!-- Packaging -->
+    <rect x="546" y="96" width="170" height="56" rx="9" fill="#161b22" stroke="#3a444f"/>
+    <text x="560" y="120" font-size="13" font-weight="600">Packaging · FAU · test</text>
+    <text x="560" y="138" class="m" fill="#9aa7b4" font-size="10.5">Fabrinet · Jabil</text>
+
+    <!-- Module -->
+    <rect x="762" y="96" width="158" height="56" rx="9" fill="#161b22" stroke="#3a444f"/>
+    <text x="776" y="120" font-size="13" font-weight="600">800G/1.6T module</text>
+    <text x="776" y="138" class="m" fill="#9aa7b4" font-size="10.5">COHR · Innolight</text>
+
+    <!-- Switch -->
+    <rect x="966" y="96" width="158" height="56" rx="9" fill="#161b22" stroke="#3a444f"/>
+    <text x="980" y="120" font-size="13" font-weight="600">Switch / GPU</text>
+    <text x="980" y="138" class="m" fill="#9aa7b4" font-size="10.5">Broadcom · Nvidia</text>
+
+    <g stroke="#5a6672" stroke-width="2" marker-end="url(#arr)" fill="none">
+      <line x1="230" y1="124" x2="284" y2="124"/>
+      <line x1="482" y1="124" x2="542" y2="124"/>
+      <line x1="716" y1="124" x2="758" y2="124"/>
+      <line x1="920" y1="124" x2="962" y2="124"/>
+    </g>
+
+    <!-- tooling feeds -->
+    <rect x="288" y="200" width="194" height="38" rx="8" fill="#12171d" stroke="#2a323d"/>
+    <text x="302" y="224" class="m" fill="#9aa7b4" font-size="10.5">MOCVD epi: Aixtron · Veeco</text>
+    <line x1="385" y1="200" x2="385" y2="176" stroke="#5a6672" stroke-width="1.5" marker-end="url(#arr)"/>
+
+    <rect x="546" y="200" width="170" height="38" rx="8" fill="#12171d" stroke="#2a323d"/>
+    <text x="560" y="224" class="m" fill="#9aa7b4" font-size="10.5">SiPh foundry: TSMC COUPE</text>
+    <line x1="630" y1="200" x2="630" y2="154" stroke="#5a6672" stroke-width="1.5" marker-end="url(#arr)"/>
+
+    <!-- demand pool -->
+    <rect x="700" y="312" width="424" height="96" rx="11" fill="#10171f" stroke="#274154"/>
+    <text x="720" y="338" class="m" fill="#cfe7e2" font-size="12" font-weight="700">DOWNSTREAM — BUYERS RATIONING SUPPLY</text>
+    <text x="720" y="360" fill="#9aa7b4" font-size="12">Hyperscalers (MSFT · Google · Meta · Oracle · AWS),</text>
+    <text x="720" y="378" fill="#9aa7b4" font-size="12">Nvidia AI factories, neoclouds.</text>
+    <text x="720" y="398" class="m" fill="#e0a23b" font-size="11">Nvidia ~$4B laser commitment (reported) · LTAs to CY2027</text>
+    <line x1="1045" y1="152" x2="980" y2="310" stroke="#3fb6a8" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arr)"/>
+    <text x="700" y="292" class="m" fill="#8b97a4" font-size="10">demand back-pressure — pricing power concentrates at amber node (if owner keeps it)</text>
+  </svg></div>
+  <div class="legend">
+    <span><i style="background:#e0a23b"></i>Chokepoint (scarcity rent peaks here)</span>
+    <span><i style="background:#3a444f"></i>Value-chain node</span>
+    <span><i style="background:#274154"></i>Demand pool</span>
+    <span><i style="background:#2a323d"></i>Tooling / alt-path feed</span>
+  </div>
+</div></section>
+
+<!-- SEVERITY -->
+<section id="severity"><div class="wrap">
+  <div class="eyebrow">Chokepoint tightness scorecard</div>
+  <h2 style="font-size:21px;margin:8px 0 4px">19 / 20 on the rubric — but a tight link is not the same as a good buy</h2>
+  <p class="lede">Scored on the consistent four-factor rubric used across the rotation, so future runs (Run #2 compute fabric, etc.) are directly comparable. The score is a relative tightness gauge, not a benchmarked index — there is no peer set yet, so read "3 of 4 factors at max" rather than a calibrated number.</p>
+  <div class="score">
+    <div class="srow"><div class="lab">Supply concentration <span class="note">— one primary EML maker + one ramping 2nd source (est.)</span></div><div class="bar"><span style="width:100%"></span></div><div class="sv">5 / 5</div></div>
+    <div class="srow"><div class="lab">Lead-time to add capacity <span class="note">— InP fab + yield qualification = years</span></div><div class="bar"><span style="width:100%"></span></div><div class="sv">5 / 5</div></div>
+    <div class="srow"><div class="lab">Low substitutability <span class="note">— SiPh/CW alt still needs InP light; but CPO shifts mix (see below)</span></div><div class="bar"><span style="width:80%"></span></div><div class="sv">4 / 5</div></div>
+    <div class="srow"><div class="lab">Demand-growth pressure <span class="note">— transceiver units est. ~2.6× YoY</span></div><div class="bar"><span style="width:100%"></span></div><div class="sv">5 / 5</div></div>
+  </div>
+  <p class="note" style="margin-top:14px">The deduction (substitutability, the 80% mark) is deliberate and is the thesis's main fault line — addressed next. <b>Scope caveat:</b> 19/20 scores the <b>optical light-source sub-layer</b> only. Co-binding chokepoints sit elsewhere in the same stack — the PAM4 <b>DSP/SerDes</b> duopoly (Broadcom, Marvell), high-speed <b>EAM/modulator packaging</b>, and <b>CoWoS</b> advanced-packaging capacity — any of which could be the tighter constraint; these get scored in later runs of the rotation.</p>
+</div></section>
+
+<!-- CPO RISK -->
+<section id="cpo"><div class="wrap">
+  <div class="eyebrow">The central counter-argument</div>
+  <h2 style="font-size:21px;margin:8px 0 4px">CPO is bullish InP light in aggregate — but a real bear to the <i>specific</i> 200G EML</h2>
+  <div class="grid2">
+    <div>
+      <p class="lede">Earlier drafts treated co-packaged optics as unambiguously raising laser criticality. That conflates two different things. CPO removes the pluggable transceiver (where the 200G <b>EML</b> lives) and feeds the silicon-photonics engine from architecturally simpler — though still demanding — external <b>CW/DFB</b> light sources. So:</p>
+      <ul class="clean">
+        <li><b>Aggregate InP light demand:</b> still rises — supports the substrate layer.</li>
+        <li><b>200G EML specifically:</b> CPO is a medium-term <span class="neg">headwind</span>, not a tailwind — fewer pluggables, simpler lasers.</li>
+        <li><b>Packaging:</b> CPO makes FAU + wafer-level test <span class="pos">harder and more gating</span> — strengthens the FN leg.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="callout bear" style="margin-top:0"><b>Why this shifts the ranking, not the thesis.</b> The EML pinch is a <i>2026–27 scale-out</i> story (1.6T pluggables); CPO scales 2028+ and the two <b>coexist for years</b> — a mix-shift, not a cliff. Two honest offsets: the CW DFB lasers CPO needs are high-power, low-RIN and still InP, and <b>LITE supplies them to Nvidia</b>, so LITE is not a pure CPO loser; and <b>LPO</b> (linear pluggable optics) is the mirror trade — it keeps the EML and attacks the DSP, making EML demand more durable than a CPO-only view implies. Net: FN's packaging exposure compounds through the transition while LITE's <i>EML-mix</i> tailwind matures — the clearest reason the still-early neutral name screens better than the priced pure-play.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:26px">
+    <div class="eyebrow">How the components interact</div>
+    <h3 style="font-size:16px;margin:6px 0 2px">200G EML (pluggable) vs. external CW laser (CPO)</h3>
+    <p class="note" style="margin-bottom:8px">The same job — put modulated light on a fiber — done two ways. CPO relocates the modulator onto the silicon-photonics chip and demotes the laser to a simpler external CW source. That single change is why CPO is bearish the <i>specific</i> 200G EML yet bullish packaging and SiPh.</p>
+    <div class="svgscroll"><svg viewBox="0 0 1140 380" role="img" aria-label="Comparison of a pluggable transceiver using a 200G EML laser-plus-modulator versus co-packaged optics using an external CW laser feeding a silicon-photonics engine with the modulator on-die">
+      <defs>
+        <marker id="arr2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#5a6672"/></marker>
+        <marker id="arr2t" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#3fb6a8"/></marker>
+      </defs>
+      <text class="m" x="40" y="28" fill="#e0a23b" font-size="12" font-weight="700">PLUGGABLE TRANSCEIVER — today · scale-out (1.6T)</text>
+      <text class="m" x="600" y="28" fill="#7fcabf" font-size="12" font-weight="700">CO-PACKAGED OPTICS — 2028+ · scale-up</text>
+      <line x1="575" y1="44" x2="575" y2="300" stroke="#2a323d" stroke-width="1.5" stroke-dasharray="5 5"/>
+
+      <!-- LEFT -->
+      <rect x="40" y="84" width="118" height="62" rx="8" fill="#161b22" stroke="#3a444f"/>
+      <text x="54" y="112" font-size="12.5" font-weight="600">Switch /</text>
+      <text x="54" y="130" font-size="12.5" font-weight="600">GPU ASIC</text>
+      <line x1="158" y1="115" x2="232" y2="115" stroke="#5a6672" stroke-width="2" marker-end="url(#arr2)"/>
+      <text class="m" x="162" y="106" fill="#8b97a4" font-size="9.5">elec. SerDes</text>
+      <rect x="235" y="68" width="272" height="140" rx="10" fill="#12171d" stroke="#5a6672"/>
+      <text class="m" x="249" y="88" fill="#9aa7b4" font-size="10.5">Pluggable module</text>
+      <rect x="251" y="98" width="116" height="32" rx="6" fill="#1c232c" stroke="#3a444f"/>
+      <text x="263" y="119" font-size="12">PAM4 DSP</text>
+      <line x1="309" y1="130" x2="309" y2="150" stroke="#5a6672" stroke-width="2" marker-end="url(#arr2)"/>
+      <rect x="251" y="150" width="240" height="48" rx="7" fill="#e0a23b" stroke="#f0c879"/>
+      <text x="263" y="170" fill="#1a1205" font-size="13" font-weight="800">200G EML (the scarce part)</text>
+      <text class="m" x="263" y="188" fill="#3a2a08" font-size="9.5">DFB laser + EAM modulator in one</text>
+      <circle cx="505" cy="174" r="4" fill="#3fb6a8"/>
+      <line x1="507" y1="174" x2="556" y2="174" stroke="#5a6672" stroke-width="2" marker-end="url(#arr2)"/>
+      <text class="m" x="512" y="165" fill="#8b97a4" font-size="9.5">fiber</text>
+      <text class="m" x="40" y="248" fill="#9aa7b4" font-size="11">Light is generated AND modulated together inside the</text>
+      <text class="m" x="40" y="264" fill="#9aa7b4" font-size="11">pluggable. The 200G EML is the ~40–60%-short link.</text>
+
+      <!-- RIGHT -->
+      <rect x="610" y="84" width="228" height="124" rx="10" fill="#12171d" stroke="#5a6672"/>
+      <text class="m" x="624" y="103" fill="#9aa7b4" font-size="10.5">Switch ASIC package (co-packaged)</text>
+      <rect x="626" y="118" width="196" height="74" rx="7" fill="#12211f" stroke="#3fb6a8"/>
+      <text x="640" y="148" font-size="12.5" font-weight="600">Silicon-photonics engine</text>
+      <text class="m" x="640" y="168" fill="#9aa7b4" font-size="10">modulator on-die (no EML)</text>
+      <rect x="900" y="92" width="178" height="60" rx="8" fill="#1b3b39" stroke="#3fb6a8"/>
+      <text x="914" y="116" fill="#cfe7e2" font-size="12.5" font-weight="600">External CW / DFB</text>
+      <text class="m" x="914" y="134" fill="#9fd3cb" font-size="9.5">laser source (ELS) — simpler</text>
+      <path d="M902,126 C865,128 845,150 826,154" fill="none" stroke="#3fb6a8" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arr2t)"/>
+      <text class="m" x="842" y="182" fill="#7fcabf" font-size="9.5">CW light in (fiber)</text>
+      <circle cx="660" cy="208" r="4" fill="#3fb6a8"/>
+      <line x1="660" y1="210" x2="660" y2="240" stroke="#5a6672" stroke-width="2" marker-end="url(#arr2)"/>
+      <text class="m" x="668" y="232" fill="#8b97a4" font-size="9.5">fiber</text>
+      <text class="m" x="600" y="248" fill="#9aa7b4" font-size="11">Pluggable gone. Modulation moves on-chip; the laser is a</text>
+      <text class="m" x="600" y="264" fill="#9aa7b4" font-size="11">simpler EXTERNAL CW source — bearish the 200G EML.</text>
+
+      <!-- takeaway -->
+      <rect x="40" y="300" width="1060" height="68" rx="10" fill="#161b22" stroke="#3a444f"/>
+      <text class="m" x="58" y="322" fill="#e6edf3" font-size="12" font-weight="700">Investment read</text>
+      <text class="m" x="58" y="341" fill="#9aa7b4" font-size="11">CPO swaps the scarce 200G EML for a simpler external CW laser → bearish the specific EML chokepoint, bullish neutral packaging (FAU/test) &amp; SiPh.</text>
+      <text class="m" x="58" y="359" fill="#9aa7b4" font-size="11">LPO is the mirror trade: it keeps the EML and attacks the DSP instead — which is why EML demand is more durable than a CPO-only view implies.</text>
+    </svg></div>
+  </div>
+</div></section>
+
+<!-- TIMELINE -->
+<section id="timeline"><div class="wrap">
+  <div class="eyebrow">Multi-year development timeline</div>
+  <h2 style="font-size:21px;margin:8px 0 4px">2025 → 2028: when the pinch tightens, tests, and transitions</h2>
+  <div class="svgscroll"><svg viewBox="0 0 1140 300" role="img" aria-label="Development timeline 2025 to 2028 for AI optics, EML shortage window through 2027 then CPO transition">
+    <line x1="60" y1="60" x2="1080" y2="60" stroke="#2a323d" stroke-width="2"/>
+    <g class="m">
+      <g fill="#e6edf3" font-size="15" font-weight="700">
+        <text x="70" y="40">2025</text><text x="330" y="40">2026</text>
+        <text x="600" y="40">2027</text><text x="870" y="40">2028</text>
+      </g>
+      <g fill="#5a6672"><circle cx="78" cy="60" r="4"/><circle cx="340" cy="60" r="4"/><circle cx="610" cy="60" r="4"/><circle cx="880" cy="60" r="4"/></g>
+    </g>
+    <rect x="78" y="74" width="600" height="20" rx="5" fill="#3a2a08" stroke="#6b4e16"/>
+    <text x="88" y="89" class="m" fill="#e0a23b" font-size="10.5">EML ~40–60% SHORTAGE (est.) · LTAs to CY2027</text>
+    <rect x="700" y="74" width="380" height="20" rx="5" fill="#10171f" stroke="#274154"/>
+    <text x="710" y="89" class="m" fill="#7fcabf" font-size="10.5">CPO transition — EML mix headwind begins</text>
+    <g class="m" font-size="12">
+      <g>
+        <line x1="78" y1="60" x2="78" y2="120" stroke="#3a444f"/>
+        <text x="86" y="138">800G→1.6T begins</text>
+        <text x="86" y="155" fill="#9aa7b4" font-size="11">Nvidia ~$4B laser lock-up (rep.)</text>
+        <text x="86" y="170" fill="#9aa7b4" font-size="11">GTC silicon-photonics reveal</text>
+      </g>
+      <g>
+        <line x1="340" y1="98" x2="340" y2="180" stroke="#3a444f"/>
+        <text x="348" y="198">1.6T volume ramp</text>
+        <text x="348" y="215" fill="#9aa7b4" font-size="11">TSMC COUPE production</text>
+        <text x="348" y="230" fill="#9aa7b4" font-size="11">First CPO scale-out pilots</text>
+        <text x="348" y="245" fill="#9aa7b4" font-size="11">Coherent DCI opens (scale-across)</text>
+      </g>
+      <g>
+        <line x1="610" y1="98" x2="610" y2="146" stroke="#df6258"/>
+        <text x="618" y="136" fill="#df6258" font-weight="600">LTA roll-off — pricing test</text>
+        <text x="618" y="153" fill="#9aa7b4" font-size="11">400G/lane SerDes (~224 GBaud) → 3.2T</text>
+        <text x="618" y="168" fill="#9aa7b4" font-size="11">New US InP fabs contribute</text>
+      </g>
+      <g>
+        <line x1="880" y1="98" x2="880" y2="180" stroke="#3a444f"/>
+        <text x="888" y="198">CPO high-volume</text>
+        <text x="888" y="215" fill="#9aa7b4" font-size="11">3.2T volume mfg</text>
+        <text x="888" y="230" fill="#9aa7b4" font-size="11">Scale-up CPO w/ Nvidia Rubin</text>
+        <text x="888" y="245" fill="#9aa7b4" font-size="11">SiPh/TFLN gain share (still InP light)</text>
+      </g>
+    </g>
+  </svg></div>
+  <div class="callout"><b>The hinge is 2027.</b> LTAs roll off and the market learns whether laser pricing power is structural or merely contracted — at the same moment CPO begins shifting module mix away from the 200G EML. A capacity overshoot into 2028 is the symmetric bear to today's shortage.</div>
+</div></section>
+
+<!-- THE PLAYS -->
+<section id="plays"><div class="wrap">
+  <div class="eyebrow">The plays · staged on the awareness curve</div>
+  <h2 style="font-size:21px;margin:8px 0 4px">Three ways to own the chokepoint — only one still looks early</h2>
+  <div class="tabs" role="tablist" aria-label="The three plays">
+    <button class="tab" role="tab" aria-selected="true" aria-controls="p-fn" id="t-fn" tabindex="0">FN · Fabrinet</button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p-lite" id="t-lite" tabindex="-1">LITE · Lumentum</button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p-axti" id="t-axti" tabindex="-1">AXTI · AXT</button>
+  </div>
+
+  <div class="tabpanel" id="p-fn" role="tabpanel" aria-labelledby="t-fn">
+    <h3 style="font-size:18px">Fabrinet — the neutral arms-dealer <span class="stage st-early">Early · most asymmetry left</span></h3>
+    <p class="lede" style="margin-top:6px">Outsourced precision photonic packaging, fiber-array integration and wafer-level test that scales regardless of which laser or module vendor wins. The relative-value, lower-drama way into the theme.</p>
+    <div class="kpis">
+      <div class="kpi"><div class="v">$582.24</div><div class="k">Price · +28% YTD</div></div>
+      <div class="kpi"><div class="v">~39× <span class="est">est</span></div><div class="k">P/E · on ~$15 EPS run-rate</div></div>
+      <div class="kpi"><div class="v">$1.214B</div><div class="k">Q3 FY26 rev · +39% YoY<sup class="src" title="Company-reported">[4]</sup></div></div>
+      <div class="kpi"><div class="v">$3.72</div><div class="k">non-GAAP EPS (qtr)</div></div>
+    </div>
+    <div class="callout crit" style="margin-top:18px"><b>The valuation bridge (the crux).</b> ~39× is <i>not</i> a classic EMS multiple (low-teens–20×), so part of the optionality is already in the price — the honest bear. The variant is what the 39× is <i>built on</i>: if consensus models packaging growth decelerating toward mid-teens as 1.6T matures, but CPO/OCS attach instead sustains high-20s% growth and lifts mix toward advanced packaging, the multiple holds on a much larger earnings base. The call is a bet on <i>duration and mix of growth</i>, not on a re-rating from a cheap multiple. <span class="est">(Consensus figures author-estimated; verify against sell-side models.)</span></div>
+    <div class="callout" style="margin-top:12px"><b>Entry discipline (author, illustrative — not advice).</b> The bet only works if you don't overpay for duration: a starter around the mid-30s× / ~$520 looks reasonable, adding toward ~30× / ~$450; above ~42× there is no cushion for a 1.6T deceleration or CPO slippage, so the disciplined move is to wait. See the falsifier under the decision table.</div>
+    <div class="grid2" style="margin-top:18px">
+      <div><div class="eyebrow">Why it wins</div><ul class="clean">
+        <li><b>Vendor-neutral:</b> packaging/FAU/test is a real secondary bottleneck that gets <i>tighter</i> under CPO — the one leg that compounds through the 2028 transition.</li>
+        <li><b>Debt-free capacity build</b> (Bldg 10, Pinehurst) funds the ramp without dilution.<sup class="src" title="Company-reported">[4]</sup></li>
+        <li>Doesn't depend on resolving the laser rent-capture question.</li>
+      </ul></div>
+      <div><div class="eyebrow">The honest risks</div><ul class="clean">
+        <li><b>Already ~39×</b> — limited margin for a 1.6T deceleration or CPO slippage past Rubin.</li>
+        <li><b>Customer concentration:</b> the top handful of customers (incl. Nvidia/Cisco/Coherent) drive an est. majority of revenue (verify in the 10-K concentration note) — a single-customer capex pause bites hard.</li>
+        <li>In a laser-led melt-up, a neutral name can lag the pure-play it hedges (LITE).</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <div class="tabpanel" id="p-lite" role="tabpanel" aria-labelledby="t-lite" hidden>
+    <h3 style="font-size:18px">Lumentum — the highest-quality chokepoint <span class="stage st-rec">Recognition · priced</span></h3>
+    <p class="lede" style="margin-top:6px">Reported primary volume supplier of 200G InP EML laser chips — the scarcest input in the chain, gating 1.6T transceiver delivery. Owns chip <i>and</i> module. The quality isn't in question; the price and the EML's CPO-era duration are.</p>
+    <div class="kpis">
+      <div class="kpi"><div class="v">$889.59</div><div class="k">Price · +141% YTD</div></div>
+      <div class="kpi"><div class="v">~90× <span class="est">est</span></div><div class="k">P/E on ~$9.5 ttm non-GAAP EPS</div></div>
+      <div class="kpi"><div class="v">$808.4M</div><div class="k">Q3 FY26 rev · +90% YoY<sup class="src" title="Company-reported">[3]</sup></div></div>
+      <div class="kpi"><div class="v">47.9%</div><div class="k">non-GAAP gross margin</div></div>
+    </div>
+    <div class="callout" style="margin-top:18px"><b>Reconciling the ~90×.</b> On ~$2.37 non-GAAP quarterly EPS (~$9.5 annualised), $889 ≈ 94× trailing; forward compresses on the EML ramp but stays rich. This is a price that already embeds the shortage — own for earnings compounding, not a re-rating.</div>
+    <div class="grid2" style="margin-top:18px">
+      <div><div class="eyebrow">Why it wins</div><ul class="clean">
+        <li><b>Primary 200G EML</b> at volume — the literal chokepoint node (share est., not disclosed).</li>
+        <li><b>Nvidia ~$2B equity anchor</b> (reported) + LTAs lock demand visibility.<sup class="src" title="Reported; distinct from the ~$4B supply commitment">[2]</sup></li>
+        <li>EML units company-guided <b>+50% by Dec-26</b>; Japan fab fully allocated; &gt;60% rev cloud/AI.<sup class="src" title="Company guidance">[3]</sup></li>
+      </ul></div>
+      <div><div class="eyebrow">The honest risks</div><ul class="clean">
+        <li><b>Asymmetry low</b> — already +141%, ~90×. Execution must be flawless.</li>
+        <li><b>2027 LTA roll-off</b> decides if pricing power is structural or contracted.</li>
+        <li><b>CPO duration risk:</b> the 200G EML is a scale-out story; CPO shifts to CW lasers from 2028.</li>
+        <li>Nvidia is customer <i>and</i> investor <i>and</i> is funding rival supply — alignment now, concentration later.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <div class="tabpanel" id="p-axti" role="tabpanel" aria-labelledby="t-axti" hidden>
+    <h3 style="font-size:18px">AXT — furthest-upstream pick-and-shovel <span class="stage st-eu">Euphoria · late / binary</span></h3>
+    <p class="lede" style="margin-top:6px">InP / GaAs / Ge substrate wafers that feed the lasers. A real position in the chain, but <b>not</b> the dominant InP supplier — Sumitomo and JX are larger, which weakens any "no AXTI, no laser" framing. Included as the cautionary "what late looks like": a sharp run, now post-parabola, still on a euphoric valuation.</p>
+    <div class="kpis">
+      <div class="kpi"><div class="v">$88.34</div><div class="k">Price · +440% YTD · 38% off high</div></div>
+      <div class="kpi"><div class="v">~36× <span class="est">est</span></div><div class="k">EV/Sales on ~$108M ann. rev</div></div>
+      <div class="kpi"><div class="v">$26.9M</div><div class="k">Q1 FY26 rev · +39% YoY<sup class="src" title="Company-reported">[5]</sup></div></div>
+      <div class="kpi"><div class="v">$1.80–$143</div><div class="k">52-wk range</div></div>
+    </div>
+    <div class="grid2" style="margin-top:18px">
+      <div><div class="eyebrow">The bull case</div><ul class="clean">
+        <li>Upstream scarcity exposure: InP backlog <b>&gt;$100M</b>; capacity guided to double 2026 &amp; 2027.<sup class="src" title="Company-reported">[5]</sup></li>
+        <li>A China InP export-licence approval could spike sentiment.</li>
+      </ul></div>
+      <div><div class="eyebrow">Why the author is cautious</div><ul class="clean">
+        <li><b>Single-digit gross margin, ~breakeven</b>; a ~$632.5M raise dilutes.<sup class="src" title="Company-reported; verify exact figure vs filing">[5]</sup></li>
+        <li><b>Not the dominant supplier</b> — the West can source InP from Japan, capping pricing power.</li>
+        <li><b>Binary:</b> China export controls are both the catalyst and the tail risk; indium itself is China-dominated.</li>
+        <li>Author view, not advice: risk/reward looks unfavourable here.</li>
+      </ul></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- AWARENESS CURVE -->
+<section id="awareness"><div class="wrap">
+  <div class="eyebrow">Awareness curve</div>
+  <h2 style="font-size:21px;margin:8px 0 4px">Same thesis, three very different entry points</h2>
+  <p class="lede">Horizontal position is the <i>stage of market recognition</i> (we use YTD move + sell-side intensity as a rough proxy), not a linear return axis. The goal is to enter in the early-signal zone, before the upgrade cycle — not to chase the parabola.</p>
+  <div class="svgscroll"><svg viewBox="0 0 1140 370" role="img" aria-label="Awareness S-curve placing Fabrinet early, Lumentum at recognition, AXT at euphoria">
+    <line x1="70" y1="300" x2="1090" y2="300" stroke="#3a444f" stroke-width="1.5"/>
+    <line x1="70" y1="40" x2="70" y2="300" stroke="#3a444f" stroke-width="1.5"/>
+    <text x="70" y="24" class="m" fill="#9aa7b4" font-size="11">MARKET RECOGNITION (proxy)</text>
+    <text x="70" y="356" class="m" fill="#9aa7b4" font-size="11">TIME / NARRATIVE MATURITY →</text>
+    <g class="m" font-size="10.5" fill="#8b97a4" text-anchor="middle">
+      <text x="190" y="318">LATENT</text><text x="430" y="318">EARLY · ALPHA</text>
+      <text x="660" y="318">RECOGNITION</text><text x="880" y="318">EUPHORIA</text><text x="1045" y="318">PRICED</text>
+    </g>
+    <rect x="320" y="42" width="220" height="256" fill="#11211a" stroke="#2f5e47" stroke-opacity="0.7"/>
+    <text x="430" y="60" class="m" fill="#46b87f" font-size="10.5" text-anchor="middle">ENTRY ZONE</text>
+    <path d="M70,290 C300,288 320,280 430,235 C560,180 640,120 760,95 C880,72 980,66 1090,64"
+      fill="none" stroke="#5a6672" stroke-width="2.5"/>
+    <g class="m" font-size="12">
+      <circle cx="430" cy="235" r="8" fill="#46b87f" stroke="#0e1116" stroke-width="2"/>
+      <text x="430" y="212" fill="#46b87f" text-anchor="middle" font-weight="700">FN · Fabrinet</text>
+      <text x="430" y="197" fill="#9aa7b4" text-anchor="middle" font-size="10.5">+28% YTD · ~39× (est)</text>
+      <circle cx="700" cy="108" r="8" fill="#dca24a" stroke="#0e1116" stroke-width="2"/>
+      <text x="700" y="140" fill="#dca24a" text-anchor="middle" font-weight="700">LITE · Lumentum</text>
+      <text x="700" y="155" fill="#9aa7b4" text-anchor="middle" font-size="10.5">+141% YTD · ~90× (est)</text>
+      <circle cx="900" cy="70" r="8" fill="#df6258" stroke="#0e1116" stroke-width="2"/>
+      <text x="900" y="102" fill="#df6258" text-anchor="middle" font-weight="700">AXTI · AXT</text>
+      <text x="900" y="117" fill="#9aa7b4" text-anchor="middle" font-size="10.5">+440% YTD · binary</text>
+    </g>
+    <text x="1085" y="356" class="m" fill="#6b7785" font-size="9.5" text-anchor="end">as-of 2026-06-13 · decays fast</text>
+  </svg></div>
+  <div class="callout crit">Only <b>Fabrinet</b> sits near the early-signal zone with positive remaining asymmetry. Lumentum is a quality compounder past its re-rating; AXT is a momentum/binary trade, not a chokepoint entry. Placement is qualitative and as-of today only.</div>
+</div></section>
+
+<!-- LEADING INDICATORS -->
+<section id="signals"><div class="wrap">
+  <div class="eyebrow">Leading-indicator dashboard</div>
+  <h2 style="font-size:21px;margin:8px 0 4px">Physical signals that move before the print</h2>
+  <p class="lede">The discipline (per the MLCC-shortage template): watch what leads reported revenue. These confirm or break the thesis ahead of consensus.</p>
+  <table>
+    <thead><tr><th>Signal</th><th>What it tells you</th><th>Bullish</th><th>Bearish</th></tr></thead>
+    <tbody>
+      <tr><td><b>200G EML lead-times</b></td><td>Real-time tightness of the chokepoint</td><td class="pos">Extending</td><td class="neg">Compressing</td></tr>
+      <tr><td><b>EML spot / contract price</b></td><td>Whether the rent accrues to the maker</td><td class="pos">Double-digit rises</td><td class="neg">Flat into 2027</td></tr>
+      <tr><td><b>LITE cloud/AI gross margin</b></td><td>Rent capture vs. buyer-locked pricing</td><td class="pos">Inflecting up</td><td class="neg">Flat despite volume</td></tr>
+      <tr><td><b>InP EML device yield (15–50%)</b></td><td>Laser-fab de-bottlenecking pace</td><td class="pos">Stuck low</td><td class="neg">Rising fast</td></tr>
+      <tr><td><b>CPO pilot → production cadence</b></td><td>Shifts module mix EML→packaging</td><td class="pos">On track → FN tailwind</td><td class="warn">Slips → LITE EML lasts longer</td></tr>
+      <tr><td><b>New 2nd/3rd-source EML qualifications</b></td><td>Buyers funding supply to break the choke</td><td class="pos">Slow to qualify</td><td class="neg">Rapid new entrants</td></tr>
+      <tr><td><b>AXTI China export licences</b></td><td>Binary swing on the upstream play</td><td class="pos">Approvals flow</td><td class="neg">Denials / freeze</td></tr>
+    </tbody>
+  </table>
+</div></section>
+
+<!-- RISKS -->
+<section id="risks"><div class="wrap">
+  <div class="eyebrow">Risk register</div>
+  <h2 style="font-size:21px;margin:8px 0 4px">What breaks the thesis</h2>
+  <div class="grid2">
+    <div><ul class="clean">
+      <li><b>Buyers fund away the chokepoint:</b> the ~$4B Nvidia commitment is partly to <i>create</i> new EML supply — the moat may be eroded by its own biggest customer.</li>
+      <li><b>CPO / external-CW substitution:</b> CPO shifts scale-up mix off the 200G EML to simpler lasers — a direct, named bear to LITE's core product.</li>
+      <li><b>2027 LTA roll-off:</b> pricing power proves contractual, not structural.</li>
+      <li><b>InP capacity overshoot → 2028 glut:</b> the symmetric bear to today's shortage.</li>
+      <li><b>AI-capex cyclicality:</b> a hyperscaler digestion phase hits the whole chain at once.</li>
+    </ul></div>
+    <div><ul class="clean">
+      <li><b>Valuations already re-rated:</b> little room for error at ~90× (LITE) / ~36× sales (AXTI).</li>
+      <li><b>FN customer concentration:</b> a few large customers drive much of revenue — FN's biggest single risk.</li>
+      <li><b>Transceiver ASP/mix deflation</b> as 1.6T scales can offset unit growth.</li>
+      <li><b>Mislocated chokepoint:</b> the PAM4 DSP/SerDes duopoly, EAM/modulator packaging, or CoWoS could be the tighter constraint — the laser may not be where the rent ultimately concentrates.</li>
+      <li><b>China / indium raw-material supply:</b> China dominates indium and InP export approvals — a chain-wide upstream risk, not just an AXTI catalyst.</li>
+      <li><b>AXTI specifics:</b> thin margin, dilution from the raise, non-dominant share.</li>
+    </ul></div>
+  </div>
+</div></section>
+
+<!-- DECISION TABLE -->
+<section id="decision"><div class="wrap">
+  <div class="eyebrow">Decision table &amp; scenarios</div>
+  <h2 style="font-size:21px;margin:8px 0 4px">The finale — disposition, with a scenario frame</h2>
+  <table>
+    <thead><tr><th>Name</th><th>Role</th><th>Stage</th><th class="num">Valuation (est.)</th><th>Asymmetry</th><th>Author lean*</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>Fabrinet (FN)</b></td><td>Packaging / FAU / test</td>
+        <td><span class="stage st-early">Early</span></td><td class="num">~39× · +28%</td>
+        <td class="pos">Highest (positive)</td><td class="pos"><b>Most preferred</b></td>
+      </tr>
+      <tr>
+        <td><b>Lumentum (LITE)</b></td><td>200G EML laser (L3)</td>
+        <td><span class="stage st-rec">Recognition</span></td><td class="num">~90× · +141%</td>
+        <td class="warn">Low</td><td class="warn">Quality-watch</td>
+      </tr>
+      <tr>
+        <td><b>AXT (AXTI)</b></td><td>InP substrate (upstream)</td>
+        <td><span class="stage st-eu">Euphoria</span></td><td class="num">~36× sales · +440%</td>
+        <td class="neg">Negative</td><td class="neg">Author would avoid</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 style="font-size:15px;margin:22px 0 0">Scenario frame — Fabrinet (illustrative, author estimates)</h3>
+  <table>
+    <thead><tr><th>Scenario</th><th class="num">Prob.</th><th>Driver</th><th class="num">~12–18m return*</th></tr></thead>
+    <tbody>
+      <tr><td><b class="pos">Bull</b></td><td class="num">~30%</td><td>CPO/OCS attach sustains high-20s% growth; mix re-rates toward advanced packaging</td><td class="num pos">+40–60%</td></tr>
+      <tr><td><b>Base</b></td><td class="num">~50%</td><td>1.6T ramp carries growth; CPO optionality drifts in slowly; multiple holds</td><td class="num warn">+10–15%</td></tr>
+      <tr><td><b class="neg">Bear</b></td><td class="num">~20%</td><td>AI-capex air-pocket or key-customer pause; CPO slips past Rubin; EMS de-rate to ~18–20×</td><td class="num neg">−40–50%</td></tr>
+      <tr><td colspan="3"><b>Probability-weighted</b> (midpoints, illustrative)</td><td class="num acc">≈ +8–12%</td></tr>
+    </tbody>
+  </table>
+  <p class="note" style="margin-top:8px">*Illustrative author estimates, wide error. The blended EV sits just below the base case because the −40–50% bear tail (not the base) compresses it — which is exactly why entry price matters: at ~39× the asymmetry is positive but modest, and it improves materially at a better entry (see FN entry discipline). <b>Falsifier:</b> FN advanced-packaging mix flat/down across the next two prints (~Sep &amp; Dec 2026), or LITE EML gross margin rolling over, would break the duration thesis → exit FN. Leans/probabilities are the author's personal view for a private knowledge base. <b>Not a recommendation; no position initiated.</b></p>
+  <div class="callout"><b>One-line conclusion:</b> the thesis is right and mostly priced; the disciplined expression is the neutral arms-dealer (FN) whose packaging exposure compounds through the CPO transition — be early, don't chase. This is an opinion, not advice.</div>
+</div></section>
+
+<!-- OPEN QUESTIONS / SELF-CRITIQUE -->
+<section id="critique"><div class="wrap">
+  <div class="eyebrow">Mandatory self-critique — the genuinely open questions</div>
+  <h2 style="font-size:21px;margin:8px 0 4px">Where this note is most likely to be wrong</h2>
+  <div class="grid2">
+    <div>
+      <div class="eyebrow">Unresolved holes (not yet answered)</div>
+      <ul class="clean">
+        <li><b>Rent capture is unproven — the LITE-vs-FN swing:</b> we cannot yet show whether scarcity pricing accrues to LITE or to Nvidia via the LTA, which is exactly why we'd own neutral FN over LITE until the 2027 roll-off prints. Margins settle it; today it's an assumption.</li>
+        <li><b>No hard share data:</b> "primary supplier" and the supply-chain shares are author estimates, not disclosed figures — the 5/5 concentration score rests on them.</li>
+        <li><b>Sizing is illustrative:</b> only the ~$5B→$10B+ optics TAM is sourced; per-name SAM/revenue bridges are directional logic, not modelled numbers.</li>
+        <li><b>CPO timing is the swing:</b> if CPO/CW substitution arrives faster, the entire EML-chokepoint premise weakens earlier than 2027.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="eyebrow">Retail-investor lens (steelman the bear)</div>
+      <ul class="clean">
+        <li><b>FN is not cheap</b> at ~39×; "neutral arms-dealer" can still lag in a laser-led melt-up.</li>
+        <li><b>Single data vintage:</b> all prices/multiples are a 2026-06-13 snapshot; a fast tape invalidates the curve placement within weeks.</li>
+        <li><b>Tightness ≠ return:</b> a 19/20 link can be a poor entry if fully discounted (see AXTI).</li>
+        <li><b>Estimate flags everywhere:</b> treat (est.) figures as directional; verify against filings before acting.</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<!-- METHOD -->
+<section id="method"><div class="wrap">
+  <div class="eyebrow">Method · sources · disclaimer</div>
+  <div class="grid2" style="margin-top:8px">
+    <div>
+      <h3 style="font-size:15px;margin-bottom:6px">Methodology (v4 standard)</h3>
+      <p class="note">Two-axis MECE framing (domain × layer) · end-to-end supply-chain map with the chokepoint flagged · four-factor tightness score /20 (consistent across the rotation) · explicit variant-perception vs. consensus · illustrative sizing &amp; rent-capture test · top-3 staged on the awareness curve with valuation, denominators and remaining-asymmetry · leading-indicator dashboard · scenario-weighted decision table · mandatory self-critique surfacing open questions · independent reviewer cross-review each run. Global universe; live quotes via IBKR (read-only, never trade).</p>
+    </div>
+    <div>
+      <h3 style="font-size:15px;margin-bottom:6px">Sources (mapped to claims)</h3>
+      <p class="note">[1] McKinsey via EE Times Asia / HDIN (shortage est.). [2] TrendForce (Nvidia commitment, units, equity stake). [3] Lumentum SEC 8-K/10-Q FY26 (CIK 1633978). [4] Fabrinet SEC filings FY26. [5] AXT SEC filings FY26. Also: semiconductor-today.com; NVIDIA Newsroom; IDTechEx; SemiAnalysis; EE Times; investors.ao-inc.com; X-FAB / optics.org; Coherent/Ciena/Acacia (scale-across). Live quotes: IBKR. Quantified claims attributed inline where feasible; forward/guidance items flagged as such.</p>
+    </div>
+  </div>
+  <div class="callout bear" style="margin-top:18px">
+    <b>Disclaimer.</b> Personal research for a private knowledge base. <b>Not investment advice</b>, not a recommendation, offer, or solicitation to buy or sell any security. Author leans and probabilities are personal opinion. Figures are point-in-time estimates as of 2026-06-13, may be stale, single-sourced, or wrong, and several multiples/shares are explicitly author estimates. Named-company financials should be verified against primary filings before any decision. Do your own due diligence. No position is initiated by this document; IBKR is used read-only.
+  </div>
+  <div class="foot">
+    AI-Infra Deep-Dive · Run #1 (Optics / Connectivity) · v4 · generated 2026-06-13 · companion to vault note <span class="mono">AI Optical Interconnect</span>.
+    <br/>Iteration log (v4 report · 10 review-driven passes across 3 agent waves): <span class="mono" id="iterlog">Post-final: restored the component-interaction schematic (200G EML pluggable vs. external CW laser + on-die SiPh modulator under CPO) in the CPO section. Wave 3 (MD publication gate · final viz-QA): AXTI 52-wk typo, disambiguated CPO-cadence signal row, unified timeline mono type, EV-tail clause, sign-off at 8.5/10. Wave 2 (hedge-fund PM · photonics expert · viz-QA): FN entry discipline + quantified scenario EV + falsifier, remaining-asymmetry gauge, promoted CPO bifurcation as the edge, corrected 200G EML=DFB+EAM &amp; SerDes labels, scoped severity to the light-source sub-layer w/ DSP/CoWoS co-bottlenecks, LPO mirror + LITE-CW nuance, fixed SVG overflow/tick overlaps. Wave 1 (analyst · data-viz · compliance): sizing &amp; rent-capture, variant perception, CPO↔EML disaggregation, valuation bridge, SVG mono-font + a11y + figure attribution.</span>
+  </div>
+</div></section>
+
+<script>
+(function(){
+  var ids=['fn','lite','axti'];
+  function sel(id){
+    ids.forEach(function(x){
+      var p=document.getElementById('p-'+x), t=document.getElementById('t-'+x);
+      var on=(x===id);
+      p.hidden=!on;
+      t.setAttribute('aria-selected', on?'true':'false');
+      t.tabIndex = on?0:-1;
+    });
+  }
+  ids.forEach(function(x,i){
+    var t=document.getElementById('t-'+x);
+    t.addEventListener('click', function(){ sel(x); });
+    t.addEventListener('keydown', function(e){
+      var k=e.key, n=null;
+      if(k==='ArrowRight'||k==='ArrowDown') n=ids[(i+1)%ids.length];
+      else if(k==='ArrowLeft'||k==='ArrowUp') n=ids[(i-1+ids.length)%ids.length];
+      else if(k==='Home') n=ids[0];
+      else if(k==='End') n=ids[ids.length-1];
+      if(n){ e.preventDefault(); sel(n); document.getElementById('t-'+n).focus(); }
+    });
+  });
+})();
+</script>
+</body>
+</html>

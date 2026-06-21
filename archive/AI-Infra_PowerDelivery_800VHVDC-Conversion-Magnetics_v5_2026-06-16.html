@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Infra Run #9 v5 — Power (deeper): the 800V HVDC conversion &amp; magnetics chokepoint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#13161e; --panel2:#1a1e28; --panel3:#212634; --line:#2a3040; --line2:#363d4f;
+    --txt:#e8eaf0; --mut:#9aa3b5; --dim:#697283;
+    --accent:#2dd4bf;        /* single brand accent (desaturated teal) */
+    --choke:#e0686a;         /* desaturated red — the chokepoint = HF conversion + magnetics */
+    /* categorical: power-conversion chain stages */
+    --mat:#5b81c4; --semi:#5aa9e0; --mag:#8b84cf; --conv:#d2a24a; --rack:#c47a9e; --dem:#4faf8e;
+    /* direction */
+    --pos:#5fc98a; --neg:#e0686a; --warn:#d2a24a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px;-webkit-font-smoothing:antialiased}
+  .num{font-family:"JetBrains Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  header{border-bottom:1px solid var(--line);padding:38px 0 30px;margin-bottom:8px;background:
+     radial-gradient(900px 320px at 12% -40%,rgba(45,212,191,.10),transparent 60%),
+     radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
+  .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.6px;line-height:1.12;max-width:940px}
+  .sub{font-size:15px;font-weight:400;color:var(--mut);margin-top:12px;max-width:880px}
+  .sub b{color:#fff;font-weight:600}
+  .gauges{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+  .gauge{display:flex;align-items:center;gap:11px;border:1px solid var(--line2);border-radius:12px;padding:10px 15px;background:var(--panel)}
+  .gauge .gv{font-family:"JetBrains Mono",monospace;font-size:22px;font-weight:600;line-height:1}
+  .gauge .gl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);line-height:1.3}
+  .gauge .gl b{display:block;color:var(--mut);font-size:11px;letter-spacing:.02em;text-transform:none}
+  .meta{margin-top:20px;display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+  .meta div{padding-right:26px;margin-right:26px;border-right:1px solid var(--line)}
+  .meta div:last-child{border:0}
+  .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+  .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
+  .asof{margin-top:16px;display:inline-flex;align-items:center;gap:9px;font-size:11.5px;color:#c4ab78;background:rgba(210,162,74,.07);border:1px solid #3a3015;border-radius:9px;padding:8px 13px}
+  .asof .dot{width:7px;height:7px;border-radius:50%;background:var(--warn);flex:none}
+  nav.toc{position:sticky;top:0;z-index:20;background:rgba(11,13,18,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin-bottom:6px}
+  nav.toc .wrap{display:flex;gap:4px;flex-wrap:wrap;padding-top:9px;padding-bottom:9px}
+  nav.toc a{font-size:11px;color:var(--mut);text-decoration:none;padding:4px 9px;border-radius:7px;white-space:nowrap}
+  nav.toc a:hover{background:var(--panel2);color:var(--txt)}
+  section{padding:34px 0 2px}
+  .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+  .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.05em}
+  .sh h2{font-size:21px;font-weight:600;letter-spacing:-.3px}
+  .sh .cn{font-size:13px;color:var(--dim);font-weight:400;margin-left:auto}
+  .lead{color:var(--mut);font-size:13.5px;max-width:900px;margin-bottom:18px}
+  .lead b{color:var(--txt);font-weight:600}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
+  .kpi{padding:18px 20px;border-right:1px solid var(--line)}
+  .kpi:last-child{border-right:0}
+  .kpi .v{font-size:25px;font-weight:600;letter-spacing:-.5px}
+  .kpi .l{font-size:11.5px;color:var(--mut);margin-top:4px}
+  .kpi .d{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.4}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--conv)}.grn{color:var(--pos)}
+  .matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .matrix th{background:var(--panel2);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);font-weight:600;padding:12px 14px;text-align:left;border-bottom:1px solid var(--line)}
+  .matrix td{padding:14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
+  .matrix tr:last-child td{border-bottom:0}
+  .matrix .dom{font-weight:600;font-size:14px;color:var(--txt);display:flex;align-items:center;gap:9px}
+  .matrix .dom .sw{width:10px;height:10px;border-radius:3px;flex:none}
+  .matrix .dom small{display:block;font-weight:400;font-size:10.5px;color:var(--dim);margin-top:2px}
+  .matrix td b{color:var(--txt);font-weight:600}
+  .chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--panel3);color:var(--mut);margin:2px 4px 2px 0;border:1px solid var(--line2)}
+  .chip.hot{background:rgba(224,104,106,.12);border-color:#5a3236;color:#efa0a1}
+  .gal{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:900px){.gal{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.gal{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column}
+  .card .svgbox{background:linear-gradient(180deg,#0e1117,#161a24);padding:14px;border-bottom:1px solid var(--line)}
+  .card .body{padding:14px 16px 16px}
+  .card h4{font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .card .role{font-size:12px;color:var(--mut);margin-top:6px;line-height:1.45}
+  .card .who{font-size:11px;color:var(--dim);margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px}
+  .card .who b{color:var(--mag)}
+  .badge{font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:5px;letter-spacing:.03em;flex:none}
+  .b-hot{background:rgba(224,104,106,.14);color:#eda3a4}
+  .b-now{background:rgba(45,212,191,.13);color:var(--accent)}
+  .b-next{background:rgba(90,169,224,.14);color:var(--semi)}
+  .b-emrg{background:rgba(210,162,74,.14);color:var(--conv)}
+  .svgwide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
+  .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
+  .tlgrid{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .tlhead{display:grid;grid-template-columns:160px repeat(4,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
+  .tlhead div{padding:11px 12px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);border-right:1px solid var(--line)}
+  .tlhead div:first-child{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-family:"Space Grotesk",sans-serif;display:flex;align-items:center}
+  .tlrow{display:grid;grid-template-columns:160px repeat(4,1fr);border-bottom:1px solid var(--line)}
+  .tlrow:last-child{border-bottom:0}
+  .tlrow .lab{padding:13px 12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;border-right:1px solid var(--line);background:var(--panel2)}
+  .tlrow .lab .sw{width:9px;height:9px;border-radius:3px;flex:none}
+  .tlrow .cell{padding:11px 12px;border-right:1px solid var(--line);font-size:11.5px;color:var(--mut);line-height:1.4}
+  .tlrow .cell:last-child{border-right:0}
+  .tlrow .cell b{color:var(--txt);font-weight:600;display:block;margin-bottom:2px;font-size:11.5px}
+  .tlrow .cell.hot{background:rgba(224,104,106,.06)}
+  @media(max-width:780px){.tlhead,.tlrow{grid-template-columns:104px repeat(4,1fr);font-size:10px}.tlrow .cell{font-size:10px}}
+  .choke{border:1px solid #5a3236;border-radius:14px;padding:22px 24px;background:
+    linear-gradient(135deg,rgba(224,104,106,.10),transparent 55%),var(--panel)}
+  .choke .ttl{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+  .choke .ttl svg{flex:none}
+  .choke .ttl h3{font-size:17px;font-weight:600;color:var(--choke)}
+  .choke p{font-size:13.5px;color:#d9c4c6;max-width:940px}.choke p b{color:#fff}
+  .choke .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:18px;border-top:1px solid #4a2c2f;padding-top:16px}
+  @media(max-width:780px){.choke .stats{grid-template-columns:1fr 1fr}}
+  .choke .stats div{padding-right:18px}
+  .choke .stats b{display:block;font-size:21px;color:var(--choke);font-weight:600}
+  .choke .stats span{font-size:10.5px;color:var(--dim)}
+  .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  .tbl th{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .tbl td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--mut)}
+  .tbl td b{color:var(--txt)}
+  .lyr{font-family:"JetBrains Mono",monospace;font-size:10.5px;padding:1px 7px;border-radius:5px;font-weight:600}
+  .lyMAT{background:rgba(91,129,196,.15);color:#8aa7df}
+  .lySEMI{background:rgba(90,169,224,.15);color:#8ec4ee}
+  .lyMAG{background:rgba(139,132,207,.15);color:#aaa3e6}
+  .lyCONV{background:rgba(210,162,74,.15);color:#e3bd76}
+  .lyRACK{background:rgba(196,122,158,.15);color:#dba0bf}
+  .lyDEM{background:rgba(79,175,142,.15);color:#7cc9ad}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .two{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+  @media(max-width:780px){.two{grid-template-columns:1fr}}
+  .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:2px 0 16px}
+  .leg span{display:flex;align-items:center;gap:7px}
+  .leg .sw{width:11px;height:11px;border-radius:3px}
+  .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
+  footer{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}
+  footer b{color:var(--mut)}
+  .axis-zone{font-size:9px;font-family:"JetBrains Mono",monospace;letter-spacing:.04em}
+  .liw{width:100%;border-collapse:collapse;font-size:12px}
+  .liw th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .liw td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+  .liw td b{color:var(--txt)}
+  .dotR{color:var(--choke);font-weight:600}.dotA{color:var(--conv);font-weight:600}.dotG{color:var(--pos);font-weight:600}
+  .tabbtn{font-family:"Space Grotesk",sans-serif;background:var(--panel2);border:1px solid var(--line);color:var(--mut);padding:11px 16px;border-radius:10px 10px 0 0;font-size:13px;font-weight:600;cursor:pointer;border-bottom:none;display:flex;flex-direction:column;gap:2px;min-width:170px;text-align:left}
+  .tabbtn small{font-size:10px;font-weight:400;color:var(--dim)}
+  .tabbtn.on{background:var(--panel);color:var(--txt);border-color:var(--line2)}
+  .tabbtn.on small{color:var(--accent)}
+  .tabbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .stagebadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.04em}
+  .sg-early{background:rgba(95,201,138,.16);color:var(--pos)}
+  .sg-recog{background:rgba(210,162,74,.16);color:var(--conv)}
+  .sg-eu{background:rgba(224,104,106,.16);color:var(--choke)}
+  .mini{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+  .mini div{padding:11px 13px;border-right:1px solid var(--line)}
+  .mini div:last-child{border-right:0}
+  .mini .v{font-family:"JetBrains Mono",monospace;font-size:16px;font-weight:600}
+  .mini .l{font-size:10px;color:var(--mut);margin-top:2px}
+  .gap{border-left:3px solid var(--accent);background:rgba(45,212,191,.06);border-radius:8px;padding:12px 15px;margin:14px 0}
+  .gap .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:5px}
+  .gap p{font-size:12.5px;color:var(--mut);line-height:1.5}.gap p b{color:var(--txt)}
+  .mtd{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
+  @media(max-width:780px){.mtd{grid-template-columns:1fr}.mini{grid-template-columns:1fr 1fr 1fr}.tabbtn{min-width:0;flex:1}}
+  .mtc{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+  .mtc .h{font-size:11.5px;font-weight:600;color:var(--accent);margin-bottom:3px}
+  .mtc p{font-size:11.5px;color:var(--mut);line-height:1.45}.mtc p b{color:var(--txt)}
+  .bbr{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+  .bbr div{border-radius:8px;padding:9px 12px;font-size:11.5px;line-height:1.45;color:var(--mut)}
+  .bbr .bl{border-left:3px solid var(--pos);background:var(--panel2)}
+  .bbr .be{border-left:3px solid var(--choke);background:var(--panel2)}
+  .bbr b{display:block;font-size:10.5px;margin-bottom:2px}
+  .scen{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
+  .scen th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .scen td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--mut)}
+  .scen td b{color:var(--txt)}
+  /* svg fonts set via CSS rule only — never as an SVG presentation attribute */
+  svg text{font-family:"Space Grotesk",sans-serif}
+  svg text.m{font-family:"JetBrains Mono",monospace}
+  .svglabel{font-size:9px;fill:var(--dim)}
+  @media print{
+    nav.toc{display:none}
+    .tabbtn{display:none}
+    .tabpane{display:block!important;page-break-inside:avoid;margin-bottom:10px}
+    body{background:#fff;color:#111}
+    svg text{fill:#222}
+    .panel,.card,.choke,.kpis,.svgwide{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #9 · v5 · Power (deeper)</div>
+    <h1>One layer below the grid transformer: the 800V HVDC conversion &amp; magnetics chokepoint</h1>
+    <p class="sub">Run #3 found the chokepoint at the <b>grid transformer / interconnect</b> — the wire from the utility to the building. But as an AI rack races from 130&nbsp;kW toward <b>1&nbsp;MW</b>, the binding constraint moves <b>inside the rack</b>: how do you cram a megawatt of conversion (800&nbsp;V&nbsp;→&nbsp;&lt;1&nbsp;V at the GPU) into a few rack-units without melting it? This report maps the <b>800V HVDC power-conversion layer</b> top-down, finds where the real scarcity hides (hint: it is <b>not</b> the chip everyone is buying), and stages a top-3 at <b>three different links</b> on the awareness curve — so you can see what is still early versus already priced.</p>
+    <div class="gauges">
+      <div class="gauge"><span class="gv red">17<span style="font-size:13px;color:var(--dim)">/20</span></span><span class="gl"><b>Chokepoint severity</b>HF conversion + nanocrystalline magnetics · SEVERE</span></div>
+      <div class="gauge"><span class="gv teal">7<span style="font-size:13px;color:var(--dim)">/20</span></span><span class="gl"><b>Remaining asymmetry</b>visible plays mostly re-rated</span></div>
+    </div>
+    <div class="meta">
+      <div><div class="k">Date</div><div class="vv num">16 Jun 2026</div></div>
+      <div><div class="k">Stack path</div><div class="vv">grid AC → MV rectify/SST → <b style="color:var(--mag)">800V DC + HF conversion</b> → 12/6V bus → PoL &lt;1V → GPU</div></div>
+      <div><div class="k">Universe</div><div class="vv">Global · DE / TW / US / JP</div></div>
+      <div><div class="k">Top-3</div><div class="vv">IFX · 2308 · NVTS</div></div>
+    </div>
+    <div class="asof"><span class="dot"></span>As of 16 Jun 2026 · prices = live last via IBKR read-only (intraday, may be stale) · multiples &amp; caps are estimates, verify before sizing · personal research, NOT investment advice</div>
+  </div>
+</header>
+
+<nav class="toc"><div class="wrap">
+  <a href="#s1">01 Snapshot</a>
+  <a href="#s2">02 Framework</a>
+  <a href="#s3">03 Component gallery</a>
+  <a href="#s4">04 Grid-to-GPU build-up</a>
+  <a href="#s5">05 Where each part runs</a>
+  <a href="#s6">06 Supply chain</a>
+  <a href="#s7">07 Timeline</a>
+  <a href="#s8">08 Chokepoint + severity</a>
+  <a href="#s9">09 Awareness curve</a>
+  <a href="#s10">10 Top-3 plays</a>
+  <a href="#s11">11 Beneficiaries + risks</a>
+  <a href="#s12">12 Decision table</a>
+</div></nav>
+
+<div class="wrap">
+
+<!-- 1. SNAPSHOT -->
+<section id="s1">
+  <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">為什麼是現在</span></div>
+  <p class="lead">A GPU runs at <b>under 1 volt</b> but draws <b>thousands of amps</b>; the grid delivers hundreds of thousands of volts. Bridging that gap used to be easy because racks were small. They are not small anymore. NVIDIA's roadmap takes a rack to <b>1&nbsp;MW</b> and rips out the old 54V distribution for an <b>800-volt DC (HVDC)</b> architecture (Rubin Ultra / Kyber, 2026–27). That forces a brutal engineering problem into a few rack-units — and the parts that solve it (wide-bandgap silicon + high-frequency magnetics) become the new bottleneck. The twist this report documents: the <b>chip everyone is buying is in glut</b>, while the <b>unglamorous magnetic core</b> nobody talks about is reportedly <b>sold out</b>.</p>
+  <div class="kpis">
+    <div class="kpi"><div class="v num teal">1 MW</div><div class="l">AI rack power, Rubin-Ultra era</div><div class="d">vs ~130 kW (GB200) today → forces the 800V HVDC switch (NVIDIA)</div></div>
+    <div class="kpi"><div class="v num red">sold&nbsp;out</div><div class="l">nanocrystalline cores, through mid-2026</div><div class="d">VAC VITROPERM &amp; Proterial FINEMET reportedly booked out as AI capex tops $200B/yr (industry est.)</div></div>
+    <div class="kpi"><div class="v num amb">$43.8k→$171k</div><div class="l">power content per AI server</div><div class="d">GB200 → GB300 → Rubin-Ultra 800V (Delta/Digitimes est.)</div></div>
+    <div class="kpi"><div class="v num grn">+82–231%</div><div class="l">YTD move across the visible power names</div><div class="d">NVTS, ON, Delta, STM, IFX all re-rated — the trade is no longer "early"</div></div>
+  </div>
+
+  <div style="border:1px solid var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px;background:var(--panel)">
+    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px">EXPLAIN IT SIMPLY · 白話版</div>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6;max-width:940px">Think of getting power to a GPU like getting water to a city tap. The reservoir (the grid) is at enormous pressure; the tap (the chip) needs a gentle trickle. You step the pressure down in stages. The more water the city needs, the bigger and hotter those pumping stations get — until they no longer fit. NVIDIA's answer is to switch to a <b style="color:var(--txt)">much higher-pressure pipe inside the building (800-volt DC)</b> so fewer, smaller pumps are needed. Two parts do the actual pressure-stepping: <b style="color:var(--txt)">special switching chips</b> (silicon-carbide and gallium-nitride) and the <b style="color:var(--txt)">transformer/inductor "magnetics"</b> wrapped around a special metal core. Here is the catch most people miss: the <b style="color:var(--txt)">chips are still relatively abundant</b> (the electric-car slump left an overhang that is only now being absorbed), but you <b style="color:var(--txt)">cannot shrink a magnetic core with Moore's law</b> — and the best core material is reportedly <b style="color:var(--txt)">sold out</b>. So the genuine bottleneck is the boring metal ring, not the shiny chip. The investing question: every obvious power stock has already doubled — <b style="color:var(--txt)">is there anything still early, and where?</b></p>
+  </div>
+</section>
+
+<!-- 2. TWO-AXIS FRAMEWORK -->
+<section id="s2">
+  <div class="sh"><span class="n">02</span><h2>The framework — two orthogonal axes</h2><span class="cn">MECE 框架</span></div>
+  <p class="lead">Power delivery is defined by <b>(which domain you are powering × which conversion job binds)</b>. The <b>rows</b> are the <i>domains</i> the power passes through (grid/facility → rack/board → chip); the <b>columns</b> say what is used, what constrains it, and who wins. The chokepoint sits at one cell: <b>the rack-level high-frequency conversion stage</b> (800V → bus → PoL), where wide-bandgap silicon and custom magnetics co-bind.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+    <div class="panel" style="padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">THE LAYER STACK · 分層 (read this first)</div>
+      <div style="font-size:12px;color:var(--mut);line-height:1.8">
+        <span class="lyr lyMAT">MAT</span> the raw <b>materials</b> — nanocrystalline ribbon, ferrite, SiC/GaN wafers &nbsp;·&nbsp;
+        <span class="lyr lySEMI">SEMI</span> the <b>power switch</b> (SiC / GaN / Si device) &nbsp;·&nbsp;
+        <span class="lyr lyMAG">MAG</span> the <b>magnetics</b> (HF transformer + inductor on a core) — the chokepoint &nbsp;·&nbsp;
+        <span class="lyr lyCONV">CONV</span> the <b>conversion module / PSU / power-shelf</b> that packages it &nbsp;·&nbsp;
+        <span class="lyr lyRACK">RACK</span> the <b>rack / facility power system</b>.
+      </div>
+    </div>
+    <div class="panel" style="padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">6-TERM GLOSSARY · 名詞</div>
+      <div style="font-size:11.5px;color:var(--mut);line-height:1.7">
+        <b>HVDC</b> high-voltage DC (800V in-building distribution) · <b>SiC</b> silicon-carbide power chip (high-voltage front-end) · <b>GaN</b> gallium-nitride chip (high-frequency DC-DC) · <b>PoL</b> point-of-load — the last &lt;1V step at the GPU · <b>SST</b> solid-state transformer · <b>BBU</b> battery/super-cap backup unit for millisecond power dips
+      </div>
+    </div>
+  </div>
+  <table class="matrix">
+    <tr>
+      <th style="width:210px">Domain (row) ↓ / what binds →</th>
+      <th style="width:160px">What is used</th>
+      <th>Why it is the constraint</th>
+      <th style="width:215px">Who wins · key players</th>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--rack)"></span>Grid → facility<small>MV AC in · the Run #3 layer</small></div></td>
+      <td>Grid transformer, switchgear, MV rectifier / SST</td>
+      <td><b>Already priced (Run #3).</b> 2–5 yr transformer lead-times; the macro gate, but the listed plays (GEV, VRT) have run. <span class="chip">SST is the new wrinkle</span></td>
+      <td>GE Vernova, Vertiv, Eaton, Schneider, ABB</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--conv)"></span>Rack power-shelf<small>AC/HVDC → 12/6V bus</small></div></td>
+      <td>PSU / power-shelf, bus converters</td>
+      <td><b>The rent pool.</b> Where the dollar content concentrates and re-prices ($43.8k→$171k/server); concentrated in one integrator. <span class="chip">98.5% efficiency race</span></td>
+      <td><b>Delta</b> (&gt;60%), LiteOn, Megmeet, Flex</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--mag)"></span>Rack HF conversion<small>800V → bus, isolated DC-DC</small></div></td>
+      <td><b>WBG silicon + HF magnetics</b></td>
+      <td><b>The chokepoint.</b> At 500kHz–1MHz the magnetics can't shrink and the core material is sold out; the silicon is co-designed and qualification-gated. <span class="chip hot">nanocrystalline cores + SiC/GaN</span></td>
+      <td>Infineon, onsemi, STM, ROHM, TI · cores: VAC, Proterial, TDK</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--semi)"></span>Board / point-of-load<small>bus → &lt;1V at the GPU</small></div></td>
+      <td>GaN / Si multiphase VRM, vertical power</td>
+      <td><b>Most-contested.</b> Highest growth, smallest dollar content, every silicon vendor attacks it — the link the market over-bought. <span class="chip">GB200 "power-module war"</span></td>
+      <td>Monolithic, <b>Navitas</b>, Infineon, Renesas, Vicor, ADI</td>
+    </tr>
+  </table>
+  <p class="cap">The cell the whole rack build runs through is <b style="color:#aaa3e6">rack HF conversion × WBG silicon + magnetics</b>. Note the disaggregation: <b style="color:#e3bd76">rent pools one row up</b> at the power-shelf (Delta), and the crowd's favourite (GaN at point-of-load) is the row with the <i>least</i> scarcity — see §8.</p>
+</section>
+
+<!-- 3. COMPONENT GALLERY -->
+<section id="s3">
+  <div class="sh"><span class="n">03</span><h2>The conversion layer, illustrated</h2><span class="cn">轉換層元件</span></div>
+  <p class="lead">The four building blocks that turn 800 volts into a clean &lt;1V supply at the GPU. The first two (the switches) are abundant today; the third (the magnetics) is where the physical scarcity concentrates; the fourth (energy buffer) is the next-latent frontier.</p>
+  <div class="gal">
+    <!-- SiC -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <text x="100" y="18" text-anchor="middle" class="svglabel">SiC MOSFET — high-voltage switch</text>
+          <rect x="40" y="42" width="120" height="44" rx="6" fill="#13283a" stroke="#5aa9e0"/>
+          <rect x="58" y="54" width="84" height="20" rx="3" fill="#1b3346" stroke="#5aa9e0"/>
+          <text x="100" y="68" text-anchor="middle" font-size="9" fill="#8ec4ee">SiC die</text>
+          <line x1="40" y1="64" x2="20" y2="64" stroke="#5fc98a" stroke-width="2"/>
+          <line x1="160" y1="64" x2="180" y2="64" stroke="#5fc98a" stroke-width="2"/>
+          <text x="100" y="102" text-anchor="middle" class="svglabel">800V front-end &amp; the SST</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>SiC device <span class="badge b-next">ABUNDANT</span></h4>
+        <p class="role">Silicon-carbide switches block high voltage with low loss — the front-end AC/DC and the solid-state transformer. Still working off the <b>EV-era oversupply</b>, so capacity is not today's constraint; qualified datacenter design-ins are.</p>
+        <p class="who">Makers: <b>Infineon, onsemi, STM, ROHM, Wolfspeed</b></p>
+      </div>
+    </div>
+    <!-- GaN -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <text x="100" y="18" text-anchor="middle" class="svglabel">GaN FET — high-frequency switch</text>
+          <rect x="50" y="40" width="100" height="46" rx="6" fill="#23344a" stroke="#5aa9e0"/>
+          <path d="M62 78 Q72 50 82 78 Q92 50 102 78 Q112 50 122 78 Q132 50 142 78" fill="none" stroke="#5fc98a" stroke-width="1.6"/>
+          <text x="100" y="56" text-anchor="middle" font-size="8.5" fill="#8ec4ee">switches MHz-fast</text>
+          <text x="100" y="102" text-anchor="middle" class="svglabel">800→6V bus, point-of-load</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>GaN device <span class="badge b-next">CONTESTED</span></h4>
+        <p class="role">Gallium-nitride switches faster than silicon, shrinking the DC-DC stage and the magnetics with it. The smallest-dollar link but the highest-growth — and every silicon vendor is piling in, so pricing power is thin.</p>
+        <p class="who">Makers: <b>Navitas, Infineon, Innoscience, TI, Power Integrations</b></p>
+      </div>
+    </div>
+    <!-- Magnetics CHOKEPOINT -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="gm" x1="0" x2="1"><stop offset="0" stop-color="#8b84cf"/><stop offset="1" stop-color="#6f68b8"/></linearGradient></defs>
+          <text x="100" y="18" text-anchor="middle" class="svglabel">HF transformer on a wound core</text>
+          <!-- toroid core -->
+          <ellipse cx="100" cy="64" rx="40" ry="28" fill="none" stroke="url(#gm)" stroke-width="9"/>
+          <ellipse cx="100" cy="64" rx="22" ry="13" fill="#161a24" stroke="#6f68b8" stroke-width="1"/>
+          <!-- windings -->
+          <g stroke="#d2a24a" stroke-width="1.6" opacity="0.85">
+            <line x1="70" y1="44" x2="64" y2="84"/><line x1="84" y1="38" x2="80" y2="90"/>
+            <line x1="116" y1="38" x2="120" y2="90"/><line x1="130" y1="44" x2="136" y2="84"/>
+          </g>
+          <text x="100" y="104" text-anchor="middle" font-size="8" fill="#cfc9f2">nanocrystalline / ferrite core</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>HF magnetics <span class="badge b-hot">CHOKEPOINT</span></h4>
+        <p class="role">The transformer + inductor that store and step energy. At 500kHz–1MHz, ordinary steel cores burn up; you need <b>nanocrystalline ribbon</b> — reportedly sold out through mid-2026. The one link Moore's law cannot shrink.</p>
+        <p class="who">Cores: <b>VAC (VITROPERM), Proterial (FINEMET), TDK</b></p>
+      </div>
+    </div>
+    <!-- BBU / supercap -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <text x="100" y="18" text-anchor="middle" class="svglabel">energy buffer — ms transients</text>
+          <rect x="44" y="44" width="34" height="44" rx="4" fill="#11261f" stroke="#4faf8e"/>
+          <rect x="84" y="44" width="34" height="44" rx="4" fill="#11261f" stroke="#4faf8e"/>
+          <rect x="124" y="44" width="34" height="44" rx="4" fill="#11261f" stroke="#4faf8e"/>
+          <path d="M30 66 L40 66 L44 56 L50 76 L56 66 L66 66" fill="none" stroke="#5fc98a" stroke-width="1.6"/>
+          <text x="100" y="104" text-anchor="middle" class="svglabel">super-cap + battery sidecar</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>BBU / super-cap <span class="badge b-now">NEXT-LATENT</span></h4>
+        <p class="role">AI loads swing 1–50 ms; the DC bus sags. A hybrid super-capacitor + battery "sidecar" smooths it. Barely a market today — production ramps land in FY2027, so it is the next link to wake.</p>
+        <p class="who">Players: <b>Panasonic (CBU), Skeleton, Infineon, Eaton</b></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. GRID-TO-GPU BUILD-UP -->
+<section id="s4">
+  <div class="sh"><span class="n">04</span><h2>From grid to GPU — the build-up</h2><span class="cn">電網到晶片的建構</span></div>
+  <p class="lead">Every watt passes through every stage left-to-right, shedding voltage at each step. The <b>value and the scarcity concentrate in the middle</b> — at the high-frequency conversion + magnetics — because that is the step that is hardest to shrink and impossible to skip. 800V HVDC's whole point is to <b>delete conversion stages</b>, which makes the survivors more critical.</p>
+  <div class="svgwide">
+    <svg viewBox="0 0 1060 300" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="ar4" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#5a6377"/></marker>
+      </defs>
+      <!-- stage 1 grid -->
+      <rect x="20" y="118" width="150" height="64" rx="8" fill="#2a1c24" stroke="#c47a9e"/>
+      <text x="95" y="142" text-anchor="middle" font-size="12" fill="#dba0bf" font-weight="600">Grid / facility</text>
+      <text x="95" y="160" text-anchor="middle" font-size="9.5" fill="#9aa3b5">MV AC · transformer</text>
+      <line x1="170" y1="150" x2="206" y2="150" stroke="#5a6377" stroke-width="1.5" marker-end="url(#ar4)"/>
+
+      <!-- stage 2 rectify -->
+      <rect x="208" y="118" width="150" height="64" rx="8" fill="#13283a" stroke="#5aa9e0"/>
+      <text x="283" y="140" text-anchor="middle" font-size="12" fill="#8ec4ee" font-weight="600">Rectify / SST</text>
+      <text x="283" y="156" text-anchor="middle" font-size="9" fill="#9aa3b5">AC → 800V DC</text>
+      <text x="283" y="170" text-anchor="middle" font-size="9" fill="#9aa3b5">SiC front-end</text>
+      <line x1="358" y1="150" x2="394" y2="150" stroke="#e0686a" stroke-width="1.4" marker-end="url(#ar4)"/>
+
+      <!-- stage 3 HF CONVERSION (chokepoint) -->
+      <rect x="396" y="104" width="178" height="92" rx="9" fill="#1c1518" stroke="#5a3236" stroke-width="1.6"/>
+      <rect x="412" y="92" width="146" height="18" rx="5" fill="#e0686a"/><text x="485" y="105" text-anchor="middle" font-size="9" fill="#1c1518" font-weight="700">CHOKEPOINT · HF CONVERT</text>
+      <text x="485" y="134" text-anchor="middle" font-size="12" fill="#cfc9f2" font-weight="600">800V → bus DC-DC</text>
+      <text x="485" y="151" text-anchor="middle" font-size="9.5" fill="#bcb3e6">WBG silicon + magnetics</text>
+      <text x="485" y="170" text-anchor="middle" font-size="8.5" fill="#eda3a4">the core can't be shrunk</text>
+      <text x="485" y="184" text-anchor="middle" font-size="8" fill="#9aa3b5">cores sold out · qual-gated</text>
+      <line x1="574" y1="150" x2="610" y2="150" stroke="#e0686a" stroke-width="1.4" marker-end="url(#ar4)"/>
+
+      <!-- stage 4 PoL -->
+      <rect x="612" y="118" width="150" height="64" rx="8" fill="#13283a" stroke="#5aa9e0"/>
+      <text x="687" y="140" text-anchor="middle" font-size="12" fill="#8ec4ee" font-weight="600">Point-of-load</text>
+      <text x="687" y="156" text-anchor="middle" font-size="9" fill="#9aa3b5">bus → &lt;1V</text>
+      <text x="687" y="170" text-anchor="middle" font-size="9" fill="#9aa3b5">GaN/Si VRM</text>
+      <line x1="762" y1="150" x2="798" y2="150" stroke="#5a6377" stroke-width="1.5" marker-end="url(#ar4)"/>
+
+      <!-- stage 5 GPU -->
+      <rect x="800" y="118" width="142" height="64" rx="8" fill="#33302a" stroke="#d2a24a"/>
+      <text x="871" y="140" text-anchor="middle" font-size="12" fill="#e3bd76" font-weight="600">GPU / XPU</text>
+      <text x="871" y="156" text-anchor="middle" font-size="9" fill="#9aa3b5">&lt;1V · 1000s of amps</text>
+      <text x="871" y="170" text-anchor="middle" font-size="9" fill="#9aa3b5">→ compute</text>
+
+      <!-- note -->
+      <rect x="20" y="214" width="922" height="66" rx="10" fill="#13161e" stroke="#2a3040"/>
+      <text x="38" y="238" font-size="11" fill="#e8eaf0" font-weight="600">What changes at each step</text>
+      <text x="38" y="258" font-size="10.5" fill="#9aa3b5">Each box steps the voltage down and sheds heat. The 800V conversion box does the heaviest lifting — it carries the isolation, the</text>
+      <text x="38" y="272" font-size="10.5" fill="#eda3a4">magnetics and the qualified silicon. Red arrows = the constricted throughput in &amp; out of it: every downstream amp waits on that stage.</text>
+    </svg>
+  </div>
+  <p class="cap">Build-up view — the grid feed (left) is common to all; the usable GPU supply only <i>exists</i> after the conversion + magnetics stage. 800V HVDC removes the 54V stage, concentrating more responsibility on the survivors.</p>
+</section>
+
+<!-- 5. WHERE EACH PART RUNS -->
+<section id="s5">
+  <div class="sh"><span class="n">05</span><h2>Where each part is leveraged</h2><span class="cn">元件如何對應應用</span></div>
+  <p class="lead">The same conversion layer serves three jobs at different voltages. Note that <b>magnetics appear in every isolated conversion box</b> — only the bare point-of-load step (already low voltage) escapes the transformer.</p>
+  <div class="svgwide">
+    <svg viewBox="0 0 1060 250" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <!-- FACILITY / SST -->
+      <text x="40" y="28" font-size="12" fill="#5aa9e0" font-weight="600">FACILITY · MV → 800V (SST)</text>
+      <text x="40" y="44" font-size="9.5" fill="#697283">solid-state transformer · the heaviest isolation</text>
+      <rect x="34" y="58" width="300" height="150" rx="10" fill="#101f2c" stroke="#274a60"/>
+      <rect x="60" y="84" width="92" height="40" rx="6" fill="#16303f" stroke="#5aa9e0"/><text x="106" y="108" text-anchor="middle" font-size="9.5" fill="#8ec4ee">SiC stack</text>
+      <line x1="152" y1="104" x2="184" y2="104" stroke="#e0686a" stroke-width="2"/><polygon points="186,104 179,100 179,108" fill="#e0686a"/>
+      <rect x="186" y="84" width="120" height="40" rx="6" fill="#211b2e" stroke="#8b84cf"/><text x="246" y="100" text-anchor="middle" font-size="9" fill="#cfc9f2">MV magnetics</text><text x="246" y="114" text-anchor="middle" font-size="8" fill="#aaa3e6">10kV isolation</text>
+      <text x="184" y="150" text-anchor="middle" font-size="9" fill="#9aa3b5">biggest, hardest-to-shrink core</text>
+      <text x="184" y="190" text-anchor="middle" font-size="9" fill="#eda3a4">Vertiv · Eaton · Delta · Wolfspeed SST</text>
+
+      <!-- RACK / 800-to-bus -->
+      <text x="372" y="28" font-size="12" fill="#8b84cf" font-weight="600">RACK · 800V → 12/6V bus</text>
+      <text x="372" y="44" font-size="9.5" fill="#697283">the volume conversion box · the chokepoint cell</text>
+      <rect x="366" y="58" width="320" height="150" rx="10" fill="#181527" stroke="#3c3460"/>
+      <rect x="392" y="84" width="92" height="40" rx="6" fill="#211b2e" stroke="#8b84cf"/><text x="438" y="100" text-anchor="middle" font-size="9" fill="#cfc9f2">GaN/SiC</text><text x="438" y="114" text-anchor="middle" font-size="8" fill="#aaa3e6">bridge</text>
+      <line x1="484" y1="104" x2="512" y2="104" stroke="#e0686a" stroke-width="2"/><polygon points="514,104 507,100 507,108" fill="#e0686a"/>
+      <rect x="514" y="84" width="150" height="40" rx="6" fill="#211b2e" stroke="#8b84cf"/><text x="589" y="100" text-anchor="middle" font-size="9" fill="#cfc9f2">HF transformer + inductor</text><text x="589" y="114" text-anchor="middle" font-size="8" fill="#eda3a4">nanocrystalline core (scarce)</text>
+      <text x="525" y="150" text-anchor="middle" font-size="9" fill="#9aa3b5">co-design of switch + magnetics is the moat</text>
+      <text x="525" y="190" text-anchor="middle" font-size="9" fill="#e3bd76">Delta (box) · Infineon (silicon) · VAC/Proterial (core)</text>
+
+      <!-- BOARD / PoL -->
+      <text x="724" y="28" font-size="12" fill="#5aa9e0" font-weight="600">BOARD · bus → &lt;1V</text>
+      <text x="724" y="44" font-size="9.5" fill="#697283">point-of-load · no big transformer</text>
+      <rect x="718" y="58" width="308" height="150" rx="10" fill="#101f2c" stroke="#274a60"/>
+      <rect x="744" y="84" width="120" height="40" rx="6" fill="#16303f" stroke="#5aa9e0"/><text x="804" y="108" text-anchor="middle" font-size="9.5" fill="#8ec4ee">multiphase VRM</text>
+      <line x1="864" y1="104" x2="892" y2="104" stroke="#5a6377" stroke-width="2"/><polygon points="894,104 887,100 887,108" fill="#5a6377"/>
+      <rect x="894" y="90" width="108" height="28" rx="5" fill="#33302a" stroke="#d2a24a"/><text x="948" y="108" text-anchor="middle" font-size="9" fill="#e3bd76">GPU rail</text>
+      <text x="872" y="150" text-anchor="middle" font-size="9" fill="#9aa3b5">tiny inductors only · most-contested</text>
+      <text x="872" y="190" text-anchor="middle" font-size="9" fill="#9aa3b5">Monolithic · Navitas · Renesas · Vicor</text>
+    </svg>
+  </div>
+  <p class="cap">The magnetics burden is largest at the facility (10kV isolation) and rack (volume) stages — exactly where the core-material shortage bites. The point-of-load step is small-magnetics and small-dollar, yet it is the link the market most aggressively bid (Navitas).</p>
+</section>
+
+<!-- 6. SUPPLY CHAIN MAP -->
+<section id="s6">
+  <div class="sh"><span class="n">06</span><h2>End-to-end supply chain — where it constricts</h2><span class="cn">供應鏈地圖</span></div>
+  <p class="lead">Upstream materials → finished AI factory, with named nodes at each stage. <b style="color:#eda3a4">Thin red arrows</b> mark the constricted throughput into &amp; out of the chokepoint (HF magnetics); thick grey elsewhere. Beneath, the bar chart shows the <b>scarcity premium</b> peaking at the magnetics stage — while the <b>margin rent</b> pools one stage right at the conversion box.</p>
+  <div class="leg">
+    <span><span class="sw" style="background:var(--mat)"></span>Materials</span>
+    <span><span class="sw" style="background:var(--semi)"></span>Power semis</span>
+    <span><span class="sw" style="background:var(--mag)"></span>Magnetics (chokepoint)</span>
+    <span><span class="sw" style="background:var(--conv)"></span>Conversion / PSU (rent pool)</span>
+    <span><span class="sw" style="background:var(--rack)"></span>Rack / facility</span>
+    <span><span class="sw" style="background:var(--dem)"></span>Demand</span>
+  </div>
+  <div class="svgwide">
+    <svg viewBox="0 0 1100 480" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="aT6" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#5a6377"/></marker>
+        <marker id="aR6" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#e0686a"/></marker>
+      </defs>
+      <!-- flow arrows between columns -->
+      <line x1="180" y1="180" x2="200" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
+      <!-- semis -> magnetics : thin red (into chokepoint) -->
+      <line x1="360" y1="180" x2="380" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR6)"/>
+      <!-- magnetics -> conversion : thin red (out of chokepoint) -->
+      <line x1="540" y1="180" x2="560" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR6)"/>
+      <line x1="720" y1="180" x2="740" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
+      <line x1="900" y1="180" x2="920" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
+
+      <!-- C1 Materials -->
+      <rect x="20" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="20" y="40" width="5" height="262" rx="2" fill="#5b81c4"/>
+      <text x="36" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Materials</text>
+      <text x="36" y="74" font-size="9" fill="#8aa7df" font-weight="600">UPSTREAM</text>
+      <g font-size="9">
+        <rect x="32" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="98" fill="#fff" font-weight="600">Nanocryst. ribbon</text><text x="40" y="110" fill="#9aa3b5">VAC · Proterial</text>
+        <rect x="32" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="136" fill="#fff" font-weight="600">Ferrite powder</text><text x="40" y="148" fill="#9aa3b5">TDK · DMEGC</text>
+        <rect x="32" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="174" fill="#fff" font-weight="600">SiC / GaN wafer</text><text x="40" y="186" fill="#9aa3b5">Wolfspeed · Coherent</text>
+      </g>
+      <text x="36" y="214" font-size="9" fill="#697283">core alloy = the deep input</text>
+      <text x="36" y="228" class="m" font-size="8.5" fill="#697283">mostly private / latent</text>
+
+      <!-- C2 Power semis -->
+      <rect x="200" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="200" y="40" width="5" height="262" rx="2" fill="#5aa9e0"/>
+      <text x="216" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Power semis</text>
+      <text x="216" y="74" font-size="9" fill="#8ec4ee" font-weight="600">THE SWITCH</text>
+      <g font-size="9">
+        <rect x="212" y="84" width="136" height="32" rx="6" fill="#13283a" stroke="#2f4a5e"/><text x="220" y="98" fill="#fff" font-weight="600">Infineon ★</text><text x="220" y="110" fill="#9aa3b5">17% AI power-chain</text>
+        <rect x="212" y="122" width="136" height="32" rx="6" fill="#13283a" stroke="#2f4a5e"/><text x="220" y="136" fill="#fff" font-weight="600">onsemi · STM · ROHM</text><text x="220" y="148" fill="#9aa3b5">SiC front-end</text>
+        <rect x="212" y="160" width="136" height="32" rx="6" fill="#13283a" stroke="#2f4a5e"/><text x="220" y="174" fill="#fff" font-weight="600">Navitas · Innoscience</text><text x="220" y="186" fill="#9aa3b5">GaN PoL</text>
+      </g>
+      <text x="216" y="214" font-size="9" fill="#7cc9ad">loose · EV overhang absorbing</text>
+      <text x="216" y="228" class="m" font-size="8.5" fill="#697283">scarcity = design-in, not capacity</text>
+
+      <!-- C3 MAGNETICS CHOKEPOINT -->
+      <rect x="380" y="40" width="160" height="262" rx="10" fill="#1c1518" stroke="#5a3236" stroke-width="1.5"/>
+      <rect x="380" y="40" width="5" height="262" rx="2" fill="#8b84cf"/>
+      <rect x="394" y="26" width="132" height="20" rx="5" fill="#e0686a"/><text x="460" y="40" font-size="9.5" fill="#1c1518" font-weight="700" text-anchor="middle">CHOKEPOINT · MAG</text>
+      <text x="396" y="62" font-size="12" fill="#e8eaf0" font-weight="600">HF magnetics</text>
+      <text x="396" y="76" font-size="9" fill="#aaa3e6" font-weight="600">TRANSFORMER + CORE</text>
+      <g font-size="9">
+        <rect x="392" y="86" width="136" height="32" rx="6" fill="#2a1a2f" stroke="#8b84cf"/><text x="400" y="100" fill="#fff" font-weight="700">VAC · Proterial ★</text><text x="400" y="112" fill="#cfb8e6">nanocryst. — sold out</text>
+        <rect x="392" y="124" width="136" height="32" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="400" y="138" fill="#fff" font-weight="600">TDK · Vishay · Sumida</text><text x="400" y="150" fill="#bcb3e6">cores + inductors</text>
+        <rect x="392" y="162" width="136" height="32" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="400" y="176" fill="#fff" font-weight="600">Delta · Bel Fuse</text><text x="400" y="188" fill="#bcb3e6">custom magnetics</text>
+      </g>
+      <text x="396" y="216" font-size="9" fill="#eda3a4">can't be shrunk · sold out</text>
+      <text x="396" y="230" class="m" font-size="8.5" fill="#697283">no clean listed pure-play</text>
+
+      <!-- C4 Conversion / PSU -->
+      <rect x="560" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="560" y="40" width="5" height="262" rx="2" fill="#d2a24a"/>
+      <text x="576" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Conversion / PSU</text>
+      <text x="576" y="74" font-size="9" fill="#e3bd76" font-weight="600">RENT POOLS HERE</text>
+      <g font-size="9">
+        <rect x="572" y="84" width="136" height="32" rx="6" fill="#332a18" stroke="#5a4a2a"/><text x="580" y="98" fill="#fff" font-weight="600">Delta ★</text><text x="580" y="110" fill="#9aa3b5">&gt;60% AI-server power</text>
+        <rect x="572" y="122" width="136" height="32" rx="6" fill="#332a18" stroke="#5a4a2a"/><text x="580" y="136" fill="#fff" font-weight="600">LiteOn · Megmeet</text><text x="580" y="148" fill="#9aa3b5">PSU / power-shelf</text>
+        <rect x="572" y="160" width="136" height="32" rx="6" fill="#332a18" stroke="#5a4a2a"/><text x="580" y="174" fill="#fff" font-weight="600">Monolithic · Navitas</text><text x="580" y="186" fill="#9aa3b5">PoL VRM</text>
+      </g>
+      <text x="576" y="214" font-size="9" fill="#e3bd76">margin (rent) peaks here</text>
+      <text x="576" y="228" class="m" font-size="8.5" fill="#697283">content per server tripling</text>
+
+      <!-- C5 Rack / facility -->
+      <rect x="740" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="740" y="40" width="5" height="262" rx="2" fill="#c47a9e"/>
+      <text x="756" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Rack / facility</text>
+      <text x="756" y="74" font-size="9" fill="#dba0bf" font-weight="600">POWER SYSTEM</text>
+      <g font-size="9">
+        <rect x="752" y="84" width="136" height="32" rx="6" fill="#2a1c24" stroke="#5a3a4a"/><text x="760" y="98" fill="#fff" font-weight="600">Vertiv</text><text x="760" y="110" fill="#9aa3b5">power + cooling (Run #3)</text>
+        <rect x="752" y="122" width="136" height="32" rx="6" fill="#2a1c24" stroke="#5a3a4a"/><text x="760" y="136" fill="#fff" font-weight="600">Eaton · Schneider</text><text x="760" y="148" fill="#9aa3b5">800V reference systems</text>
+        <rect x="752" y="160" width="136" height="32" rx="6" fill="#2a1c24" stroke="#5a3a4a"/><text x="760" y="174" fill="#fff" font-weight="600">GE Vernova · ABB</text><text x="760" y="186" fill="#9aa3b5">grid gate (Run #3)</text>
+      </g>
+      <text x="756" y="214" font-size="9" fill="#dba0bf">priced in Run #3</text>
+      <text x="756" y="228" class="m" font-size="8.5" fill="#697283">integrates the whole shelf</text>
+
+      <!-- C6 Demand -->
+      <rect x="920" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="920" y="40" width="5" height="262" rx="2" fill="#4faf8e"/>
+      <text x="936" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Demand</text>
+      <text x="936" y="74" font-size="9" fill="#7cc9ad" font-weight="600">AI FACTORIES</text>
+      <g font-size="9">
+        <rect x="932" y="84" width="136" height="32" rx="6" fill="#11261f" stroke="#2f4a3e"/><text x="940" y="98" fill="#fff" font-weight="600">NVIDIA</text><text x="940" y="110" fill="#9aa3b5">800V MGX spec-setter</text>
+        <rect x="932" y="122" width="136" height="32" rx="6" fill="#11261f" stroke="#2f4a3e"/><text x="940" y="136" fill="#fff" font-weight="600">Hyperscalers</text><text x="940" y="148" fill="#9aa3b5">MSFT · Meta · AWS · GOOG</text>
+        <rect x="932" y="160" width="136" height="32" rx="6" fill="#11261f" stroke="#2f4a3e"/><text x="940" y="174" fill="#fff" font-weight="600">Neoclouds</text><text x="940" y="186" fill="#9aa3b5">CoreWeave · Oracle</text>
+      </g>
+      <text x="936" y="214" font-size="9" fill="#7cc9ad">demand visibility = high</text>
+      <text x="936" y="228" class="m" font-size="8.5" fill="#697283">$200B+/yr capex funds it</text>
+
+      <!-- scarcity premium bars -->
+      <text x="40" y="328" font-size="9" fill="#697283">scarcity premium / scaling constraint  (taller = tighter)</text>
+      <line x1="40" y1="432" x2="1080" y2="432" stroke="#2a3040" stroke-width="1"/>
+      <g>
+        <rect x="80" y="392" width="40" height="40" rx="2" fill="#5b81c4" opacity="0.55"/>
+        <rect x="260" y="410" width="40" height="22" rx="2" fill="#5aa9e0" opacity="0.45"/>
+        <rect x="440" y="338" width="40" height="94" rx="2" fill="#e0686a"/>
+        <rect x="620" y="372" width="40" height="60" rx="2" fill="#d2a24a" opacity="0.85"/>
+        <rect x="800" y="402" width="40" height="30" rx="2" fill="#c47a9e" opacity="0.55"/>
+        <rect x="980" y="414" width="40" height="18" rx="2" fill="#2dd4bf" opacity="0.30"/>
+      </g>
+      <text x="460" y="330" font-size="9" fill="#eda3a4" text-anchor="middle" font-weight="600">scarcity peaks at magnetics</text>
+      <text x="640" y="364" font-size="8.5" fill="#e3bd76" text-anchor="middle">2nd: conversion rent pool</text>
+      <g font-size="8.5" fill="#697283" text-anchor="middle">
+        <text x="100" y="446">materials</text><text x="280" y="446">power semis</text><text x="460" y="446">magnetics</text><text x="640" y="446">conversion</text><text x="820" y="446">rack/fac.</text><text x="1000" y="446">demand</text>
+      </g>
+      <text x="550" y="468" font-size="9" fill="#697283" text-anchor="middle">Red arrows = constricted throughput in &amp; out of magnetics — the sold-out core gates the whole conversion box. Note the semis bar is LOW (still-loose, EV overhang); scarcity is at the magnetics, rent at the conversion box — see §8.</text>
+    </svg>
+  </div>
+  <p class="cap">The tell of this layer: the <b>tightest</b> stage (magnetics) and the <b>highest-margin</b> stage (the conversion box / PSU) are not the same box — and the <i>most-bought</i> stock sits at the <b>loosest</b> stage (the semis, in glut). Run #3 bought the grid; this report asks where the better-priced entry sits one floor in.</p>
+</section>
+
+<!-- 7. TIMELINE -->
+<section id="s7">
+  <div class="sh"><span class="n">07</span><h2>Three-year evolution — by conversion-chain stage</h2><span class="cn">多年發展時間軸</span></div>
+  <p class="lead">How the power-conversion layer migrates 2025→2028. <b style="color:#eda3a4">Tinted</b> cells mark supply-stress / catalyst windows — they cluster in <b>2026–27</b> as the 800V HVDC transition and the 1&nbsp;MW rack land together.</p>
+  <div class="tlgrid">
+    <div class="tlhead"><div>Stage ↓ / Year →</div><div>2025</div><div>2026</div><div>2027</div><div>2028</div></div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--semi)"></span>Power semis (SiC/GaN)</div>
+      <div class="cell hot"><b>EV-driven glut</b>SiC oversupply; Wolfspeed restructures</div>
+      <div class="cell"><b>Datacenter pivot</b>800V design-ins; the glut starts to absorb</div>
+      <div class="cell"><b>Tightening</b>AI demand outgrows EV overhang</div>
+      <div class="cell"><b>New capacity</b>200mm SiC, GaN scale online</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--mag)"></span>Magnetics / cores</div>
+      <div class="cell hot"><b>Inductors most-extended</b>lead-times stretch late-2025</div>
+      <div class="cell hot"><b>Cores sold out</b>VITROPERM/FINEMET booked through mid-26</div>
+      <div class="cell"><b>Core capacity adds</b>nanocrystalline lines expand (slowly)</div>
+      <div class="cell"><b>Eases?</b>only if AI capex flattens</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--conv)"></span>Conversion / PSU</div>
+      <div class="cell"><b>5.5kW PSU</b>GB300 transition lifts ASP</div>
+      <div class="cell hot"><b>12kW PSU + 800V shelf</b>Delta/peers double content</div>
+      <div class="cell hot"><b>Rubin-Ultra 800V</b>~$171k power/server; full HVDC</div>
+      <div class="cell"><b>HVDC mainstream</b>second-source pressure builds</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--dem)"></span>BBU / energy buffer</div>
+      <div class="cell"><b>Concept</b>ms-transient problem recognised</div>
+      <div class="cell"><b>Reference designs</b>NVIDIA MGX BBU/CBU specs</div>
+      <div class="cell hot"><b>Panasonic CBU ramp</b>super-cap sidecars in volume</div>
+      <div class="cell"><b>Standard fit</b>hybrid LIC+BBU on every rack</div>
+    </div>
+  </div>
+  <p class="cap">Reading down a column = what is live that year; across a row = one stage's arc. The hinge is <b>2026–27</b>: the magnetics shortage and the 800V content step land first; the energy-buffer layer wakes a year behind.</p>
+</section>
+
+<!-- 8. CHOKEPOINT + SEVERITY -->
+<section id="s8">
+  <div class="sh"><span class="n">08</span><h2>The chokepoint — and how tight</h2><span class="cn">卡點與嚴重度</span></div>
+  <div class="choke">
+    <div class="ttl">
+      <svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 2 L22 20 H2 Z" fill="none" stroke="#e0686a" stroke-width="2" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="14" stroke="#e0686a" stroke-width="2"/><circle cx="12" cy="17" r="1.2" fill="#e0686a"/></svg>
+      <h3>High-frequency conversion + nanocrystalline magnetics</h3>
+    </div>
+    <p>You cannot deliver a megawatt into a rack without converting it many times, and high-density conversion needs <b>switching at 500&nbsp;kHz–1&nbsp;MHz</b> — speeds at which ordinary silicon-steel cores overheat. The default is <b>nanocrystalline ribbon</b> (VAC's VITROPERM, Proterial's FINEMET), reportedly <b>sold out through mid-2026</b> as AI capex tops $200B/yr. This is the link Moore's law cannot help: a magnetic core stores energy by physical volume, so it <b>cannot be shrunk like a transistor</b>. The catch for investors: the constraint is real, but the obvious listed plays around it (the silicon, the PSU integrator) have <b>already re-rated +82–231% YTD</b>, and the purest core makers are private — so the edge is narrow and specific.</p>
+    <div class="stats">
+      <div><b class="num">2</b><span>volume nanocrystalline-core suppliers (VAC, Proterial)</span></div>
+      <div><b class="num">sold out</b><span>nanocrystalline cores through mid-2026 (est.)</span></div>
+      <div><b class="num">500kHz–1MHz</b><span>switching where steel cores fail</span></div>
+      <div><b class="num">~1/5</b><span>nanocrystalline core loss vs steel at 100kHz</span></div>
+      <div><b class="num">$200B+</b><span>annual AI capex pulling the cores</span></div>
+    </div>
+  </div>
+
+  <!-- severity scorecard -->
+  <div class="panel" style="margin-top:14px">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
+      <h4 style="font-size:13px;font-weight:600">Chokepoint-severity scorecard <span style="color:var(--dim);font-weight:400;font-size:11px">· for the HF-conversion + magnetics link · 1 = mild, 5 = acute · per-play links scored in §12</span></h4>
+      <div style="text-align:right"><span class="num" style="font-size:26px;font-weight:600;color:var(--choke)">17</span><span class="num" style="font-size:13px;color:var(--dim)">/20</span><div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em">composite · SEVERE</div></div>
+    </div>
+    <div style="display:grid;gap:11px">
+      <div style="display:grid;grid-template-columns:180px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Supply concentration</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:#3a3040"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">4</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">Nanocrystalline ribbon is a ~2-player game (VAC, Proterial); ferrite has more makers (TDK, DMEGC) and magnetics assembly is fragmented — so not a clean monopoly</div>
+      </div>
+      <div style="display:grid;grid-template-columns:180px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Lead time to add capacity</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:#3a3040"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">4</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">Ribbon casting + custom magnetics design/qualification is multi-quarter; cores booked out through mid-26 — but lines <i>can</i> be added</div>
+      </div>
+      <div style="display:grid;grid-template-columns:180px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Low substitutability</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:#3a3040"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">4</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">A core can't be shrunk by process node; at MHz you must use nanocrystalline or high-grade ferrite — but the two trade off, giving some flexibility</div>
+      </div>
+      <div style="display:grid;grid-template-columns:180px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Demand-growth pressure</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">5</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">Every 800V rack needs more magnetics; per-server power content tripling to ~$171k; $200B+/yr AI capex is the pull — demand is the strongest factor</div>
+      </div>
+    </div>
+    <p class="cap" style="margin-top:12px">Severity 17/20 — one notch below Run #3's grid transformer (18) because a core line, unlike a 5-year grid interconnect, can at least be <i>built</i>, and ferrite gives a partial substitute. Co-binding links: the <b>conversion box / PSU</b> (§12, score 15) and the <b>broad power-semi gate</b> (§12, score 14). Note the most-bought link — GaN point-of-load — scores the <i>lowest</i> (§12, 11).</p>
+  </div>
+
+  <!-- variant / disaggregation -->
+  <div class="panel" style="margin-top:14px;border-color:#2c5a40;background:rgba(95,201,138,.05)">
+    <h4 style="font-size:13px;margin-bottom:6px;font-weight:600;color:var(--pos)">Variant perception · the disaggregation that is the edge <span class="cn" style="font-weight:400;color:var(--dim)">變異認知</span></h4>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+      <div style="border-left:3px solid var(--dim);padding-left:12px">
+        <div style="font-size:10.5px;font-weight:700;color:var(--dim);letter-spacing:.04em;margin-bottom:4px">CONSENSUS BELIEVES</div>
+        <p style="font-size:12px;color:var(--mut);line-height:1.55">The headline "800V / NVIDIA power trade" is the <b style="color:var(--txt)">GaN pure-play</b> (Navitas, +231% YTD); the broader "AI power" money crowds into the integrators and SiC names (<b style="color:var(--txt)">Vertiv, Delta, onsemi</b>). The shared belief: the <b style="color:var(--txt)">power semiconductor / system box is the bottleneck</b>, and the design-win headline is the thesis.</p>
+      </div>
+      <div style="border-left:3px solid var(--pos);padding-left:12px">
+        <div style="font-size:10.5px;font-weight:700;color:var(--pos);letter-spacing:.04em;margin-bottom:4px">THIS REPORT'S VARIANT</div>
+        <p style="font-size:12px;color:var(--mut);line-height:1.55">The device is <b style="color:var(--txt)">not</b> the scarce link: SiC is still oversupplied (the EV overhang is only now absorbing), GaN capacity is ramping, and the chipmakers have <b style="color:var(--txt)">all re-rated +110–231% YTD</b>. The genuinely scarce, un-shrinkable link is the <b style="color:var(--txt)">high-frequency magnetics + nanocrystalline core</b> (reportedly sold out). And the durable <i>rent</i> pools at the <b style="color:var(--txt)">integration box (Delta, &gt;60% share)</b> and the <b style="color:var(--txt)">broad silicon gate (Infineon)</b> — not the contested pure-play priced at ~125× sales on revenue that <i>fell 39% YoY</i>.</p>
+      </div>
+    </div>
+    <p style="font-size:11.5px;color:var(--mut);line-height:1.55;margin-top:10px"><b style="color:var(--txt)">How it could be wrong:</b> GaN/SiC stay genuinely supply-tight and the pure-plays keep winning sole-source sockets at premium prices; magnetics suppliers expand fast and the shortage clears within a year; the NVIDIA 800V roadmap slips to 2027+ and pulls in the whole layer's demand; or Delta's &gt;60% share erodes to LiteOn/Megmeet as hyperscalers force dual-sourcing.</p>
+    <div class="gap" style="margin-top:10px"><div class="h">RENT-CAPTURE TEST · who keeps the scarcity rent? <span style="color:var(--dim);font-weight:400">(margins settle it)</span></div><p>Rank by where the dollar sticks: <b>integration box ≈ broad device gate &gt; core material &gt; GaN pure-play.</b> The PSU/power-shelf integrator (Delta) captures rising ASP ($43.8k→$171k/server) at a structural &gt;60% share — real, growing rent. The broad silicon gate (Infineon) sells qualified parts into <i>every</i> stage at healthy margin. The core maker (VAC/Proterial) is the scarcest physical link yet keeps only modest rent and is largely private/unbuyable. The GaN pure-play (Navitas) sits at the <i>smallest, most-contested</i> sub-link — tiny revenue, negligible margin — yet trades at the highest multiple. <b>So the scarcest link is unbuyable, the most-priced link is the least-scarce, and the best-priced rent today sits at the integrator and the broad gate.</b></p></div>
+  </div>
+</section>
+
+<!-- 9. AWARENESS CURVE -->
+<section id="s9">
+  <div class="sh"><span class="n">09</span><h2>Are we early? The awareness curve</h2><span class="cn">現在是早期嗎</span></div>
+  <p class="lead">The game is owning a chokepoint <b>before</b> the crowd prices it — the way 2018 MLCC and 2021 CPU/substrate shortages showed up in <b>lead-times weeks before the stocks moved</b>. The honest read in June 2026: this layer has <i>already</i> run hard — Infineon +110%, Delta +132%, onsemi +197%, Navitas +231% YTD. There is <b>no genuinely-early large-cap left</b> among the obvious names; the visible top-3 are a <i>relative-value</i> call, not an early one. The genuinely-early dollar sits one floor deeper, in the <b>magnetics / core material</b> and the <b>energy-buffer</b> layer — most of it private or buried in conglomerates. This section stages each name and lists the signals that flag the next leg early.</p>
+
+  <div class="svgwide" style="margin-bottom:14px">
+    <svg viewBox="0 0 1060 320" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="alphaz9" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5fc98a" stop-opacity="0.22"/><stop offset="1" stop-color="#5fc98a" stop-opacity="0"/></linearGradient></defs>
+      <rect x="40" y="40" width="190" height="230" fill="#11141c"/>
+      <rect x="230" y="40" width="200" height="230" fill="url(#alphaz9)" stroke="#2c5a40" stroke-dasharray="3 4"/>
+      <rect x="630" y="40" width="200" height="230" fill="#1a1216" opacity="0.5"/>
+      <text x="135" y="32" text-anchor="middle" class="axis-zone" fill="#697283">LATENT</text>
+      <text x="330" y="32" text-anchor="middle" class="axis-zone" fill="#5fc98a" font-weight="600">EARLY SIGNAL · ALPHA</text>
+      <text x="530" y="32" text-anchor="middle" class="axis-zone" fill="#d2a24a">RECOGNITION</text>
+      <text x="730" y="32" text-anchor="middle" class="axis-zone" fill="#e0686a">EUPHORIA</text>
+      <text x="930" y="32" text-anchor="middle" class="axis-zone" fill="#697283">FULLY PRICED</text>
+      <path d="M40,258 C 260,250 280,205 430,150 C 560,104 640,70 760,62 C 880,56 980,58 1020,58" fill="none" stroke="#4a5570" stroke-width="2.5"/>
+      <text x="48" y="288" font-size="10" fill="#697283">time · market awareness  →</text>
+      <text x="20" y="150" font-size="10" fill="#697283" transform="rotate(-90 20 150)">price / crowding →</text>
+      <!-- magnetics latent marker -->
+      <circle cx="180" cy="232" r="6" fill="none" stroke="#5fc98a" stroke-width="2" stroke-dasharray="2 2"/>
+      <text x="180" y="252" text-anchor="middle" font-size="9" fill="#7cd6a0">magnetics / cores / BBU ↙ (latent, mostly private)</text>
+      <!-- IFX dot (recognition, least stretched) -->
+      <circle cx="560" cy="104" r="7" fill="#d2a24a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="560" y="92" text-anchor="middle" font-size="11" fill="#e3bd76" font-weight="700">IFX</text>
+      <text x="560" y="130" text-anchor="middle" class="m" font-size="9" fill="#9aa3b5">+110% · broad gate</text>
+      <!-- Delta dot (recognition->euphoria) -->
+      <circle cx="660" cy="80" r="7" fill="#d2a24a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="660" y="68" text-anchor="middle" font-size="11" fill="#e3bd76" font-weight="700">2308</text>
+      <text x="676" y="92" text-anchor="start" class="m" font-size="9" fill="#9aa3b5">+132% · integrator</text>
+      <!-- NVTS dot (euphoria) -->
+      <circle cx="772" cy="64" r="7" fill="#e0686a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="772" y="52" text-anchor="middle" font-size="11" fill="#eda3a4" font-weight="700">NVTS</text>
+      <text x="786" y="78" text-anchor="start" class="m" font-size="9" fill="#9aa3b5">+231% · ~125× sales</text>
+      <text x="330" y="262" text-anchor="middle" font-size="9.5" fill="#5fc98a">↑ you want to enter here</text>
+      <text x="775" y="250" text-anchor="middle" font-size="9.5" fill="#eda3a4">most retail buys here — too late</text>
+    </svg>
+  </div>
+  <p class="cap" style="margin-top:-4px;margin-bottom:14px">Horizontal = awareness stage (qualitative), not a linear return scale. Dot height ≈ how much of each story is already in the price as of 16 Jun 2026 — IFX least, NVTS most. All three sit right of the alpha zone: the early entry is the dashed latent marker (magnetics/cores/BBU), not the top-3.</p>
+
+  <div class="panel" style="margin-bottom:14px;border-color:#2c5a40;background:rgba(95,201,138,.05)">
+    <h4 style="font-size:13px;margin-bottom:6px;font-weight:600;color:var(--pos)">Still-latent watchlist — left of the earliest play <span class="cn" style="font-weight:400;color:var(--dim)">尚未被發現的早期標的</span></h4>
+    <p style="font-size:12px;color:var(--mut);line-height:1.55">All three top-3 names have moved (IFX +110%, 2308 +132%, NVTS +231% YTD). To buy <i>before</i> the crowd you watch links that are <b>still unpriced or impossible to buy cleanly today</b>. This is where the genuine "be early" mandate lives this run:</p>
+    <table class="tbl" style="margin-top:8px">
+      <tr><th>Latent candidate (link)</th><th>Why it could be next</th><th>Trigger that wakes it · where to watch</th></tr>
+      <tr><td><b>Nanocrystalline cores</b> — VAC (private/PE), Proterial (private), <b>TDK</b> magnetics (listed, diversified)</td><td>The actual sold-out chokepoint, but no clean listed pure-play — the "ABF-film of power." TDK is the only listed way to touch it in size, but magnetics/cores are a minority slice of diversified TDK (mostly batteries + MLCC), so it is a heavily-diluted proxy</td><td>Core lead-times / "sold-out" callouts; TDK magnetics-segment growth; distributor lead-time trackers</td></tr>
+      <tr><td><b>BBU / super-capacitor</b> — Panasonic (CBU, FY27), Skeleton (private), <b>Eaton</b></td><td>The ms-transient buffer barely exists today; NVIDIA MGX reference designs + Panasonic FY27 ramp create the market</td><td>NVIDIA MGX BBU/CBU reference-design adoption; Panasonic CBU production start (FY2027)</td></tr>
+      <tr><td><b>SiC substrate at the EV-glut bottom</b> — Wolfspeed (post-restructuring), Coherent</td><td>Contrarian: the most-hated link could inflect as datacenter SST demand absorbs the glut — but distress/dilution risk is real</td><td>SiC fab-utilisation recovery; datacenter SST design-wins; Wolfspeed post-emergence financials</td></tr>
+    </table>
+    <p class="cap" style="margin-top:6px">Watch-only ideas, not recommendations — most latent bets fail, and Wolfspeed in particular is a post-bankruptcy equity (high risk). The discipline: keep scanning <i>here</i> while the crowd buys what has already run.</p>
+  </div>
+
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:4px;font-weight:600">Leading indicators — the early-signal dashboard</h4>
+      <p style="font-size:11px;color:var(--dim);margin-bottom:10px">These move BEFORE reported revenue. Watch them to catch the next leg early.</p>
+      <table class="liw">
+        <tr><th>Signal · trigger</th><th>Where an amateur can actually read it</th></tr>
+        <tr><td><b>Nanocrystalline / ferrite core lead-times</b><br><span class="dotA" style="font-size:11px">lengthening = bullish chain · "sold out" = peak</span></td><td>TDK / Proterial IR &amp; magnetics-segment notes; distributor lead-time reports (Accuris, TTI)</td></tr>
+        <tr><td><b>Delta monthly revenue &amp; PSU ASP (5.5→12kW)</b><br><span class="dotG" style="font-size:11px">accelerating = 800V content ramp live</span></td><td>Delta Electronics (2308.TW) monthly sales + earnings call; Digitimes</td></tr>
+        <tr><td><b>Infineon AI-power revenue vs €1.5B FY26 target</b><br><span class="dotG" style="font-size:11px">beat = gate thesis intact · miss = exit</span></td><td>Infineon quarterly report &amp; "We Power AI" updates (infineon.com)</td></tr>
+        <tr><td><b>Navitas design-win → revenue conversion</b><br><span class="dotR" style="font-size:11px">revenue stuck near ~$10M/qtr = euphoria gap</span></td><td>NVTS quarterly results + guidance; transcripts</td></tr>
+        <tr><td><b>NVIDIA 800V HVDC / Rubin-Ultra timing</b><br><span class="dotG" style="font-size:11px">on-track = demand pull · slip = air-pocket</span></td><td>NVIDIA GTC / Computex keynotes; developer.nvidia.com 800VDC blog</td></tr>
+        <tr><td><b>China GaN (Innoscience) / export approvals</b><br><span class="dotR" style="font-size:11px">share gain = bearish Western pure-plays</span></td><td>China MOFCOM &amp; US BIS notices; compoundsemiconductor.net</td></tr>
+        <tr><td><b>Hyperscaler capex guides</b><br><span class="dotG" style="font-size:11px">rising · a cut = exit signal</span></td><td>MSFT / GOOG / META / AMZN 10-Q capex line + call</td></tr>
+      </table>
+      <p style="font-size:10px;color:var(--dim);margin-top:8px">Thresholds are illustrative starting points — calibrate to your own risk. Every signal is readable from <b>free public sources</b> (transcripts, monthly sales, PRs, export notices) weeks before it shows up in reported revenue.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">How to be early next time <span class="cn" style="font-weight:400;color:var(--dim)">如何提前布局</span></h4>
+      <div class="mtc" style="margin-bottom:9px"><div class="h">1 · Find the link Moore's law can't shrink</div><p>Transistors get cheaper every node; a magnetic core, a copper busbar and a capacitor do not. When demand surges, the un-shrinkable physical part is where scarcity sticks — here, the nanocrystalline core.</p></div>
+      <div class="mtc" style="margin-bottom:9px"><div class="h">2 · Distrust the headline design-win</div><p>The press-release stock (Navitas) sits at the smallest, most-contested link. The biggest dollar content (the PSU box, Delta) and the steadiest rent (the broad gate, Infineon) rarely make the headline.</p></div>
+      <div class="mtc" style="margin-bottom:9px"><div class="h">3 · A glut is not a bottleneck</div><p>SiC is in oversupply from the EV slump — so "buy the SiC shortage" is a 2022 thesis, not a 2026 one. Check the actual lead-times before assuming a part is scarce.</p></div>
+      <div class="mtc"><div class="h">4 · Respect that "tight" ≠ "cheap"</div><p>The magnetics are tight and the whole layer is up 82–231% YTD. Tightness tells you the business is good; only price tells you whether you are early — and here, you mostly are not.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. TOP-3 MULTI-TAB -->
+<section id="s10">
+  <div class="sh"><span class="n">10</span><h2>Top-3 chokepoint plays</h2><span class="cn">三大卡點標的 · 分頁</span></div>
+  <p class="lead">Three companies at <b>three different links</b> of the same conversion chain — the broad silicon gate, the integration box, the contested point-of-load device — deliberately spread across the awareness curve. Ranked by <b>remaining asymmetry</b> (how much is still NOT priced). The honest message: none is genuinely <i>early</i>; this is a relative-value ranking, and the euphoria name carries negative expected value. <b>Read this up front: we are NOT buying the chokepoint itself</b> — the magnetics core has no clean listed pure-play — <b>we are buying the best-priced toll-gates adjacent to it</b> (the broad silicon gate and the integration box).</p>
+
+  <div role="tablist" aria-label="Top-3 plays" style="display:flex;gap:6px;margin-bottom:-1px;flex-wrap:wrap">
+    <button class="tabbtn on" role="tab" aria-selected="true" aria-controls="t1" id="tab1" tabindex="0" onclick="showTab('t1',this)">① Infineon · IFX<small>Power-semi gate · best value</small></button>
+    <button class="tabbtn" role="tab" aria-selected="false" aria-controls="t2" id="tab2" tabindex="-1" onclick="showTab('t2',this)">② Delta · 2308<small>Conversion/PSU box · the rent</small></button>
+    <button class="tabbtn" role="tab" aria-selected="false" aria-controls="t3" id="tab3" tabindex="-1" onclick="showTab('t3',this)">③ Navitas · NVTS<small>GaN point-of-load · euphoric</small></button>
+  </div>
+
+  <!-- TAB 1: IFX -->
+  <div class="tabpane" id="t1" role="tabpanel" aria-labelledby="tab1" style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">Infineon Technologies <span style="color:var(--dim);font-weight:400">XETRA: IFX</span></h3>
+      <span class="stagebadge sg-recog">RECOGNITION · most remaining asymmetry of the three</span>
+      <span style="font-size:12px;color:var(--mut)">Chokepoint link: <b style="color:var(--txt)">the broad power-semiconductor gate (front-end → PoL)</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The one company that sells qualified silicon into <b>every</b> conversion stage — SiC for the 800V front-end, GaN for the DC-DC, Si for the rest — with management claiming <b>~17% of the AI power-delivery chain</b>. The variant: it is still partly filed under "automotive / EV-SiC overhang," yet its AI-power revenue is guided <b>€1.5B (FY26) → €2.5B (FY27)</b>, ~+67%, with a path to €12B by decade-end. Up +110% YTD — so the EV-discount has largely closed — but it remains the <b>lowest-multiple, lowest-risk way to own the silicon</b> across the whole chain rather than betting on one device.</p>
+    <div class="mini">
+      <div><div class="v">€79.23</div><div class="l">Last price</div></div>
+      <div><div class="v" style="color:var(--conv)">+110%</div><div class="l">YTD return</div></div>
+      <div><div class="v">~€103B</div><div class="l">Mkt cap est.</div></div>
+      <div><div class="v">~30×</div><div class="l">P/E est.*</div></div>
+      <div><div class="v" style="color:var(--pos)">17%</div><div class="l">AI power-chain share</div></div>
+    </div>
+    <div class="gap"><div class="h">ASYMMETRIC INFO GAP · 變異認知</div><p>Consensus still half-prices Infineon as a cyclical auto/industrial chipmaker dragged by the SiC/EV downturn. The variant: it is <b>the only full-stack power-semi gate</b> for 800V HVDC — present from the rectifier to the point-of-load — so it wins regardless of which device topology or customer prevails. The €1.5B→€2.5B AI-power ramp is real, disclosed revenue, not a design-win headline. The honest catch (and why it is "recognition," not "early"): the stock has already doubled, so the EV-overhang discount is mostly gone; the remaining edge is the lowest multiple in the group plus optionality on an auto recovery.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① Business model 怎麼賺錢</div><p>Designs &amp; manufactures power semiconductors, microcontrollers and sensors — sells chips (often sole/lead-source qualified) into auto, industrial, and now AI-datacenter power.</p></div>
+      <div class="mtc"><div class="h">② Segments 營收結構</div><p>Automotive (largest), Green Industrial Power, Power &amp; Sensor Systems, Connected Secure Systems. AI-datacenter power sits in PSS and is the fastest-growing slice.</p></div>
+      <div class="mtc"><div class="h">③ Growth drivers 成長來源</div><p>800V HVDC content, AI-power revenue €1.5B→€2.5B; VR/PoL expansion; SiC/GaN (incl. GaN Systems); capex raised to €2.7B for AI demand.</p></div>
+      <div class="mtc"><div class="h">④ End market 終端市場</div><p>AI datacenters (new engine), EV/auto (cyclical drag turning), industrial, IoT/security. AI-power is the re-rating lever.</p></div>
+      <div class="mtc"><div class="h">⑤ Customers 主要客戶</div><p>NVIDIA MGX ecosystem (silicon partner), PSU/power-shelf makers (Delta et al.), auto Tier-1s, industrial OEMs.</p></div>
+      <div class="mtc"><div class="h">⑥ Moat 護城河</div><p>Scale (#1 power semis), full SiC+GaN+Si portfolio, qualified-part switching costs, IDM manufacturing depth — covers the whole chain.</p></div>
+      <div class="mtc"><div class="h">⑦ Guidance 管理層展望</div><p>Reaffirmed AI-power €1.5B FY26 / €2.5B FY27, up to €12B by decade-end; raised 2026 outlook on AI; lifted capex €0.5B to €2.7B.</p></div>
+      <div class="mtc"><div class="h">⑧ Why chokepoint 為何卡點</div><p>No conversion stage works without qualified power silicon, and Infineon is the one vendor present at every stage — the broadest toll-gate of the layer.</p></div>
+    </div>
+    <table class="scen">
+      <tr><th>Scenario</th><th>~12–18m path</th><th>Return</th><th>Prob.</th></tr>
+      <tr><td><b style="color:var(--pos)">Bull</b></td><td>AI-power beats €2.5B; auto/SiC inflects up; multiple holds on broad-gate quality</td><td class="num" style="color:var(--pos)">+40%</td><td class="num">30%</td></tr>
+      <tr><td><b>Base</b></td><td>Steady AI-power ramp; auto soft-lands; digests +110% YTD</td><td class="num">+8%</td><td class="num">45%</td></tr>
+      <tr><td><b style="color:var(--choke)">Bear</b></td><td>AI-power lumpy; auto/industrial weak; multiple compresses from the re-rate</td><td class="num" style="color:var(--choke)">−28%</td><td class="num">25%</td></tr>
+      <tr><td colspan="2"><b>Probability-weighted EV</b></td><td class="num" style="color:var(--pos)">≈ +10%</td><td class="num">—</td></tr>
+    </table>
+    <p class="cap" style="margin-top:6px">Entry discipline: starter ~€72–79, add &lt;€62 (toward the order/auto-recovery gap), reassess &gt;€90 (new high). <b>Dated falsifier:</b> if FY26 AI-power revenue tracks materially below the €1.5B run-rate, or PSS book-to-bill rolls over while auto stays weak, the "broad-gate compounding into AI" thesis is broken.</p>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--pos)">BULL</b>The only full-stack power-silicon gate for 800V HVDC, at the lowest multiple in the group, with a real disclosed AI-power ramp and auto-recovery optionality.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>A large, cyclical IDM where AI-power is still a minority of revenue; an auto/industrial downcycle can swamp the AI tailwind and compress the re-rated multiple.</div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Delta -->
+  <div class="tabpane" id="t2" role="tabpanel" aria-labelledby="tab2" hidden style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">Delta Electronics <span style="color:var(--dim);font-weight:400">TWSE: 2308</span></h3>
+      <span class="stagebadge sg-recog">RECOGNITION → EUPHORIA · owns the rent pool</span>
+      <span style="font-size:12px;color:var(--mut)">Chokepoint link: <b style="color:var(--txt)">the power-conversion box / PSU / power-shelf</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The integrator that packages the silicon and magnetics into a finished AI-server power supply and 800V power-shelf — with a reported <b>&gt;60% share of AI-server power</b> and 98.5% conversion efficiency. This is where the dollar content concentrates and <b>re-prices fastest</b>: power content per server rises from <b>$43.8k (GB200) → $90.6k (GB300) → ~$171k (Rubin-Ultra 800V)</b> as 5.5kW PSUs give way to 12kW units <i>(Delta / Digitimes co. est. — an interested-party figure)</i>. Up +132% YTD — recognition shading into euphoria — but the rent is real, growing and structurally concentrated.</p>
+    <div class="mini">
+      <div><div class="v">NT$2230</div><div class="l">Last price</div></div>
+      <div><div class="v" style="color:var(--conv)">+132%</div><div class="l">YTD return</div></div>
+      <div><div class="v">~US$170B</div><div class="l">Mkt cap est.</div></div>
+      <div><div class="v">~40×</div><div class="l">P/E est.*</div></div>
+      <div><div class="v" style="color:var(--pos)">&gt;60%</div><div class="l">AI-server power share</div></div>
+    </div>
+    <div class="gap"><div class="h">ASYMMETRIC INFO GAP · 變異認知</div><p>The market knows Delta is an AI-power winner, but tends to model it as a "PSU vendor" on box volumes. The variant: the <b>dollar content per server is tripling</b> as racks go 800V, and Delta sits at &gt;60% share of the link where that content lands — so revenue can compound on <i>content</i> even if unit growth slows. It also straddles power <i>and</i> liquid cooling (the two scarcest facility links). The catch: at +132% YTD and ~40× earnings the easy money is made, Taiwan-listing/FX adds friction for a retail investor, and share is the thing to defend.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① Business model 怎麼賺錢</div><p>Designs &amp; builds power-conversion hardware — server PSUs, DC-DC, power shelves, plus cooling, EV, industrial automation. Earns on hardware ASP + scale manufacturing.</p></div>
+      <div class="mtc"><div class="h">② Segments 營收結構</div><p>Power Electronics (incl. datacenter/server power — the AI engine), Infrastructure (incl. cooling), Automation/EV. AI-server power is the fastest-growing line.</p></div>
+      <div class="mtc"><div class="h">③ Growth drivers 成長來源</div><p>800V HVDC power shelves; 5.5kW→12kW PSU ASP step; per-server content $43.8k→$171k; liquid-cooling attach; record revenue on AI server.</p></div>
+      <div class="mtc"><div class="h">④ End market 終端市場</div><p>AI datacenters (NVIDIA GB/Rubin platforms), telecom/industrial power, EV powertrain, building automation. AI is the swing factor.</p></div>
+      <div class="mtc"><div class="h">⑤ Customers 主要客戶</div><p>NVIDIA 800V MGX ecosystem, server ODMs/OEMs, hyperscalers; co-developed "Panama" MV-DC with Alibaba.</p></div>
+      <div class="mtc"><div class="h">⑥ Moat 護城河</div><p>Decades of power-electronics IP, &gt;60% AI-server-power share, full HVDC integration, scale + reliability qualification; power-and-cooling breadth.</p></div>
+      <div class="mtc"><div class="h">⑦ Guidance 管理層展望</div><p>Record AI-server &amp; cooling revenue; pushing 800V HVDC and 12kW PSUs; 50V power cabinets; first-mover on gray/white-space integration.</p></div>
+      <div class="mtc"><div class="h">⑧ Why chokepoint 為何卡點</div><p>Someone must integrate qualified silicon + scarce magnetics into a reliable, efficient box at scale — and one vendor owns &gt;60% of that link.</p></div>
+    </div>
+    <table class="scen">
+      <tr><th>Scenario</th><th>~12–18m path</th><th>Return</th><th>Prob.</th></tr>
+      <tr><td><b style="color:var(--pos)">Bull</b></td><td>Rubin-Ultra 800V lands ~$171k/server; &gt;60% share holds; cooling attach compounds</td><td class="num" style="color:var(--pos)">+35%</td><td class="num">30%</td></tr>
+      <tr><td><b>Base</b></td><td>Content ramp continues; share holds; digests +132% YTD</td><td class="num">+5%</td><td class="num">45%</td></tr>
+      <tr><td><b style="color:var(--choke)">Bear</b></td><td>Hyperscalers force dual-source to LiteOn/Megmeet; 800V slips; FX/valuation drag</td><td class="num" style="color:var(--choke)">−30%</td><td class="num">25%</td></tr>
+      <tr><td colspan="2"><b>Probability-weighted EV</b></td><td class="num" style="color:var(--pos)">≈ +4%</td><td class="num">—</td></tr>
+    </table>
+    <p class="cap" style="margin-top:6px">Entry discipline: prefer pullbacks toward NT$1900–2100; the Taiwan listing/FX is friction for a retail investor (no clean US line). <b>Dated falsifier:</b> a visible share loss on a flagship 800V platform to LiteOn/Megmeet, or PSU ASP stalling despite the 12kW transition, breaks the "content-compounding gate" thesis.</p>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--pos)">BULL</b>The integration toll-gate where 800V dollar content lands and triples, at &gt;60% share, with a cooling kicker — rent that compounds on content, not just units.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>A hardware integrator at ~40× after +132%; share is contestable and hyperscalers want second sources; FX and a Taiwan listing add friction.</div>
+    </div>
+  </div>
+
+  <!-- TAB 3: NVTS -->
+  <div class="tabpane" id="t3" role="tabpanel" aria-labelledby="tab3" hidden style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">Navitas Semiconductor <span style="color:var(--dim);font-weight:400">NASDAQ: NVTS</span></h3>
+      <span class="stagebadge sg-eu">EUPHORIA · alpha window gone</span>
+      <span style="font-size:12px;color:var(--mut)">Chokepoint link: <b style="color:var(--txt)">GaN point-of-load / 800V-to-6V device (narrowest, most-contested)</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The GaN (and SiC) pure-play that NVIDIA named as a partner for its 800V-to-6V power-delivery board — the headline that drove the stock. The catch is the same shape as Run #7's AXTI: it has run from a <b>$5.44 52-wk low to a $34.17 high</b> (now $23.65, +231% YTD) on <b>tiny fundamentals — ~$57M TTM revenue that fell ~39% YoY, ~$8–10M/quarter — at roughly 125× sales</b>. Carried here as the "what fully-priced looks like" anchor and the third, different link: the smallest-dollar, most-contested stage where every silicon vendor competes.</p>
+    <div class="mini">
+      <div><div class="v">$23.65</div><div class="l">Last price</div></div>
+      <div><div class="v" style="color:var(--choke)">+231%</div><div class="l">YTD return</div></div>
+      <div><div class="v">~$7B</div><div class="l">Mkt cap est.</div></div>
+      <div><div class="v" style="color:var(--choke)">~125×</div><div class="l">P/Sales est.*</div></div>
+      <div><div class="v" style="color:var(--choke)">−39%</div><div class="l">Rev growth YoY</div></div>
+    </div>
+    <div class="gap" style="border-left-color:var(--choke);background:rgba(224,104,106,.06)"><div class="h" style="color:var(--choke)">ASYMMETRIC INFO GAP · 變異認知</div><p>Now <b>negative</b>: the GaN-for-NVIDIA story is fully awake (52-wk $5.44 → $34.17). The residual variant is binary — can the design-win <b>actually convert into revenue at scale</b> before larger, better-capitalised rivals (TI, Infineon, onsemi, Innoscience) commoditise the socket, and can ~$10M/quarter revenue ever justify ~125× sales? This is a momentum/catalyst trade on the NVIDIA halo, not an early entry; position sizing and stops matter far more than the thesis.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① Business model 怎麼賺錢</div><p>Sells GaN power ICs + SiC devices + controllers for power conversion &amp; charging. Fabless; earns on device ASP — but revenue is still small and was shrinking.</p></div>
+      <div class="mtc"><div class="h">② Segments 營收結構</div><p>GaN + SiC power devices across mobile/consumer, EV, solar, and now AI-datacenter. AI/datacenter is the new, still-tiny growth narrative.</p></div>
+      <div class="mtc"><div class="h">③ Growth drivers 成長來源</div><p>NVIDIA 800V-to-6V board; 800V HVDC content; high-power GaN/SiC ramp. Guided Q2-26 revenue only ~$10M ± 0.5M — growth off a tiny base.</p></div>
+      <div class="mtc"><div class="h">④ End market 終端市場</div><p>AI datacenters (the re-rating story), mobile chargers, EV, solar/energy. AI is a small slice of revenue today but the entire stock narrative.</p></div>
+      <div class="mtc"><div class="h">⑤ Customers 主要客戶</div><p>NVIDIA (collaboration / MGX showcase), charger OEMs, assorted power customers. Concentration + conversion risk is high.</p></div>
+      <div class="mtc"><div class="h">⑥ Moat 護城河</div><p>GaNFast IP + early GaN focus — but GaN is a contested field; TI, Infineon, onsemi, Innoscience all attack it. Thin moat at this link.</p></div>
+      <div class="mtc"><div class="h">⑦ Guidance 管理層展望</div><p>Bullish on the NVIDIA collaboration &amp; 800V; Q2-26 revenue ~$10M, non-GAAP GM ~39%. Still cash-burning (~$40–65M/yr).</p></div>
+      <div class="mtc"><div class="h">⑧ Why chokepoint 為何卡點</div><p>It sits at a real link (the DC-DC/PoL device) — but the <i>least</i> scarce one: small dollar content, many credible suppliers, GaN capacity ramping.</p></div>
+    </div>
+    <table class="scen">
+      <tr><th>Scenario</th><th>~12–18m path</th><th>Return</th><th>Prob.</th></tr>
+      <tr><td><b style="color:var(--pos)">Bull</b></td><td>Design-wins convert; AI-power revenue inflects hard; momentum + halo persist</td><td class="num" style="color:var(--pos)">+50%</td><td class="num">25%</td></tr>
+      <tr><td><b>Base</b></td><td>Revenue stays small; multiple compresses toward peers; choppy</td><td class="num" style="color:var(--choke)">−15%</td><td class="num">40%</td></tr>
+      <tr><td><b style="color:var(--choke)">Bear</b></td><td>Sockets commoditised by larger rivals; dilution; euphoria unwinds</td><td class="num" style="color:var(--choke)">−50%</td><td class="num">35%</td></tr>
+      <tr><td colspan="2"><b>Probability-weighted EV</b></td><td class="num" style="color:var(--choke)">≈ −10%</td><td class="num">—</td></tr>
+    </table>
+    <p class="cap" style="margin-top:6px">Entry discipline: no early entry left — momentum trade only, tight stops, avoid chasing &gt;$30 near the prior high; the binary is revenue conversion. <b>Dated falsifier:</b> the next 1–2 prints show revenue stuck near ~$10M/qtr with no AI-power inflection, or a major rival wins the volume 800V socket.</p>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--pos)">BULL</b>If the NVIDIA design-win converts to real volume, a tiny-revenue GaN pure-play has explosive operating leverage and a multi-year content story.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>~125× sales on revenue that fell 39% YoY, at the most-contested, smallest-dollar link; commoditisation + dilution + a euphoric chart is a poor risk/reward.</div>
+    </div>
+  </div>
+  <p class="cap" style="margin-top:12px">*Valuation multiples and market caps are estimates from live last price, latest reported revenue/EPS run-rate and approximate share counts; verify on a data terminal before sizing. NVTS P/E is not meaningful (loss-making) so P/Sales is shown. EV ≈ probability-weighted; a thin or negative EV is a finding (argues for discipline), not a typo. Scenario probabilities and returns are <b>subjective priors</b>, not a model output — they encode the analysis's judgement, not a calculation.</p>
+</section>
+
+<!-- 11. BENEFICIARY MAP + RISKS -->
+<section id="s11">
+  <div class="sh"><span class="n">11</span><h2>Beneficiary map &amp; key risks</h2><span class="cn">受惠族群與風險</span></div>
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Who benefits — by conversion-chain link</h4>
+      <table class="tbl">
+        <tr><th>Company</th><th>Link</th><th>Angle</th></tr>
+        <tr><td><b>Infineon</b> · IFX</td><td><span class="lyr lySEMI">SEMI</span></td><td>Broad SiC+GaN+Si gate; ~17% of AI power chain</td></tr>
+        <tr><td><b>onsemi · STM · ROHM</b></td><td><span class="lyr lySEMI">SEMI</span></td><td>SiC front-end / SST; all re-rated, EV-overhang turning</td></tr>
+        <tr><td><b>Navitas</b> · NVTS</td><td><span class="lyr lySEMI">SEMI</span></td><td>GaN PoL pure-play; NVIDIA halo, euphoric</td></tr>
+        <tr><td><b>VAC · Proterial</b> (private)</td><td><span class="lyr lyMAG">MAG</span></td><td>Nanocrystalline cores — the sold-out chokepoint</td></tr>
+        <tr><td><b>TDK</b> · Vishay · Sumida</td><td><span class="lyr lyMAG">MAG</span></td><td>Cores, inductors, MLCC — listed magnetics exposure</td></tr>
+        <tr><td><b>Delta</b> · 2308</td><td><span class="lyr lyCONV">CONV</span></td><td>PSU/power-shelf integrator, &gt;60% AI-server power</td></tr>
+        <tr><td><b>Monolithic Power</b> · MPWR</td><td><span class="lyr lyCONV">CONV</span></td><td>PoL VRM / vertical power (Run #3 top-3)</td></tr>
+        <tr><td><b>Vertiv · Eaton · GE Vernova</b></td><td><span class="lyr lyRACK">RACK</span></td><td>Rack/facility + grid systems — priced in Run #3</td></tr>
+        <tr><td><b>Panasonic · Skeleton</b></td><td><span class="lyr lyDEM">BBU</span></td><td>Super-cap / battery buffer — next-latent</td></tr>
+      </table>
+      <p class="cap" style="margin-top:10px">Layer key — <span class="lyr lySEMI">SEMI</span> power switch · <span class="lyr lyMAG">MAG</span> magnetics/cores · <span class="lyr lyCONV">CONV</span> conversion box · <span class="lyr lyRACK">RACK</span> rack/facility · <span class="lyr lyDEM">BBU</span> energy buffer.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Risks to the thesis</h4>
+      <table class="tbl">
+        <tr><th>Risk</th><th>Watch</th></tr>
+        <tr><td><b>Whole layer already re-rated</b></td><td>+82–231% YTD across the visible names</td></tr>
+        <tr><td><b>Magnetics shortage clears</b></td><td>Core makers add lines; lead-times normalise</td></tr>
+        <tr><td><b>NVIDIA 800V roadmap slips</b></td><td>Rubin-Ultra timing; demand air-pocket</td></tr>
+        <tr><td><b>SiC/GaN stays in glut</b></td><td>EV weak; pricing pressure on device makers</td></tr>
+        <tr><td><b>Delta share erosion</b></td><td>Hyperscaler dual-source to LiteOn/Megmeet</td></tr>
+        <tr><td><b>Navitas valuation</b></td><td>~125× sales on shrinking revenue (binary)</td></tr>
+        <tr><td><b>Mislocated chokepoint</b></td><td>Rent pools at the box, not the magnetics</td></tr>
+        <tr><td><b>China GaN indigenisation</b></td><td>Innoscience climbs; Western-pure-play share</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 12. DECISION TABLE -->
+<section id="s12">
+  <div class="sh"><span class="n">12</span><h2>The decision — one table</h2><span class="cn">投資決策總表</span></div>
+  <p class="lead">Everything above reconciled into one view, ranked by <b>remaining asymmetry</b> (how much is still NOT in the price) — <i>not</i> by severity. One row-read: the <b>tightest physical link</b> (the magnetics, severity 17) has <b>no clean listed pure-play</b>, so the visible plays sit one link away at the rent pools; among them the <b>broad silicon gate</b> (IFX) is the least-priced, the <b>integration box</b> (2308) owns the growing rent, and the <b>GaN pure-play</b> (NVTS) shows what euphoria-stage, contested-link risk looks like.</p>
+  <div style="overflow-x:auto">
+  <table class="tbl" style="min-width:920px">
+    <tr><th>#</th><th>Ticker</th><th>Chokepoint (link)</th><th>Severity</th><th>Awareness stage</th><th>Valuation</th><th>Remaining asymmetry</th><th>Framework lean</th><th>Key trigger to watch</th></tr>
+    <tr>
+      <td class="num">1</td><td><b>IFX</b> · Infineon</td><td><span class="lyr lySEMI">SEMI</span> broad power-semi gate</td>
+      <td class="num">14/20</td><td><span class="stagebadge sg-recog">RECOGNITION</span></td><td class="num">~30× · +110% YTD</td>
+      <td class="dotG">Highest of 3</td><td><b>Accumulate on pullbacks</b></td><td>AI-power revenue vs €1.5B FY26 target</td>
+    </tr>
+    <tr>
+      <td class="num">2</td><td><b>2308</b> · Delta</td><td><span class="lyr lyCONV">CONV</span> conversion box / PSU</td>
+      <td class="num">15/20</td><td><span class="stagebadge sg-recog">RECOG → EU</span></td><td class="num">~40× · +132% YTD</td>
+      <td class="dotA">Medium</td><td><b>Own quality / prefer dips</b></td><td>PSU ASP (5.5→12kW); &gt;60% share defence</td>
+    </tr>
+    <tr>
+      <td class="num">3</td><td><b>NVTS</b> · Navitas</td><td><span class="lyr lySEMI">SEMI</span> GaN point-of-load</td>
+      <td class="num">11/20</td><td><span class="stagebadge sg-eu">EUPHORIA</span></td><td class="num">~125× sales · +231% YTD</td>
+      <td class="dotR">Negative</td><td><b>Trade only / don't chase</b></td><td>Revenue conversion off ~$10M/qtr (binary)</td>
+    </tr>
+    <tr style="background:rgba(139,132,207,.05)">
+      <td class="num">—</td><td><b>VAC / Proterial / TDK</b></td><td><span class="lyr lyMAG">MAG</span> nanocrystalline core <b>(the actual chokepoint)</b></td>
+      <td class="num">17/20</td><td><span class="stagebadge sg-early">LATENT</span></td><td class="num">private / TDK diversified</td>
+      <td class="dotG">Highest (but unbuyable cleanly)</td><td><b>Watchlist — TDK proxy</b></td><td>Core lead-times; "sold out" callouts</td>
+    </tr>
+  </table>
+  </div>
+  <p class="cap"><b>How each severity is derived</b> (same 0–20 rubric, four factors each 0–5: supply concentration · lead-time · low substitutability · demand): <b>magnetics/core = 17</b> (4+4+4+5 — ~2 nanocrystalline makers, multi-quarter, hard to substitute/shrink, demand acute). <b>Delta conversion box = 15</b> (4+3+3+5 — &gt;60% share but contestable, qual-gated, demand acute). <b>Infineon broad gate = 14</b> (3+3+3+5 — many WBG players but Infineon is the only full-stack gate, demand acute). <b>Navitas GaN PoL = 11</b> (2+2+3+4 — contested, many suppliers, GaN ramping, small content). So the same scarcity logic ranks the <i>links</i> — yet IFX is the better <i>entry</i> among the buyable names precisely because it is the least-priced quality gate. <b>Tightness ≠ a good buy; un-buyable ≠ un-investable</b> (the magnetics call is "watch TDK / lead-times," not "buy the core maker"). "Framework lean" is analysis, not advice.</p>
+
+  <div class="panel" style="margin-top:16px;border-color:var(--line2)">
+    <h4 style="font-size:13px;margin-bottom:8px;font-weight:600;color:var(--accent)">If you can only do one thing</h4>
+    <p style="font-size:12.5px;color:var(--mut);line-height:1.6">The market priced the grid and the rack systems in Run #3's window, and has now bid up <i>everything</i> in 800V power conversion +82–231% YTD. The unappreciated fact is that the <b style="color:var(--txt)">binding constraint is the un-shrinkable magnetic core, not the abundant chip</b> — yet that link has no clean listed pure-play, so it lives on the watchlist (proxy: <b style="color:var(--txt)">TDK</b>, plus core lead-times). Among the buyable names, <b style="color:var(--txt)">Infineon is the least-priced quality gate</b> — the only full-stack power-silicon vendor for 800V HVDC, at the lowest multiple in the group with auto-recovery optionality. Delta owns the growing rent but the easy money is made; Navitas is the cautionary tale — the most-priced stock sits at the least-scarce link.</p>
+  </div>
+
+  <div class="panel" style="margin-top:14px;border-color:#3a3015;background:rgba(210,162,74,.05)">
+    <h4 style="font-size:13px;margin-bottom:8px;font-weight:600;color:var(--warn)">Open questions · honest self-critique <span class="cn" style="font-weight:400;color:var(--dim)">未解之處</span></h4>
+    <ul style="list-style:none;font-size:12px;color:var(--mut);line-height:1.6">
+      <li style="padding:3px 0;border-bottom:1px dashed var(--line2)">• <b style="color:var(--txt)">The "sold-out cores" claim is thinly sourced.</b> The VITROPERM/FINEMET sold-out-through-mid-2026 detail rests largely on one industry write-up; it is consistent with the broader "inductors most-extended" lead-time signal, but I could not triangulate it to a second hard source. Treat it as an estimate, not a fact.</li>
+      <li style="padding:3px 0;border-bottom:1px dashed var(--line2)">• <b style="color:var(--txt)">The chokepoint has no clean listed pure-play.</b> The strongest part of the thesis (magnetics) is the least investable — VAC and Proterial are private; TDK is a diversified proxy. That is honest, but it weakens the "actionable for a retail investor" mandate this run.</li>
+      <li style="padding:3px 0;border-bottom:1px dashed var(--line2)">• <b style="color:var(--txt)">Caps &amp; multiples are estimates.</b> Delta's ~US$170B cap and ~40× P/E, Infineon's ~€103B / ~30×, and Navitas's ~$7B / ~125× sales are derived from live price × approximate share counts — verify on a terminal. Navitas market-cap sources ranged $1.9–7B depending on date/share count, so the P/Sales could be anywhere from ~35× to ~125×; the higher figure is used here as the euphoria anchor but is the single most fragile number in the report.</li>
+      <li style="padding:3px 0;border-bottom:1px dashed var(--line2)">• <b style="color:var(--txt)">"No early large-cap left" could be wrong if 800V slips.</b> If NVIDIA's 800V roadmap pushes to 2027+, today's prices are a pull-forward and the layer could de-rate — making "everything already ran" the wrong frame. The timing is the swing factor and I don't have high confidence on it.</li>
+      <li style="padding:3px 0">• <b style="color:var(--txt)">Infineon's AI-power share (17%) and the per-server content ($43.8k→$171k) are company/industry figures</b> that flatter the bull case; both come from interested parties (Infineon, Delta/Digitimes) and should be discounted accordingly.</li>
+    </ul>
+  </div>
+</section>
+
+<div class="disc"><b>Not investment advice.</b> Automated research synthesis for idea generation only. Figures drawn from public reporting, company statements and third-party estimates as of 16 Jun 2026; prices are live last via IBKR read-only (intraday, may be stale); multiples and market caps are estimates. Verify against primary filings and do your own due diligence. No buy/sell recommendation implied. IBKR used read-only; no trade placed.</div>
+
+<footer>
+  <p><b>Sources:</b> NVIDIA developer blog &amp; nvidia.com "800 VDC Architecture" (1 MW racks, Rubin Ultra, MGX ecosystem) · DataCenterDynamics (NVIDIA 800V HVDC partners) · CNESA (31-company 800V industry-chain list) · TI &amp; STMicroelectronics &amp; Navitas press (800V-to-6V/12V boards) · Infineon market-news / EconoTimes / Fintool / Astute Group ("~17% AI power chain," AI-power €1.5B FY26 / €2.5B FY27 / €12B by decade-end, capex €2.7B) · Digitimes &amp; TrendForce &amp; wawt.tech (Delta &gt;60% AI-server power share, 98.5% efficiency, per-server content $43.8k→$90.6k→$171k, 5.5→12kW PSU) · nextfinancial substack + Accuris + Digital Watch + TDK (nanocrystalline VITROPERM/FINEMET sold-out, &lt;10 W/kg at 100kHz, inductor lead-times) · Power Electronics News + Panasonic + Infineon (BBU / super-cap / LIC hybrid, CBU FY2027) · Yahoo Finance / companiesmarketcap / TIKR / Macrotrends (NVTS ~$57M TTM rev −39% YoY, ~125× sales) · IBKR read-only (live quotes: IFX €79.23 +110%, 2308 NT$2230 +132%, NVTS $23.65 +231%, ON +197%, STM +131%, VRT +93%, MPWR +82%, WOLF +184% YTD).</p>
+  <p style="margin-top:10px">Automated AI-Infra workflow · <b>Run #9 v5 · Power delivery (deeper): the 800V HVDC conversion &amp; magnetics chokepoint</b> · supersedes Run #3's grid/transformer cut by going one layer below into the rack power-conversion layer · recurs every 2 days.</p>
+</footer>
+
+</div>
+<script>
+(function(){
+  var tabs=[document.getElementById('tab1'),document.getElementById('tab2'),document.getElementById('tab3')];
+  var panes=['t1','t2','t3'];
+  window.showTab=function(id,btn){
+    panes.forEach(function(p){var el=document.getElementById(p);if(el){el.hidden=(p!==id);}});
+    tabs.forEach(function(t){if(t){t.classList.remove('on');t.setAttribute('aria-selected','false');t.tabIndex=-1;}});
+    if(btn){btn.classList.add('on');btn.setAttribute('aria-selected','true');btn.tabIndex=0;}
+  };
+  function focusTab(i){var n=tabs.length;i=(i+n)%n;tabs[i].focus();window.showTab(panes[i],tabs[i]);}
+  tabs.forEach(function(t,i){
+    if(!t)return;
+    t.addEventListener('keydown',function(e){
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();focusTab(i+1);}
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();focusTab(i-1);}
+      else if(e.key==='Home'){e.preventDefault();focusTab(0);}
+      else if(e.key==='End'){e.preventDefault();focusTab(tabs.length-1);}
+    });
+  });
+})();
+</script>
+</body>
+</html>

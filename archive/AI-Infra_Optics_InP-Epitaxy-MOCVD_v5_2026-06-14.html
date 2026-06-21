@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Infra Run #7 v5 — Optics (deeper): the InP Epitaxy / MOCVD Chokepoint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#13161e; --panel2:#1a1e28; --panel3:#212634; --line:#2a3040; --line2:#363d4f;
+    --txt:#e8eaf0; --mut:#9aa3b5; --dim:#697283;
+    --accent:#2dd4bf;        /* single brand accent (desaturated teal) */
+    --choke:#e0686a;         /* desaturated red — the chokepoint = MOCVD epitaxy */
+    /* categorical: epi-line stages */
+    --up:#5b81c4; --sub:#5aa9e0; --epi:#8b84cf; --be:#c47a9e; --dev:#d2a24a; --mod:#4faf8e;
+    /* direction */
+    --pos:#5fc98a; --neg:#e0686a; --warn:#d2a24a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px;-webkit-font-smoothing:antialiased}
+  .num{font-family:"JetBrains Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  /* ---- header ---- */
+  header{border-bottom:1px solid var(--line);padding:38px 0 30px;margin-bottom:8px;background:
+     radial-gradient(900px 320px at 12% -40%,rgba(45,212,191,.10),transparent 60%),
+     radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
+  .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.6px;line-height:1.12;max-width:940px}
+  .sub{font-size:15px;font-weight:400;color:var(--mut);margin-top:12px;max-width:860px}
+  .sub b{color:#fff;font-weight:600}
+  .gauges{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+  .gauge{display:flex;align-items:center;gap:11px;border:1px solid var(--line2);border-radius:12px;padding:10px 15px;background:var(--panel)}
+  .gauge .gv{font-family:"JetBrains Mono",monospace;font-size:22px;font-weight:600;line-height:1}
+  .gauge .gl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);line-height:1.3}
+  .gauge .gl b{display:block;color:var(--mut);font-size:11px;letter-spacing:.02em;text-transform:none}
+  .meta{margin-top:20px;display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+  .meta div{padding-right:26px;margin-right:26px;border-right:1px solid var(--line)}
+  .meta div:last-child{border:0}
+  .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+  .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
+  .asof{margin-top:16px;display:inline-flex;align-items:center;gap:9px;font-size:11.5px;color:#c4ab78;background:rgba(210,162,74,.07);border:1px solid #3a3015;border-radius:9px;padding:8px 13px}
+  .asof .dot{width:7px;height:7px;border-radius:50%;background:var(--warn);flex:none}
+  /* ---- sticky toc ---- */
+  nav.toc{position:sticky;top:0;z-index:20;background:rgba(11,13,18,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin-bottom:6px}
+  nav.toc .wrap{display:flex;gap:4px;flex-wrap:wrap;padding-top:9px;padding-bottom:9px}
+  nav.toc a{font-size:11px;color:var(--mut);text-decoration:none;padding:4px 9px;border-radius:7px;white-space:nowrap}
+  nav.toc a:hover{background:var(--panel2);color:var(--txt)}
+  /* ---- section ---- */
+  section{padding:34px 0 2px}
+  .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+  .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.05em}
+  .sh h2{font-size:21px;font-weight:600;letter-spacing:-.3px}
+  .sh .cn{font-size:13px;color:var(--dim);font-weight:400;margin-left:auto}
+  .lead{color:var(--mut);font-size:13.5px;max-width:880px;margin-bottom:18px}
+  .lead b{color:var(--txt);font-weight:600}
+  /* ---- KPI strip ---- */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
+  .kpi{padding:18px 20px;border-right:1px solid var(--line)}
+  .kpi:last-child{border-right:0}
+  .kpi .v{font-size:25px;font-weight:600;letter-spacing:-.5px}
+  .kpi .l{font-size:11.5px;color:var(--mut);margin-top:4px}
+  .kpi .d{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.4}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dev)}.grn{color:var(--pos)}
+  /* ---- matrix ---- */
+  .matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .matrix th{background:var(--panel2);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);font-weight:600;padding:12px 14px;text-align:left;border-bottom:1px solid var(--line)}
+  .matrix td{padding:14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
+  .matrix tr:last-child td{border-bottom:0}
+  .matrix .dom{font-weight:600;font-size:14px;color:var(--txt);display:flex;align-items:center;gap:9px}
+  .matrix .dom .sw{width:10px;height:10px;border-radius:3px;flex:none}
+  .matrix .dom small{display:block;font-weight:400;font-size:10.5px;color:var(--dim);margin-top:2px}
+  .matrix td b{color:var(--txt);font-weight:600}
+  .chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--panel3);color:var(--mut);margin:2px 4px 2px 0;border:1px solid var(--line2)}
+  .chip.hot{background:rgba(224,104,106,.12);border-color:#5a3236;color:#efa0a1}
+  /* ---- SVG gallery cards ---- */
+  .gal{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:900px){.gal{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.gal{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column}
+  .card .svgbox{background:linear-gradient(180deg,#0e1117,#161a24);padding:14px;border-bottom:1px solid var(--line)}
+  .card .body{padding:14px 16px 16px}
+  .card h4{font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .card .role{font-size:12px;color:var(--mut);margin-top:6px;line-height:1.45}
+  .card .who{font-size:11px;color:var(--dim);margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px}
+  .card .who b{color:var(--epi)}
+  .badge{font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:5px;letter-spacing:.03em;flex:none}
+  .b-hot{background:rgba(224,104,106,.14);color:#eda3a4}
+  .b-now{background:rgba(45,212,191,.13);color:var(--accent)}
+  .b-next{background:rgba(90,169,224,.14);color:var(--sub)}
+  .b-emrg{background:rgba(210,162,74,.14);color:var(--dev)}
+  /* ---- assembly + topo full-width svg ---- */
+  .svgwide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
+  .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
+  /* ---- supply flow stage cards ---- */
+  .st h5{font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px;display:flex;align-items:center;gap:6px;color:var(--mut)}
+  /* ---- timeline ---- */
+  .tlgrid{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .tlhead{display:grid;grid-template-columns:150px repeat(4,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
+  .tlhead div{padding:11px 12px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);border-right:1px solid var(--line)}
+  .tlhead div:first-child{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-family:"Space Grotesk",sans-serif;display:flex;align-items:center}
+  .tlrow{display:grid;grid-template-columns:150px repeat(4,1fr);border-bottom:1px solid var(--line)}
+  .tlrow:last-child{border-bottom:0}
+  .tlrow .lab{padding:13px 12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;border-right:1px solid var(--line);background:var(--panel2)}
+  .tlrow .lab .sw{width:9px;height:9px;border-radius:3px;flex:none}
+  .tlrow .cell{padding:11px 12px;border-right:1px solid var(--line);font-size:11.5px;color:var(--mut);line-height:1.4}
+  .tlrow .cell:last-child{border-right:0}
+  .tlrow .cell b{color:var(--txt);font-weight:600;display:block;margin-bottom:2px;font-size:11.5px}
+  .tlrow .cell.hot{background:rgba(224,104,106,.06)}
+  @media(max-width:780px){.tlhead,.tlrow{grid-template-columns:96px repeat(4,1fr);font-size:10px}.tlrow .cell{font-size:10px}}
+  /* ---- chokepoint ---- */
+  .choke{border:1px solid #5a3236;border-radius:14px;padding:22px 24px;background:
+    linear-gradient(135deg,rgba(224,104,106,.10),transparent 55%),var(--panel)}
+  .choke .ttl{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+  .choke .ttl svg{flex:none}
+  .choke .ttl h3{font-size:17px;font-weight:600;color:var(--choke)}
+  .choke p{font-size:13.5px;color:#d9c4c6;max-width:920px}.choke p b{color:#fff}
+  .choke .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:18px;border-top:1px solid #4a2c2f;padding-top:16px}
+  @media(max-width:780px){.choke .stats{grid-template-columns:1fr 1fr}}
+  .choke .stats div{padding-right:18px}
+  .choke .stats b{display:block;font-size:21px;color:var(--choke);font-weight:600}
+  .choke .stats span{font-size:10.5px;color:var(--dim)}
+  /* ---- tables ---- */
+  .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  .tbl th{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .tbl td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--mut)}
+  .tbl td b{color:var(--txt)}
+  .lyr{font-family:"JetBrains Mono",monospace;font-size:10.5px;padding:1px 7px;border-radius:5px;font-weight:600}
+  .lyEPI{background:rgba(139,132,207,.15);color:#aaa3e6}
+  .lyDEV{background:rgba(210,162,74,.15);color:#e3bd76}
+  .lyMOD{background:rgba(79,175,142,.15);color:#7cc9ad}
+  .lySUB{background:rgba(90,169,224,.15);color:#8ec4ee}
+  .lyBE{background:rgba(196,122,158,.15);color:#dba0bf}
+  .lyMBE{background:rgba(91,129,196,.15);color:#8aa7df}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .two{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+  @media(max-width:780px){.two{grid-template-columns:1fr}}
+  .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:2px 0 16px}
+  .leg span{display:flex;align-items:center;gap:7px}
+  .leg .sw{width:11px;height:11px;border-radius:3px}
+  .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
+  footer{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}
+  footer b{color:var(--mut)}
+  /* ---- awareness / tabs ---- */
+  .axis-zone{font-size:9px;font-family:"JetBrains Mono",monospace;letter-spacing:.04em}
+  .liw{width:100%;border-collapse:collapse;font-size:12px}
+  .liw th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .liw td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+  .liw td b{color:var(--txt)}
+  .dotR{color:var(--choke);font-weight:600}.dotA{color:var(--dev);font-weight:600}.dotG{color:var(--pos);font-weight:600}
+  .tabbtn{font-family:"Space Grotesk",sans-serif;background:var(--panel2);border:1px solid var(--line);color:var(--mut);padding:11px 16px;border-radius:10px 10px 0 0;font-size:13px;font-weight:600;cursor:pointer;border-bottom:none;display:flex;flex-direction:column;gap:2px;min-width:160px;text-align:left}
+  .tabbtn small{font-size:10px;font-weight:400;color:var(--dim)}
+  .tabbtn.on{background:var(--panel);color:var(--txt);border-color:var(--line2)}
+  .tabbtn.on small{color:var(--accent)}
+  .tabbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .stagebadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.04em}
+  .sg-early{background:rgba(95,201,138,.16);color:var(--pos)}
+  .sg-recog{background:rgba(210,162,74,.16);color:var(--dev)}
+  .sg-eu{background:rgba(224,104,106,.16);color:var(--choke)}
+  .mini{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+  .mini div{padding:11px 13px;border-right:1px solid var(--line)}
+  .mini div:last-child{border-right:0}
+  .mini .v{font-family:"JetBrains Mono",monospace;font-size:16px;font-weight:600}
+  .mini .l{font-size:10px;color:var(--mut);margin-top:2px}
+  .gap{border-left:3px solid var(--accent);background:rgba(45,212,191,.06);border-radius:8px;padding:12px 15px;margin:14px 0}
+  .gap .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:5px}
+  .gap p{font-size:12.5px;color:var(--mut);line-height:1.5}.gap p b{color:var(--txt)}
+  .mtd{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
+  @media(max-width:780px){.mtd{grid-template-columns:1fr}.mini{grid-template-columns:1fr 1fr 1fr}.tabbtn{min-width:0;flex:1}}
+  .mtc{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+  .mtc .h{font-size:11.5px;font-weight:600;color:var(--accent);margin-bottom:3px}
+  .mtc p{font-size:11.5px;color:var(--mut);line-height:1.45}.mtc p b{color:var(--txt)}
+  .bbr{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+  .bbr div{border-radius:8px;padding:9px 12px;font-size:11.5px;line-height:1.45;color:var(--mut)}
+  .bbr .bl{border-left:3px solid var(--pos);background:var(--panel2)}
+  .bbr .be{border-left:3px solid var(--choke);background:var(--panel2)}
+  .bbr b{display:block;font-size:10.5px;margin-bottom:2px}
+  /* ---- scenario grid ---- */
+  .scen{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
+  .scen th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .scen td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--mut)}
+  .scen td b{color:var(--txt)}
+  /* svg fonts set via CSS rule only — never as an SVG presentation attribute */
+  svg text{font-family:"Space Grotesk",sans-serif}
+  svg text.m{font-family:"JetBrains Mono",monospace}
+  .svglabel{font-size:9px;fill:var(--dim)}
+  @media print{
+    nav.toc{display:none}
+    .tabbtn{display:none}
+    .tabpane{display:block!important;page-break-inside:avoid;margin-bottom:10px}
+    body{background:#fff;color:#111}
+    svg text{fill:#222}
+    .panel,.card,.choke,.kpis,.svgwide{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #7 · v5 · Optics (deeper)</div>
+    <h1>One layer below the laser: the InP epitaxy &amp; MOCVD chokepoint</h1>
+    <p class="sub">Run #1 found the chokepoint at the <b>EML laser chip</b>. Go one floor lower and the laser itself is <b>grown</b> — atom-layer by atom-layer — inside a deposition reactor. The scarce, hard-to-replicate link everything optical passes through is the <b>InP epitaxy step</b>, and the tool that does it (MOCVD) is a near-monopoly. This report maps the deposition layer top-down and names a top-3 at <b>three different links</b> of the epi line — staged on the awareness curve so you can see what's still early versus already priced.</p>
+    <div class="gauges">
+      <div class="gauge"><span class="gv red">18<span style="font-size:13px;color:var(--dim)">/20</span></span><span class="gl"><b>Chokepoint severity</b>MOCVD InP epitaxy · EXTREME</span></div>
+      <div class="gauge"><span class="gv teal">9<span style="font-size:13px;color:var(--dim)">/20</span></span><span class="gl"><b>Remaining asymmetry</b>deposition layer mostly re-rated</span></div>
+    </div>
+    <div class="meta">
+      <div><div class="k">Date</div><div class="vv num">14 Jun 2026</div></div>
+      <div><div class="k">Stack path</div><div class="vv">precursors → InP substrate → <b style="color:var(--epi)">epitaxy/MOCVD</b> → back-end → laser → module</div></div>
+      <div><div class="k">Universe</div><div class="vv">Global · DE / US / UK / JP / FR</div></div>
+      <div><div class="k">Top-3</div><div class="vv">OXIG · AIXA · AXTI</div></div>
+    </div>
+    <div class="asof"><span class="dot"></span>As of 14 Jun 2026 · prices = last close (Fri 12 Jun) via IBKR read-only · multiples are estimates, verify before sizing · personal research, NOT investment advice</div>
+  </div>
+</header>
+
+<nav class="toc"><div class="wrap">
+  <a href="#s1">01 Snapshot</a>
+  <a href="#s2">02 Framework</a>
+  <a href="#s3">03 Tool gallery</a>
+  <a href="#s4">04 How a laser is built</a>
+  <a href="#s5">05 Where each tool runs</a>
+  <a href="#s6">06 Supply chain</a>
+  <a href="#s7">07 Timeline</a>
+  <a href="#s8">08 Chokepoint + severity</a>
+  <a href="#s9">09 Awareness curve</a>
+  <a href="#s10">10 Top-3 plays</a>
+  <a href="#s11">11 Beneficiaries + risks</a>
+  <a href="#s12">12 Decision table</a>
+</div></nav>
+
+<div class="wrap">
+
+<!-- 1. SNAPSHOT -->
+<section id="s1">
+  <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">為什麼是現在</span></div>
+  <p class="lead">Every AI optical link needs a laser, and lasers are <b>not printed in silicon — they are grown on indium phosphide (InP)</b> one crystal layer at a time. That growing step is <b>epitaxy</b>, and the volume tool for it is <b>MOCVD</b>, where one company (AIXTRON) holds an estimated <b>70–90% of the advanced-photonic market</b>. The headline optics names (Lumentum, Coherent) and even the substrate (AXT) have already run hard; the question this report asks is whether the <b>deposition layer underneath them</b> still hides any asymmetry.</p>
+  <div class="kpis">
+    <div class="kpi"><div class="v num teal">70–90%</div><div class="l">AIXTRON share of advanced photonic MOCVD</div><div class="d">~70–90% in advanced-photonic InP (vs ~55–65% of MOCVD overall, with Veeco) — Kerrisdale (est.)</div></div>
+    <div class="kpi"><div class="v num red">~70%</div><div class="l">InP device supply gap, 2025</div><div class="d">~2M pieces demand vs ~600k capacity (industry est.)</div></div>
+    <div class="kpi"><div class="v num amb">4″→6″</div><div class="l">InP wafer-size transition underway</div><div class="d">"4× devices/wafer", &gt;60% die-cost cut → a new tool cycle</div></div>
+    <div class="kpi"><div class="v num grn">$23B+</div><div class="l">optical transceiver market 2025, +~50% YoY</div><div class="d">LightCounting via Veeco; AI capex the driver</div></div>
+  </div>
+
+  <div style="border:1px solid var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px;background:var(--panel)">
+    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px">EXPLAIN IT SIMPLY · 白話版</div>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6;max-width:920px">Picture a tiny laser chip as a <b style="color:var(--txt)">cake with 100+ ultra-thin layers</b>, each a few atoms thick. You can't carve that cake out of ordinary silicon — silicon can't make light. You have to <b style="color:var(--txt)">grow</b> it on a special crystal wafer (indium phosphide), and the oven that grows it is called an <b style="color:var(--txt)">MOCVD reactor</b>. If one layer is off by a nanometre, the laser is junk — so the ovens are extraordinarily hard to build, and basically <b style="color:var(--txt)">one company (AIXTRON) builds the good ones</b> for photonics, with Veeco second. Run #1 said "the laser is the bottleneck." This report goes one floor down: <b style="color:var(--txt)">the bottleneck under the laser is the oven and the wafer it grows on.</b> The investing question: now that the lasers and the wafer makers have already soared, is there any money left in the <b style="color:var(--txt)">oven-and-processing layer below them — and which names are still early?</b></p>
+  </div>
+</section>
+
+<!-- 2. TWO-AXIS FRAMEWORK -->
+<section id="s2">
+  <div class="sh"><span class="n">02</span><h2>The framework — two orthogonal axes</h2><span class="cn">MECE 框架</span></div>
+  <p class="lead">Every photonic chip is defined by <b>(which light source × which fab step)</b>. The <b>rows</b> say <i>what kind of light</i> you're growing (datacom InP laser, VCSEL, the SiPh route, next-gen oxide); the <b>columns</b> say <i>which deposition/processing step</i> binds. The chokepoint sits at one cell: <b>volume InP datacom-laser epitaxy</b> done on <b>MOCVD</b>.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+    <div class="panel" style="padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">THE LAYER STACK · 分層 (read this first)</div>
+      <div style="font-size:12px;color:var(--mut);line-height:1.8">
+        <span class="lyr lySUB">SUB</span> the raw <b>InP crystal wafer</b> you grow on &nbsp;·&nbsp;
+        <span class="lyr lyEPI">EPI</span> the <b>epitaxy / MOCVD</b> oven that grows the laser layers (the chokepoint) &nbsp;·&nbsp;
+        <span class="lyr lyBE">BE</span> the <b>back-end</b> etch / passivation / mirror-coating that finishes the chip &nbsp;·&nbsp;
+        <span class="lyr lyDEV">DEV</span> the <b>laser/EML chip</b> the device maker sells.
+      </div>
+    </div>
+    <div class="panel" style="padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">6-TERM GLOSSARY · 名詞</div>
+      <div style="font-size:11.5px;color:var(--mut);line-height:1.7">
+        <b>Epitaxy</b> growing crystal layers on a wafer · <b>MOCVD</b> the gas-phase volume growth oven · <b>MBE</b> the slower ultra-precise vacuum growth tool · <b>InP</b> indium-phosphide, the laser substrate · <b>VCSEL</b> a GaAs short-reach laser · <b>BTO</b> barium-titanate, a next-gen modulator material
+      </div>
+    </div>
+  </div>
+  <table class="matrix">
+    <tr>
+      <th style="width:200px">Light source (row) ↓ / what binds →</th>
+      <th style="width:150px">Deposition tool used</th>
+      <th>Why it's the constraint</th>
+      <th style="width:210px">Who wins · key players</th>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--epi)"></span>InP datacom laser<small>EML / CW-DFB · 1.3–1.55 µm</small></div></td>
+      <td><b>MOCVD</b> (volume)</td>
+      <td><b>The chokepoint.</b> Almost all AI optical InP lasers are grown on MOCVD; the recipe is years of yield know-how, not a catalog buy. <span class="chip hot">MOCVD epitaxy</span></td>
+      <td><b>AIXTRON</b> (70–90% adv. photonic), Veeco (2nd source)</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--sub)"></span>GaAs VCSEL<small>850/940 nm · short reach, sensing</small></div></td>
+      <td><b>MOCVD</b> (GaAs)</td>
+      <td><b>The other volume leg.</b> Same ovens, different chemistry; rides the same tool cycle. <span class="chip">multi-mode / AEC-adjacent</span></td>
+      <td>AIXTRON, Veeco; IQE (epi foundry)</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--be)"></span>SiPh external-laser route<small>CW InP laser + silicon modulator</small></div></td>
+      <td><b>MOCVD</b> CW + back-end</td>
+      <td><b>Doesn't escape InP.</b> The modulator is silicon, but the light still comes from an InP CW laser grown on MOCVD. <span class="chip">1.6T+ scaling</span></td>
+      <td>AIXTRON/Veeco (laser) · Oxford (back-end)</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--dev)"></span>Next-gen oxide modulator<small>BTO / TFLN · 2027+</small></div></td>
+      <td><b>MBE</b> (precision)</td>
+      <td><b>The emerging frontier.</b> Oxide ferroelectric films need MBE precision; a Veeco-imec vs Riber race. <span class="chip">option value, pre-revenue</span></td>
+      <td>Riber (ROSIE), Veeco-imec (300mm BTO)</td>
+    </tr>
+  </table>
+  <p class="cap">The cell the whole optics build runs through is <b style="color:#efa0a1">InP datacom laser × MOCVD epitaxy</b>. Notice three of four rows still pass through MOCVD — that's why one deposition tool radiates across the entire optical stack.</p>
+</section>
+
+<!-- 3. TOOL GALLERY -->
+<section id="s3">
+  <div class="sh"><span class="n">03</span><h2>The deposition layer, illustrated</h2><span class="cn">磊晶設備</span></div>
+  <p class="lead">The four pieces of equipment that turn a bare wafer into a working laser chip. The first one — the MOCVD reactor — is where the scarcity rent concentrates, because it owns the hardest, highest-volume step.</p>
+  <div class="gal">
+    <!-- MOCVD -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#8b84cf"/><stop offset="1" stop-color="#6f68b8"/></linearGradient></defs>
+          <!-- chamber dome -->
+          <path d="M28 78 L28 50 A72 30 0 0 1 172 50 L172 78 Z" fill="#1c2030" stroke="#8b84cf"/>
+          <text x="100" y="22" text-anchor="middle" class="svglabel">gas inlet (precursors)</text>
+          <!-- gas arrows down -->
+          <g stroke="#5fc98a" stroke-width="1.6">
+            <line x1="74" y1="30" x2="74" y2="48"/><line x1="100" y1="30" x2="100" y2="48"/><line x1="126" y1="30" x2="126" y2="48"/>
+          </g>
+          <!-- wafer susceptor -->
+          <rect x="56" y="68" width="88" height="8" rx="2" fill="url(#g1)"/>
+          <circle cx="100" cy="72" r="2.5" fill="#fff"/>
+          <text x="100" y="92" text-anchor="middle" font-size="8" fill="#cfc9f2">heated rotating wafers</text>
+          <text x="100" y="104" text-anchor="middle" class="svglabel m">layers grown atom-by-atom</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>MOCVD reactor <span class="badge b-hot">CHOKEPOINT</span></h4>
+        <p class="role">Metal-organic chemical vapour deposition: flows precursor gases over hot, spinning wafers to grow crystal films. High throughput → the default for <i>volume</i> InP laser manufacturing.</p>
+        <p class="who">Tool makers: <b>AIXTRON</b> (G10-AsP), Veeco (Lumina)</p>
+      </div>
+    </div>
+    <!-- MBE -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="60" r="40" fill="#11161f" stroke="#5b81c4"/>
+          <text x="100" y="20" text-anchor="middle" class="svglabel">ultra-high vacuum</text>
+          <!-- effusion cells -->
+          <rect x="44" y="64" width="14" height="20" rx="2" fill="#5b81c4"/>
+          <rect x="62" y="70" width="14" height="14" rx="2" fill="#5b81c4"/>
+          <!-- beams -->
+          <line x1="54" y1="64" x2="98" y2="56" stroke="#e0a458" stroke-width="1.4"/>
+          <line x1="70" y1="70" x2="98" y2="58" stroke="#e0a458" stroke-width="1.4"/>
+          <!-- wafer -->
+          <rect x="96" y="48" width="34" height="6" rx="2" fill="#8aa7df"/>
+          <text x="150" y="58" font-size="7.5" fill="#9aa3b5">1 atomic</text>
+          <text x="150" y="68" font-size="7.5" fill="#9aa3b5">layer/sec</text>
+          <text x="100" y="104" text-anchor="middle" class="svglabel">slow, but atomically precise</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>MBE chamber <span class="badge b-emrg">PRECISION</span></h4>
+        <p class="role">Molecular-beam epitaxy: fires atomic beams in a vacuum, one layer at a time. Lower throughput, higher precision — the workhorse for quantum-dot lasers, qubit stacks and next-gen oxide modulators.</p>
+        <p class="who">Leaders: <b>Riber</b> (ROSIE), Veeco (GEN)</p>
+      </div>
+    </div>
+    <!-- InP substrate -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <text x="100" y="18" text-anchor="middle" class="svglabel">InP single crystal → wafer</text>
+          <!-- boule -->
+          <ellipse cx="60" cy="60" rx="16" ry="34" fill="#23344a" stroke="#5aa9e0"/>
+          <text x="60" y="100" text-anchor="middle" font-size="7.5" fill="#8ec4ee">grown ingot</text>
+          <!-- arrow -->
+          <line x1="80" y1="60" x2="104" y2="60" stroke="#5a6377" stroke-width="1.5"/>
+          <polygon points="106,60 99,56 99,64" fill="#5a6377"/>
+          <!-- wafer slices -->
+          <ellipse cx="140" cy="50" rx="30" ry="8" fill="#1b2a3a" stroke="#5aa9e0"/>
+          <ellipse cx="140" cy="64" rx="30" ry="8" fill="#1b2a3a" stroke="#5aa9e0"/>
+          <text x="140" y="92" text-anchor="middle" font-size="7.5" fill="#8ec4ee">4″ → 6″ wafers</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>InP substrate <span class="badge b-next">UPSTREAM</span></h4>
+        <p class="role">The crystal wafer the laser is grown <i>on</i>. Hard to grow, few suppliers, painful to scale in size — now mid-transition from 4-inch to 6-inch, which itself triggers a new tool buy.</p>
+        <p class="who">Crystal: <b>Sumitomo</b>, AXT, JX, Freiberger</p>
+      </div>
+    </div>
+    <!-- back-end -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <text x="100" y="18" text-anchor="middle" class="svglabel">etch · passivate · mirror-coat</text>
+          <!-- wafer base -->
+          <rect x="30" y="70" width="140" height="14" rx="2" fill="#1c2030" stroke="#c47a9e"/>
+          <!-- etched ridges -->
+          <rect x="46" y="56" width="14" height="14" fill="#3a2b34" stroke="#c47a9e"/>
+          <rect x="78" y="56" width="14" height="14" fill="#3a2b34" stroke="#c47a9e"/>
+          <rect x="110" y="56" width="14" height="14" fill="#3a2b34" stroke="#c47a9e"/>
+          <!-- plasma -->
+          <g stroke="#dba0bf" stroke-width="1.2" opacity="0.7"><line x1="53" y1="40" x2="53" y2="54"/><line x1="85" y1="40" x2="85" y2="54"/><line x1="117" y1="40" x2="117" y2="54"/></g>
+          <text x="100" y="36" text-anchor="middle" font-size="7.5" fill="#dba0bf">plasma (ICP-RIE)</text>
+          <text x="100" y="102" text-anchor="middle" class="svglabel">waveguides + laser facets</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Back-end stack <span class="badge b-now">UNDER-COVERED</span></h4>
+        <p class="role">An epi wafer isn't a chip yet: etch the waveguides, passivate, mirror-coat the laser facets. A near-monopoly supplier owns this multi-step stack — and almost nobody models it.</p>
+        <p class="who">Stack: <b>Oxford Instruments</b> (OIPT) near-monopoly</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. HOW A LASER IS BUILT -->
+<section id="s4">
+  <div class="sh"><span class="n">04</span><h2>From wafer to laser chip — the build-up</h2><span class="cn">一片晶圓如何變成雷射</span></div>
+  <p class="lead">The same InP wafer passes through every stage left-to-right. The <b>value and the scarcity concentrate in the middle</b> — at epitaxy — because that's the step that's hardest to add and impossible to skip.</p>
+  <div class="svgwide">
+    <svg viewBox="0 0 1060 300" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="ar4" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#5a6377"/></marker>
+      </defs>
+      <!-- stage 1 substrate -->
+      <rect x="20" y="118" width="150" height="64" rx="8" fill="#13283a" stroke="#5aa9e0"/>
+      <text x="95" y="144" text-anchor="middle" font-size="12" fill="#8ec4ee" font-weight="600">InP wafer</text>
+      <text x="95" y="162" text-anchor="middle" font-size="9.5" fill="#9aa3b5">bare substrate</text>
+      <line x1="170" y1="150" x2="206" y2="150" stroke="#5a6377" stroke-width="1.5" marker-end="url(#ar4)"/>
+
+      <!-- stage 2 EPITAXY (chokepoint) -->
+      <rect x="208" y="104" width="170" height="92" rx="9" fill="#1c1518" stroke="#5a3236" stroke-width="1.6"/>
+      <rect x="224" y="92" width="138" height="18" rx="5" fill="#e0686a"/><text x="293" y="105" text-anchor="middle" font-size="9" fill="#1c1518" font-weight="700">CHOKEPOINT · EPITAXY</text>
+      <text x="293" y="134" text-anchor="middle" font-size="12" fill="#cfc9f2" font-weight="600">MOCVD growth</text>
+      <text x="293" y="151" text-anchor="middle" font-size="9.5" fill="#bcb3e6">100+ crystal layers</text>
+      <text x="293" y="170" text-anchor="middle" font-size="8.5" fill="#eda3a4">the laser is created here</text>
+      <text x="293" y="184" text-anchor="middle" font-size="8" fill="#9aa3b5">AIXTRON 70–90% · Veeco</text>
+      <line x1="378" y1="150" x2="414" y2="150" stroke="#5a6377" stroke-width="1.5" marker-end="url(#ar4)"/>
+
+      <!-- stage 3 back-end -->
+      <rect x="416" y="118" width="150" height="64" rx="8" fill="#2a1c24" stroke="#c47a9e"/>
+      <text x="491" y="140" text-anchor="middle" font-size="12" fill="#dba0bf" font-weight="600">Back-end</text>
+      <text x="491" y="156" text-anchor="middle" font-size="9" fill="#9aa3b5">etch · passivate</text>
+      <text x="491" y="170" text-anchor="middle" font-size="9" fill="#9aa3b5">mirror-coat</text>
+      <line x1="566" y1="150" x2="602" y2="150" stroke="#5a6377" stroke-width="1.5" marker-end="url(#ar4)"/>
+
+      <!-- stage 4 device -->
+      <rect x="604" y="118" width="150" height="64" rx="8" fill="#33302a" stroke="#d2a24a"/>
+      <text x="679" y="140" text-anchor="middle" font-size="12" fill="#e3bd76" font-weight="600">Laser / EML chip</text>
+      <text x="679" y="156" text-anchor="middle" font-size="9" fill="#9aa3b5">diced + tested</text>
+      <text x="679" y="170" text-anchor="middle" font-size="9" fill="#9aa3b5">Coherent · Lumentum</text>
+      <line x1="754" y1="150" x2="790" y2="150" stroke="#5a6377" stroke-width="1.5" marker-end="url(#ar4)"/>
+
+      <!-- stage 5 module -->
+      <rect x="792" y="118" width="150" height="64" rx="8" fill="#11261f" stroke="#3a6b54"/>
+      <text x="867" y="140" text-anchor="middle" font-size="12" fill="#7cc9ad" font-weight="600">1.6T module</text>
+      <text x="867" y="156" text-anchor="middle" font-size="9" fill="#9aa3b5">8× lasers inside</text>
+      <text x="867" y="170" text-anchor="middle" font-size="9" fill="#9aa3b5">→ AI datacenter</text>
+
+      <!-- note -->
+      <rect x="20" y="214" width="922" height="66" rx="10" fill="#13161e" stroke="#2a3040"/>
+      <text x="38" y="238" font-size="11" fill="#e8eaf0" font-weight="600">What changes at each step</text>
+      <text x="38" y="258" font-size="10.5" fill="#9aa3b5">A bare wafer is cheap and replaceable. After epitaxy it carries the laser's entire physics — that step adds the most value and is the</text>
+      <text x="38" y="272" font-size="10.5" fill="#eda3a4">hardest to add capacity for. Everything to the right (back-end, dicing, module) is real work, but it waits on the epitaxy oven upstream.</text>
+    </svg>
+  </div>
+  <p class="cap">Build-up view — the InP wafer (left) is common to all; the laser only <i>exists</i> after the MOCVD step. Capacity added downstream is useless without epitaxy capacity upstream.</p>
+</section>
+
+<!-- 5. WHERE EACH TOOL RUNS -->
+<section id="s5">
+  <div class="sh"><span class="n">05</span><h2>Where each tool is leveraged</h2><span class="cn">設備如何對應應用</span></div>
+  <p class="lead">The same deposition layer feeds three different optical jobs. Note that MOCVD shows up in all three volume paths — only the emerging oxide-modulator path leans on MBE.</p>
+  <div class="svgwide">
+    <svg viewBox="0 0 1060 250" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <!-- DATACOM InP -->
+      <text x="40" y="28" font-size="12" fill="#8b84cf" font-weight="600">DATACOM InP LASER</text>
+      <text x="40" y="44" font-size="9.5" fill="#697283">EML / CW-DFB · the volume engine</text>
+      <rect x="34" y="58" width="300" height="150" rx="10" fill="#181527" stroke="#3c3460"/>
+      <rect x="60" y="84" width="100" height="40" rx="6" fill="#2a2540" stroke="#8b84cf"/><text x="110" y="108" text-anchor="middle" font-size="9.5" fill="#cfc9f2">MOCVD</text>
+      <line x1="160" y1="104" x2="196" y2="104" stroke="#8b84cf" stroke-width="2"/>
+      <polygon points="198,104 191,100 191,108" fill="#8b84cf"/>
+      <rect x="198" y="84" width="110" height="40" rx="6" fill="#33302a" stroke="#d2a24a"/><text x="253" y="103" text-anchor="middle" font-size="9" fill="#e3bd76">200G EML</text><text x="253" y="116" text-anchor="middle" font-size="8" fill="#9aa3b5">1.6T module</text>
+      <text x="184" y="168" text-anchor="middle" font-size="8.5" fill="#aaa3e6">scale-out · the 800G→1.6T ramp</text>
+      <text x="184" y="190" text-anchor="middle" font-size="8.5" fill="#697283">≈ 70% of AIXTRON's order book is here</text>
+
+      <!-- VCSEL GaAs -->
+      <text x="378" y="28" font-size="12" fill="#5aa9e0" font-weight="600">VCSEL (GaAs)</text>
+      <text x="378" y="44" font-size="9.5" fill="#697283">short reach · sensing · AEC-adjacent</text>
+      <rect x="372" y="58" width="300" height="150" rx="10" fill="#0e1722" stroke="#244258"/>
+      <rect x="398" y="84" width="100" height="40" rx="6" fill="#13283a" stroke="#5aa9e0"/><text x="448" y="108" text-anchor="middle" font-size="9.5" fill="#8ec4ee">MOCVD</text>
+      <line x1="498" y1="104" x2="534" y2="104" stroke="#5aa9e0" stroke-width="2"/>
+      <polygon points="536,104 529,100 529,108" fill="#5aa9e0"/>
+      <rect x="536" y="84" width="110" height="40" rx="6" fill="#11261f" stroke="#3a6b54"/><text x="591" y="103" text-anchor="middle" font-size="9" fill="#7cc9ad">VCSEL array</text><text x="591" y="116" text-anchor="middle" font-size="8" fill="#9aa3b5">multimode optics</text>
+      <text x="522" y="168" text-anchor="middle" font-size="8.5" fill="#8ec4ee">same ovens, different chemistry</text>
+      <text x="522" y="190" text-anchor="middle" font-size="8.5" fill="#697283">rides the same tool cycle</text>
+
+      <!-- OXIDE MBE -->
+      <text x="716" y="28" font-size="12" fill="#d2a24a" font-weight="600">NEXT-GEN OXIDE</text>
+      <text x="716" y="44" font-size="9.5" fill="#697283">BTO / TFLN modulator · 2027+</text>
+      <rect x="710" y="58" width="316" height="150" rx="10" fill="#1f1a0e" stroke="#5a4624"/>
+      <rect x="738" y="84" width="100" height="40" rx="6" fill="#2a2412" stroke="#d2a24a"/><text x="788" y="108" text-anchor="middle" font-size="10" fill="#e3bd76">MBE</text>
+      <line x1="838" y1="104" x2="874" y2="104" stroke="#d2a24a" stroke-width="2"/>
+      <polygon points="876,104 869,100 869,108" fill="#d2a24a"/>
+      <rect x="876" y="84" width="124" height="40" rx="6" fill="#11261f" stroke="#3a6b54"/><text x="938" y="103" text-anchor="middle" font-size="8.5" fill="#7cc9ad">oxide modulator</text><text x="938" y="116" text-anchor="middle" font-size="8" fill="#9aa3b5">on silicon photonics</text>
+      <text x="868" y="168" text-anchor="middle" font-size="8.5" fill="#e3bd76">Riber vs Veeco-imec race</text>
+      <text x="868" y="190" text-anchor="middle" font-size="8.5" fill="#697283">option value, pre-revenue today</text>
+    </svg>
+  </div>
+  <p class="cap">Application view — MOCVD is the common denominator of the two volume paths; the oxide-modulator path is the MBE wildcard. One tool cycle, three demand pools.</p>
+</section>
+
+<!-- 6. SUPPLY CHAIN -->
+<section id="s6">
+  <div class="sh"><span class="n">06</span><h2>End-to-end supply chain</h2><span class="cn">上下游全鏈</span></div>
+  <div class="leg">
+    <span><span class="sw" style="background:var(--up)"></span>Precursors / raw</span>
+    <span><span class="sw" style="background:var(--sub)"></span>InP substrate</span>
+    <span><span class="sw" style="background:var(--epi)"></span>Epitaxy / MOCVD</span>
+    <span><span class="sw" style="background:var(--be)"></span>Back-end process</span>
+    <span><span class="sw" style="background:var(--dev)"></span>Laser / device</span>
+    <span><span class="sw" style="background:var(--mod)"></span>Module + buyers</span>
+    <span><span class="sw" style="background:var(--choke)"></span>Chokepoint</span>
+  </div>
+  <div class="svgwide">
+    <svg viewBox="-12 -2 1124 486" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="aT6" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5a6377"/></marker>
+        <marker id="aR6" markerWidth="9" markerHeight="9" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e0686a"/></marker>
+      </defs>
+
+      <!-- direction header -->
+      <text x="22" y="20" font-size="11" fill="#697283" font-weight="600">UPSTREAM</text>
+      <line x1="110" y1="16" x2="980" y2="16" stroke="#2a3040" stroke-width="1"/>
+      <polygon points="982,16 974,12 974,20" fill="#2a3040"/>
+      <text x="1078" y="20" font-size="11" fill="#697283" font-weight="600" text-anchor="end">DOWNSTREAM</text>
+
+      <!-- flow connectors (behind cards): thin/red INTO & OUT of chokepoint (stage 3); thick/grey elsewhere -->
+      <line x1="180" y1="180" x2="200" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
+      <line x1="360" y1="180" x2="380" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR6)"/>
+      <line x1="540" y1="180" x2="560" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR6)"/>
+      <line x1="720" y1="180" x2="740" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
+      <line x1="900" y1="180" x2="920" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
+
+      <!-- C1 Precursors -->
+      <rect x="20" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="20" y="40" width="5" height="262" rx="2" fill="#5b81c4"/>
+      <text x="36" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Precursors / raw</text>
+      <text x="36" y="74" font-size="9" fill="#8aa7df" font-weight="600">UPSTREAM</text>
+      <g font-size="9">
+        <rect x="32" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="98" fill="#fff" font-weight="600">Metal-organics</text><text x="40" y="110" fill="#9aa3b5">TMIn · TMGa (Dow, Nouryon)</text>
+        <rect x="32" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="136" fill="#fff" font-weight="600">In · P · Ga feed</text><text x="40" y="148" fill="#9aa3b5">indium, phosphine</text>
+        <rect x="32" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="174" fill="#fff" font-weight="600">High-purity gas</text><text x="40" y="186" fill="#9aa3b5">specialty chemicals</text>
+      </g>
+      <text x="36" y="214" font-size="9" fill="#697283">consumable every reactor burns</text>
+      <text x="36" y="228" class="m" font-size="8.5" fill="#697283">no clean pure-play (latent)</text>
+
+      <!-- C2 Substrate -->
+      <rect x="200" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="200" y="40" width="5" height="262" rx="2" fill="#5aa9e0"/>
+      <text x="216" y="60" font-size="12" fill="#e8eaf0" font-weight="600">InP substrate</text>
+      <text x="216" y="74" font-size="9" fill="#8ec4ee" font-weight="600">CRYSTAL WAFER</text>
+      <g font-size="9">
+        <rect x="212" y="84" width="136" height="32" rx="6" fill="#13283a" stroke="#2f4a5e"/><text x="220" y="98" fill="#fff" font-weight="600">Sumitomo · JX</text><text x="220" y="110" fill="#9aa3b5">JP leaders (~majority)</text>
+        <rect x="212" y="122" width="136" height="32" rx="6" fill="#13283a" stroke="#2f4a5e"/><text x="220" y="136" fill="#fff" font-weight="600">AXT (Tongmei)</text><text x="220" y="148" fill="#9aa3b5">~#2 · China-integrated</text>
+        <rect x="212" y="160" width="136" height="32" rx="6" fill="#13283a" stroke="#2f4a5e"/><text x="220" y="174" fill="#fff" font-weight="600">Freiberger · VPE</text><text x="220" y="186" fill="#9aa3b5">EU / TW tail</text>
+      </g>
+      <text x="216" y="214" font-size="9" fill="#eda3a4">~70% supply gap (2025, est.)</text>
+      <text x="216" y="228" class="m" font-size="8.5" fill="#697283">4″→6″ transition underway</text>
+
+      <!-- C3 EPITAXY CHOKEPOINT -->
+      <rect x="380" y="40" width="160" height="262" rx="10" fill="#1c1518" stroke="#5a3236" stroke-width="1.5"/>
+      <rect x="380" y="40" width="5" height="262" rx="2" fill="#8b84cf"/>
+      <rect x="394" y="26" width="132" height="20" rx="5" fill="#e0686a"/><text x="460" y="40" font-size="9.5" fill="#1c1518" font-weight="700" text-anchor="middle">CHOKEPOINT · EPI</text>
+      <text x="396" y="62" font-size="12" fill="#e8eaf0" font-weight="600">Epitaxy / MOCVD</text>
+      <text x="396" y="76" font-size="9" fill="#aaa3e6" font-weight="600">DEPOSITION</text>
+      <g font-size="9">
+        <rect x="392" y="86" width="136" height="32" rx="6" fill="#2a1a2f" stroke="#8b84cf"/><text x="400" y="100" fill="#fff" font-weight="700">AIXTRON  ★</text><text x="400" y="112" fill="#cfb8e6">70–90% adv. photonic</text>
+        <rect x="392" y="124" width="136" height="32" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="400" y="138" fill="#fff" font-weight="600">Veeco (Lumina)</text><text x="400" y="150" fill="#bcb3e6">2nd source</text>
+        <rect x="392" y="162" width="136" height="32" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="400" y="176" fill="#fff" font-weight="600">Riber (MBE)</text><text x="400" y="188" fill="#bcb3e6">precision / oxide</text>
+      </g>
+      <text x="396" y="216" font-size="9" fill="#eda3a4">all InP lasers grown here</text>
+      <text x="396" y="230" class="m" font-size="8.5" fill="#697283">years of yield know-how</text>
+
+      <!-- C4 Back-end -->
+      <rect x="560" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="560" y="40" width="5" height="262" rx="2" fill="#c47a9e"/>
+      <text x="576" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Back-end process</text>
+      <text x="576" y="74" font-size="9" fill="#dba0bf" font-weight="600">FINISH THE CHIP</text>
+      <g font-size="9">
+        <rect x="572" y="84" width="136" height="32" rx="6" fill="#2a1c24" stroke="#5a3a4a"/><text x="580" y="98" fill="#fff" font-weight="600">Oxford (OIPT)</text><text x="580" y="110" fill="#9aa3b5">etch · ALD · IBE</text>
+        <rect x="572" y="122" width="136" height="32" rx="6" fill="#2a1c24" stroke="#5a3a4a"/><text x="580" y="136" fill="#fff" font-weight="600">Passivation</text><text x="580" y="148" fill="#9aa3b5">ICPCVD SiN/SiO₂</text>
+        <rect x="572" y="160" width="136" height="32" rx="6" fill="#2a1c24" stroke="#5a3a4a"/><text x="580" y="174" fill="#fff" font-weight="600">Facet coat</text><text x="580" y="186" fill="#9aa3b5">ion-beam mirrors</text>
+      </g>
+      <text x="576" y="214" font-size="9" fill="#dba0bf">near-monopoly, least-priced</text>
+      <text x="576" y="228" class="m" font-size="8.5" fill="#697283">scales with the 6″ fab build</text>
+
+      <!-- C5 Device -->
+      <rect x="740" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="740" y="40" width="5" height="262" rx="2" fill="#d2a24a"/>
+      <text x="756" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Laser / device</text>
+      <text x="756" y="74" font-size="9" fill="#e3bd76" font-weight="600">RENT POOLS HERE</text>
+      <g font-size="9">
+        <rect x="752" y="84" width="136" height="32" rx="6" fill="#332a18" stroke="#5a4a2a"/><text x="760" y="98" fill="#fff" font-weight="600">Lumentum</text><text x="760" y="110" fill="#9aa3b5">lead-volume 200G EML</text>
+        <rect x="752" y="122" width="136" height="32" rx="6" fill="#332a18" stroke="#5a4a2a"/><text x="760" y="136" fill="#fff" font-weight="600">Coherent</text><text x="760" y="148" fill="#9aa3b5">6″ InP, tripled cap.</text>
+        <rect x="752" y="160" width="136" height="32" rx="6" fill="#332a18" stroke="#5a4a2a"/><text x="760" y="174" fill="#fff" font-weight="600">AOI · IQE</text><text x="760" y="186" fill="#9aa3b5">integrated / epi foundry</text>
+      </g>
+      <text x="756" y="214" font-size="9" fill="#e3bd76">margin (rent) peaks here</text>
+      <text x="756" y="228" class="m" font-size="8.5" fill="#697283">but already priced (Run #1)</text>
+
+      <!-- C6 Buyers -->
+      <rect x="920" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="920" y="40" width="5" height="262" rx="2" fill="#4faf8e"/>
+      <text x="936" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Module + buyers</text>
+      <text x="936" y="74" font-size="9" fill="#7cc9ad" font-weight="600">DEMAND</text>
+      <g font-size="9">
+        <rect x="932" y="84" width="136" height="32" rx="6" fill="#11261f" stroke="#2f4a3e"/><text x="940" y="98" fill="#fff" font-weight="600">Innolight · FN</text><text x="940" y="110" fill="#9aa3b5">1.6T modules</text>
+        <rect x="932" y="122" width="136" height="32" rx="6" fill="#11261f" stroke="#2f4a3e"/><text x="940" y="136" fill="#fff" font-weight="600">Nvidia</text><text x="940" y="148" fill="#9aa3b5">CPO / Spectrum-X</text>
+        <rect x="932" y="160" width="136" height="32" rx="6" fill="#11261f" stroke="#2f4a3e"/><text x="940" y="174" fill="#fff" font-weight="600">Hyperscalers</text><text x="940" y="186" fill="#9aa3b5">MSFT · Meta · AWS</text>
+      </g>
+      <text x="936" y="214" font-size="9" fill="#7cc9ad">demand visibility = high</text>
+      <text x="936" y="228" class="m" font-size="8.5" fill="#697283">capex funds the whole chain</text>
+
+      <!-- scarcity premium bars -->
+      <line x1="40" y1="432" x2="1080" y2="432" stroke="#2a3040" stroke-width="1"/>
+      <text x="40" y="328" font-size="9" fill="#697283">scaling constraint / scarcity premium  (taller = tighter)</text>
+      <g>
+        <rect x="80" y="414" width="40" height="18" rx="2" fill="#2dd4bf" opacity="0.30"/>
+        <rect x="260" y="380" width="40" height="52" rx="2" fill="#5aa9e0" opacity="0.65"/>
+        <rect x="440" y="338" width="40" height="94" rx="2" fill="#e0686a"/>
+        <rect x="620" y="398" width="40" height="34" rx="2" fill="#c47a9e" opacity="0.60"/>
+        <rect x="800" y="368" width="40" height="64" rx="2" fill="#d2a24a" opacity="0.85"/>
+        <rect x="980" y="412" width="40" height="20" rx="2" fill="#2dd4bf" opacity="0.30"/>
+      </g>
+      <text x="460" y="330" font-size="9" fill="#eda3a4" text-anchor="middle" font-weight="600">scarcity peaks at epitaxy</text>
+      <text x="820" y="360" font-size="8.5" fill="#e3bd76" text-anchor="middle">2nd: device rent pool</text>
+      <g font-size="8.5" fill="#697283" text-anchor="middle">
+        <text x="100" y="446">precursors</text><text x="280" y="446">substrate</text><text x="460" y="446">epitaxy</text><text x="640" y="446">back-end</text><text x="820" y="446">laser</text><text x="1000" y="446">buyers</text>
+      </g>
+      <text x="550" y="468" font-size="9" fill="#697283" text-anchor="middle">Red arrows = constricted throughput into &amp; out of epitaxy — every downstream stage waits on the MOCVD oven. Scarcity (tightness) peaks at epitaxy; margin RENT pools one stage right at the device — see §8.</text>
+    </svg>
+  </div>
+  <p class="cap">The tell of this layer: the <b>tightest</b> stage (epitaxy) and the <b>highest-margin</b> stage (the laser device) are not the same box. Run #1 bought the device; this report asks whether the tighter box upstream is the better-priced entry.</p>
+</section>
+
+<!-- 7. TIMELINE -->
+<section id="s7">
+  <div class="sh"><span class="n">07</span><h2>Three-year evolution — by epi-line stage</h2><span class="cn">多年發展時間軸</span></div>
+  <p class="lead">How the deposition layer migrates 2025→2028. The <b style="color:#eda3a4">tinted</b> cells mark supply-stress / catalyst windows — most cluster in 2026–27 as the 6-inch buildout and the AIXTRON order-to-revenue inflection land.</p>
+  <div class="tlgrid">
+    <div class="tlhead"><div>Stage ↓ / Year →</div><div>2025</div><div>2026</div><div>2027</div><div>2028</div></div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--sub)"></span>InP substrate</div>
+      <div class="cell hot"><b>~70% supply gap</b>booked into 2026; AXT InP demand surging</div>
+      <div class="cell hot"><b>AXT doubles cap.</b>6″ R&amp;D; $632M raise deployed</div>
+      <div class="cell"><b>2nd doubling</b>Sumitomo +40%, JX +20% land</div>
+      <div class="cell"><b>Glut risk</b>supply may overshoot demand</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--epi)"></span>Epitaxy / MOCVD</div>
+      <div class="cell hot"><b>SiC trough + opto build</b>revenue weak, opto orders rising</div>
+      <div class="cell hot"><b>Opto ≈70% of orders</b>G10-AsP tool-of-record; guide raised €560M</div>
+      <div class="cell"><b>Revenue surge</b>Kerrisdale's "+18m" window; toward $1B run-rate</div>
+      <div class="cell"><b>Cycle matures</b>China (AMEC) share pressure builds</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--be)"></span>Back-end 6″ tooling</div>
+      <div class="cell hot"><b>Coherent Sherman/Järfälla</b>Oxford plasma tools install</div>
+      <div class="cell hot"><b>AOI 6″ win</b>3–6″ processing scales</div>
+      <div class="cell"><b>6″ mainstream</b>back-end stack fully utilised</div>
+      <div class="cell"><b>8″ R&amp;D</b>next size transition teed up</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--dev)"></span>Device / module</div>
+      <div class="cell"><b>1.6T starts</b>laser content compounds</div>
+      <div class="cell hot"><b>1.6T volume</b>CPO pilots; external-laser demand</div>
+      <div class="cell"><b>LPO/CPO scale</b>oxide-modulator first wins</div>
+      <div class="cell"><b>3.2T volume</b>BTO/MBE wildcard matures</div>
+    </div>
+  </div>
+  <p class="cap">Reading down a column = what's live that year; reading across a row = one stage's arc. The hinge is <b>2026–27</b>: the order book has already inflected up; reported revenue catches up next.</p>
+</section>
+
+<!-- 8. CHOKEPOINT + SEVERITY -->
+<section id="s8">
+  <div class="sh"><span class="n">08</span><h2>The chokepoint — and how tight</h2><span class="cn">卡點與嚴重度</span></div>
+  <div class="choke">
+    <div class="ttl">
+      <svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 2 L22 20 H2 Z" fill="none" stroke="#e0686a" stroke-width="2" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="14" stroke="#e0686a" stroke-width="2"/><circle cx="12" cy="17" r="1.2" fill="#e0686a"/></svg>
+      <h3>Volume InP laser epitaxy on MOCVD</h3>
+    </div>
+    <p>You cannot make an AI optical laser without growing it, and the volume way to grow it is MOCVD — where <b>AIXTRON holds an estimated 70–90% of the advanced-photonic market</b>, with Veeco the only credible second source. The recipe is years of accumulated yield know-how, not a tool you can buy and switch on. On top of base demand, the industry is mid-transition from <b>4-inch to 6-inch InP wafers</b>, which forces an entirely new, automated toolset — a fresh multi-year order cycle layered on the shortage. The catch for investors: the constraint is real, but the deposition-tool stocks have <b>already re-rated</b> (AIXTRON +218% YTD), so the edge now is narrow and specific.</p>
+    <div class="stats">
+      <div><b class="num">70–90%</b><span>AIXTRON adv. photonic MOCVD share (est.)</span></div>
+      <div><b class="num">€359M</b><span>AIXTRON order backlog, Q1-26 (+17% YoY)</span></div>
+      <div><b class="num">+30%</b><span>order intake YoY, ~70% optoelectronics</span></div>
+      <div><b class="num">4″→6″</b><span>wafer transition = new tool cycle</span></div>
+      <div><b class="num">2</b><span>credible volume MOCVD suppliers worldwide</span></div>
+    </div>
+  </div>
+
+  <!-- severity scorecard -->
+  <div class="panel" style="margin-top:14px">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
+      <h4 style="font-size:13px;font-weight:600">Chokepoint-severity scorecard <span style="color:var(--dim);font-weight:400;font-size:11px">· for the MOCVD epitaxy link (AIXA) · 1 = mild, 5 = acute · OXIG &amp; AXTI links scored in §12</span></h4>
+      <div style="text-align:right"><span class="num" style="font-size:26px;font-weight:600;color:var(--choke)">18</span><span class="num" style="font-size:13px;color:var(--dim)">/20</span><div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em">composite · EXTREME</div></div>
+    </div>
+    <div style="display:grid;gap:11px">
+      <div style="display:grid;grid-template-columns:180px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Supply concentration</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">5</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">One dominant tool (70–90% adv. photonic InP); a 2-player Western duopoly — China's AMEC/NAURA only in commodity MOCVD so far</div>
+      </div>
+      <div style="display:grid;grid-template-columns:180px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Lead time to add capacity</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:#3a3040"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">4</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">Tool build + install + qualify is multi-quarter; the 6″ requalification adds more — but tools <i>can</i> be built</div>
+      </div>
+      <div style="display:grid;grid-template-columns:180px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Low substitutability</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">5</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">No silicon substitute — light needs III-V; MBE is too low-throughput for volume; the SiPh route still uses an InP laser</div>
+      </div>
+      <div style="display:grid;grid-template-columns:180px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Demand-growth pressure</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:#3a3040"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">4</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">Transceivers +50%/yr, 6″ transition, 1.6T/CPO — but AIXTRON's own SiC/auto leg is in a trough, capping the blended print</div>
+      </div>
+    </div>
+    <p class="cap" style="margin-top:12px">Severity 18/20 — one notch below the EML link (Run #1: 19) because a reactor, unlike InP epitaxy yield, can at least be <i>built</i>; AIXTRON's blended demand is also diluted by its soft SiC/power leg. Co-binding chokepoints: the <b>InP substrate</b> (§12, score 16) and the <b>back-end stack</b> (§12, score 13).</p>
+  </div>
+
+  <!-- variant / disaggregation -->
+  <div class="panel" style="margin-top:14px;border-color:#2c5a40;background:rgba(95,201,138,.05)">
+    <h4 style="font-size:13px;margin-bottom:6px;font-weight:600;color:var(--pos)">Variant perception · the disaggregation that is the edge <span class="cn" style="font-weight:400;color:var(--dim)">變異認知</span></h4>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+      <div style="border-left:3px solid var(--dim);padding-left:12px">
+        <div style="font-size:10.5px;font-weight:700;color:var(--dim);letter-spacing:.04em;margin-bottom:4px">CONSENSUS BELIEVES</div>
+        <p style="font-size:12px;color:var(--mut);line-height:1.55">"AI optics" means buy the <b style="color:var(--txt)">modules and lasers</b> (Coherent, Lumentum) — and the MOCVD-tool makers are <b style="color:var(--txt)">EV/SiC equipment plays</b> stuck in a power-cycle downturn, with AIXTRON revenue down 47% YoY.</p>
+      </div>
+      <div style="border-left:3px solid var(--pos);padding-left:12px">
+        <div style="font-size:10.5px;font-weight:700;color:var(--pos);letter-spacing:.04em;margin-bottom:4px">THIS REPORT'S VARIANT</div>
+        <p style="font-size:12px;color:var(--mut);line-height:1.55">AIXTRON is <b style="color:var(--txt)">one stock running two opposite cycles</b>: SiC/power is <i>down and priced</i>, but photonics/InP is <i>up and unpriced</i> — opto is already ~70% of orders while reported revenue still reflects the old trough. The <b style="color:var(--txt)">order book has turned before the income statement</b> — the classic CPU/MLCC lead-indicator. The market is selling the arms-dealer on the wrong cycle.</p>
+      </div>
+    </div>
+    <p style="font-size:11.5px;color:var(--mut);line-height:1.55;margin-top:10px"><b style="color:var(--txt)">How it could be wrong:</b> the opto order surge proves lumpy / pull-forward; the SiC trough deepens and swamps the opto recovery; the whole industry's InP capacity race (Coherent 3×, AXT 2×2, Sumitomo +40%) <b style="color:var(--txt)">overshoots into a 2028 glut</b>, turning tool orders into an air-pocket; or China's AMEC/NAURA climb the advanced-photonic MOCVD curve faster than expected.</p>
+    <div class="gap" style="margin-top:10px"><div class="h">RENT-CAPTURE TEST · who keeps the scarcity rent? <span style="color:var(--dim);font-weight:400">(margins settle it)</span></div><p>Rank by gross margin: <b>device &gt; tool &gt; substrate.</b> The laser maker (Lumentum/Coherent) captures the chip-pricing rent — but it's <i>already priced</i> (~90× fwd P/E). The tool maker (AIXTRON, GM ~40–42%, EBIT 17–20%) earns a "sell-the-picks" rent that is healthy but cyclical — and trades at ~2.6× revenue / ~20× EPS, a 40–70% discount to WFE peers. The substrate maker (AXT) runs <i>single-digit</i> margins despite the shortage — buyers dual-source and fund supply. <b>So the scarcest physical link (substrate) keeps the least rent; the best-priced rent today sits at the tool.</b></p></div>
+  </div>
+</section>
+
+<!-- 9. AWARENESS CURVE -->
+<section id="s9">
+  <div class="sh"><span class="n">09</span><h2>Are we early? The awareness curve</h2><span class="cn">現在是早期嗎</span></div>
+  <p class="lead">The game is owning a chokepoint <b>before</b> the crowd prices it — the way 2018 MLCC and 2021 CPU/substrate shortages showed up in <b>lead-times and order books weeks before the stocks moved</b>. The honest read in June 2026: the deposition layer has <i>largely</i> run (AIXTRON +218%, AXT +440% YTD; the other III-V deposition names have re-rated hard too). What's left is narrow: the <b>back-end stack</b> nobody models (Oxford, +34%), and the <b>order-to-revenue inflection</b> inside AIXTRON. This section stages each name and lists the signals that flag the next leg before it hits reported revenue.</p>
+
+  <div class="svgwide" style="margin-bottom:14px">
+    <svg viewBox="0 0 1060 320" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="alphaz9" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5fc98a" stop-opacity="0.22"/><stop offset="1" stop-color="#5fc98a" stop-opacity="0"/></linearGradient></defs>
+      <rect x="40" y="40" width="190" height="230" fill="#11141c"/>
+      <rect x="230" y="40" width="200" height="230" fill="url(#alphaz9)" stroke="#2c5a40" stroke-dasharray="3 4"/>
+      <rect x="630" y="40" width="200" height="230" fill="#1a1216" opacity="0.5"/>
+      <text x="135" y="32" text-anchor="middle" class="axis-zone" fill="#697283">LATENT</text>
+      <text x="330" y="32" text-anchor="middle" class="axis-zone" fill="#5fc98a" font-weight="600">EARLY SIGNAL · ALPHA</text>
+      <text x="530" y="32" text-anchor="middle" class="axis-zone" fill="#d2a24a">RECOGNITION</text>
+      <text x="730" y="32" text-anchor="middle" class="axis-zone" fill="#e0686a">EUPHORIA</text>
+      <text x="930" y="32" text-anchor="middle" class="axis-zone" fill="#697283">FULLY PRICED</text>
+      <path d="M40,258 C 260,250 280,205 430,150 C 560,104 640,70 760,62 C 880,56 980,58 1020,58" fill="none" stroke="#4a5570" stroke-width="2.5"/>
+      <text x="48" y="288" font-size="10" fill="#697283">time · market awareness  →</text>
+      <text x="20" y="150" font-size="10" fill="#697283" transform="rotate(-90 20 150)">price / crowding →</text>
+      <!-- OXIG dot (early/alpha) -->
+      <circle cx="372" cy="172" r="7" fill="#5fc98a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="372" y="160" text-anchor="middle" font-size="11" fill="#7cd6a0" font-weight="700">OXIG</text>
+      <text x="372" y="198" text-anchor="middle" class="m" font-size="9" fill="#9aa3b5">+34% YTD · back-end</text>
+      <!-- AIXA dot (recognition) -->
+      <circle cx="580" cy="98" r="7" fill="#d2a24a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="580" y="86" text-anchor="middle" font-size="11" fill="#e3bd76" font-weight="700">AIXA</text>
+      <text x="580" y="124" text-anchor="middle" class="m" font-size="9" fill="#9aa3b5">+218% YTD · ~20×</text>
+      <!-- AXTI dot (euphoria) -->
+      <circle cx="772" cy="66" r="7" fill="#e0686a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="772" y="54" text-anchor="middle" font-size="11" fill="#eda3a4" font-weight="700">AXTI</text>
+      <text x="786" y="80" text-anchor="start" class="m" font-size="9" fill="#9aa3b5">+440% · off $143 hi ↓</text>
+      <!-- next-entry marker -->
+      <circle cx="285" cy="214" r="6" fill="none" stroke="#5fc98a" stroke-width="2" stroke-dasharray="2 2"/>
+      <text x="285" y="232" text-anchor="middle" font-size="9" fill="#7cd6a0">where the NEXT entry hides ↙</text>
+      <text x="330" y="262" text-anchor="middle" font-size="9.5" fill="#5fc98a">↑ you want to enter here</text>
+      <text x="775" y="250" text-anchor="middle" font-size="9.5" fill="#eda3a4">most retail buys here — too late</text>
+    </svg>
+  </div>
+  <p class="cap" style="margin-top:-4px;margin-bottom:14px">Horizontal = awareness stage (qualitative), not a linear return scale. Dot height ≈ how much of each story is already in the price as of 14 Jun 2026 — OXIG least, AXTI most. AIXA sits mid-curve: re-rated, but with a live order-to-revenue catalyst.</p>
+
+  <div class="panel" style="margin-bottom:14px;border-color:#2c5a40;background:rgba(95,201,138,.05)">
+    <h4 style="font-size:13px;margin-bottom:6px;font-weight:600;color:var(--pos)">Still-latent watchlist — left of the earliest play <span class="cn" style="font-weight:400;color:var(--dim)">尚未被發現的早期標的</span></h4>
+    <p style="font-size:12px;color:var(--mut);line-height:1.55">All three top-3 names have moved (OXIG +34%, AIXA +218%, AXTI +440% YTD). To buy <i>before</i> the crowd you watch links that are <b>still unpriced or impossible to buy cleanly today</b>. Each below could become the next re-rate:</p>
+    <table class="tbl" style="margin-top:8px">
+      <tr><th>Latent candidate (link)</th><th>Why it could be next</th><th>Trigger that wakes it · where to watch</th></tr>
+      <tr><td><b>Metal-organic precursors</b> — TMIn / TMGa (inside Dow, Nouryon, Merck)</td><td>The consumable every reactor burns; no clean pure-play, so it's structurally under-covered</td><td>Precursor allocation / lead-time stress on supplier calls; specialty-chem segment disclosures</td></tr>
+      <tr><td><b>Riber · ALRIB.PA</b> — production MBE leader (~€320M)</td><td>The MBE/oxide-modulator and quantum-stack optionality — latent on the <i>BTO</i> story even after +270% on price</td><td>First BTO/ROSIE design win; a Majorana-style qubit-stack tool order (Riber IR, semiconductor-today)</td></tr>
+      <tr><td><b>InP substrate #1 in a conglomerate</b> — Sumitomo Electric · JX Advanced Metals</td><td>The largest InP supplier is buried inside a giant cable/metals group — no one prices the InP leg</td><td>A dedicated InP-capacity capex announcement; segment break-out in results</td></tr>
+    </table>
+    <p class="cap" style="margin-top:6px">Watch-only ideas, not recommendations — most latent bets fail. The discipline: keep scanning <i>here</i> while the crowd buys what has already run.</p>
+  </div>
+
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:4px;font-weight:600">Leading indicators — the early-signal dashboard</h4>
+      <p style="font-size:11px;color:var(--dim);margin-bottom:10px">These move BEFORE reported revenue. Watch them to catch the next leg early.</p>
+      <table class="liw">
+        <tr><th>Signal · trigger</th><th>Where an amateur can actually read it</th></tr>
+        <tr><td><b>AIXTRON opto order intake / book-to-bill</b><br><span class="dotG" style="font-size:11px">add &gt;€120M/qtr · trim &lt;€100M</span></td><td>AIXTRON quarterly statement + IR deck (aixtron.com); semiconductor-today recaps</td></tr>
+        <tr><td><b>6″ InP fab capacity wins</b><br><span class="dotG" style="font-size:11px">each new fab = tool orders</span></td><td>Coherent / AOI earnings calls &amp; press releases; Oxford Instruments news page</td></tr>
+        <tr><td><b>InP wafer lead-times / "fully booked"</b><br><span class="dotA" style="font-size:11px">lengthening = bullish chain</span></td><td>AXT / Sumitomo / Coherent earnings-call transcripts</td></tr>
+        <tr><td><b>China InP / gallium export approvals</b><br><span class="dotA" style="font-size:11px">licence = AXTI catalyst (binary)</span></td><td>China MOFCOM &amp; US BIS notices; AXT 8-Ks</td></tr>
+        <tr><td><b>Veeco InP Lumina / Spector orders</b><br><span class="dotG" style="font-size:11px">confirms the capex wave is live</span></td><td>Veeco IR press releases; semiconductor-today</td></tr>
+        <tr><td><b>China MOCVD (AMEC/NAURA) photonic qual</b><br><span class="dotR" style="font-size:11px">advanced-InP win = bearish AIXA share</span></td><td>compoundsemiconductor.net; SEMI; AMEC filings</td></tr>
+        <tr><td><b>Hyperscaler capex guides</b><br><span class="dotG" style="font-size:11px">rising · a cut = exit signal</span></td><td>MSFT / GOOG / META / AMZN 10-Q capex line + call</td></tr>
+      </table>
+      <p style="font-size:10px;color:var(--dim);margin-top:8px">Thresholds are illustrative starting points — calibrate to your own risk. Every signal is readable from <b>free public sources</b> (statements, transcripts, PRs, export notices) weeks before it shows up in reported revenue.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">How to be early next time <span class="cn" style="font-weight:400;color:var(--dim)">如何提前布局</span></h4>
+      <div class="mtc" style="margin-bottom:9px"><div class="h">1 · Watch the order book, not the revenue line</div><p>In capital equipment, orders lead revenue by 2–4 quarters. AIXTRON's opto orders turned up while reported sales still fell — that gap is the alpha window.</p></div>
+      <div class="mtc" style="margin-bottom:9px"><div class="h">2 · Go one layer below the obvious chokepoint</div><p>Run #1 said "the laser." The laser is grown on a tool, on a wafer, finished by a back-end stack. The deeper you go, the less the crowd has modelled it (the back-end is barely covered).</p></div>
+      <div class="mtc" style="margin-bottom:9px"><div class="h">3 · Disaggregate a two-cycle stock</div><p>When one business is hated (SiC) and hides a second that's loved (photonics), the market often prices the hated one. Separate the two and you find the unpriced leg.</p></div>
+      <div class="mtc"><div class="h">4 · Respect that "tight" ≠ "cheap"</div><p>This whole layer is tight — and mostly re-rated. Tightness tells you the business is good; only price and the order-inflection tell you whether you're early.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. TOP-3 MULTI-TAB -->
+<section id="s10">
+  <div class="sh"><span class="n">10</span><h2>Top-3 chokepoint plays</h2><span class="cn">三大卡點標的 · 分頁</span></div>
+  <p class="lead">Three companies at <b>three different links</b> of the same epi line — back-end, deposition tool, substrate — deliberately spread across the awareness curve. Ranked by <b>remaining asymmetry</b> (how much is still NOT priced): the higher up the curve, the more the story is already in the stock.</p>
+
+  <div role="tablist" aria-label="Top-3 plays" style="display:flex;gap:6px;margin-bottom:-1px;flex-wrap:wrap">
+    <button class="tabbtn on" role="tab" aria-selected="true" aria-controls="t1" id="tab1" tabindex="0" onclick="showTab('t1',this)">① Oxford Instr. · OXIG<small>Back-end stack · earliest</small></button>
+    <button class="tabbtn" role="tab" aria-selected="false" aria-controls="t2" id="tab2" tabindex="-1" onclick="showTab('t2',this)">② AIXTRON · AIXA<small>MOCVD epitaxy · the owner</small></button>
+    <button class="tabbtn" role="tab" aria-selected="false" aria-controls="t3" id="tab3" tabindex="-1" onclick="showTab('t3',this)">③ AXT · AXTI<small>InP substrate · euphoric/late</small></button>
+  </div>
+
+  <!-- TAB 1: OXIG -->
+  <div class="tabpane" id="t1" role="tabpanel" aria-labelledby="tab1" style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">Oxford Instruments <span style="color:var(--dim);font-weight:400">LSE: OXIG</span></h3>
+      <span class="stagebadge sg-early">EARLY · most remaining asymmetry</span>
+      <span style="font-size:12px;color:var(--mut)">Chokepoint: <b style="color:var(--txt)">back-end process stack (etch · passivation · ALD · IBE)</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The unglamorous half of the epi line: after the wafer is grown, someone has to etch the waveguides, passivate, and mirror-coat the laser facets. <b>OIPT (Oxford Instruments Plasma Technology) near-monopolises that stack</b> for InP/GaAs photonics and supplies the tools ramping in Coherent's Sherman/Järfälla 6″ fabs and at AOI. The least-moved of the six III-V names (+34% YTD) — because the optics leg is buried inside a diversified instruments group and almost nobody models it.</p>
+    <div class="mini">
+      <div><div class="v">£27.48</div><div class="l">Last price</div></div>
+      <div><div class="v" style="color:var(--pos)">+34%</div><div class="l">YTD return</div></div>
+      <div><div class="v">~£1.6B</div><div class="l">Mkt cap est.</div></div>
+      <div><div class="v">~low-20s×</div><div class="l">P/E est.*</div></div>
+      <div><div class="v">near-mono</div><div class="l">back-end stack</div></div>
+    </div>
+    <div class="gap"><div class="h">ASYMMETRIC INFO GAP · 變異認知</div><p>Consensus models OXIG as a sleepy UK scientific-instruments compounder (NMR, cameras, X-ray). The variant: <b>one division owns the back-end process monopoly</b> the entire 6″ InP fab buildout has to flow through — Coherent and AOI already chose it. If the photonics-plasma leg is re-rated as an AI-optics pick, OXIG is the only top-3 name still left of recognition. The honest catch (and why it's still cheap): that leg is a <b>minority of group revenue</b>, so even a great optics cycle may not move the whole company much.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① Business model 怎麼賺錢</div><p>Sells high-tech instruments &amp; process tools — fee-for-equipment plus service/consumables. Plasma Technology (OIPT) is the AI-optics-relevant unit.</p></div>
+      <div class="mtc"><div class="h">② Segments 營收結構</div><p>Diversified: Materials &amp; Characterisation, Research &amp; Discovery, and <b>Advanced Technologies / Plasma</b>. Optics/photonics sits in the smaller plasma-tools leg.</p></div>
+      <div class="mtc"><div class="h">③ Growth drivers 成長來源</div><p>6″ InP fab tool orders (Coherent, AOI), compound-semi, quantum, plus the broader instruments base. Etch/ALD/IBE scale with every new photonic fab.</p></div>
+      <div class="mtc"><div class="h">④ End market 終端市場</div><p>Semiconductors/photonics, quantum, advanced materials, healthcare/academia. AI-optics is the new, fastest-growing slice.</p></div>
+      <div class="mtc"><div class="h">⑤ Customers 主要客戶</div><p>Coherent (Sherman/Järfälla 6″ InP), AOI, plus research labs and compound-semi fabs worldwide.</p></div>
+      <div class="mtc"><div class="h">⑥ Moat 護城河</div><p>Near-monopoly on the InP/GaAs back-end process recipe set (Cobra ICP-RIE, ICPCVD, ALD, Ionfab IBE); qualified-tool switching costs.</p></div>
+      <div class="mtc"><div class="h">⑦ Guidance 管理層展望</div><p>Steady diversified-compounder framing; semiconductor/plasma called out as a structural-growth driver. Less explosive, more durable than the pure-plays.</p></div>
+      <div class="mtc"><div class="h">⑧ Why chokepoint 為何卡點</div><p>An epi wafer isn't a laser until it's etched, passivated and facet-coated — and OIPT near-monopolises those steps across vendors.</p></div>
+    </div>
+    <table class="scen">
+      <tr><th>Scenario</th><th>~12–18m path</th><th>Return</th><th>Prob.</th></tr>
+      <tr><td><b style="color:var(--pos)">Bull</b></td><td>6″ InP fab wins scale; plasma leg re-rated as an AI-optics pick</td><td class="num" style="color:var(--pos)">+45%</td><td class="num">30%</td></tr>
+      <tr><td><b>Base</b></td><td>Steady compounder; optics helps at the margin</td><td class="num">+10%</td><td class="num">45%</td></tr>
+      <tr><td><b style="color:var(--choke)">Bear</b></td><td>Optics too small to move the group; instruments cyclicality</td><td class="num" style="color:var(--choke)">−20%</td><td class="num">25%</td></tr>
+      <tr><td colspan="2"><b>Probability-weighted EV</b></td><td class="num" style="color:var(--pos)">≈ +13%</td><td class="num">—</td></tr>
+    </table>
+    <p class="cap" style="margin-top:6px">Entry discipline: starter ~£25–27, add &lt;£23, reassess &gt;£33 (prior high). <b>Dated falsifier:</b> if FY26–27 results show plasma/semiconductor order growth stalling despite the 6″ InP buildout, the "hidden AI-optics leg" thesis is broken.</p>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--pos)">BULL</b>The back-end monopoly gets discovered and re-rated; durable, diversified, lowest-drama way to own the epi cycle.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>Optics is a rounding error in a £-billion instruments group; the stock keeps trading on the boring core, not the photonics leg.</div>
+    </div>
+  </div>
+
+  <!-- TAB 2: AIXA -->
+  <div class="tabpane" id="t2" role="tabpanel" aria-labelledby="tab2" hidden style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">AIXTRON SE <span style="color:var(--dim);font-weight:400">XETRA: AIXA</span></h3>
+      <span class="stagebadge sg-recog">RECOGNITION · live order-inflection</span>
+      <span style="font-size:12px;color:var(--mut)">Chokepoint: <b style="color:var(--txt)">MOCVD epitaxy tool (the deposition oven)</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The owner of the chokepoint: an estimated <b>70–90% of advanced-photonic MOCVD</b>, the "tool of record" (G10-AsP) for next-gen InP datacom lasers. The variant is the divergence — <b>order intake +30% YoY with opto ~70% of the book, while reported revenue is still down 47%</b> on the unrelated SiC/auto trough. Re-rated (+218% YTD) but at ~20× EPS / ~2.6× revenue, a 40–70% discount to WFE peers; Kerrisdale's long case argues &gt;270% to 2028.</p>
+    <div class="mini">
+      <div><div class="v">€55.02</div><div class="l">Last price</div></div>
+      <div><div class="v" style="color:var(--dev)">+218%</div><div class="l">YTD return</div></div>
+      <div><div class="v">~€6.7B</div><div class="l">Market cap</div></div>
+      <div><div class="v">~20×</div><div class="l">P/E 2026e*</div></div>
+      <div><div class="v" style="color:var(--pos)">+30%</div><div class="l">Order intake YoY</div></div>
+    </div>
+    <div class="gap"><div class="h">ASYMMETRIC INFO GAP · 變異認知</div><p>The market is anchored on the ugly reported revenue (−47% YoY) and files AIXTRON under "SiC equipment, avoid." It is under-weighting that the <b>order book has already inflected</b> on optoelectronics (~70% of Q1-26 orders), backlog is €359M, and the 4″→6″ InP transition layers a fresh tool cycle on top. The gap closes the moment opto orders convert to revenue (Kerrisdale: "begin to surge within 18 months," toward $1B). Highest-quality chokepoint of the three; medium remaining asymmetry because the re-rating is partly done.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① Business model 怎麼賺錢</div><p>Sells MOCVD deposition systems (capital equipment) + spares/service. High-margin tool sales tied to customers' fab-capacity cycles.</p></div>
+      <div class="mtc"><div class="h">② Segments 營收結構</div><p>By Q1-26 order intake: <b>optoelectronics ~70%</b>, the remainder split across LED/microLED and SiC/GaN power. Opto is now the engine; power is the trough.</p></div>
+      <div class="mtc"><div class="h">③ Growth drivers 成長來源</div><p>InP datacom-laser epitaxy, 4″→6″ transition, GaN-power for datacenters, microLED. G10-AsP = tool of record. 2026 guide raised to ~€560M.</p></div>
+      <div class="mtc"><div class="h">④ End market 終端市場</div><p>AI-datacenter optics (the new driver), plus LED/display, EV/industrial power, 3D sensing. Optics demand is the re-rating lever.</p></div>
+      <div class="mtc"><div class="h">⑤ Customers 主要客戶</div><p>InP laser/epi makers feeding Coherent/Lumentum/AOI; LED &amp; power-device fabs; merchant epi foundries. Order book skewed to optics.</p></div>
+      <div class="mtc"><div class="h">⑥ Moat 護城河</div><p>70–90% advanced-photonic MOCVD share; decades of process IP; qualified-tool lock-in. "Might make ASML blush" (Kerrisdale).</p></div>
+      <div class="mtc"><div class="h">⑦ Guidance 管理層展望</div><p>2026 revenue ~€560M (raised), EBIT 17–20%, GM ~40–42%; Malaysia capacity expansion; opto-led order momentum.</p></div>
+      <div class="mtc"><div class="h">⑧ Why chokepoint 為何卡點</div><p>No MOCVD oven, no InP laser — and only two credible volume suppliers exist, with AIXTRON dominant in photonics.</p></div>
+    </div>
+    <table class="scen">
+      <tr><th>Scenario</th><th>~12–18m path</th><th>Return</th><th>Prob.</th></tr>
+      <tr><td><b style="color:var(--pos)">Bull</b></td><td>Opto orders convert; 2027 revenue surges toward $1B; re-rates on visibility</td><td class="num" style="color:var(--pos)">+60%</td><td class="num">30%</td></tr>
+      <tr><td><b>Base</b></td><td>Orders steady, revenue recovers gradually, SiC stays soft; digests +218% YTD</td><td class="num">+9%</td><td class="num">45%</td></tr>
+      <tr><td><b style="color:var(--choke)">Bear</b></td><td>Opto orders lumpy/normalize; SiC trough persists; China-share fears</td><td class="num" style="color:var(--choke)">−35%</td><td class="num">25%</td></tr>
+      <tr><td colspan="2"><b>Probability-weighted EV</b></td><td class="num" style="color:var(--pos)">≈ +13%</td><td class="num">—</td></tr>
+    </table>
+    <p class="cap" style="margin-top:6px">Entry discipline: start ~€45–50 (pullback toward the order/revenue gap), add &lt;€42, trim conviction if opto orders fall &lt;€120M/qtr or price runs &gt;€68 before $1B visibility. <b>Dated falsifier:</b> if Q2/Q3-26 opto order intake rolls over (back below ~€120M/qtr) or backlog shrinks, the inflection thesis is broken.</p>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--pos)">BULL</b>The cleanest arms-dealer of the AI-optics build, at a WFE discount, with the order book already turning before the income statement.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>Cap-equipment cyclicality cuts both ways: a 2028 InP glut, a deeper SiC trough, or China share-loss turns the order surge into an air-pocket.</div>
+    </div>
+  </div>
+
+  <!-- TAB 3: AXTI -->
+  <div class="tabpane" id="t3" role="tabpanel" aria-labelledby="tab3" hidden style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">AXT Inc <span style="color:var(--dim);font-weight:400">NASDAQ: AXTI</span></h3>
+      <span class="stagebadge sg-eu">EUPHORIA · alpha window largely gone</span>
+      <span style="font-size:12px;color:var(--mut)">Chokepoint: <b style="color:var(--txt)">upstream InP substrate crystal</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The wafer the laser is grown on — InP/GaAs/Ge substrates, vertically integrated through China (Tongmei) for cost and raw-material control. The catch is the same as Run #1: it has <b>already run from a $1.80 52-wk low to a $143 high</b> (now $88, +440% YTD) on tiny fundamentals (Q1-26 revenue $26.9M) and carries a live <b>US export-licence overhang</b>. Carried here as the "what fully-priced looks like" anchor and the third, different link.</p>
+    <div class="mini">
+      <div><div class="v">$88.34</div><div class="l">Last price</div></div>
+      <div><div class="v" style="color:var(--choke)">+440%</div><div class="l">YTD return</div></div>
+      <div><div class="v">~$4.3B</div><div class="l">Market cap est.</div></div>
+      <div><div class="v" style="color:var(--choke)">~36×</div><div class="l">EV/Sales est.*</div></div>
+      <div><div class="v" style="color:var(--pos)">+39%</div><div class="l">Rev growth YoY</div></div>
+    </div>
+    <div class="gap" style="border-left-color:var(--choke);background:rgba(224,104,106,.06)"><div class="h" style="color:var(--choke)">ASYMMETRIC INFO GAP · 變異認知</div><p>Now <b>negative</b>: the InP-substrate story is fully awake (52-wk $1.80 → $143). The residual variant is binary — can <b>US export approvals</b> keep pace with the capacity build, and do single-digit margins inflect to justify ~36× sales? This is a momentum/catalyst trade, not an early entry; position sizing and stops matter more than the thesis.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① Business model 怎麼賺錢</div><p>Makes &amp; sells compound-semi substrate wafers (InP, GaAs, Ge). Vertically integrated via China (Tongmei) + raw-material subsidiaries for cost/speed.</p></div>
+      <div class="mtc"><div class="h">② Segments 營收結構</div><p>Substrates + recycled/raw-material subsidiaries. InP now &gt;50% of revenue ($13.6M of $26.9M in Q1-26) and the growth engine.</p></div>
+      <div class="mtc"><div class="h">③ Growth drivers 成長來源</div><p>AI optical InP demand; doubling InP capacity in 2026 <i>and</i> 2027; 6-inch InP R&amp;D; backlog &gt;$100M; $632.5M raise funds it.</p></div>
+      <div class="mtc"><div class="h">④ End market 終端市場</div><p>AI-datacenter optics (laser substrates) primarily; legacy 5G, sensing, LED. AI mix is the re-rating driver.</p></div>
+      <div class="mtc"><div class="h">⑤ Customers 主要客戶</div><p>Laser/chip makers needing InP wafers (the Coherent/Lumentum layer). &gt;$100M backlog gives near-term visibility.</p></div>
+      <div class="mtc"><div class="h">⑥ Moat 護城河</div><p>InP crystal-growth know-how + own furnaces + low-cost integrated China capacity; but substrates are more commoditisable than the oven or the EML.</p></div>
+      <div class="mtc"><div class="h">⑦ Guidance 管理層展望</div><p>Record InP demand; capacity doubling ×2; positive EPS guided. Key swing factor = US export licences (pending/under review).</p></div>
+      <div class="mtc"><div class="h">⑧ Why chokepoint 為何卡點</div><p>No InP wafer = no laser. Furthest upstream — but also the most replaceable and most geopolitically exposed link, and it keeps the least margin.</p></div>
+    </div>
+    <table class="scen">
+      <tr><th>Scenario</th><th>~12–18m path</th><th>Return</th><th>Prob.</th></tr>
+      <tr><td><b style="color:var(--pos)">Bull</b></td><td>US + non-US licences flow; capacity sells out; margins inflect on operating leverage</td><td class="num" style="color:var(--pos)">+50%</td><td class="num">25%</td></tr>
+      <tr><td><b>Base</b></td><td>Demand strong but margins thin; dilution overhang; choppy</td><td class="num" style="color:var(--choke)">−10%</td><td class="num">40%</td></tr>
+      <tr><td><b style="color:var(--choke)">Bear</b></td><td>Export controls throttle shipments; momentum unwinds from euphoria</td><td class="num" style="color:var(--choke)">−45%</td><td class="num">35%</td></tr>
+      <tr><td colspan="2"><b>Probability-weighted EV</b></td><td class="num" style="color:var(--choke)">≈ −7%</td><td class="num">—</td></tr>
+    </table>
+    <p class="cap" style="margin-top:6px">Entry discipline: no early entry left — momentum trade only, tight stops, avoid chasing &gt;$90; the binary is the US licence. <b>Dated falsifier:</b> a denied/stalled US export licence, or an InP backlog/order drop in the next 1–2 prints.</p>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--pos)">BULL</b>Approvals flow, capacity doubles into a shortage, small-cap operating leverage explodes.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>Export controls throttle shipments; momentum unwinds from euphoric levels; thin margins + dilution from the $632.5M raise.</div>
+    </div>
+  </div>
+  <p class="cap" style="margin-top:12px">*Valuation multiples are estimates from live last-close price, latest reported revenue/EPS run-rate and approximate share counts; verify on a data terminal before sizing. AXTI P/E is not meaningful (near-zero earnings) so EV/Sales is shown. EV ≈ probability-weighted; a thin or negative EV is a finding (argues for discipline), not a typo.</p>
+</section>
+
+<!-- 11. BENEFICIARY MAP + RISKS -->
+<section id="s11">
+  <div class="sh"><span class="n">11</span><h2>Beneficiary map &amp; key risks</h2><span class="cn">受惠族群與風險</span></div>
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Who benefits — by epi-line link</h4>
+      <table class="tbl">
+        <tr><th>Company</th><th>Link</th><th>Angle</th></tr>
+        <tr><td><b>AIXTRON</b> · AIXA</td><td><span class="lyr lyEPI">EPI</span></td><td>MOCVD tool of record, 70–90% adv. photonic</td></tr>
+        <tr><td><b>Veeco</b> · VECO</td><td><span class="lyr lyEPI">EPI</span> <span class="lyr lyMBE">MBE</span></td><td>#2 MOCVD (Lumina) + Spector ion-beam + BTO MBE optionality</td></tr>
+        <tr><td><b>Oxford Instr.</b> · OXIG</td><td><span class="lyr lyBE">BE</span></td><td>Near-monopoly back-end etch/ALD/IBE for 6″ InP</td></tr>
+        <tr><td><b>Riber</b> · ALRIB</td><td><span class="lyr lyMBE">MBE</span></td><td>Production MBE leader; BTO/quantum next-gen</td></tr>
+        <tr><td><b>AXT</b> · AXTI</td><td><span class="lyr lySUB">SUB</span></td><td>InP substrate, China-integrated, capacity ×2</td></tr>
+        <tr><td><b>Sumitomo</b> · 5802</td><td><span class="lyr lySUB">SUB</span></td><td>InP substrate #1 (buried in a conglomerate)</td></tr>
+        <tr><td><b>IQE</b> · IQE</td><td><span class="lyr lyEPI">EPI</span></td><td>Merchant epi-wafer foundry (outsourced growth)</td></tr>
+        <tr><td><b>Coherent / Lumentum</b></td><td><span class="lyr lyDEV">DEV</span></td><td>Laser/EML device — where the priced rent pools</td></tr>
+      </table>
+      <p class="cap" style="margin-top:10px">Layer key — <span class="lyr lySUB">SUB</span> substrate · <span class="lyr lyEPI">EPI</span> epitaxy/MOCVD · <span class="lyr lyBE">BE</span> back-end · <span class="lyr lyMBE">MBE</span> precision growth · <span class="lyr lyDEV">DEV</span> laser device.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Risks to the thesis</h4>
+      <table class="tbl">
+        <tr><th>Risk</th><th>Watch</th></tr>
+        <tr><td><b>China MOCVD indigenisation</b></td><td>AMEC/NAURA climb to advanced InP photonics</td></tr>
+        <tr><td><b>Capacity overshoot → 2028 glut</b></td><td>Coherent 3×, AXT 2×2, Sumitomo +40% all at once</td></tr>
+        <tr><td><b>AIXTRON revenue trough</b></td><td>SiC/auto stays soft, swamps opto recovery</td></tr>
+        <tr><td><b>Order lumpiness / pull-forward</b></td><td>Book-to-bill swings quarter to quarter</td></tr>
+        <tr><td><b>AXT export controls</b></td><td>US InP licence denied/stalled (binary)</td></tr>
+        <tr><td><b>Valuation</b></td><td>Layer already +150–440% YTD; re-rated</td></tr>
+        <tr><td><b>Mislocated chokepoint</b></td><td>Rent pools at the device, not the tool</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 12. DECISION TABLE -->
+<section id="s12">
+  <div class="sh"><span class="n">12</span><h2>The decision — one table</h2><span class="cn">投資決策總表</span></div>
+  <p class="lead">Everything above reconciled into one view, ranked by <b>remaining asymmetry</b> (how much is still NOT in the price) — <i>not</i> by severity, which is why row #1 has the lowest severity score. One row-read: the <b>tightest</b> physical link (the MOCVD tool, severity 18) is the highest-quality business but already re-rated; the <b>least-priced</b> entry is the back-end nobody models (OXIG); the substrate (AXTI) shows what euphoria-stage, binary, geopolitical risk looks like.</p>
+  <div style="overflow-x:auto">
+  <table class="tbl" style="min-width:900px">
+    <tr><th>#</th><th>Ticker</th><th>Chokepoint (link)</th><th>Severity</th><th>Awareness stage</th><th>Valuation</th><th>Remaining asymmetry</th><th>Framework lean</th><th>Key trigger to watch</th></tr>
+    <tr>
+      <td class="num">1</td><td><b>OXIG</b> · Oxford Instr.</td><td><span class="lyr lyBE">BE</span> back-end stack</td>
+      <td class="num">13/20</td><td><span class="stagebadge sg-early">EARLY</span></td><td class="num">~low-20s× · +34% YTD</td>
+      <td class="dotG">Highest</td><td><b>Accumulate / starter</b></td><td>6″ InP fab order flow-through to plasma segment</td>
+    </tr>
+    <tr>
+      <td class="num">2</td><td><b>AIXA</b> · AIXTRON</td><td><span class="lyr lyEPI">EPI</span> MOCVD epitaxy</td>
+      <td class="num">18/20</td><td><span class="stagebadge sg-recog">RECOGNITION</span></td><td class="num">~20× 2026e · +218% YTD</td>
+      <td class="dotA">Medium</td><td><b>Own quality / add on pullbacks</b></td><td>Opto order intake holding &gt;€120M/qtr; revenue catch-up</td>
+    </tr>
+    <tr>
+      <td class="num">3</td><td><b>AXTI</b> · AXT Inc</td><td><span class="lyr lySUB">SUB</span> InP substrate</td>
+      <td class="num">16/20</td><td><span class="stagebadge sg-eu">EUPHORIA</span></td><td class="num">~36× sales · +440% YTD</td>
+      <td class="dotR">Negative</td><td><b>Trade only / don't chase</b></td><td>US InP export-licence approvals (binary)</td>
+    </tr>
+  </table>
+  </div>
+  <p class="cap"><b>How each severity is derived</b> (same 0–20 rubric, four factors each 0–5: supply concentration · lead-time · low substitutability · demand): <b>AIXA MOCVD = 18</b> (5+4+5+4 — dominant tool, multi-quarter to add, no substitute, demand strong but diluted by SiC). <b>AXTI substrate = 16</b> (4+4+4+4 — scarce &amp; long crystal lead, but several growers and export-gated). <b>OXIG back-end = 13</b> (4+3+3+3 — near-monopoly stack but more alternative process vendors, a secondary step). So the same scarcity logic ranks the <i>links</i> — yet OXIG is the better <i>entry</i> precisely because it's the least-priced. <b>Tightness ≠ a good buy.</b> "Framework lean" is analysis, not advice.</p>
+
+  <div class="panel" style="margin-top:16px;border-color:var(--line2)">
+    <h4 style="font-size:13px;margin-bottom:8px;font-weight:600;color:var(--accent)">If you can only do one thing</h4>
+    <p style="font-size:12.5px;color:var(--mut);line-height:1.6">The market priced the optics module and the laser device in Run #1's window; it is still digesting that the binding constraint is one floor below at <b style="color:var(--txt)">epitaxy</b>. <b style="color:var(--txt)">AIXTRON owns that link at a 40–70% discount to WFE peers</b>, with an order book that has already turned before the income statement — the highest-quality way to own the layer. The genuinely <i>early</i> dollar, though, hides in the <b style="color:var(--txt)">back-end stack (OXIG)</b> nobody is modelling. AXTI is the cautionary tale: the scarcest physical link keeps the least margin and now carries euphoria-stage, binary risk.</p>
+  </div>
+
+  <div class="panel" style="margin-top:14px;border-color:#3a3015;background:rgba(210,162,74,.05)">
+    <h4 style="font-size:13px;margin-bottom:8px;font-weight:600;color:var(--warn)">Open questions · honest self-critique <span class="cn" style="font-weight:400;color:var(--dim)">未解之處</span></h4>
+    <ul style="list-style:none;font-size:12px;color:var(--mut);line-height:1.6">
+      <li style="padding:3px 0;border-bottom:1px dashed var(--line2)">• <b style="color:var(--txt)">AIXTRON's order inflection is unproven against the trough.</b> I can't yet rule out that the +30% opto orders are pull-forward; a single soft print would break the "orders lead revenue" read.</li>
+      <li style="padding:3px 0;border-bottom:1px dashed var(--line2)">• <b style="color:var(--txt)">OXIG's optics exposure is unquantified.</b> Public data doesn't let me size the plasma/photonics leg as a % of group revenue — the "early" call rests on qualitative near-monopoly + laggard price, not a modelled number. That's a real weakness.</li>
+      <li style="padding:3px 0;border-bottom:1px dashed var(--line2)">• <b style="color:var(--txt)">Single-source estimates.</b> The ~70% InP supply gap and the 70–90% MOCVD share are estimates (Kerrisdale / industry); substrate market shares vary widely across sources (Sumitomo 30–60%).</li>
+      <li style="padding:3px 0;border-bottom:1px dashed var(--line2)">• <b style="color:var(--txt)">The glut is the real bear.</b> Every layer is racing to add capacity. If 2027–28 supply overshoots, the tool makers (AIXA/VECO) see an order air-pocket first — the $1B-revenue/2028 case assumes a sustained cycle, not a one-off build.</li>
+      <li style="padding:3px 0">• <b style="color:var(--txt)">China timing is a coin-flip.</b> AMEC/NAURA are years from advanced InP photonic MOCVD — but "years" could be 2 (bearish AIXA) or 6 (bullish). I don't have a confident estimate.</li>
+    </ul>
+  </div>
+</section>
+
+<div class="disc"><b>Not investment advice.</b> Automated research synthesis for idea generation only. Figures drawn from public reporting, SEC/exchange filings, company statements and third-party estimates as of 14 Jun 2026; prices are last close (Fri 12 Jun) via IBKR read-only and may be stale; multiples are estimates. Verify against primary filings and do your own due diligence. No buy/sell recommendation implied. IBKR used read-only; no trade placed.</div>
+
+<footer>
+  <p><b>Sources:</b> AIXTRON Q1/2026 Quarterly Statement &amp; Results Presentation (orders €171.4M, backlog €359M, opto ~70%, guide ~€560M) · semiconductor-today.com (AIXTRON 2025–26 results; Veeco InP Lumina/Spector orders; Oxford–AOI) · ad-hoc-news.de (AIXTRON Q1 revenue −47%, order surge) · Kerrisdale Capital "AIXTRON" Nov-2025 (70–90% share, ~2.6× rev / ~20× EPS, &gt;270% upside) · PhotonCap "The 6 Companies Behind Coherent and Lumentum" (III-V deposition map, MOCVD vs MBE, back-end stack, 1-yr returns) · BigGo / MarketBeat / deltasheets (AXT Q1-26: $26.9M rev, InP $13.6M, backlog &gt;$100M, $632.5M raise, capacity ×2) · eu.36kr.com / Mordor Intelligence (InP substrate shares &amp; ~70% supply gap) · oxinst.com (6″ InP automated processing; Coherent Sherman/Järfälla; AOI order) · compoundsemiconductor.net / CSET (China AMEC/NAURA MOCVD) · LightCounting via Veeco (transceiver market &gt;$23B, +50%) · IBKR read-only (live last-close quotes).</p>
+  <p style="margin-top:10px">Automated AI-Infra workflow · <b>Run #7 v5 · Optics (deeper): InP epitaxy / MOCVD chokepoint</b> · next loop in the rotation; supersedes Run #1's EML-laser cut by going one layer below to the deposition tool · recurs every 2 days.</p>
+</footer>
+
+</div>
+<script>
+(function(){
+  var tabs=[document.getElementById('tab1'),document.getElementById('tab2'),document.getElementById('tab3')];
+  var panes=['t1','t2','t3'];
+  window.showTab=function(id,btn){
+    panes.forEach(function(p){var el=document.getElementById(p);if(el){el.hidden=(p!==id);}});
+    tabs.forEach(function(t){if(t){t.classList.remove('on');t.setAttribute('aria-selected','false');t.tabIndex=-1;}});
+    if(btn){btn.classList.add('on');btn.setAttribute('aria-selected','true');btn.tabIndex=0;}
+  };
+  function focusTab(i){var n=tabs.length;i=(i+n)%n;tabs[i].focus();window.showTab(panes[i],tabs[i]);}
+  tabs.forEach(function(t,i){
+    if(!t)return;
+    t.addEventListener('keydown',function(e){
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();focusTab(i+1);}
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();focusTab(i-1);}
+      else if(e.key==='Home'){e.preventDefault();focusTab(0);}
+      else if(e.key==='End'){e.preventDefault();focusTab(tabs.length-1);}
+    });
+  });
+})();
+</script>
+</body>
+</html>

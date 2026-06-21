@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Infra Run #12 v5 — Substrates / Glass-Core Substrate / Through-Glass-Via (TGV) Chokepoint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#13161e; --panel2:#1a1e28; --panel3:#212634; --line:#2a3040; --line2:#363d4f;
+    --txt:#e8eaf0; --mut:#9aa3b5; --dim:#697283;
+    --accent:#2dd4bf;        /* single brand accent (desaturated teal) */
+    --choke:#e0686a;         /* desaturated red */
+    /* categorical: supply layers */
+    --up:#5b81c4; --l3:#8b84cf; --pkg:#c47a9e; --l2:#d2a24a; --l1:#4faf8e;
+    /* categorical: package domains */
+    --dup:#e0a458; --dout:#5aa9e0; --dacr:#5fc98a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px;-webkit-font-smoothing:antialiased}
+  .num{font-family:"JetBrains Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  header{border-bottom:1px solid var(--line);padding:38px 0 30px;margin-bottom:8px;background:
+     radial-gradient(900px 320px at 12% -40%,rgba(45,212,191,.10),transparent 60%),
+     radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
+  .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.6px;line-height:1.12;max-width:940px}
+  .sub{font-size:15px;font-weight:400;color:var(--mut);margin-top:12px;max-width:860px}
+  .meta{margin-top:20px;display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+  .meta div{padding-right:26px;margin-right:26px;border-right:1px solid var(--line)}
+  .meta div:last-child{border:0}
+  .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+  .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
+  .toc{position:sticky;top:0;z-index:40;background:rgba(11,13,18,.86);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin-bottom:6px}
+  .toc .wrap{display:flex;gap:4px;flex-wrap:wrap;padding-top:9px;padding-bottom:9px}
+  .toc a{font-size:11px;color:var(--mut);text-decoration:none;padding:4px 9px;border-radius:7px;border:1px solid transparent}
+  .toc a:hover{color:var(--txt);border-color:var(--line2);background:var(--panel2)}
+  @media(max-width:780px){.toc{display:none}}
+  section{padding:34px 0 2px;scroll-margin-top:56px}
+  .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+  .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.05em}
+  .sh h2{font-size:21px;font-weight:600;letter-spacing:-.3px}
+  .sh .cn{font-size:13px;color:var(--dim);font-weight:400;margin-left:auto}
+  .lead{color:var(--mut);font-size:13.5px;max-width:880px;margin-bottom:18px}
+  .lead b{color:var(--txt);font-weight:600}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
+  .kpi{padding:18px 20px;border-right:1px solid var(--line)}
+  .kpi:last-child{border-right:0}
+  .kpi .v{font-size:25px;font-weight:600;letter-spacing:-.5px}
+  .kpi .l{font-size:11.5px;color:var(--mut);margin-top:4px}
+  .kpi .d{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.4}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}
+  .matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .matrix th{background:var(--panel2);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);font-weight:600;padding:12px 14px;text-align:left;border-bottom:1px solid var(--line)}
+  .matrix td{padding:14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
+  .matrix tr:last-child td{border-bottom:0}
+  .matrix .dom{font-weight:600;font-size:14px;color:var(--txt);display:flex;align-items:center;gap:9px}
+  .matrix .dom .sw{width:10px;height:10px;border-radius:3px;flex:none}
+  .matrix .dom small{display:block;font-weight:400;font-size:10.5px;color:var(--dim);margin-top:2px}
+  .matrix td b{color:var(--txt);font-weight:600}
+  .chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--panel3);color:var(--mut);margin:2px 4px 2px 0;border:1px solid var(--line2)}
+  .chip.hot{background:rgba(224,104,106,.12);border-color:#5a3236;color:#efa0a1}
+  .gal{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:900px){.gal{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.gal{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column}
+  .card .svgbox{background:linear-gradient(180deg,#0e1117,#161a24);padding:14px;border-bottom:1px solid var(--line)}
+  .card .body{padding:14px 16px 16px}
+  .card h4{font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .card .role{font-size:12px;color:var(--mut);margin-top:6px;line-height:1.45}
+  .card .who{font-size:11px;color:var(--dim);margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px}
+  .card .who b{color:var(--l3)}
+  .badge{font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:5px;letter-spacing:.03em;flex:none}
+  .b-hot{background:rgba(224,104,106,.14);color:#eda3a4}
+  .b-now{background:rgba(45,212,191,.13);color:var(--accent)}
+  .b-next{background:rgba(90,169,224,.14);color:var(--dout)}
+  .b-emrg{background:rgba(210,162,74,.14);color:var(--dup)}
+  .svgwide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
+  .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
+  .tlgrid{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .tlhead{display:grid;grid-template-columns:120px repeat(4,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
+  .tlhead div{padding:11px 12px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);border-right:1px solid var(--line)}
+  .tlhead div:first-child{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-family:"Space Grotesk",sans-serif;display:flex;align-items:center}
+  .tlrow{display:grid;grid-template-columns:120px repeat(4,1fr);border-bottom:1px solid var(--line)}
+  .tlrow:last-child{border-bottom:0}
+  .tlrow .lab{padding:13px 12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;border-right:1px solid var(--line);background:var(--panel2)}
+  .tlrow .lab .sw{width:9px;height:9px;border-radius:3px;flex:none}
+  .tlrow .cell{padding:11px 12px;border-right:1px solid var(--line);font-size:11.5px;color:var(--mut);line-height:1.4}
+  .tlrow .cell:last-child{border-right:0}
+  .tlrow .cell b{color:var(--txt);font-weight:600;display:block;margin-bottom:2px;font-size:11.5px}
+  .tlrow .cell.hot{background:rgba(224,104,106,.06)}
+  @media(max-width:780px){.tlhead,.tlrow{grid-template-columns:80px repeat(4,1fr);font-size:10px}.tlrow .cell{font-size:10px}}
+  .choke{border:1px solid #5a3236;border-radius:14px;padding:22px 24px;background:
+    linear-gradient(135deg,rgba(224,104,106,.10),transparent 55%),var(--panel)}
+  .choke .ttl{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+  .choke .ttl svg{flex:none}
+  .choke .ttl h3{font-size:17px;font-weight:600;color:var(--choke)}
+  .choke p{font-size:13.5px;color:#d9c4c6;max-width:980px}.choke p b{color:#fff}
+  .choke .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:18px;border-top:1px solid #4a2c2f;padding-top:16px}
+  @media(max-width:780px){.choke .stats{grid-template-columns:1fr 1fr}}
+  .choke .stats div{padding-right:18px}
+  .choke .stats b{display:block;font-size:21px;color:var(--choke);font-weight:600}
+  .choke .stats span{font-size:10.5px;color:var(--dim)}
+  .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  .tbl th{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .tbl td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--mut)}
+  .tbl td b{color:var(--txt)}
+  .lyr{font-family:"JetBrains Mono",monospace;font-size:10.5px;padding:1px 7px;border-radius:5px;font-weight:600}
+  .ly3{background:rgba(139,132,207,.15);color:#aaa3e6}
+  .ly2{background:rgba(210,162,74,.15);color:#e3bd76}
+  .ly1{background:rgba(79,175,142,.15);color:#7cc9ad}
+  .lyu{background:rgba(91,129,196,.15);color:#8aa7df}
+  .lyp{background:rgba(196,122,158,.15);color:#dba0bf}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .two{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+  @media(max-width:780px){.two{grid-template-columns:1fr}}
+  .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:2px 0 16px}
+  .leg span{display:flex;align-items:center;gap:7px}
+  .leg .sw{width:11px;height:11px;border-radius:3px}
+  .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
+  footer{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}
+  footer b{color:var(--mut)}
+  .svglabel{font-family:"JetBrains Mono",monospace;font-size:9px;fill:var(--dim)}
+  /* SVG fonts via CSS rule — CSS vars do NOT resolve as SVG presentation attributes */
+  svg text{font-family:"Space Grotesk",sans-serif}
+  svg text.m{font-family:"JetBrains Mono",monospace}
+  .simple{background:rgba(45,212,191,.05);border:1px solid #1e3b39;border-radius:13px;padding:16px 18px;margin-bottom:14px}
+  .simple .h{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:7px}
+  .simple p{font-size:13px;color:#cdd5e3;line-height:1.6}.simple p b{color:#fff}
+  .keys{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+  @media(max-width:780px){.keys{grid-template-columns:1fr 1fr}}
+  .keys div{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px;font-size:11px;color:var(--mut)}
+  .keys div b{display:block;color:var(--txt);font-size:11.5px;margin-bottom:2px}
+  .gloss{columns:2;column-gap:22px;font-size:11.5px;color:var(--mut);margin-top:8px}
+  @media(max-width:600px){.gloss{columns:1}}
+  .gloss div{break-inside:avoid;margin-bottom:7px}.gloss b{color:var(--txt)}
+</style>
+<style>
+  .axis-zone{font-family:"JetBrains Mono",monospace;font-size:9px;letter-spacing:.04em}
+  .liw{width:100%;border-collapse:collapse;font-size:12px}
+  .liw th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .liw td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+  .liw td b{color:var(--txt)}
+  .dotR{color:var(--choke);font-weight:600}.dotA{color:var(--dup);font-weight:600}.dotG{color:var(--dacr);font-weight:600}
+  .tabbtn{font-family:"Space Grotesk",sans-serif;background:var(--panel2);border:1px solid var(--line);color:var(--mut);padding:11px 16px;border-radius:10px 10px 0 0;font-size:13px;font-weight:600;cursor:pointer;border-bottom:none;display:flex;flex-direction:column;gap:2px;min-width:175px;text-align:left}
+  .tabbtn small{font-size:10px;font-weight:400;color:var(--dim)}
+  .tabbtn.on{background:var(--panel);color:var(--txt);border-color:var(--line2)}
+  .tabbtn.on small{color:var(--accent)}
+  .tabbtn:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+  .stagebadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.04em}
+  .sg-early{background:rgba(95,201,138,.16);color:var(--dacr)}
+  .sg-recog{background:rgba(210,162,74,.16);color:var(--dup)}
+  .sg-eu{background:rgba(224,104,106,.16);color:var(--choke)}
+  .mini{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+  .mini div{padding:11px 13px;border-right:1px solid var(--line)}
+  .mini div:last-child{border-right:0}
+  .mini .v{font-family:"JetBrains Mono",monospace;font-size:17px;font-weight:600}
+  .mini .l{font-size:10px;color:var(--mut);margin-top:2px}
+  .gap{border-left:3px solid var(--accent);background:rgba(45,212,191,.06);border-radius:8px;padding:12px 15px;margin:14px 0}
+  .gap .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:5px}
+  .gap p{font-size:12.5px;color:var(--mut);line-height:1.5}.gap p b{color:var(--txt)}
+  .mtd{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
+  @media(max-width:780px){.mtd{grid-template-columns:1fr}.mini{grid-template-columns:1fr 1fr 1fr}.tabbtn{min-width:0;flex:1}}
+  .mtc{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+  .mtc .h{font-size:11.5px;font-weight:600;color:var(--accent);margin-bottom:3px}
+  .mtc p{font-size:11.5px;color:var(--mut);line-height:1.45}.mtc p b{color:var(--txt)}
+  .bbr{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+  .bbr div{border-radius:8px;padding:9px 12px;font-size:11.5px;line-height:1.45;color:var(--mut)}
+  .bbr .bl{border-left:3px solid var(--dacr);background:var(--panel2)}
+  .bbr .be{border-left:3px solid var(--choke);background:var(--panel2)}
+  .bbr b{display:block;font-size:10.5px;margin-bottom:2px}
+  .scn{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:10px}
+  .scn th{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+  .scn td{padding:7px 9px;border-bottom:1px solid var(--line);color:var(--mut)}
+  .scn td b{color:var(--txt)}
+  .sev{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
+  .sev th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+  .sev td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--mut)}
+  .sev td b{color:var(--txt)}
+  .bar{height:7px;border-radius:4px;background:var(--panel3);overflow:hidden;min-width:60px}
+  .bar i{display:block;height:100%;border-radius:4px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #12 · v5 · Substrates &amp; Materials (deeper)</div>
+    <h1>The Through-Glass-Via Chokepoint — the future bottleneck the crowd is already pricing</h1>
+    <p class="sub">One layer below Run #6's organic <b style="color:#fff">ABF substrate</b> sits the next paradigm: the <b style="color:#fff">glass-core substrate</b>, and beneath it the hardest, lowest-yield step — drilling and filling tens of thousands of micro-holes through brittle glass (<b style="color:#fff">TGV</b>). A two-axis map (package use-case × material layer), a visual end-to-end supply chain, and a top-3 at <b style="color:#fff">different</b> links — staged so you can see what's still early (SKC) versus what has already run on anticipation (GLW, LPKF). The honest twist: this chokepoint <i>binds in 2027–2029, not today.</i></p>
+    <div class="meta">
+      <div><div class="k">Date</div><div class="vv num">19 Jun 2026</div></div>
+      <div><div class="k">Stack path</div><div class="vv">glass material → panel → TGV → metallization → glass-core substrate → package</div></div>
+      <div><div class="k">Universe</div><div class="vv">Global · US / KR / DE / JP</div></div>
+      <div><div class="k">Top-3</div><div class="vv">SKC · GLW · LPKF</div></div>
+      <div><div class="k">Prices</div><div class="vv">IBKR read-only · personal research, not advice</div></div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc"><div class="wrap">
+  <a href="#s1">01 Snapshot</a><a href="#s2">02 Framework</a><a href="#s3">03 Components</a><a href="#s4">04 Assembly</a>
+  <a href="#s5">05 Who adopts first</a><a href="#s6">06 Supply chain</a><a href="#s7">07 Timeline</a><a href="#s8">08 Chokepoint</a>
+  <a href="#s9">09 Are we early?</a><a href="#s10">10 Top-3</a><a href="#s11">11 Beneficiaries/risk</a><a href="#s12">12 Decision</a>
+</div></nav>
+
+<div class="wrap">
+
+<!-- 1. SNAPSHOT -->
+<section id="s1">
+  <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">總覽</span></div>
+
+  <div class="simple">
+    <div class="h">EXPLAIN IT SIMPLY · 白話版</div>
+    <p>Every powerful chip sits on a <b>substrate</b> — a small circuit board that fans the chip's thousands of tiny contacts out to the motherboard. For 30 years that board has been made of <b>organic plastic resin</b> (the "ABF" build-up film from Run #6). But AI accelerator packages are now bigger than a credit card, and plastic <b>warps and bends</b> at that size. The fix is to switch the core of the board from plastic to <b>glass</b> — glass stays flat, runs cooler, and carries faster signals. The catch: to wire a glass board you must drill <b>tens of thousands of holes straight through a sheet of glass</b> (a "Through-Glass-Via", TGV) without cracking it, then fill each with copper. Glass shatters from a single micro-crack — so this drilling step is the <b>chokepoint</b>: whoever masters TGV yield owns the transition. The honest part: this is a <b>2027–2029 story, not a 2026 one</b>, and plastic just got a 5–7-year life-extension (CoWoS-L). So the pure-play stocks have already run on the <i>promise</i> — and the real edge is owning cheap, buried exposure and waiting for proof, not chasing the laser stock that has roughly quadrupled.</p>
+    <div class="keys">
+      <div><b>L1 — System</b> The finished AI accelerator / server card the package plugs into.</div>
+      <div><b>L2 — Package &amp; substrate</b> The board that carries the chip; today organic ABF, tomorrow glass-core.</div>
+      <div><b>L3 — The scarce step</b> Forming Through-Glass-Vias at high yield + the laser tools that do it.</div>
+      <div><b>Upstream</b> The specialty glass itself (Corning, AGC, SCHOTT, NEG).</div>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="v red">15<span style="font-size:14px;color:var(--dim)">/20</span></div><div class="l">Chokepoint severity — TGV yield</div><div class="d">Lower than ABF (18) or CoWoS (18): the bottleneck is real but <b>forward-dated</b> and organic substitutes still extend.</div></div>
+    <div class="kpi"><div class="v amb">75–85%</div><div class="l">Glass-substrate yield today</div><div class="d">vs <span class="num">90–95%</span> for mature organic; cost runs <span class="num">2–3×</span>. Closing this gap is the whole game (est., TrendForce/industry).</div></div>
+    <div class="kpi"><div class="v">2027<span style="font-size:14px;color:var(--dim)">→29</span></div><div class="l">When it actually binds</div><div class="d">Pilot/qualification 2026; small volume 2027; mass 2028–2030. First glass-core AI parts ~2027.</div></div>
+    <div class="kpi"><div class="v grn">SKC</div><div class="l">Only top-3 still early</div><div class="d"><span class="num">+27%</span> YTD vs GLW <span class="num">+101%</span>, LPKF <span class="num">+372%</span>. The alpha hides in a conglomerate, not the pure-plays.</div></div>
+  </div>
+
+  <p class="lead" style="margin-top:18px">Run #6 named today's binding substrate chokepoint: <b>ABF build-up film (Ajinomoto ~95%) + low-DK glass cloth (Nittobo ~90%)</b>. This run goes one paradigm deeper — to the material that <i>replaces</i> organic when packages outgrow it. The scarce link is not the glass (an oligopoly of Corning / AGC / SCHOTT / NEG, but available) and not the finished substrate (several makers racing) — it is the <b>Through-Glass-Via (TGV) formation step and its yield</b>: drilling fine, deep, smooth-walled holes through brittle glass and filling them with copper, where a single micro-crack scraps the panel. The investable honesty: the purest exposures (the LIDE tool, the glass) have <b>already re-rated on anticipation</b>; the genuine early-alpha is cheap/buried exposure (SKC's Absolics; the still-latent glass and consumables names) entered on a <i>yield-crossover</i> catalyst — sized small because the timeline can slip to 2028+.</p>
+</section>
+
+<!-- 2. FRAMEWORK -->
+<section id="s2">
+  <div class="sh"><span class="n">02</span><h2>The framework — two orthogonal axes</h2><span class="cn">兩軸框架</span></div>
+  <p class="lead">Rows = the <b>package use-cases</b> that pull on substrates (which adopt glass, and when). Columns = <b>what they use today → why glass → who wins</b>. The chokepoint sits at one cell: <b>large AI-accelerator / panel-level packages × the TGV-yield step</b> — the only place where organic genuinely runs out of road first.</p>
+  <table class="matrix">
+    <thead><tr><th style="width:23%">Package use-case</th><th>Substrate today</th><th>Why glass (the pull)</th><th>Who wins the link</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><div class="dom"><span class="sw" style="background:var(--choke)"></span>Large AI accelerator / CoWoS-class <small>GPU + HBM on one package, &gt;100mm</small></div></td>
+        <td>Organic ABF + silicon interposer / CoWoS-L bridges</td>
+        <td><b>Warpage wall.</b> Organic loses flatness beyond ~55mm; glass holds &lt;20µm across 100mm. CTE matches silicon.</td>
+        <td class="hotcell"><span class="chip hot">TGV yield</span><span class="chip">glass core maker</span> — adopts glass <b>first</b></td>
+      </tr>
+      <tr>
+        <td><div class="dom"><span class="sw" style="background:var(--dup)"></span>Custom ASIC / XPU <small>hyperscaler in-house accelerators</small></div></td>
+        <td>Organic ABF (high layer count)</td>
+        <td>Larger reticle-stitched dies; signal loss at 224G+ favours glass's 10× lower dielectric loss.</td>
+        <td><span class="chip">glass core maker</span><span class="chip">OSAT</span> — fast follower, 2028+</td>
+      </tr>
+      <tr>
+        <td><div class="dom"><span class="sw" style="background:var(--dout)"></span>Co-packaged optics / photonics <small>optical I/O next to the switch/GPU</small></div></td>
+        <td>Organic / silicon</td>
+        <td>Glass is optically transparent &amp; dimensionally stable — natural for waveguides + TGV electrical feed-through.</td>
+        <td><span class="chip">glass material</span><span class="chip hot">TGV</span> — emerging, optionality</td>
+      </tr>
+      <tr>
+        <td><div class="dom"><span class="sw" style="background:var(--l1)"></span>Server CPU / mainstream <small>volume datacentre + client</small></div></td>
+        <td>Organic ABF — works fine</td>
+        <td>Cost-driven; organic is cheaper and "good enough". Glass only when forced.</td>
+        <td><span class="chip">Ajinomoto / Ibiden</span> — organic keeps it (no glass need)</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="cap">The transition is <b>not</b> uniform: glass invades top-down, starting at the biggest, hottest AI packages where organic physically fails, and may never reach mainstream CPUs. That is why the early read-through is "which packages cross first", and why the bear case (organic extends) only has to win in the <i>biggest</i> cell to delay the whole thesis.</p>
+</section>
+
+<!-- 3. COMPONENTS -->
+<section id="s3">
+  <div class="sh"><span class="n">03</span><h2>The components, illustrated</h2><span class="cn">關鍵子技術</span></div>
+  <p class="lead">Three pictures decode the layer. The chokepoint is the middle one — TGV formation — where brittle glass meets micron-scale drilling.</p>
+  <div class="gal">
+    <!-- card 1: organic vs glass -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 300 150" width="100%" xmlns="http://www.w3.org/2000/svg">
+          <text x="74" y="16" text-anchor="middle" font-size="10" fill="#d2a24a">ORGANIC (today)</text>
+          <text x="224" y="16" text-anchor="middle" font-size="10" fill="#2dd4bf">GLASS-CORE (next)</text>
+          <!-- organic: warped -->
+          <path d="M16,70 Q74,52 132,70" fill="none" stroke="#d2a24a" stroke-width="10" stroke-linecap="round" opacity="0.5"/>
+          <rect x="56" y="40" width="36" height="14" rx="2" fill="#5b81c4"/><text x="74" y="51" text-anchor="middle" font-size="7.5" fill="#fff">die</text>
+          <text x="74" y="96" text-anchor="middle" font-size="8" fill="#e3bd76">warps &gt;55mm</text>
+          <text x="74" y="110" text-anchor="middle" font-size="7.5" fill="#9aa3b5">CTE 7 vs Si 3</text>
+          <!-- glass: flat -->
+          <rect x="166" y="64" width="116" height="10" rx="1" fill="#2dd4bf" opacity="0.55"/>
+          <rect x="206" y="40" width="36" height="14" rx="2" fill="#5b81c4"/><text x="224" y="51" text-anchor="middle" font-size="7.5" fill="#fff">die</text>
+          <line x1="172" y1="64" x2="172" y2="74" stroke="#0b0d12"/><line x1="184" y1="64" x2="184" y2="74" stroke="#0b0d12"/><line x1="196" y1="64" x2="196" y2="74" stroke="#0b0d12"/><line x1="252" y1="64" x2="252" y2="74" stroke="#0b0d12"/><line x1="264" y1="64" x2="264" y2="74" stroke="#0b0d12"/>
+          <text x="224" y="96" text-anchor="middle" font-size="8" fill="#5fc98a">&lt;20µm flat @100mm</text>
+          <text x="224" y="110" text-anchor="middle" font-size="7.5" fill="#9aa3b5">CTE-matched to Si</text>
+          <text x="150" y="138" text-anchor="middle" font-size="8" fill="#697283">vertical lines = through-glass vias (TGV)</text>
+        </svg>
+      </div>
+      <div class="body"><h4>Glass vs organic core <span class="badge b-now">why switch</span></h4>
+        <div class="role">Glass holds flatness, matches silicon's thermal expansion (less solder fatigue), and has ~10× lower dielectric loss — letting packages grow past the size where organic warps.</div>
+        <div class="who">Material: <b>Corning · AGC · SCHOTT · NEG</b></div>
+      </div>
+    </div>
+    <!-- card 2: TGV chokepoint -->
+    <div class="card" style="border-color:#5a3236">
+      <div class="svgbox" style="background:linear-gradient(180deg,#170f12,#1e1418)">
+        <svg viewBox="0 0 300 150" width="100%" xmlns="http://www.w3.org/2000/svg">
+          <rect x="40" y="44" width="220" height="58" rx="2" fill="#2a3340" opacity="0.6"/>
+          <text x="150" y="22" text-anchor="middle" font-size="10" fill="#e0686a" font-weight="600">TGV — drill + fill, no cracks</text>
+          <!-- good vias -->
+          <g>
+            <rect x="64" y="44" width="9" height="58" fill="#c98a3a"/><rect x="94" y="44" width="9" height="58" fill="#c98a3a"/><rect x="124" y="44" width="9" height="58" fill="#c98a3a"/>
+            <text x="98" y="118" text-anchor="middle" font-size="7.5" fill="#5fc98a">filled OK</text>
+          </g>
+          <!-- bad via: crack -->
+          <rect x="176" y="44" width="9" height="58" fill="#c98a3a"/>
+          <path d="M180,44 L168,30 M180,102 L192,116 M180,72 L160,72" stroke="#e0686a" stroke-width="1.6"/>
+          <text x="178" y="128" text-anchor="middle" font-size="7.5" fill="#eda3a4">1 micro-crack = scrap</text>
+          <!-- void via -->
+          <rect x="222" y="44" width="9" height="58" fill="none" stroke="#c98a3a"/><rect x="222" y="60" width="9" height="14" fill="#0b0d12"/>
+          <text x="226" y="118" text-anchor="middle" font-size="7.5" fill="#e3bd76">copper void</text>
+        </svg>
+      </div>
+      <div class="body"><h4>Through-Glass-Via <span class="badge b-hot">CHOKEPOINT</span></h4>
+        <div class="role">Tens of thousands of fine, deep, smooth-walled holes drilled through brittle glass, then void-free copper-filled. Micro-cracks, warpage and poor fill are the yield killers — a single crack scraps the panel.</div>
+        <div class="who">Tools: <b>LPKF (LIDE) · Schmoll · Philoptics · F&amp;S Electron</b></div>
+      </div>
+    </div>
+    <!-- card 3: LIDE process -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 300 150" width="100%" xmlns="http://www.w3.org/2000/svg">
+          <text x="150" y="16" text-anchor="middle" font-size="10" fill="#8b84cf">LIDE — 2-step, no melt</text>
+          <!-- step 1 laser -->
+          <rect x="34" y="58" width="86" height="34" rx="2" fill="#2a3340" opacity="0.6"/>
+          <line x1="56" y1="34" x2="56" y2="58" stroke="#2dd4bf" stroke-width="2"/><line x1="77" y1="34" x2="77" y2="58" stroke="#2dd4bf" stroke-width="2"/><line x1="98" y1="34" x2="98" y2="58" stroke="#2dd4bf" stroke-width="2"/>
+          <text x="77" y="106" text-anchor="middle" font-size="8" fill="#9aa3b5">1 · laser modifies</text>
+          <text x="77" y="118" text-anchor="middle" font-size="7.5" fill="#697283">no thermal damage</text>
+          <!-- arrow -->
+          <path d="M126,75 L150,75" stroke="#697283" stroke-width="1.5" marker-end="url(#ar3)"/>
+          <defs><marker id="ar3" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#697283"/></marker></defs>
+          <!-- step 2 etch -->
+          <rect x="158" y="58" width="86" height="34" rx="2" fill="#2a3340" opacity="0.6"/>
+          <rect x="178" y="58" width="6" height="34" fill="#0b0d12"/><rect x="198" y="58" width="6" height="34" fill="#0b0d12"/><rect x="218" y="58" width="6" height="34" fill="#0b0d12"/>
+          <text x="201" y="106" text-anchor="middle" font-size="8" fill="#9aa3b5">2 · wet etch opens</text>
+          <text x="201" y="118" text-anchor="middle" font-size="7.5" fill="#697283">&lt;10µm holes, smooth wall</text>
+          <text x="150" y="140" text-anchor="middle" font-size="8" fill="#697283">vs mechanical/CO₂ drill: fewer cracks, finer pitch</text>
+        </svg>
+      </div>
+      <div class="body"><h4>LIDE deep-etch <span class="badge b-emrg">enabling tool</span></h4>
+        <div class="role">Laser-Induced Deep Etching: a laser locally modifies the glass, then a wet etch opens clean sub-10µm holes with no melt cracks — the leading method for high-density TGV. &gt;80% of major customers reportedly selected LPKF kit for evaluation / early lines (est., company/trade press).</div>
+        <div class="who">Owner: <b>LPKF</b> (LIDE) · alt. methods exist</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. ASSEMBLY -->
+<section id="s4">
+  <div class="sh"><span class="n">04</span><h2>From glass sheet to finished substrate</h2><span class="cn">L3→L2→L1 組裝</span></div>
+  <p class="lead">How a raw glass panel becomes the board under an AI chip. Value (and risk) concentrates where the red ribbon sits — the TGV step gates everything downstream, and yield loss there is irrecoverable.</p>
+  <div class="svgwide">
+    <svg viewBox="0 0 1080 210" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs><marker id="arA" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L9,4 L0,8 Z" fill="#4a5570"/></marker>
+        <marker id="arR" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L9,4 L0,8 Z" fill="#e0686a"/></marker></defs>
+      <!-- stage boxes -->
+      <g>
+        <rect x="20" y="60" width="150" height="74" rx="9" fill="#141822" stroke="#2a3040"/>
+        <text x="95" y="86" text-anchor="middle" font-size="12" fill="#e8eaf0" font-weight="600">Glass panel</text>
+        <text x="95" y="104" text-anchor="middle" font-size="9" fill="#9aa3b5">cut · polish · clean</text>
+        <text x="95" y="120" text-anchor="middle" font-size="8.5" fill="#697283">low-CTE glass</text>
+      </g>
+      <line x1="170" y1="97" x2="206" y2="97" stroke="#4a5570" stroke-width="2.5" marker-end="url(#arA)"/>
+      <g>
+        <rect x="208" y="52" width="156" height="90" rx="9" fill="#1c1518" stroke="#5a3236" stroke-width="1.5"/>
+        <rect x="208" y="52" width="5" height="90" rx="2" fill="#e0686a"/>
+        <rect x="220" y="40" width="132" height="18" rx="5" fill="#e0686a"/><text x="286" y="53" text-anchor="middle" font-size="9" fill="#1c1518" font-weight="700">CHOKEPOINT · TGV</text>
+        <text x="290" y="86" text-anchor="middle" font-size="12" fill="#fff" font-weight="600">Via formation</text>
+        <text x="290" y="104" text-anchor="middle" font-size="9" fill="#eda3a4">laser drill + etch</text>
+        <text x="290" y="120" text-anchor="middle" font-size="8.5" fill="#9aa3b5">yield gate · no cracks</text>
+      </g>
+      <line x1="364" y1="97" x2="400" y2="97" stroke="#e0686a" stroke-width="1.4" marker-end="url(#arR)"/>
+      <g>
+        <rect x="402" y="60" width="150" height="74" rx="9" fill="#141822" stroke="#2a3040"/>
+        <text x="477" y="86" text-anchor="middle" font-size="12" fill="#e8eaf0" font-weight="600">Metallization</text>
+        <text x="477" y="104" text-anchor="middle" font-size="9" fill="#9aa3b5">Cu fill · seed · RDL</text>
+        <text x="477" y="120" text-anchor="middle" font-size="8.5" fill="#697283">adhesion = hard</text>
+      </g>
+      <line x1="552" y1="97" x2="588" y2="97" stroke="#4a5570" stroke-width="2.5" marker-end="url(#arA)"/>
+      <g>
+        <rect x="590" y="60" width="150" height="74" rx="9" fill="#141822" stroke="#2a3040"/>
+        <text x="665" y="86" text-anchor="middle" font-size="12" fill="#e8eaf0" font-weight="600">Build-up layers</text>
+        <text x="665" y="104" text-anchor="middle" font-size="9" fill="#9aa3b5">dielectric + routing</text>
+        <text x="665" y="120" text-anchor="middle" font-size="8.5" fill="#697283">panel-level (P-LP)</text>
+      </g>
+      <line x1="740" y1="97" x2="776" y2="97" stroke="#4a5570" stroke-width="2.5" marker-end="url(#arA)"/>
+      <g>
+        <rect x="778" y="60" width="150" height="74" rx="9" fill="#141822" stroke="#2a3040"/>
+        <text x="853" y="86" text-anchor="middle" font-size="12" fill="#e8eaf0" font-weight="600">Glass substrate</text>
+        <text x="853" y="104" text-anchor="middle" font-size="9" fill="#9aa3b5">test · singulate</text>
+        <text x="853" y="120" text-anchor="middle" font-size="8.5" fill="#697283">Absolics · Samsung</text>
+      </g>
+      <line x1="928" y1="97" x2="964" y2="97" stroke="#4a5570" stroke-width="2.5" marker-end="url(#arA)"/>
+      <g>
+        <rect x="966" y="60" width="100" height="74" rx="9" fill="#141822" stroke="#2a3040"/>
+        <text x="1016" y="86" text-anchor="middle" font-size="11.5" fill="#e8eaf0" font-weight="600">Package</text>
+        <text x="1016" y="104" text-anchor="middle" font-size="9" fill="#9aa3b5">die attach</text>
+        <text x="1016" y="120" text-anchor="middle" font-size="8.5" fill="#697283">CoWoS/CoPoS</text>
+      </g>
+      <text x="286" y="170" text-anchor="middle" font-size="9.5" fill="#eda3a4">thin red arrows = everything downstream waits on TGV yield; scrap here cannot be reworked</text>
+      <text x="540" y="190" text-anchor="middle" font-size="9" fill="#697283">Copper adhesion to glass and panel warpage are the secondary unsolved problems at metallization &amp; build-up.</text>
+    </svg>
+  </div>
+</section>
+
+<!-- 5. WHO ADOPTS FIRST -->
+<section id="s5">
+  <div class="sh"><span class="n">05</span><h2>Who adopts glass first — and who never has to</h2><span class="cn">採用順序</span></div>
+  <p class="lead">Glass invades <b>top-down</b>: it wins where organic physically fails first (largest, hottest packages), and may never displace organic in mainstream parts. The leftmost adopters are the read-through; the rightmost are why the bear case can stall the thesis for years.</p>
+  <div class="svgwide">
+    <svg viewBox="0 0 1080 200" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <line x1="40" y1="150" x2="1040" y2="150" stroke="#2a3040" stroke-width="1"/>
+      <text x="40" y="178" font-size="10" fill="#5fc98a">forced to glass first  →</text>
+      <text x="1040" y="178" text-anchor="end" font-size="10" fill="#697283">organic stays good enough  →</text>
+      <!-- nodes -->
+      <g>
+        <circle cx="150" cy="150" r="9" fill="#e0686a"/><text x="150" y="120" text-anchor="middle" font-size="11" fill="#eda3a4" font-weight="600">Large AI accel.</text><text x="150" y="135" text-anchor="middle" font-size="9" fill="#9aa3b5">CoWoS/CoPoS · 2027–28</text>
+        <text x="150" y="190" text-anchor="middle" font-size="8.5" fill="#697283">warpage wall hit now</text>
+      </g>
+      <g>
+        <circle cx="400" cy="150" r="8" fill="#d2a24a"/><text x="400" y="120" text-anchor="middle" font-size="11" fill="#e3bd76" font-weight="600">Custom XPU / ASIC</text><text x="400" y="135" text-anchor="middle" font-size="9" fill="#9aa3b5">hyperscaler · 2028+</text>
+        <text x="400" y="190" text-anchor="middle" font-size="8.5" fill="#697283">fast follower</text>
+      </g>
+      <g>
+        <circle cx="650" cy="150" r="8" fill="#5aa9e0"/><text x="650" y="120" text-anchor="middle" font-size="11" fill="#9cc9ec" font-weight="600">Co-packaged optics</text><text x="650" y="135" text-anchor="middle" font-size="9" fill="#9aa3b5">photonics · 2028–30</text>
+        <text x="650" y="190" text-anchor="middle" font-size="8.5" fill="#697283">glass-native optionality</text>
+      </g>
+      <g>
+        <circle cx="900" cy="150" r="8" fill="#4faf8e"/><text x="900" y="120" text-anchor="middle" font-size="11" fill="#7cc9ad" font-weight="600">Server CPU / client</text><text x="900" y="135" text-anchor="middle" font-size="9" fill="#9aa3b5">organic · maybe never</text>
+        <text x="900" y="190" text-anchor="middle" font-size="8.5" fill="#697283">cost &gt; performance</text>
+      </g>
+    </svg>
+  </div>
+  <p class="cap">The investable signal is the leftmost node: a named glass-core design-win in a large AI accelerator (AMD, an Intel product, an NVIDIA part) is the catalyst that converts "promise" into "binding". Until then, every stock here is trading the <i>option</i>, not the cash flow.</p>
+</section>
+
+<!-- 6. SUPPLY CHAIN -->
+<section id="s6">
+  <div class="sh"><span class="n">06</span><h2>End-to-end supply chain</h2><span class="cn">完整供應鏈地圖</span></div>
+  <div class="leg">
+    <span><span class="sw" style="background:var(--up)"></span>upstream material</span>
+    <span><span class="sw" style="background:var(--choke)"></span>chokepoint (TGV)</span>
+    <span><span class="sw" style="background:var(--dacr)"></span>secondary rent pool</span>
+    <span><span class="sw" style="background:var(--l1)"></span>downstream / demand</span>
+  </div>
+  <div class="svgwide">
+    <svg viewBox="0 0 1120 490" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <!-- C1 glass material -->
+      <rect x="20" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="20" y="40" width="5" height="262" rx="2" fill="#5b81c4"/>
+      <text x="36" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Glass material</text>
+      <text x="36" y="74" font-size="9" fill="#8aa7df" font-weight="600">UPSTREAM</text>
+      <g font-size="9">
+        <rect x="32" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="98" fill="#fff" font-weight="600">Low-CTE glass</text><text x="40" y="110" fill="#9aa3b5">Corning · AGC (leaders)</text>
+        <rect x="32" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="136" fill="#fff" font-weight="600">#2 / #3</text><text x="40" y="148" fill="#9aa3b5">SCHOTT · NEG</text>
+        <rect x="32" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="174" fill="#fff" font-weight="600">Carriers</text><text x="40" y="186" fill="#9aa3b5">Corning glass carriers</text>
+      </g>
+      <text x="36" y="214" font-size="9" fill="#8aa7df">oligopoly, but glass is available</text>
+      <text x="36" y="228" font-size="8.5" fill="#697283">stable toll, not the scarce link</text>
+
+      <!-- C2 panel prep -->
+      <rect x="200" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="200" y="40" width="5" height="262" rx="2" fill="#5b81c4"/>
+      <text x="216" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Panel prep</text>
+      <text x="216" y="74" font-size="9" fill="#8aa7df" font-weight="600">FORMING</text>
+      <g font-size="9">
+        <rect x="212" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="220" y="98" fill="#fff" font-weight="600">Cut / polish</text><text x="220" y="110" fill="#9aa3b5">large-panel handling</text>
+        <rect x="212" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="220" y="136" fill="#fff" font-weight="600">Clean / coat</text><text x="220" y="148" fill="#9aa3b5">surface prep</text>
+        <rect x="212" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="220" y="174" fill="#fff" font-weight="600">Handling kit</text><text x="220" y="186" fill="#9aa3b5">breakage-prone</text>
+      </g>
+      <text x="216" y="214" font-size="9" fill="#697283">low rent; enabling step</text>
+      <text x="216" y="228" font-size="8.5" fill="#697283">warpage starts here</text>
+
+      <!-- C3 CHOKEPOINT TGV -->
+      <rect x="380" y="40" width="160" height="262" rx="10" fill="#1c1518" stroke="#5a3236" stroke-width="1.5"/>
+      <rect x="380" y="40" width="5" height="262" rx="2" fill="#e0686a"/>
+      <rect x="386" y="26" width="148" height="20" rx="5" fill="#e0686a"/><text x="460" y="40" font-size="9.5" fill="#1c1518" font-weight="700" text-anchor="middle">CHOKEPOINT · TGV</text>
+      <text x="396" y="62" font-size="12" fill="#e8eaf0" font-weight="600">TGV formation</text>
+      <text x="396" y="76" font-size="9" fill="#eda3a4" font-weight="600">drill + fill · yield gate</text>
+      <g font-size="9">
+        <rect x="392" y="86" width="136" height="32" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="400" y="100" fill="#fff" font-weight="700">LIDE laser ★</text><text x="400" y="112" fill="#eda3a4">LPKF (&gt;80% chosen)</text>
+        <rect x="392" y="124" width="136" height="32" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="400" y="138" fill="#fff" font-weight="600">Alt drill</text><text x="400" y="150" fill="#bcb3e6">Schmoll · Philoptics</text>
+        <rect x="392" y="162" width="136" height="32" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="400" y="176" fill="#fff" font-weight="600">TGV process</text><text x="400" y="188" fill="#bcb3e6">F&amp;S Electron</text>
+      </g>
+      <text x="396" y="216" font-size="9" fill="#eda3a4">a single crack scraps the panel</text>
+      <text x="396" y="230" font-size="8.5" fill="#697283">scarce <i>capability</i>, multi-method</text>
+
+      <!-- C4 metallization -->
+      <rect x="560" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="560" y="40" width="5" height="262" rx="2" fill="#c47a9e"/>
+      <text x="576" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Metallization</text>
+      <text x="576" y="74" font-size="9" fill="#dba0bf" font-weight="600">PLATING / RDL</text>
+      <g font-size="9">
+        <rect x="572" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="98" fill="#fff" font-weight="600">Cu via fill</text><text x="580" y="110" fill="#9aa3b5">electroless + plating</text>
+        <rect x="572" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="136" fill="#fff" font-weight="600">Chemistry</text><text x="580" y="148" fill="#9aa3b5">MKS/Atotech · JCU</text>
+        <rect x="572" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="174" fill="#fff" font-weight="600">Adhesion</text><text x="580" y="186" fill="#9aa3b5">glass↔Cu = hard</text>
+      </g>
+      <text x="576" y="214" font-size="9" fill="#dba0bf">recurring consumable rent</text>
+      <text x="576" y="228" font-size="8.5" fill="#697283">under-covered (watchlist)</text>
+
+      <!-- C5 substrate maker (2nd pool) -->
+      <rect x="740" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="740" y="40" width="5" height="262" rx="2" fill="#4faf8e"/>
+      <text x="756" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Glass substrate</text>
+      <text x="756" y="74" font-size="9" fill="#7cc9ad" font-weight="600">L2 · MAKER</text>
+      <g font-size="9">
+        <rect x="752" y="84" width="136" height="32" rx="6" fill="#16241f" stroke="#2f5a48"/><text x="760" y="98" fill="#fff" font-weight="700">Absolics ★</text><text x="760" y="110" fill="#7cc9ad">SKC · first mover</text>
+        <rect x="752" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="136" fill="#fff" font-weight="600">Samsung E-M</text><text x="760" y="148" fill="#9aa3b5">Intel · DNP · LG</text>
+        <rect x="752" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="174" fill="#fff" font-weight="600">OSAT</text><text x="760" y="186" fill="#9aa3b5">later integrators</text>
+      </g>
+      <text x="756" y="214" font-size="9" fill="#7cc9ad">durable rent lands here at volume</text>
+      <text x="756" y="228" font-size="8.5" fill="#697283">2nd value pool (see bars)</text>
+
+      <!-- C6 buyers -->
+      <rect x="920" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="920" y="40" width="5" height="262" rx="2" fill="#4faf8e"/>
+      <text x="936" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Package / buyers</text>
+      <text x="936" y="74" font-size="9" fill="#7cc9ad" font-weight="600">L1 · DEMAND</text>
+      <g font-size="9">
+        <rect x="932" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="98" fill="#fff" font-weight="600">Foundry/OSAT</text><text x="940" y="110" fill="#9aa3b5">TSMC CoPoS · Intel</text>
+        <rect x="932" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="136" fill="#fff" font-weight="600">Chip designers</text><text x="940" y="148" fill="#9aa3b5">AMD · NVIDIA · Broadcom</text>
+        <rect x="932" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="174" fill="#fff" font-weight="600">Hyperscalers</text><text x="940" y="186" fill="#9aa3b5">pull via XPUs</text>
+      </g>
+      <text x="936" y="214" font-size="9" fill="#7cc9ad">they keep rent if yield commoditizes</text>
+      <text x="936" y="228" font-size="8.5" fill="#697283">demand future-dated</text>
+
+      <!-- scarcity premium bar chart -->
+      <line x1="40" y1="442" x2="1080" y2="442" stroke="#2a3040" stroke-width="1"/>
+      <text x="40" y="330" font-size="9" fill="#697283">value capture / scarcity premium (per unit of value, today)</text>
+      <g>
+        <rect x="80" y="387" width="40" height="55" rx="2" fill="#5b81c4" opacity="0.55"/>
+        <rect x="260" y="407" width="40" height="35" rx="2" fill="#5b81c4" opacity="0.4"/>
+        <rect x="440" y="347" width="40" height="95" rx="2" fill="#e0686a"/>
+        <rect x="620" y="392" width="40" height="50" rx="2" fill="#c47a9e" opacity="0.7"/>
+        <rect x="800" y="370" width="40" height="72" rx="2" fill="#5fc98a" opacity="0.78"/>
+        <rect x="980" y="412" width="40" height="30" rx="2" fill="#2dd4bf" opacity="0.3"/>
+      </g>
+      <text x="460" y="339" font-size="9" fill="#eda3a4" text-anchor="middle" font-weight="600">rent peaks at TGV (today, early-cyclical)</text>
+      <text x="820" y="362" font-size="8.5" fill="#7cc9ad" text-anchor="middle">2nd pool: substrate maker (durable, at volume)</text>
+      <g font-size="8.5" fill="#697283" text-anchor="middle">
+        <text x="100" y="456">glass mat'l</text><text x="280" y="456">panel prep</text><text x="460" y="456">TGV</text><text x="640" y="456">metallization</text><text x="820" y="456">substrate</text><text x="1000" y="456">buyers</text>
+      </g>
+      <text x="550" y="478" font-size="9" fill="#697283" text-anchor="middle">Rent <tspan font-style="italic">migrates</tspan> over time: today the equipment that forms TGV books the orders first (early-cyclical peak); at volume the substrate maker who cracks yield first holds the durable rent (green); the glass oligopoly earns a stable toll throughout.</text>
+    </svg>
+  </div>
+  <p class="cap">Unlike Run #6's ABF (one firm, ~95% share, binding now), glass-core rent is <b>diffuse and forward-dated</b>: a scarce <i>capability</i> (TGV yield) spread across a few tool-makers, a glass oligopoly, and a handful of racing substrate fabs — which is exactly why severity is 15/20, not 18.</p>
+</section>
+
+<!-- 7. TIMELINE -->
+<section id="s7">
+  <div class="sh"><span class="n">07</span><h2>Multi-year evolution — by domain</h2><span class="cn">多年發展時間軸</span></div>
+  <p class="lead">The single most important honesty in this report: glass-core is a <b>2027–2029 ramp</b>. 2026 is the qualification year — pilot lines, sampling, yield-stabilization — not revenue.</p>
+  <div class="tlgrid">
+    <div class="tlhead"><div>Domain</div><div>2026 (now)</div><div>2027</div><div>2028</div><div>2029–30</div></div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--choke)"></span>TGV / equipment</div>
+      <div class="cell hot"><b>First volume order</b>LPKF books first production-scale glass order (Q1-26); guidance excludes glass upside</div>
+      <div class="cell hot"><b>Qualification</b>LIDE lines qualify as makers ramp; revenue inflection if design-wins land</div>
+      <div class="cell"><b>Volume drilling</b>TSMC targets mass-prod path; tool installs scale</div>
+      <div class="cell"><b>Run-rate</b>LIDE-equipment TAM ~$0.5B by 2032 (est.)</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--l1)"></span>Substrate makers</div>
+      <div class="cell hot"><b>Yield stabilization</b>Absolics: electrical/signal verified, AMD certification; commercial target year-end-26</div>
+      <div class="cell"><b>Small volume</b>Absolics · Samsung E-M · DNP small volumes; first glass-core AI parts</div>
+      <div class="cell"><b>Ramp</b>multi-source qualification; capacity build</div>
+      <div class="cell"><b>Mainstream AI</b>large-scale adoption in top AI packages</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--up)"></span>Glass material</div>
+      <div class="cell"><b>Sampling</b>Corning/AGC supply low-CTE glass + carriers to all pilots</div>
+      <div class="cell"><b>Contracts</b>first multi-year glass-core supply deals</div>
+      <div class="cell"><b>Toll scales</b>volume but commoditizing margin</div>
+      <div class="cell"><b>Steady</b>stable oligopoly toll</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--dup)"></span>Organic (counter)</div>
+      <div class="cell"><b>CoWoS-L extends</b>Si-bridge-in-organic buys an est. 5–7yr; Ibiden capex still organic-only</div>
+      <div class="cell"><b>Coexists</b>organic holds CPU + cost-sensitive AI</div>
+      <div class="cell"><b>Cedes top</b>only largest packages move to glass</div>
+      <div class="cell"><b>Hybrid era</b>glass top, organic mainstream</div>
+    </div>
+  </div>
+  <p class="cap">Tinted (red) cells = the live, near-term catalysts an investor can actually watch in 2026. The organic-extension row is the bear's clock — if CoWoS-L keeps stretching, every cell above slides right.</p>
+</section>
+
+<!-- 8. CHOKEPOINT -->
+<section id="s8">
+  <div class="sh"><span class="n">08</span><h2>The chokepoint — and how tight it really is</h2><span class="cn">卡點與嚴重度</span></div>
+  <div class="choke">
+    <div class="ttl">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2 L2 21 H22 Z" stroke="#e0686a" stroke-width="1.6"/><line x1="12" y1="9" x2="12" y2="15" stroke="#e0686a" stroke-width="1.6"/><circle cx="12" cy="18" r="1" fill="#e0686a"/></svg>
+      <h3>Through-Glass-Via (TGV) formation &amp; yield</h3>
+    </div>
+    <p>Glass shatters from a single micro-crack. To wire a glass-core substrate you must form tens of thousands of fine (&lt;10µm), deep, smooth-walled holes through a brittle panel and fill them void-free with copper — at <b>75–85% yield versus organic's 90–95%</b>, at <b>2–3× the cost</b>. Whoever closes that yield gap first owns the transition. But unlike Run #6's ABF film, this rent is <b>diffuse and forward-dated</b>: the glass is an available oligopoly, the TGV capability spans several tool-makers and methods (LIDE, mechanical, alt-laser), and a handful of substrate fabs are racing — so no one yet holds a single ~95%-share toll. And organic just bought itself an estimated 5–7 more years (CoWoS-L; est., bear case). The tightness is <b>anticipatory, not binding</b>.</p>
+    <div class="stats">
+      <div><b>15/20</b><span>Severity (forward-dated)</span></div>
+      <div><b>75–85%</b><span>Glass yield vs 90–95% organic</span></div>
+      <div><b>2–3×</b><span>Cost vs organic substrate (est.)</span></div>
+      <div><b>2027–29</b><span>When it binds</span></div>
+      <div><b>&gt;100mm</b><span>Package size where organic fails</span></div>
+    </div>
+  </div>
+
+  <div class="two" style="margin-top:14px">
+    <div class="panel">
+      <div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.05em;margin-bottom:4px">SEVERITY — 4 FACTORS, DERIVED NOT ASSERTED</div>
+      <table class="sev">
+        <thead><tr><th>Factor (0–5)</th><th>Score</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Supply concentration</td><td><div class="bar"><i style="width:80%;background:var(--choke)"></i></div></td><td>4 — glass oligopoly + few TGV-tool/fab owners; not a single monopoly</td></tr>
+          <tr><td>Lead-time / hard to add</td><td><div class="bar"><i style="width:80%;background:var(--choke)"></i></div></td><td>4 — 2yr+ fab build, multi-year qualification, scarce process know-how</td></tr>
+          <tr><td>Low substitutability</td><td><div class="bar"><i style="width:60%;background:var(--dup)"></i></div></td><td>3 — organic (CoWoS-L) substitutes the whole paradigm for years</td></tr>
+          <tr><td>Demand pull</td><td><div class="bar"><i style="width:80%;background:var(--dacr)"></i></div></td><td>4 — massive but <i>future</i>: 2027–29, not in today's P&amp;L</td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:11px;color:var(--dim);margin-top:8px">Sum = <b style="color:var(--choke)">15 / 20</b>. For reference: ABF film 18, CoWoS 18, HBM-bond 18. Glass is a <i>coming</i> chokepoint, not a current one.</div>
+    </div>
+    <div class="gap">
+      <div class="h">VARIANT / DISAGGREGATION — WHAT THE CROWD MISREADS</div>
+      <p>Consensus is buying "glass substrate = 2026 AI story" — and has bid the purest exposures (the LIDE tool roughly +330–370%, the glass leader <b>+101%</b>) as if the transition is imminent. The disaggregation: <b>(1)</b> the scarce link is <i>not</i> the glass (available) nor the finished substrate (several racers) — it's <b>TGV yield</b>, a capability, not a part; <b>(2)</b> it binds in <b>2027–29</b>, and organic just extended an estimated 5–7 years via CoWoS-L (est., bear case) — Ibiden (~90% of NVIDIA's substrates) shows <b>no glass <i>commercialization</i> roadmap</b> and its 2026 capex is organic-only (though it <i>is</i> in TSMC's CoPoS glass-validation program). So the pure-plays price a 2026 inflection that is really 2028. The edge is to own <b>cheap/buried</b> exposure (a maker hidden in a conglomerate; the glass oligopoly at a normal multiple; the consumables beneath it) and let the <i>yield-crossover</i> catalyst re-rate it — not chase the tool that already tripled.</p>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:14px">
+    <div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.05em;margin-bottom:8px">RENT-CAPTURE TEST — WHO KEEPS THE SCARCITY RENT?</div>
+    <p style="font-size:12.5px;color:var(--mut);line-height:1.6">Margins settle it. <b style="color:var(--txt)">Today (pre-volume):</b> the <b style="color:var(--txt)">equipment</b> maker books the first orders (LPKF book-to-bill 1.4) — but on tiny, shrinking, loss-making revenue, so it's early-cyclical rent, not durable. <b style="color:var(--txt)">At volume (2028+):</b> the <b style="color:var(--txt)">substrate maker</b> that cracks yield first captures the durable rent (Absolics is furthest along); the <b style="color:var(--txt)">glass oligopoly</b> (Corning/AGC) earns a stable toll throughout; and if yield commoditizes, the <b style="color:var(--txt)">buyer</b> (TSMC/Intel/AMD) keeps most of it. Net: rent <i>migrates downstream</i> from tool → fab over the cycle — which argues for the substrate maker as the durable holder and the tool as the high-beta early trade.</p>
+  </div>
+</section>
+
+<!-- 9. ARE WE EARLY -->
+<section id="s9">
+  <div class="sh"><span class="n">09</span><h2>Are we early? The awareness curve</h2><span class="cn">現在是早期嗎</span></div>
+  <p class="lead">The cruel irony of an early-stage theme: the market prices the <b>promise</b> long before the cash flow. Two of the three top-3 have already run hard on anticipation; only the buried conglomerate is still at relative value.</p>
+  <div class="svgwide" style="margin-bottom:14px">
+    <svg viewBox="0 0 1060 320" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="alphaz12" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5fc98a" stop-opacity="0.22"/><stop offset="1" stop-color="#5fc98a" stop-opacity="0"/></linearGradient></defs>
+      <rect x="40" y="40" width="190" height="230" fill="#11141c"/>
+      <rect x="230" y="40" width="200" height="230" fill="url(#alphaz12)" stroke="#2c5a40" stroke-dasharray="3 4"/>
+      <rect x="630" y="40" width="220" height="230" fill="#1a1216" opacity="0.5"/>
+      <text x="135" y="32" text-anchor="middle" class="axis-zone" fill="#697283">LATENT</text>
+      <text x="330" y="32" text-anchor="middle" class="axis-zone" fill="#5fc98a" font-weight="600">EARLY SIGNAL · ALPHA</text>
+      <text x="530" y="32" text-anchor="middle" class="axis-zone" fill="#d2a24a">RECOGNITION</text>
+      <text x="740" y="32" text-anchor="middle" class="axis-zone" fill="#e0686a">EUPHORIA</text>
+      <text x="945" y="32" text-anchor="middle" class="axis-zone" fill="#697283">FULLY PRICED</text>
+      <path d="M40,258 C 260,250 280,205 430,150 C 560,104 640,70 760,62 C 880,56 980,58 1020,58" fill="none" stroke="#4a5570" stroke-width="2.5"/>
+      <text x="48" y="288" font-size="10" fill="#697283">time · market awareness  →</text>
+      <text x="20" y="150" font-size="10" fill="#697283" transform="rotate(-90 20 150)">price / crowding →</text>
+      <!-- SKC dot (early) -->
+      <circle cx="365" cy="182" r="7" fill="#5fc98a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="365" y="170" text-anchor="middle" font-size="11" fill="#7cd6a0" font-weight="700">SKC</text>
+      <text x="365" y="208" text-anchor="middle" font-size="9" fill="#9aa3b5" class="m">+27% YTD · conglomerate</text>
+      <!-- GLW dot (recognition) -->
+      <circle cx="560" cy="108" r="7" fill="#d2a24a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="560" y="96" text-anchor="middle" font-size="11" fill="#e3bd76" font-weight="700">GLW</text>
+      <text x="560" y="128" text-anchor="middle" font-size="9" fill="#9aa3b5" class="m">+101% YTD · ~53x fwd</text>
+      <!-- LPKF dot (euphoria) -->
+      <circle cx="748" cy="70" r="7" fill="#e0686a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="748" y="58" text-anchor="middle" font-size="11" fill="#eda3a4" font-weight="700">LPKF</text>
+      <text x="748" y="96" text-anchor="middle" font-size="9" fill="#9aa3b5" class="m">+372% YTD · pre-volume</text>
+      <!-- latent watchlist marker -->
+      <circle cx="290" cy="216" r="6" fill="none" stroke="#5fc98a" stroke-width="2" stroke-dasharray="2 2"/>
+      <text x="290" y="236" text-anchor="middle" font-size="9" fill="#7cd6a0">where the NEXT entry hides ↙</text>
+      <text x="165" y="252" text-anchor="middle" font-size="8.5" fill="#697283">Samsung E-M · AGC/NEG · TGV consumables</text>
+      <text x="330" y="262" text-anchor="middle" font-size="9.5" fill="#5fc98a">↑ enter on yield-crossover proof</text>
+      <text x="790" y="252" text-anchor="middle" font-size="9.5" fill="#eda3a4">most retail buys the laser here — too late</text>
+    </svg>
+  </div>
+  <p class="cap" style="margin-top:-4px;margin-bottom:14px">Horizontal = awareness stage (qualitative). Dot height = how much of each story is already in the price as of 19 Jun 2026 — SKC least (glass buried inside a chemicals conglomerate), GLW and LPKF most. Note: GLW's +101% is largely an <i>AI optical-fiber</i> story; its glass-substrate exposure is a small option on top.</p>
+
+  <div class="panel" style="margin-bottom:14px;border-color:#2c5a40;background:rgba(95,201,138,.05)">
+    <div style="font-size:11px;font-weight:700;color:var(--dacr);letter-spacing:.05em;margin-bottom:6px">LEADING-INDICATOR DASHBOARD — WHAT TO WATCH &amp; WHERE A RETAIL INVESTOR CAN READ IT</div>
+    <table class="liw">
+      <thead><tr><th style="width:24%">Signal</th><th style="width:28%">Trigger threshold</th><th>Where an amateur can actually read it</th></tr></thead>
+      <tbody>
+        <tr><td><b>Absolics qualification</b></td><td class="dotG">Named AMD/Broadcom design-win or first commercial PO</td><td>SK Group / SKC earnings calls &amp; press; TrendForce, DigiTimes, The Elec</td></tr>
+        <tr><td><b>LPKF glass order intake</b></td><td class="dotA">Volume (not pilot) order &gt;€10M added <i>into</i> guidance</td><td>LPKF quarterly &amp; ad-hoc disclosures (lpkf.com / investor relations)</td></tr>
+        <tr><td><b>TSMC CoPoS cadence</b></td><td class="dotG">CoPoS moves from VisEra pilot to a pulled-in volume schedule</td><td>TSMC quarterly earnings-call transcripts (free, seekingalpha/IR)</td></tr>
+        <tr><td><b>Ibiden / Shinko capex mix</b></td><td class="dotR">First <i>glass-core</i> line capex (today: organic only)</td><td>Ibiden IR releases; Nikkei Asia; the bear's key tell</td></tr>
+        <tr><td><b>Glass-substrate yield</b></td><td class="dotG">Industry yield crossing ~90% (parity with organic)</td><td>TrendForce / SEMI notes; conference (ECTC) papers</td></tr>
+        <tr><td><b>Organic extension (counter)</b></td><td class="dotR">CoWoS-L roadmap stretched again → bearish glass timing</td><td>TSMC / OSAT earnings calls; substrate-maker guidance</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.05em;margin-bottom:6px">STILL-LATENT WATCHLIST — WHERE THE NEXT ENTRY HIDES (left of the top-3)</div>
+    <table class="liw">
+      <thead><tr><th>Latent candidate (link)</th><th>Why it could be next</th><th>Trigger that wakes it · where to watch</th></tr></thead>
+      <tbody>
+        <tr><td><b>Samsung Electro-Mechanics</b> <span class="num">(009150 KS)</span></td><td>#2 substrate maker, 2027 ramp, glass buried inside a giant — option not yet bid as a glass stock</td><td>Prototype→qualification win at a named customer · KR filings, TrendForce</td></tr>
+        <tr><td><b>AGC / NEG</b> <span class="num">(5201 / 5214 JP)</span></td><td>The #2/#3 glass-material oligopolists at deep-value multiples; glass-core toll is pure upside optionality</td><td>First multi-year glass-core supply contract · Japan IR, DigiTimes</td></tr>
+        <tr><td><b>TGV consumables &amp; plating</b> <span class="num">(MKS/Atotech, JCU, photoresist)</span></td><td>The recurring-revenue "picks beneath the picks"; Absolics is dual-sourcing TGV + plating + photoresist now</td><td>Named supplier qualification at Absolics/Samsung · trade press, 10-Q</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 10. TOP-3 -->
+<section id="s10">
+  <div class="sh"><span class="n">10</span><h2>Top-3 chokepoint plays</h2><span class="cn">三大標的</span></div>
+  <p class="lead">Three companies, three <i>different</i> links of the glass-core chain — material, equipment, substrate maker — deliberately spread across the awareness curve. Ranked by <b>remaining asymmetry</b> (how much is still NOT priced): the buried conglomerate is the only one still early; the glass leader and the LIDE tool have both re-rated on the promise.</p>
+
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:0" role="tablist" aria-label="Top-3 plays">
+    <button class="tabbtn on" role="tab" aria-selected="true" aria-controls="t-skc" id="tab-skc" tabindex="0" onclick="showTab('t-skc',this)">SKC / Absolics <small>011790 · substrate maker · EARLY</small></button>
+    <button class="tabbtn" role="tab" aria-selected="false" aria-controls="t-glw" id="tab-glw" tabindex="-1" onclick="showTab('t-glw',this)">Corning <small>GLW · glass material · RECOGNITION</small></button>
+    <button class="tabbtn" role="tab" aria-selected="false" aria-controls="t-lpkf" id="tab-lpkf" tabindex="-1" onclick="showTab('t-lpkf',this)">LPKF <small>LPK · TGV equipment · EUPHORIA</small></button>
+  </div>
+
+  <!-- SKC -->
+  <div class="panel" id="t-skc" role="tabpanel" aria-labelledby="tab-skc" style="border-radius:0 13px 13px 13px">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px">
+      <h3 style="font-size:18px">SKC Co., Ltd. — the glass-core <i>substrate</i> maker (via Absolics)</h3>
+      <span class="stagebadge sg-early">EARLY / RELATIVE-VALUE</span>
+      <span class="lyr ly1">L2 · maker</span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-bottom:8px">KRX: 011790 · the first-mover in commercial glass-core substrates through its US subsidiary <b style="color:var(--txt)">Absolics</b> (Covington, Georgia) — and the only top-3 name where the glass option is still <b style="color:var(--txt)">buried inside a broad chemicals/materials conglomerate</b>, so the market hasn't bid it as a glass stock. The Ajinomoto-pattern repeat: the tightest forward exposure hides in the least-obvious ticker.</p>
+    <div class="mini">
+      <div><div class="v teal">₩125,600</div><div class="l">Price (19 Jun, IBKR)</div></div>
+      <div><div class="v grn">+27%</div><div class="l">YTD (vs LPKF +372%)</div></div>
+      <div><div class="v">$75M</div><div class="l">CHIPS Act award (Absolics)</div></div>
+      <div><div class="v">₩1.17T</div><div class="l">Rights raise; ~₩590B→Absolics</div></div>
+      <div><div class="v amb">YE-26</div><div class="l">Commercial-production target</div></div>
+    </div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢 — How it makes money</div><p>Diversified chemicals/materials group; the glass leg (Absolics) sells finished <b>glass-core substrates</b> to chip/packaging customers. Today pre-revenue in glass; group cash flow comes from legacy chemicals + copper foil.</p></div>
+      <div class="mtc"><div class="h">② 營收結構 — Revenue mix</div><p>Glass-substrate revenue ≈ negligible today (sampling). Value is <b>option on Absolics</b>, not current P&amp;L — the dilution is the risk and the disguise.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源 — Growth driver</div><p>Absolics ramp: electrical/signal performance verified, now <b>yield stabilization</b>; entered <b>AMD certification</b>; ₩1.17T raise fast-tracks year-end-26 commercial output.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場 — End market</div><p>Large AI-accelerator + custom-XPU packages that outgrow organic; US-onshore via Georgia fab (CHIPS-backed) = a supply-chain-security angle.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶 — Key customers</div><p>AMD (certification underway); targeting US hyperscaler/accelerator clients; "non-embedding" tech advanced for a US client (est., trade press).</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河 — Moat</div><p>First-mover + CHIPS funding + a head-start on the hardest thing (yield). But moat is <b>execution-dependent</b>: dual-sourcing TGV (F&amp;S exclusivity expired Mar-26), plating, photoresist to de-risk supply.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望 — Mgmt outlook</div><p>Committing ~₩590B of a ₩1.17T raise to Absolics to be <b>"world's first" commercial</b> glass-substrate maker by YE-26 — a clear, datable bet.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點 — Why the chokepoint</div><p>Owns the link where durable rent lands <i>at volume</i> — the maker that cracks TGV yield first. Closest to converting the chokepoint into cash flow.</p></div>
+    </div>
+    <div class="gap" style="margin-top:12px"><div class="h">ASYMMETRIC-INFO GAP</div><p>The glass-substrate optionality is <b>not separately valued</b> inside a conglomerate the street models as legacy chemicals + copper foil. Rough anchor (est.): SKC's group cap is ~₩4–5T (~$3–3.5B); a glass-core-substrate market heading to several-$B by 2030 with Absolics as first-mover means the glass leg could plausibly be worth a meaningful slice of today's whole-company cap <i>if</i> yield is cracked — value the consensus model doesn't yet carry. A clean Absolics design-win headline forces that sum-of-parts re-rate — while the pure-plays have already priced theirs.</p></div>
+    <div class="bbr">
+      <div class="bl"><b>BULL</b>Absolics lands a named AI design-win in 2026–27; sum-of-parts re-rate; first-mover yield lead compounds.</div>
+      <div class="be"><b>BEAR</b>Yield slips / timeline to 2028+; Absolics keeps burning cash; conglomerate dilution + Korea-listing friction; rights-issue overhang.</div>
+    </div>
+    <table class="scn">
+      <thead><tr><th>Scenario (~12–18m)</th><th>Return</th><th>Prob (subj.)</th><th>Driver</th></tr></thead>
+      <tbody>
+        <tr><td><b>Bull</b></td><td class="dotG">+60%</td><td>30%</td><td>commercial PO / design-win; SOTP re-rate</td></tr>
+        <tr><td><b>Base</b></td><td>+15%</td><td>45%</td><td>on-track qualification, no clean catalyst yet</td></tr>
+        <tr><td><b>Bear</b></td><td class="dotR">−35%</td><td>25%</td><td>yield slip / 2028 push-out; cash burn + dilution</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:11px;color:var(--dim);margin-top:8px">Prob-weighted EV ≈ <b style="color:var(--dacr)">+16%</b> — the best risk/reward of the three precisely because it hasn't run. Falsifier: if YE-26 passes with no commercial output and no design-win, the early thesis is wrong. <i>Subjective priors — illustrative, not a forecast.</i></p>
+  </div>
+
+  <!-- GLW -->
+  <div class="panel" id="t-glw" role="tabpanel" aria-labelledby="tab-glw" hidden style="border-radius:0 13px 13px 13px">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px">
+      <h3 style="font-size:18px">Corning (GLW) — the specialty <i>glass-material</i> gate</h3>
+      <span class="stagebadge sg-recog">RECOGNITION → EUPHORIA</span>
+      <span class="lyr lyu">upstream</span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-bottom:8px">NYSE: GLW · with AGC, the clear leader in low-CTE glass for glass-core substrates, plus glass carriers for advanced packaging. The <b style="color:var(--txt)">lowest-risk, most-diversified</b> way to touch the theme — but the glass-substrate exposure is a thin option on a $17B optical/display/solar company, and the stock has <b style="color:var(--txt)">already doubled in 2026 on AI optical fiber</b>, not glass.</p>
+    <div class="mini">
+      <div><div class="v teal">$175.40</div><div class="l">Price (19 Jun, IBKR)</div></div>
+      <div><div class="v amb">+101%</div><div class="l">YTD · 52w high $211.75</div></div>
+      <div><div class="v red">~53x</div><div class="l">Fwd P/E (rich vs history)</div></div>
+      <div><div class="v">+36%</div><div class="l">Q1-26 Optical Comms YoY</div></div>
+      <div><div class="v">$4.35B</div><div class="l">Q1-26 revenue</div></div>
+    </div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢 — How it makes money</div><p>Specialty glass &amp; ceramics across Optical Communications, Display, Specialty Materials, Environmental, Solar (Hemlock). AI exposure today is mostly <b>optical fiber</b> for datacentre.</p></div>
+      <div class="mtc"><div class="h">② 營收結構 — Revenue mix</div><p>Optical Communications now the growth engine (Q1-26 $1.85B, +36% YoY). Glass-substrate is <b>not yet a reported line</b> — pure optionality.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源 — Growth driver</div><p>AI fiber + hyperscale deals are driving the re-rate now; glass-core substrate is a 2027–29 second leg if the transition lands.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場 — End market</div><p>Datacentre optical, smartphone cover glass, displays, solar — and, prospectively, advanced-packaging glass cores/carriers.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶 — Key customers</div><p>Hyperscalers + telcos (fiber), Apple/Samsung (cover glass); glass-core would sell into Absolics/Samsung/Intel/OSAT supply chains.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河 — Moat</div><p>Deep — decades of glass-composition R&amp;D; CTE-tuned, ultra-low-expansion glass is genuinely hard. With AGC, a true duopoly at the top of the glass-core stack.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望 — Mgmt outlook</div><p>"Springboard" growth plan; bullish on AI optical; glass-substrate framed as emerging optionality, not yet a number.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點 — Why the chokepoint</div><p>Owns the upstream material gate — but glass is <i>available</i>, so it's a stable toll, not the binding scarce link. The chokepoint is one stage downstream (TGV).</p></div>
+    </div>
+    <div class="gap" style="margin-top:12px"><div class="h">ASYMMETRIC-INFO GAP</div><p>The risk is the <i>opposite</i> of an info-gap: the glass-substrate story may already be partly in a ~53x forward multiple that the AI-fiber cycle justifies on its own. You're paying a full price for a thin glass option. Cleanest exposure, least remaining asymmetry.</p></div>
+    <div class="bbr">
+      <div class="bl"><b>BULL</b>AI fiber keeps compounding AND glass-core becomes a real second leg; quality compounder.</div>
+      <div class="be"><b>BEAR</b>~53x fwd leaves no room; an optical-fiber air-pocket or downgrade (already to "Hold") de-rates the multiple; glass stays optionality.</div>
+    </div>
+    <table class="scn">
+      <thead><tr><th>Scenario (~12–18m)</th><th>Return</th><th>Prob (subj.)</th><th>Driver</th></tr></thead>
+      <tbody>
+        <tr><td><b>Bull</b></td><td class="dotG">+25%</td><td>25%</td><td>fiber beats + glass-core orders materialize</td></tr>
+        <tr><td><b>Base</b></td><td>0%</td><td>45%</td><td>multiple digestion; growth meets the high bar</td></tr>
+        <tr><td><b>Bear</b></td><td class="dotR">−30%</td><td>30%</td><td>multiple compresses toward history (~45x median)</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:11px;color:var(--dim);margin-top:8px">Prob-weighted EV ≈ <b style="color:var(--dup)">−3%</b> — quality, but priced. Own for the optical-fiber franchise, not as a glass-substrate bet. <i>Subjective priors — illustrative.</i></p>
+  </div>
+
+  <!-- LPKF -->
+  <div class="panel" id="t-lpkf" role="tabpanel" aria-labelledby="tab-lpkf" hidden style="border-radius:0 13px 13px 13px">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px">
+      <h3 style="font-size:18px">LPKF Laser &amp; Electronics (LPK) — the TGV-formation <i>tool</i></h3>
+      <span class="stagebadge sg-eu">EUPHORIA / PRE-VOLUME</span>
+      <span class="lyr ly3">L3 · equipment</span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-bottom:8px">XETRA: LPK · the purest listed exposure to the exact chokepoint — its <b style="color:var(--txt)">LIDE</b> (Laser-Induced Deep Etching) process is the leading method to form high-density TGVs, reportedly chosen by &gt;80% of major customers. Also the clearest <b style="color:var(--txt)">"what too-late looks like"</b>: <b style="color:var(--txt)">+372% YTD</b> (IBKR; public trackers ~330% — vendor base differs) on ~€110M of revenue — and still loss-making at the EBIT line — with two hedge funds short and the glass upside not even in guidance. (The recent quarterly revenue dip is <i>legacy Solar</i>, not the glass/semi leg.)</p>
+    <div class="mini">
+      <div><div class="v teal">€26.40</div><div class="l">Price (19 Jun, IBKR)</div></div>
+      <div><div class="v red">+372%</div><div class="l">YTD (IBKR; ~330% public)</div></div>
+      <div><div class="v">€105–120M</div><div class="l">FY26 rev guide (excl. glass)</div></div>
+      <div><div class="v red">−3% to +4.5%</div><div class="l">FY26 adj. EBIT margin guide</div></div>
+      <div><div class="v amb">1.4</div><div class="l">Q1-26 book-to-bill</div></div>
+    </div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢 — How it makes money</div><p>Sells laser systems: legacy PCB/electronics + welding, plus the new <b>LIDE</b> glass-structuring tools for TGV. Capital-equipment model — lumpy orders, install + service.</p></div>
+      <div class="mtc"><div class="h">② 營收結構 — Revenue mix</div><p>FY26 ~€105–120M, today mostly legacy; Q1-26 revenue €17.1M (down from €25.3M) but order intake €24.1M, book-to-bill 1.4. Glass <b>upside is excluded from guidance</b>.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源 — Growth driver</div><p>First production-scale glass order booked Q1-26; double-digit margin targeted by 2028 <i>if</i> LIDE passes qualification at volume.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場 — End market</div><p>Glass-core substrate makers + foundries (TSMC mass-prod ~2028); also microelectronics, automotive, medical glass.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶 — Key customers</div><p>Reportedly &gt;80% of major glass-substrate players have selected LPKF kit for evaluation/early lines (est., company/trade press).</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河 — Moat</div><p>LIDE IP — a 2-step laser+etch that makes clean sub-10µm holes without melt cracks. Real, but alt methods (mechanical, other lasers) and in-house processes exist; not a sole-source.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望 — Mgmt outlook</div><p>Sticking to guidance that <i>excludes</i> glass volume orders; board reshuffle toward semiconductor focus amid an activist/short battle (Voleon ~2.1%, Marshall Wace).</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點 — Why the chokepoint</div><p>Its tool performs the single hardest, yield-defining step. Purest chokepoint exposure — but pre-volume, so today's rent is tiny and the price is the risk.</p></div>
+    </div>
+    <div class="gap" style="margin-top:12px"><div class="h">ASYMMETRIC-INFO GAP</div><p>The bull info-gap (glass orders excluded from guidance = hidden upside) is <b>real but widely known</b> — it's why the stock is +372%. The remaining gap is now on the <i>other</i> side: a ~€650M cap on shrinking, loss-making revenue prices a 2027–28 qualification as near-certain. If timing slips or a competing via-method wins share, the de-rate is violent.</p></div>
+    <div class="bbr">
+      <div class="bl"><b>BULL</b>LIDE qualifies at volume in 2027; glass orders convert guidance-excluded upside into real revenue; the only pure-play re-rates further.</div>
+      <div class="be"><b>BEAR</b>2028+ slip, organic extends, alt via-method wins, or short thesis plays out; capital-equipment lumpiness + losses on a euphoric multiple.</div>
+    </div>
+    <table class="scn">
+      <thead><tr><th>Scenario (~12–18m)</th><th>Return</th><th>Prob (subj.)</th><th>Driver</th></tr></thead>
+      <tbody>
+        <tr><td><b>Bull</b></td><td class="dotG">+80%</td><td>30%</td><td>volume glass orders into guidance; qualification proof</td></tr>
+        <tr><td><b>Base</b></td><td class="dotR">−20%</td><td>30%</td><td>de-rate as euphoria cools, timing pushes</td></tr>
+        <tr><td><b>Bear</b></td><td class="dotR">−60%</td><td>40%</td><td>2028 slip / short thesis / alt method wins</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:11px;color:var(--dim);margin-top:8px">Prob-weighted EV ≈ <b style="color:var(--choke)">−6%</b> — great <i>business exposure</i>, wrong <i>price/timing</i>. Highest variance of the three. The play is to <b>wait for a pullback or a qualification print</b>, not chase. <i>Subjective priors — illustrative.</i></p>
+  </div>
+</section>
+
+<!-- 11. BENEFICIARIES / RISK -->
+<section id="s11">
+  <div class="sh"><span class="n">11</span><h2>Beneficiary map &amp; key risks</h2><span class="cn">受益者與風險</span></div>
+  <div class="two">
+    <div class="panel">
+      <div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.05em;margin-bottom:8px">PER-LINK SEVERITY — DERIVED (supply · lead-time · low-substit. · demand)</div>
+      <table class="sev">
+        <thead><tr><th>Link / play</th><th>Severity</th><th>Stage</th></tr></thead>
+        <tbody>
+          <tr><td><b>TGV formation</b> (chokepoint)</td><td><div class="bar"><i style="width:75%;background:var(--choke)"></i></div> <span class="num">15</span></td><td><span class="dotR">forward</span></td></tr>
+          <tr><td><b>SKC / Absolics</b> (substrate)</td><td><div class="bar"><i style="width:70%;background:var(--dacr)"></i></div> <span class="num">14</span></td><td><span class="dotG">early</span></td></tr>
+          <tr><td><b>Corning</b> (glass material)</td><td><div class="bar"><i style="width:65%;background:var(--dup)"></i></div> <span class="num">13</span></td><td><span class="dotA">recog.</span></td></tr>
+          <tr><td><b>LPKF</b> (TGV equipment)</td><td><div class="bar"><i style="width:65%;background:var(--choke)"></i></div> <span class="num">13</span></td><td><span class="dotR">euphoria</span></td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:11px;color:var(--dim);margin-top:8px">They span 13–15 — honest, because this is a <b>diffuse, forward-dated</b> chokepoint, not a tight monopoly (ABF=18): glass is available (Corning 13), alt via-methods cap LPKF (13), and the durable-rent maker scores highest (Absolics 14). <b>Tightness ≠ a good buy:</b> the tightest names are the most priced; the cheapest carries the most execution risk.</p>
+    </div>
+    <div class="panel">
+      <div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.05em;margin-bottom:8px">RISK REGISTER</div>
+      <table class="liw">
+        <tbody>
+          <tr><td><b>Timing slip</b></td><td>Mass production is 2028+, not 2026; CoWoS-L extends organic an est. 5–7yr (bear case). The biggest risk to <i>all</i> names.</td></tr>
+          <tr><td><b>Yield never crosses</b></td><td>If glass stays at 75–85% yield / 2–3× cost, adoption stalls and the option expires worthless.</td></tr>
+          <tr><td><b>No customer pull</b></td><td>Ibiden (~90% of NVIDIA substrates) has no glass <i>commercialization</i> roadmap (organic-only capex), even while joining TSMC's CoPoS glass validation; NVIDIA isn't demanding glass at volume yet.</td></tr>
+          <tr><td><b>Method risk (LPKF)</b></td><td>Alt via-formation methods or in-house processes could erode LIDE's share before volume.</td></tr>
+          <tr><td><b>Valuation (GLW/LPKF)</b></td><td>~53x fwd and +372% YTD respectively leave no room for disappointment.</td></tr>
+          <tr><td><b>Disintermediation</b></td><td>Glass interposers within CoWoS (hybrid) could capture the value before full glass-core, reshuffling winners.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+    <div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.05em;margin-bottom:6px">SELF-CRITIQUE — UNRESOLVED HOLES (retail lens)</div>
+    <p style="font-size:12px;color:var(--mut);line-height:1.6">① <b>SKC valuation denominator is fuzzy</b> — Absolics is unlisted and pre-revenue, so the "+16% EV" rests on a re-rate catalyst, not a multiple I can anchor; the conglomerate could also keep diluting via rights issues. ② <b>YTD figures are IBKR year-to-date snapshots</b> and can differ from broker/print conventions near data-vendor quirks; treat ±a few points. ③ <b>Scenario probabilities are subjective</b> — the relative ranking (SKC &gt; GLW &gt; LPKF on remaining asymmetry) is the load-bearing claim, not the exact %. ④ <b>"&gt;80% chose LPKF" and yield/cost figures are industry/company estimates</b>, not audited. ⑤ <b>The whole thesis is an early-stage option</b> — higher timing risk than any prior run in this rotation; position sizing should reflect that.</p>
+  </div>
+</section>
+
+<!-- 12. DECISION -->
+<section id="s12">
+  <div class="sh"><span class="n">12</span><h2>The decision — one table</h2><span class="cn">決策表</span></div>
+  <table class="tbl">
+    <thead><tr><th>Ticker</th><th>Link / chokepoint</th><th>Sev</th><th>Stage</th><th>Valuation</th><th>Remaining asymmetry</th><th>Lean</th><th>Trigger</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>SKC</b> <span class="num">011790</span></td><td>Glass-core substrate (Absolics)</td><td>14</td><td><span class="dotG">early</span></td><td>SOTP option; pre-rev glass</td><td><b style="color:var(--dacr)">Highest</b></td><td><b style="color:var(--dacr)">Accumulate small</b></td><td>AMD/named design-win; YE-26 commercial PO</td>
+      </tr>
+      <tr>
+        <td><b>GLW</b></td><td>Low-CTE glass material</td><td>13</td><td><span class="dotA">recognition</span></td><td>~53x fwd (rich)</td><td>Low (priced)</td><td>Hold / quality, not glass bet</td><td>multiple digestion; glass-core order print</td>
+      </tr>
+      <tr>
+        <td><b>LPKF</b> <span class="num">LPK</span></td><td>TGV formation (LIDE)</td><td>13</td><td><span class="dotR">euphoria</span></td><td>~€650M cap on ~€110M shrinking rev, loss</td><td>Negative at this price</td><td><b style="color:var(--choke)">Wait for pullback / proof</b></td><td>volume glass order <i>into</i> guidance; qualification</td>
+      </tr>
+      <tr style="background:rgba(95,201,138,.05)">
+        <td colspan="8" style="color:var(--mut);font-size:12px"><b style="color:var(--dacr)">If you can only do one thing:</b> don't chase the +372% laser. The early entry is <b>cheap/buried exposure</b> — SKC's Absolics option, or the still-latent glass oligopoly (AGC/NEG) and TGV consumables — entered on a <b>yield-crossover or named design-win catalyst</b>, and sized <b>small</b> because this chokepoint binds in 2027–29, not today. <b>Access caveat:</b> the early names are foreign-listed (SKC on KRX; AGC/NEG in Tokyo) — a retail investor needs international-market access or an OTC/ADR line, and must weigh SKC's rights-issue dilution overhang. The cleanest <i>US-listed</i> touch is GLW, but it is the most priced and least pure. This is the earliest, highest-timing-risk run of the rotation: it best serves the "be early" mandate, and most demands patience.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="disc">
+    <b>Disclaimer.</b> Personal research for a private knowledge base — <b>not investment advice</b>. The author is a non-industry retail investor. Figures are cross-checked against ≥2 public sources where possible and marked (est.) when approximate; some are interested-party (company/IR) figures. Live quotes via <b>IBKR read-only</b> as of 19 Jun 2026 (intraday/last close; YTD = IBKR year-to-date snapshot). Scenario probabilities and 12–18m returns are subjective and illustrative, not forecasts. Glass-core substrates are an early-stage transition with material timing risk. Do your own work; verify before acting. No position initiated or recommended.
+  </div>
+  <footer>
+    <b>AI-Infra Deep-Dive · Run #12 · v5</b> — Substrates &amp; Materials (deeper): the Through-Glass-Via (TGV) chokepoint in glass-core substrates. Built 19 Jun 2026.
+    Sources: TrendForce, DigiTimes, The Elec, NIST/US Commerce (CHIPS), SK/Absolics &amp; SKC disclosures, Corning Q1-26 results &amp; IR, LPKF Q1-26 report &amp; guidance, iST (TGV failure analysis), QYResearch / MarketsandMarkets / FutureMarkets (sizing), photoncap &amp; Manuel Walz (supply-chain / bear case). Prices: IBKR read-only.
+    Prior runs: Optics (CPO/EML · InP-MOCVD) · Compute fabric (CoWoS · Hybrid bonding) · Power (Grid/VRM · 800V-HVDC/magnetics) · Cooling (Cold-plate/QD · QD-coupling) · Networking silicon (SerDes/AEC · SerDes-IP) · Substrates (ABF/T-glass · <b>glass-core/TGV ←</b>).
+  </footer>
+</section>
+
+</div><!-- /wrap -->
+
+<script>
+function showTab(id,btn){
+  document.querySelectorAll('[role=tabpanel]').forEach(function(p){p.hidden=true;});
+  var el=document.getElementById(id); if(el){el.hidden=false;}
+  document.querySelectorAll('.tabbtn').forEach(function(b){b.classList.remove('on');b.setAttribute('aria-selected','false');b.tabIndex=-1;});
+  if(btn){btn.classList.add('on');btn.setAttribute('aria-selected','true');btn.tabIndex=0;}
+}
+(function(){
+  var tabs=Array.prototype.slice.call(document.querySelectorAll('[role=tab]'));
+  tabs.forEach(function(tab,i){
+    tab.addEventListener('keydown',function(e){
+      var n=null;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'){n=tabs[(i+1)%tabs.length];}
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){n=tabs[(i-1+tabs.length)%tabs.length];}
+      else if(e.key==='Home'){n=tabs[0];}
+      else if(e.key==='End'){n=tabs[tabs.length-1];}
+      if(n){e.preventDefault();showTab(n.getAttribute('aria-controls'),n);n.focus();}
+    });
+  });
+})();
+</script>
+</body>
+</html>

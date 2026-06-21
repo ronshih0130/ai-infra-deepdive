@@ -1,0 +1,187 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>X-FAB Silicon Foundries (XFAB) — Deep-Dive 2026-06-20</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e1116;--panel:#161b22;--panel2:#1b212b;--ink:#e6edf3;--mut:#aab2bd;--teal:#3fb6a8;--red:#df6258;--amber:#d9a544;--line:#262d38;}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;line-height:1.55}
+.wrap{max-width:1000px;margin:0 auto;padding:34px 22px 80px} .num{font-family:'JetBrains Mono',monospace}
+h1{font-size:30px;font-weight:700;margin:0 0 6px;letter-spacing:-.5px} h2{font-size:20px;margin:40px 0 6px}
+.sub{color:var(--mut);font-size:13.5px;margin:0 0 4px} .lead{color:var(--mut);font-size:15px;max-width:86ch}
+.tag{display:inline-block;font-size:11px;color:var(--teal);border:1px solid var(--teal);border-radius:20px;padding:2px 10px;margin-bottom:14px;letter-spacing:.5px}
+.verdict{background:linear-gradient(100deg,#231a1c,#161b22);border:1px solid #5a3b3b;border-left:4px solid var(--red);border-radius:12px;padding:16px 20px;margin:14px 0}
+.verdict b{color:var(--amber)} .verdict .big{font-size:18px;font-weight:700;color:var(--ink)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-top:12px}
+.flag{background:#1d1518;border:1px solid #5a3b3b;border-left:4px solid var(--red);border-radius:10px;padding:14px 18px;margin:12px 0} .flag b{color:var(--red)}
+.bw{background:var(--panel2);border-left:3px solid var(--teal);border-radius:8px;padding:14px 16px;margin:12px 0} .bw b{color:var(--teal)}
+svg text{font-family:'Space Grotesk',sans-serif;fill:var(--ink)} svg .num{font-family:'JetBrains Mono',monospace} .ax{font-size:10.5px;fill:var(--mut)} .nl{font-size:12px;fill:var(--ink)} .sm{font-size:11px;fill:var(--mut)}
+.snap{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-top:12px} .sc{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 11px}
+.scv{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600} .scl{font-size:10.5px;color:var(--mut);margin-top:2px}
+table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px} th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mut);font-weight:500;font-size:11.5px} td.num{font-family:'JetBrains Mono',monospace} .vd{font-size:12.5px}
+.pill{font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 8px;border-radius:10px;border:1px solid;white-space:nowrap}
+.ep{display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--line)} .eplab{flex:0 0 92px;font-weight:600;color:var(--teal);font-size:13.5px} .eptxt{font-size:13px}
+.foot{color:var(--mut);font-size:11.5px;margin-top:36px;border-top:1px solid var(--line);padding-top:14px}
+.k{color:var(--teal)} .r{color:var(--red)} .a{color:var(--amber)}
+@media print{body{background:#fff;color:#111}.panel,.bw,.verdict,.flag{border-color:#ccc;background:#fff}svg text{fill:#111}}
+@media(max-width:760px){.snap{grid-template-columns:repeat(2,1fr)}}
+</style></head><body><div class="wrap">
+<div class="tag">SINGLE-NAME DEEP-DIVE · SPECIALTY/SiC FOUNDRY · EURONEXT (IBKR-TRADABLE)</div>
+<h1>X-FAB Silicon Foundries (XFAB.PA) — right theme, late entry</h1>
+<p class="sub">Pure-play analog/mixed-signal + SiC + MEMS/silicon-photonics specialty foundry. As-of 2026-06-20, €9.19 (+78% YTD). Personal research — NOT investment advice. IBKR read-only; never trade on this.</p>
+
+<div class="verdict"><div class="big">Verdict: EUPHORIA / sentiment-priced — the alpha was the €4 low in 2025, not €9.20 today.</div>
+<p class="sub" style="margin-top:8px">The violent round-trip — <b>+288% trough-to-peak</b> (€4.09→€15.88), including a <b>+76% intraday meme spike</b> on 27-May-2026 (viral "Serenity" X post, <b>no corporate catalyst</b> — the CEO confirmed no material development), now <b>+78% YTD at €9.19</b> — happened <i>on top of <b>falling</b> earnings</i> (FY25 net income halved to ~$30M; Q1'26 gross margin 15.7%, EBIT −89% YoY). At €9.19 you pay ~8× EV/EBITDA — above X-FAB's own 4.5–4.9× through-cycle norm — for a sub-scale, net-debt, related-party-concentrated cyclical. Probability-weighted ≈ €7.9 — <b>below</b> the €9.19 price (0.25×€14 + 0.45×€7 + 0.30×€4.25). The base case sits under the current price; the asymmetry is no longer favourable at €9. Base-case fair value <b>€6–8 sits below the price</b>; sell-side consensus ~€5.53. Of the bull legs, <b>MEMS/Microsystems is already real revenue</b> ($33.7M in Q1'26, +42% YoY, all-time high) — but the headline AI hooks (silicon-photonics for AI optics, 800V SiC/GaN for AI-datacenter power) are <b>still pre-scale / prototype</b>, not yet earnings. This is a <b class="k">WATCH</b>, not an early-entry — the asymmetry returns nearer <b class="k">€5–6 / 4–5× EV/EBITDA</b> or on hard fundamental confirmation. Gooaye lens: <b>5/12 → 站旁邊 / stand aside (≤5)</b>.</p></div>
+
+<div class="bw"><b>白話版.</b> X-FAB 是一家<b>特用晶圓代工廠</b>（類比/混訊 + 碳化矽SiC + MEMS/矽光子），不做先進數位製程，主要替汽車/工業/醫療客戶代工。它<b>站在對的賽道</b>（電動車電源、AI 資料中心 800V 電源用的 SiC、AI 光通訊用的矽光子、感測 MEMS 創新高），但<b>進場點太晚</b>：股價從 €4.09 谷底到 €15.88 高點 <b>+288%</b>（含 5/27 單日 <b>+76%</b> 的迷因噴出，靠一則爆紅 X 貼文、公司明說沒重大消息），現價 €9.19、<b>今年 +78%</b>——而同期<b>獲利其實腰斬</b>（FY25 淨利砍半、Q1'26 毛利掉到 15.7%、EBIT 年減 89%）。利多腿裡，<b>MEMS/微系統已是實質營收</b>（Q1'26 $33.7M、+42%、創高），但真正的 AI 鉤子（矽光子、800V SiC/GaN）<b>還在原型階段、尚未變現</b>。SiC 只佔營收 ~8% 且去年還<b>衰退 34%</b>，正面臨中國殺價與 2027–28 的產能過剩；最大客戶 Melexis 佔 ~40–45% 營收<b>且是同一家族控股的關係人</b>（治理紅旗）；大股東家族+州政府持股 ~61–73%、流通股僅 ~27–39%（各來源估計不一），跳動劇烈。目前 ~8 倍 EV/EBITDA 高於自身 4.5–4.9 倍常態，券商目標價 ~€5.5（低於現價 ~40%）。<b>結論：觀望</b>——真正的不對稱機會在 2025 年 €4 低點，已經過了；要重新有吸引力，得等回到 €5–6、或基本面（H2 車用復甦、毛利回升、真正的矽光子/AI 電源訂單）確認。股癌六關只拿 5/12＝站旁邊。</p></div>
+
+<div class="snap"><div class="sc"><div class="scv" style="color:#e6edf3">€9.19</div><div class="scl">Price (Euronext Paris)</div></div><div class="sc"><div class="scv" style="color:#df6258">+78%</div><div class="scl">YTD</div></div><div class="sc"><div class="scv" style="color:#aab2bd">€4.09 – €15.88</div><div class="scl">52-week range</div></div><div class="sc"><div class="scv" style="color:#e6edf3">~€1.20B / ~€1.45B</div><div class="scl">Mkt cap / EV</div></div><div class="sc"><div class="scv" style="color:#d9a544">~8× (own norm 4.5–4.9×)</div><div class="scl">EV/EBITDA (FY25)</div></div><div class="sc"><div class="scv" style="color:#e6edf3">~1.3×</div><div class="scl">P/B</div></div><div class="sc"><div class="scv" style="color:#df6258">~€5.53 (~40% below)</div><div class="scl">Sell-side PT</div></div><div class="sc"><div class="scv" style="color:#d9a544">~27–39% (est.; strategic ~61–73%)</div><div class="scl">Free float</div></div><div class="sc"><div class="scv" style="color:#df6258">$870M / $30M (halved)</div><div class="scl">FY25 rev / net income</div></div><div class="sc"><div class="scv" style="color:#aab2bd">~$8.7M/day (thin)</div><div class="scl">ADV</div></div></div>
+
+<h2>1 · Price &amp; awareness — a meme spike on a deep-cyclical base</h2>
+<div class="panel"><svg viewBox="0 0 860 300" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="X-FAB 5-year price with awareness stages">
+<line x1="42" y1="251" x2="844" y2="251" stroke="#222a34"/>
+<text x="36" y="254" text-anchor="end" class="ax">€4</text>
+<line x1="42" y1="176" x2="844" y2="176" stroke="#222a34"/>
+<text x="36" y="179" text-anchor="end" class="ax">€8</text>
+<line x1="42" y1="101" x2="844" y2="101" stroke="#222a34"/>
+<text x="36" y="104" text-anchor="end" class="ax">€12</text>
+<line x1="42" y1="25" x2="844" y2="25" stroke="#222a34"/>
+<text x="36" y="28" text-anchor="end" class="ax">€16</text>
+<line x1="42" y1="28" x2="844" y2="28" stroke="#df6258" stroke-dasharray="3 3" opacity="0.5"/>
+<text x="842" y="24" text-anchor="end" class="ax" fill="#df6258">ATH €15.88 (meme spike, 27-May-26)</text>
+<line x1="42" y1="222" x2="844" y2="222" stroke="#d9a544" stroke-dasharray="2 4" opacity="0.6"/>
+<text x="44" y="218" class="ax" fill="#d9a544">sell-side PT ~€5.5</text>
+<polyline points="42.0,176.5 55.4,158.6 68.7,170.7 82.1,164.6 95.5,150.9 108.8,154.5 122.2,165.6 135.6,194.2 148.9,194.7 162.3,197.8 175.7,185.3 189.0,209.4 202.4,204.3 215.8,209.6 229.1,230.1 242.5,227.9 255.9,205.5 269.2,202.1 282.6,175.7 296.0,158.8 309.3,162.9 322.7,181.2 336.1,177.2 349.4,139.8 362.8,119.1 376.2,129.5 389.5,142.2 402.9,165.8 416.3,128.3 429.6,134.9 443.0,158.2 456.4,190.8 469.7,194.6 483.1,203.6 496.5,202.1 509.8,213.9 523.2,215.1 536.6,223.9 549.9,231.1 563.3,244.2 576.7,241.8 590.0,231.8 603.4,232.6 616.8,240.5 630.1,256.3 643.5,234.6 656.9,229.7 670.2,200.0 683.6,206.2 697.0,195.3 710.3,196.8 723.7,223.0 737.1,233.9 750.4,229.2 763.8,230.1 777.2,238.4 790.5,237.1 803.9,208.1 817.3,124.0 830.6,153.5 844.0,153.5" fill="none" stroke="#3fb6a8" stroke-width="2"/>
+<circle cx="844.0" cy="153.5" r="4" fill="#3fb6a8"/>
+<text x="840" y="168" text-anchor="end" class="ax" fill="#e6edf3">now €9.19</text>
+<text x="136" y="292" text-anchor="middle" class="ax">2022</text>
+<text x="296" y="292" text-anchor="middle" class="ax">2023</text>
+<text x="456" y="292" text-anchor="middle" class="ax">2024</text>
+<text x="617" y="292" text-anchor="middle" class="ax">2025</text>
+<text x="777" y="292" text-anchor="middle" class="ax">2026</text>
+<text x="630" y="270" text-anchor="middle" class="ax" fill="#aab2bd">trough €3.73</text>
+</svg>
+<p class="sub" style="margin-top:8px">Five-year monthly close (€). The asymmetric trade was the 2024–25 down-cycle into the <b>€3.73 trough</b>; the +288% trough-to-peak that followed ended in a <b class="r">27-May-2026 meme spike to €15.88</b> on zero corporate news, now round-tripped to €9.19. <b>Awareness stage: euphoria / sentiment-priced</b> — not latent, not early.</p></div>
+
+<h2>2 · The 8-point teardown (8 點拆解)</h2>
+<div class="panel"><div class="ep"><div class="eplab">① 怎麼賺錢</div><div class="eptxt">Pure-play specialty <b>foundry</b> — owns no chip designs; fabless/IDM customers send designs, X-FAB fabricates wafers on mature/specialty nodes (350–180nm CMOS, plus SiC/GaN, MEMS, BiCMOS, SOI, photonics) and bills per-wafer + NRE/prototyping. Value is in analog process recipes, not transistor density. (IFRS-15 over-time revenue distorts the headline margin.)</div></div>
+<div class="ep"><div class="eplab">② 營收結構</div><div class="eptxt">FY2025 revenue <b>$870.3M (+7% YoY)</b>. Core markets (auto+industrial+medical) = $814M = <b>94%</b>. By tech (Q1'26): CMOS ~80%, Microsystems & Photonics ~17%, Wide-bandgap SiC/GaN ~8%. 6 fabs: Germany (Erfurt/Dresden/Itzehoe), France (Corbeil), Malaysia (Kuching/Sarawak — the newest fab, a CMOS/analog capacity ramp), US (Lubbock — X-FAB's 6-inch SiC line).</div></div>
+<div class="ep"><div class="eplab">③ 成長來源</div><div class="eptxt"><b>Two-speed.</b> SECULAR-UP: Microsystems & Photonics +42% YoY to an ATH $33.7M (piezo-MEMS/AlScN, MEMS, ultrasonic, silicon-photonics). RECOVERING: SiC/WBG +152% YoY (off a crushed base; wafers +195%). DOWN: CMOS −9% YoY (auto destock). + ~€128M EU + ~$50M US Chips-Act capacity support.</div></div>
+<div class="ep"><div class="eplab">④ 終端市場</div><div class="eptxt">Heavily <b>AUTO-skewed (~62%)</b> — the current drag (−10% YoY, Melexis destock). Industrial $52M (+32%), Medical record $71.3M FY25 (+39% in Q1'26) are the offsets. Consumer small. Auto concentration is both the secular bull (EV/safety content) and the cyclical risk.</div></div>
+<div class="ep"><div class="eplab">⑤ 主要客戶</div><div class="eptxt"><b style='color:#df6258'>The #1 structural flag.</b> Melexis ≈ <b>40–45% of revenue</b> ($364M in 2024; down from 55% in 2018) — AND a <b>related party</b> (the same Duchâtelet/De Winter families control both X-FAB and Melexis). Related-party pricing is hard for minorities to verify, and ~half of revenue rides one affiliated buyer's auto cycle. (Unverified aggregator claims that NVIDIA/Broadcom are customers are NOT in filings — treat as false.)</div></div>
+<div class="ep"><div class="eplab">⑥ 護城河</div><div class="eptxt">Real but narrow, stable-to-slightly-eroding. (a) Automotive/medical <b>qualification lock-in</b> (IATF 16949, AEC-Q100, ISO 26262/13485) → 12+ yr sticky design-ins. (b) One of very few <b>open/merchant SiC+GaN foundries</b> (most SiC is captive in IDMs). (c) Western/diversified footprint = a sourcing moat. Weakness: sub-scale; many mature-node analog competitors (Tower, VIS, GF).</div></div>
+<div class="ep"><div class="eplab">⑦ 管理層展望</div><div class="eptxt"><b>Cautious — and notably DECLINED FY2026 full-year guidance</b> citing 'limited visibility' (a tell). Q2'26 guide: revenue $190–200M, EBITDA margin only 17–20%. Expects a 'steady recovery' of auto in H2'26 as Melexis destock ends. Tone = trough-with-hope, not boom.</div></div>
+<div class="ep"><div class="eplab">⑧ 為何是卡點</div><div class="eptxt">Arms-dealer to EV/industrial electrification + <b>early</b> AI-power/AI-optics optionality. Every EV needs more analog/power/sensing silicon; SiC is the power chokepoint for traction inverters &amp; (emerging) 800V AI-datacenter racks; silicon-photonics feeds AI transceivers. BUT the AI exposure is <b>indirect, early and pre-scaled-revenue</b> — the live driver remains auto cyclicality, mid-trough.</div></div></div>
+
+<h2>3 · A two-speed business — the bull legs are real but small</h2>
+<div class="panel"><svg viewBox="0 0 820 130" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="X-FAB technology mix Q1 2026">
+<text x="8" y="26" class="nl">CMOS analog/mixed-signal (cyclical-DOWN, auto)</text>
+<rect x="250" y="10" width="560" height="24" rx="3" fill="#df6258" opacity="0.85"/>
+<text x="818" y="26" class="num sm" fill="#e6edf3">~80% · <tspan fill="#df6258">-9% YoY</tspan></text>
+<text x="8" y="66" class="nl">Microsystems &amp; Photonics (secular-UP, ATH)</text>
+<rect x="250" y="50" width="119" height="24" rx="3" fill="#3fb6a8" opacity="0.85"/>
+<text x="377" y="66" class="num sm" fill="#e6edf3">~17% · <tspan fill="#3fb6a8">+42% YoY</tspan></text>
+<text x="8" y="106" class="nl">Wide-bandgap SiC/GaN (small, inflecting off trough)</text>
+<rect x="250" y="90" width="56" height="24" rx="3" fill="#d9a544" opacity="0.85"/>
+<text x="314" y="106" class="num sm" fill="#e6edf3">~8% · <tspan fill="#d9a544">+152% YoY*</tspan></text>
+</svg>
+<p class="sub" style="margin-top:8px">Approx. Q1'26 technology mix (shares overlap/est.). <b class="r">CMOS ~80%</b> is in an auto-driven trough (the consensus recovery call). <b class="k">Microsystems &amp; Photonics ~17%</b> is at an all-time high and accelerating — the under-covered secular leg (silicon-photonics on the XPH90 platform, partners SMART Photonics / LIGENTEC, AI-optics-relevant but pre-scaled-revenue). <b class="a">Wide-bandgap SiC/GaN ~8%</b> is re-accelerating off a crushed base (*+152% YoY but it FELL −34% in FY25 and is loss-leading into a glut). The mix is the whole debate: you're buying a cyclical CMOS foundry with two small, exciting, not-yet-material options on top.</p></div>
+
+<h2>4 · Fundamental channel checks — cyclical bottom forming, X-FAB still lagging</h2>
+<div class="panel"><table><tr><th>Channel signal</th><th>Read</th><th>Evidence (sourced, dated)</th></tr>
+<tr><td><b>Auto inventory (peers)</b></td><td><span class="pill" style="color:#3fb6a8;border-color:#3fb6a8">BOTTOM IN</span></td><td class="vd">STMicro (Apr-26): distribution inventory NORMALIZED, book-to-bill &gt;1 all markets. Infineon: backlog ~€25bn (+€4bn QoQ), FY guide raised. The auto-semi cycle is turning.</td></tr>
+<tr><td><b>X-FAB&#x27;s own orders</b></td><td><span class="pill" style="color:#d9a544;border-color:#d9a544">LAGGING</span></td><td class="vd">Q1'26 revenue −4% YoY / −12% QoQ; order intake $169M (+3% QoQ), backlog $308M. Its auto demand had NOT inflected yet — recovery only guided for H2'26. It lags the peers that already turned.</td></tr>
+<tr><td><b>SiC pricing</b></td><td><span class="pill" style="color:#df6258;border-color:#df6258">PRICE WAR</span></td><td class="vd">6-inch SiC substrate ~$400/wafer (down &gt;20% from &gt;$500 mid-24), some Chinese near cost. Yole: power-SiC overcapacity to 2027–28; X-FAB's SiC line reportedly under-loaded (mgmt commentary); Q4'25 took a $9.3M SiC one-off charge.</td></tr>
+<tr><td><b>Device lead-times</b></td><td><span class="pill" style="color:#7f8a99;border-color:#7f8a99">NORMALIZED</span></td><td class="vd">Power-MOSFET / SiC-device lead-times at DigiKey/Mouser back to stock-available across onsemi/ROHM/ST/Infineon (Jun-26) — no shortage signal; the opposite of the 2021–22 tightness.</td></tr>
+<tr><td><b>EV demand (Europe)</b></td><td><span class="pill" style="color:#3fb6a8;border-color:#3fb6a8">SUPPORTIVE</span></td><td class="vd">BEV +36% YoY across Europe top-5 in Q1'26 (Germany +41%, France +50%); IEA/BNEF ~25–27% global share 2026 — a tailwind for X-FAB's key region, if it converts to orders.</td></tr>
+</table>
+<p class="sub" style="margin-top:8px">Net read: the auto-semi <b>cycle is bottoming</b> (peers confirm), which is the bull's strongest leg — but X-FAB's <b>own</b> orders haven't inflected yet, and its supposed growth engine (SiC) faces a structural price war. The recovery is a forecast, not yet a print.</p></div>
+
+<h2>5 · Reverse-model &amp; scenarios — what €9.20 already assumes</h2>
+<div class="panel"><p class="sub" style="margin:0 0 8px">At €9.20 (EV ~€1.45B, ~8× FY25 EBITDA) the market is pricing a <b>successful re-rating to a "specialty AI-infra foundry"</b> — a clean H2'26 auto V-recovery <i>and</i> margin re-expansion to the mid-20s <i>and</i> SiC turning from shrinking to growing <i>and</i> silicon-photonics converting to Tower-like AI-optical revenue (which it does not yet earn) <i>and</i> a structurally higher multiple than its own history. That is a double-count of margin recovery + multiple expansion. A defensible mid-cycle math: EBITDA ~€180M × 5–6× → EV ~€0.9–1.1B → <b>~€5.0–6.4/share</b>.</p>
+<table><tr><th>Case</th><th>Prob</th><th>Fair value</th><th>What has to be true</th></tr>
+<tr><td><b style="color:#3fb6a8">Bull</b></td><td class="num">25%</td><td class="num" style="color:#3fb6a8"><b>€12–16</b></td><td class="vd">H2&#x27;26 auto V-recovery lands (peers already signal it); EBITDA margin re-expands to 24–27%; Microsystems/Photonics keeps +40% AND ≥1 credible silicon-photonics / AI-power design-win converts → a Tower-like re-rate to 9–11× EV/EBITDA. The meme thesis comes true on fundamentals.</td></tr>
+<tr><td><b style="color:#d9a544">Base</b></td><td class="num">45%</td><td class="num" style="color:#d9a544"><b>€6–8</b></td><td class="vd">Auto bottoms &amp; recovers gradually into 2027, no sharp V; margin drifts back to ~22–24%; SiC stays small &amp; dilutive in an oversupplied market to 2027–28; photonics stays optionality (prototyping, not scaled). Mid-cycle EBITDA ~€180–200M at a defensible 5–6× → fair value BELOW today&#x27;s price.</td></tr>
+<tr><td><b style="color:#df6258">Bear</b></td><td class="num">30%</td><td class="num" style="color:#df6258"><b>€3.5–5</b></td><td class="vd">Auto recovery slips (EV demand disappoints, China BEV soft); Melexis cuts orders further; margin stuck 17–20% (Q1&#x27;26 GM already 15.7%, EBIT −89% YoY); SiC price-war keeps the Kuching ramp dilutive; meme premium fully mean-reverts toward the ~€5.5 consensus and below.</td></tr>
+</table>
+<p class="sub" style="margin-top:8px">Probability-weighted ≈ €7.9 — <b>below</b> the €9.19 price (0.25×€14 + 0.45×€7 + 0.30×€4.25). The base case sits under the current price; the asymmetry is no longer favourable at €9.</p>
+<p class="sub" style="margin:14px 0 4px"><b>Sensitivity bridge</b> — implied €/share = (EBITDA × multiple − net debt ~€253M) ÷ 130.6M shares. <span style="color:#3fb6a8">teal = downside/value zone (&lt;€6)</span>; <span style="color:#d9a544">amber ≈ what today's €9.19 demands</span>; <span style="color:#df6258">red = above price</span>. The <b>◀</b> cells bracket the current price:</p>
+<table style="font-size:12.5px"><tr><th>EBITDA (€M) ↓ / EV/EBITDA →</th>
+<th class="num">4×</th>
+<th class="num">5×</th>
+<th class="num">6×</th>
+<th class="num">8×</th>
+<th class="num">10×</th>
+</tr>
+<tr><td>€160M <span class="sm">trough</span></td>
+<td class="num" style="color:#3fb6a8">€3.0</td>
+<td class="num" style="color:#3fb6a8">€4.2</td>
+<td class="num" style="color:#3fb6a8">€5.4</td>
+<td class="num" style="color:#d9a544">€7.9</td>
+<td class="num" style="color:#df6258">€10.3</td>
+</tr>
+<tr><td>€180M <span class="sm">mid</span></td>
+<td class="num" style="color:#3fb6a8">€3.6</td>
+<td class="num" style="color:#3fb6a8">€5.0</td>
+<td class="num" style="color:#d9a544">€6.3</td>
+<td class="num" style="color:#d9a544">€9.1 ◀</td>
+<td class="num" style="color:#df6258">€11.8</td>
+</tr>
+<tr><td>€200M <span class="sm">mid</span></td>
+<td class="num" style="color:#3fb6a8">€4.2</td>
+<td class="num" style="color:#3fb6a8">€5.7</td>
+<td class="num" style="color:#d9a544">€7.2</td>
+<td class="num" style="color:#df6258">€10.3</td>
+<td class="num" style="color:#df6258">€13.4</td>
+</tr>
+<tr><td>€230M <span class="sm">recovery</span></td>
+<td class="num" style="color:#3fb6a8">€5.1</td>
+<td class="num" style="color:#d9a544">€6.9</td>
+<td class="num" style="color:#d9a544">€8.6 ◀</td>
+<td class="num" style="color:#df6258">€12.1</td>
+<td class="num" style="color:#df6258">€15.7</td>
+</tr>
+</table>
+<p class="sub" style="margin-top:6px">Read: through-cycle 4–6× on €160–200M EBITDA → <b>€3.6–€7.3 (below price)</b>. To justify €9.19 you need ~<b>8× on recovered ~€180–200M</b>, or <b>6× on a full-recovery €230M</b> — i.e. you must underwrite margin recovery <i>and</i> a multiple above the 4.5–4.9× norm at once (the double-count). The €15.88 ATH implied ~10× on peak €230M EBITDA.</p></div>
+
+<div class="flag"><b>⚠ The #1 risk — related-party customer concentration (governance).</b>
+<p class="sub" style="margin-top:6px">Melexis is <b>~40–45% of revenue</b> AND a <b>related party</b>: the same Duchâtelet / De Winter families control both X-FAB and Melexis (strategic family + Sarawak-state holders ~61–73%; free float ~27–39%, estimates vary by source). So roughly half of revenue depends on one <i>affiliated</i> buyer, related-party pricing is <b>hard for minorities to verify</b>, transfer-pricing and capital-allocation conflicts are structural, and minorities have little say. The thin float amplified the meme spike up — and will amplify any reversal down. This single fact caps the multiple a disciplined investor should pay.</p></div>
+
+<h2>6 · 股癌 Gooaye lens — timing / positioning / discipline overlay</h2>
+<div class="panel"><p class="sub" style="margin:0 0 6px">A discipline overlay (does NOT value the business): is this the strongest horse in the strongest race, is the edge ahead or being distributed, and is there a survivable plan? Each gate 0/1/2.</p>
+<table><tr><th>Gate</th><th>Score</th><th>Evidence</th><th>tag</th></tr>
+<tr><td><b>G1</b> 題材+領導 (selection)</td><td class="num" style="color:#d9a544"><b>1</b></td><td class="vd">Right race (AI-power SiC + silicon-photonics, MEMS all-time-high +42%) but lagging horse: photonics leader is Tower not X-FAB; SiC shrank -34% FY25 into China price war; own auto orders -4% YoY while STMicro/Infineon turned; fell most then meme-bounced (opposite of 相對強弱領導).</td><td class="sm" style="color:#aab2bd">對的賽道、錯的馬</td></tr>
+<tr><td><b>G2</b> 資金+籌碼 (flows/chips)</td><td class="num" style="color:#df6258"><b>0</b></td><td class="vd">Meme retail flow (Serenity X post, #2 Tradegate) = frothy chips not clean rotation; ~27% float, ~73% founder/state; consensus PT ~EUR5.5 (40% below) = smart money absent.</td><td class="sm" style="color:#aab2bd">籌碼已亂 / 滿手</td></tr>
+<tr><td><b>G3</b> 早 vs 兌現 (awareness)</td><td class="num" style="color:#d9a544"><b>1</b></td><td class="vd">Adoption early but price already 4x&#x27;d on narrative before numbers exist = euphoria; the meme spike IS the 出貨 setup; edge behind the price.</td><td class="sm" style="color:#aab2bd">題材兌現＝出貨</td></tr>
+<tr><td><b>G4</b> 部位+進場 (entry)</td><td class="num" style="color:#d9a544"><b>1</b></td><td class="vd">試單→加碼 possible but initiating at EUR9 after a +288% trough-to-peak run (now +78% YTD) is the wrong entry; thin float forces sub-normal sizing.</td><td class="sm" style="color:#aab2bd">腳尖試水溫 only</td></tr>
+<tr><td><b>G5</b> 停損+理由 (exit/risk)</td><td class="num" style="color:#d9a544"><b>1</b></td><td class="vd">Falsifier explicit (auto flat + no margin recovery + no design-win = thesis dead) but survivability needs tiny size + no leverage; normal pullback otherwise fatal (EUR15.9-&gt;9 already).</td><td class="sm" style="color:#aab2bd">不玩最大 / 連5日跌就砍</td></tr>
+<tr><td><b>G6</b> 紀律+自知 (psychology)</td><td class="num" style="color:#d9a544"><b>1</b></td><td class="vd">Opposing view considered, but sleep-test + 能力圈 strained: opaque (non-SEC, IFRS-15 distorted, no utilization disclosure), thin-float gap-prone foreign small-cap.</td><td class="sm" style="color:#aab2bd">睡不著＝部位太大</td></tr>
+</table>
+<p class="sub" style="margin-top:8px"><b>Verdict: 5/12 → 站旁邊 / stand aside (≤5).</b> STAND ASIDE at EUR9.19. If exposure insisted: 試單 only &lt;=3-4%, unlevered, cash-funded (half normal probe for thin float). Add only on fundamental 转强 (H1&#x27;26 auto-order inflection + margin recovery to low-20s + a real photonics/AI-power design-win), never on momentum. Stop: 理由消失即撤出, or close back below ~EUR7; 連5日跌就砍 on any probe. Preferred: WAIT for 转强 off the EUR5-6 / 4-5x EV/EBITDA clean base.</p>
+<p class="sub" style="margin-top:6px"><b>股癌會提醒:</b> 「這是迷因噴出，不是基本面領漲 — 籌碼已亂，題材在價格上已兌現＝出貨風險」; 「對的賽道、錯的馬 — 光通訊的領導是 Tower 不是它；SiC 還在縮、被中國殺價」; 「薄籌碼（流通~27%）＋大股東也是最大客戶（Melexis ~45%）— 睡不著就是部位太大；要碰只能腳尖試單」.</p></div>
+
+<h2>7 · Decision table</h2>
+<div class="panel"><table>
+<tr><th>Dimension</th><th>Read</th></tr>
+<tr><td><b>Awareness stage</b></td><td>Euphoria / sentiment-priced (+288% trough-to-peak into the May meme spike; round-tripped to +78% YTD)</td></tr>
+<tr><td><b>Fundamental verdict</b></td><td>Right theme (AI-power SiC + silicon-photonics + MEMS), <b>late entry</b>; base-case FV €6–8 &lt; €9.20 price</td></tr>
+<tr><td><b>Action</b></td><td><b class="k">WATCH</b> — not an early-entry. Asymmetry returns near €5–6 / 4–5× EV/EBITDA, or on hard fundamental confirmation</td></tr>
+<tr><td><b>Top catalysts</b></td><td>H1/Q2'26 results (~Jul/Aug — the next hard print); a real silicon-photonics / AI-power 800V design-win; auto-order inflection; SiC turning GM-accretive; Melexis &lt;35%</td></tr>
+<tr><td><b>Falsifier (kills the bull)</b></td><td>H1'26 auto orders still NOT inflecting + management again withholds guidance; OR margin fails to recover off the 15.7%/17–20% trough; OR no photonics/AI design-win in ~2–4 quarters → fair value toward €5–6 or below</td></tr>
+<tr><td><b>Position discipline</b></td><td>Default <b>no position</b> at €9.19. If you want a tracking stub: ≤1–2%, <b>unlevered, cash-funded, limit orders only</b> (≤10–15% of ADV — no market orders on a thin Euronext small-cap), founder-controlled / related-party / gap-prone. Add only <i>after</i> fundamental 转强 confirms (not on momentum). Pre-set stop (~€7 / €5–6 base; 連5日跌就砍)</td></tr>
+</table></div>
+
+<h2>Key sources (linked)</h2>
+<div class="panel"><p class="sub" style="margin:0;line-height:1.9">
+[1] <a href="https://www.businesswire.com/news/home/20260429543413/en/X-FAB-First-Quarter-2026-Results" style="color:#3fb6a8">X-FAB Q1 2026 results (BusinessWire, 29-Apr-2026)</a> — revenue $195.6M, GM 15.7%, WBG +152%, order intake/backlog ·
+[2] <a href="https://seekingalpha.com/article/4896984-x-fab-silicon-foundries-se-xfabf-q1-2026-earnings-call-transcript" style="color:#3fb6a8">Q1 2026 earnings call transcript (Seeking Alpha)</a> — Melexis destock, H2'26 recovery guide, declined FY guidance ·
+[3] X-FAB FY2025 results (BusinessWire/Morningstar, 5-Feb-2026) — rev $870.3M, net income $30.1M, EBITDA 22.6%, $9.3M SiC one-off ·
+[4] <a href="https://stockanalysis.com/quote/epa/XFAB/statistics/" style="color:#3fb6a8">stockanalysis.com — XFAB statistics</a> — multiples, float, shares ·
+[5] Bloomberg / Reuters — the 27-May-2026 retail meme rally (+76% intraday, "Serenity" X post, no corporate news) ·
+[6] <a href="https://www.trendforce.com" style="color:#3fb6a8">TrendForce</a> / Yole (Semiconductor Today, 18-Dec-2025) — 6-inch SiC ~$400/wafer, power-SiC overcapacity to 2027–28 ·
+[7] MIDA (Sep-2025) — Kuching/Sarawak fab expansion to 40k wpm <b>total</b> CMOS/analog wafer capacity (~RM3bn); X-FAB's SiC runs on its 6-inch <b>Lubbock (US)</b> line, not Sarawak ·
+[8] Melexis Art. 7:97 related-party disclosure — the X-FAB/Melexis affiliation.
+<br><span style="color:#aab2bd">Figures cross-checked vs ≥2 sources where load-bearing; this report's numbers were independently re-verified by a Codex (gpt-5.5) adversarial review (verdict: WATCH/priced — agree with caveats, addressed here). X-FAB reports in USD (IFRS) but trades in EUR.</span></p></div>
+
+<p class="foot">Sources: X-FAB FY2025 results (5-Feb-2026) &amp; Q1 2026 results (29-Apr-2026, BusinessWire) + earnings call; FY2023/2024 releases (verified); Yahoo Finance / Investing.com / stockanalysis.com / AlphaSpread (price &amp; multiples, as-of 2026-06-20); IBKR snapshot (contract 272103757, Euronext Paris); Bloomberg / Reuters on the 27-May-2026 meme rally; TrendForce &amp; Yole (SiC oversupply / pricing); STMicro, Infineon, onsemi Q1'26 commentary (auto-inventory channel check); MIDA (Sarawak expansion); Melexis Art. 7:97 related-party disclosure; siliconmatter / moatmind (capex/FCF). Figures cross-checked vs ≥2 sources where load-bearing; estimates marked (est.). X-FAB reports in USD (IFRS) but trades in EUR — keep the FX split in mind. Built with the AI-Infra deep-dive method (9-facet sourced research → verification → reverse-model synthesis) + the 股癌 Gooaye discipline lens, adversarially cross-reviewed. Personal research for a private KB — NOT investment advice. IBKR read-only.</p>
+</div></body></html>

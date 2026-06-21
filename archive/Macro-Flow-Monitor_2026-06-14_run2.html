@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Macro &amp; Flow Monitor — 14 Jun 2026 (run2)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0b0d12;--panel:#13161e;--panel2:#1a1e28;--panel3:#212634;--line:#2a3040;--line2:#363d4f;--txt:#e8eaf0;--mut:#9aa3b5;--dim:#697283;--accent:#2dd4bf;--choke:#e0686a;--up:#5b81c4;--l3:#8b84cf;--pkg:#c47a9e;--l2:#d2a24a;--l1:#4faf8e;--dup:#e0a458;--dout:#5aa9e0;--dacr:#5fc98a}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px;-webkit-font-smoothing:antialiased}
+  .num,.m{font-family:"JetBrains Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
+  svg text{font-family:"Space Grotesk",sans-serif}svg text.m{font-family:"JetBrains Mono",monospace}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  header{border-bottom:1px solid var(--line);padding:34px 0 26px;margin-bottom:8px;background:radial-gradient(900px 320px at 12% -40%,rgba(45,212,191,.10),transparent 60%),radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
+  .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+  .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
+  h1{font-size:29px;font-weight:700;letter-spacing:-.6px;line-height:1.14;max-width:920px}
+  .sub{font-size:14px;color:var(--mut);margin-top:11px;max-width:880px}
+  .meta{margin-top:16px;display:flex;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:13px}
+  .meta div{padding-right:22px;margin-right:22px;border-right:1px solid var(--line)}.meta div:last-child{border:0}
+  .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+  .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
+  section{padding:30px 0 2px}
+  .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+  .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600}
+  .sh h2{font-size:20px;font-weight:600;letter-spacing:-.3px}
+  .sh .cn{font-size:13px;color:var(--dim);margin-left:auto}
+  .lead{color:var(--mut);font-size:13.5px;max-width:900px;margin-bottom:16px}.lead b{color:var(--txt)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:820px){.two{grid-template-columns:1fr}}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
+  .kpi{padding:16px 18px;border-right:1px solid var(--line)}.kpi:last-child{border-right:0}
+  .kpi .v{font-size:22px;font-weight:600;letter-spacing:-.5px}.kpi .l{font-size:11px;color:var(--mut);margin-top:4px}.kpi .d{font-size:10.5px;color:var(--dim);margin-top:6px}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}
+  .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+  td{padding:7px 10px;border-bottom:1px solid var(--line);color:var(--mut)}td b{color:var(--txt)}
+  .hm td{text-align:center;font-family:"JetBrains Mono",monospace;font-size:12px;border:1px solid #11141c}
+  .hm td.lbl{text-align:left;font-family:"Space Grotesk",sans-serif;color:var(--txt);font-weight:600}
+  .hp3{background:rgba(95,201,138,.42);color:#dffff0}.hp2{background:rgba(95,201,138,.24);color:#cdeede}.hp1{background:rgba(95,201,138,.11);color:#bcd9cb}
+  .hn1{background:rgba(224,104,106,.11);color:#e6c4c5}.hn2{background:rgba(224,104,106,.24);color:#f0c0c1}.hn3{background:rgba(224,104,106,.44);color:#ffe0e0}
+  .badge{font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:5px}
+  .bM{background:rgba(45,212,191,.16);color:var(--accent)}.bMR{background:rgba(210,162,74,.16);color:var(--dup)}
+  .q{font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:20px}
+  .qL{background:rgba(95,201,138,.18);color:var(--dacr)}.qW{background:rgba(210,162,74,.18);color:var(--dup)}.qLag{background:rgba(224,104,106,.16);color:var(--choke)}.qI{background:rgba(90,169,224,.18);color:var(--dout)}
+  .variant{border-left:3px solid var(--accent);background:rgba(45,212,191,.06);border-radius:8px;padding:13px 16px;margin:14px 0}
+  .variant .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:5px}
+  .variant p{font-size:12.8px;color:var(--mut);line-height:1.5}.variant p b{color:var(--txt)}
+  .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
+  footer{margin-top:16px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}footer b{color:var(--mut)}
+  .quad{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+  .quad h4{font-size:12px;font-weight:600;margin-bottom:5px;display:flex;align-items:center;gap:7px}
+  .quad p{font-size:11.5px;color:var(--mut);line-height:1.4}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="kick"><span class="ln"></span> Capital-Flow Stack · Tier 0–2 · Weekly Macro &amp; Flow Monitor</div>
+    <h1>An energy-led inflation scare meets fearful surveys, record leverage — and money still trending into Tech/AI</h1>
+    <p class="sub">The top of the funnel that sits above the chokepoint deep-dives: macro climate → sentiment &amp; positioning → sector rotation → drill into the AI-infra stack. This week the story sharpened — strong growth (GDPNow ~3.3%) but a fresh <i>energy-driven inflation spike</i> (CPI 4.2%, a 3-year high) pins the Fed, even as defensives bounce <i>inside</i> a Tech-led trend.</p>
+    <div class="meta">
+      <div><div class="k">As of</div><div class="vv m">14 Jun 2026</div></div>
+      <div><div class="k">Macro regime</div><div class="vv">No-landing reflation · energy shock · Fed pinned</div></div>
+      <div><div class="k">Risk appetite</div><div class="vv">~38/100 · Cautious</div></div>
+      <div><div class="k">Leadership</div><div class="vv">Tech (momentum) · Energy weakening</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- 01 SNAPSHOT -->
+<section>
+  <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">本週總覽</span></div>
+  <p class="lead">Three reads in one screen: the macro tide is <b>hot-but-sticky</b> (growth strong, but headline inflation re-accelerated to <b>4.2%</b> on an energy shock; Fed near-certain to hold Jun 16–17); risk appetite is <b>cautious with a divergence</b> (fearful sentiment, record margin leverage); and flows are still <b>trend-following Tech/AI</b>, with a near-term defensive bounce in healthcare &amp; financials. The new wrinkle vs last week: inflation is the live tail again, and it is energy-driven.</p>
+  <div class="kpis">
+    <div class="kpi"><div class="v num amb">34</div><div class="l">CNN Fear &amp; Greed</div><div class="d red">Fear zone</div></div>
+    <div class="kpi"><div class="v num red">4.2%</div><div class="l">CPI YoY (May)</div><div class="d">3-yr high · energy +40% y/y gasoline</div></div>
+    <div class="kpi"><div class="v num">30 / 52</div><div class="l">AAII bull / bear %</div><div class="d grn">bears 1-yr high → contrarian+</div></div>
+    <div class="kpi"><div class="v num teal">+19%</div><div class="l">Tech RS vs S&amp;P (YTD)</div><div class="d">leadership narrow: Tech + Energy</div></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px">EXPLAIN IT SIMPLY · 白話版</div>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6;max-width:900px">This dashboard zooms out from individual chokepoints to ask three questions in order. (1) <b style="color:var(--txt)">What's the weather?</b> — interest rates, growth, inflation set whether the tide lifts all boats. Right now growth is strong, but a jump in oil/gasoline pushed inflation back up to a 3-year high, so the Fed stays parked. (2) <b style="color:var(--txt)">How brave are investors?</b> — sentiment gauges + how much they've borrowed (margin) tell you if the crowd is greedy or scared (right now: <i>scared in surveys but heavily borrowed</i> — a tension). (3) <b style="color:var(--txt)">Where is the money going?</b> — which sectors are gaining vs the market, and whether that move is a durable trend (momentum) or a snap-back (mean-reversion). The "heatmap" below is the answer to #3 at a glance.</p>
+  </div>
+  <div class="panel" style="margin-top:12px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div><div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px">6-TERM GLOSSARY · 名詞</div>
+        <div style="font-size:11.5px;color:var(--mut);line-height:1.7"><b>RS (relative strength)</b> a sector's return minus the S&amp;P's · <b>Momentum regime</b> the trend persists (ride it) · <b>Mean-reversion regime</b> moves snap back (fade extremes) · <b>RRG</b> rotation map (Leading/Weakening/Lagging/Improving) · <b>Margin debt</b> money investors borrow to buy stock · <b>Variance ratio</b> &gt;1 = trending, &lt;1 = mean-reverting.</div></div>
+      <div><div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px">THE FUNNEL · 分層</div>
+        <div style="font-size:11.5px;color:var(--mut);line-height:1.7"><b>Tier 0</b> macro climate → <b>Tier 1</b> sentiment &amp; positioning → <b>Tier 2</b> sector rotation (L1→L4) → <b>Tier 3</b> the AI-infra chokepoint reports → company. This monitor is Tiers 0–2; it points the 2-day chokepoint rotation at the hot sub-sectors.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 TIER 0 MACRO -->
+<section>
+  <div class="sh"><span class="n">02</span><h2>Tier 0 — Macro climate</h2><span class="cn">總經環境</span></div>
+  <p class="lead">Four MECE drivers → one regime. Verdict: <b>no-landing reflation with an energy shock and the Fed pinned</b> — growth is firm and earnings hold up, but a fresh oil-driven inflation spike (CPI 4.2%, highest since Apr-2023) keeps the Fed on hold and real rates positive. Not Goldilocks (inflation re-accelerating), not recession (curve positive, GDPNow ~3.3%).</p>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px" >
+    <div class="quad"><h4><span style="color:var(--dacr)">●</span> Growth</h4><p>Atlanta-Fed GDPNow Q2 <b style="color:var(--txt)">~3.3%</b> (was 4.3%); earnings driving the bull. Consumer squeezed by gas prices.<br><b style="color:var(--dacr)">Supportive</b></p></div>
+    <div class="quad"><h4><span style="color:var(--choke)">●</span> Inflation</h4><p>CPI <b style="color:var(--txt)">4.2%</b> y/y, core CPI <b style="color:var(--txt)">2.9%</b>, core PCE <b style="color:var(--txt)">~3.3%</b> — energy spike (gasoline +40% y/y) from Mid-East tensions.<br><b style="color:var(--choke)">Headwind (re-accelerating)</b></p></div>
+    <div class="quad"><h4><span style="color:var(--dup)">●</span> Liquidity / policy</h4><p>Fed on hold <b style="color:var(--txt)">3.50–3.75%</b> (~97% no-change Jun 16–17). Hot CPI removes any near-term cut. Real rates positive.<br><b style="color:var(--dup)">Neutral-tight</b></p></div>
+    <div class="quad"><h4><span style="color:var(--dacr)">●</span> Credit / stress</h4><p>Curve <b style="color:var(--txt)">positive +77bp</b> (10Y–3M), 2s10s +40bp, VIX <b style="color:var(--txt)">~18</b>. No credit-stress signal.<br><b style="color:var(--dacr)">Calm</b></p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+    <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">The 4 drivers on one map</h4>
+    <svg viewBox="0 0 760 300" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <rect x="380" y="20" width="360" height="125" fill="rgba(95,201,138,.05)"/>
+      <rect x="380" y="145" width="360" height="125" fill="rgba(210,162,74,.05)"/>
+      <rect x="20" y="145" width="360" height="125" fill="rgba(224,104,106,.05)"/>
+      <rect x="20" y="20" width="360" height="125" fill="rgba(90,169,224,.05)"/>
+      <line x1="380" y1="20" x2="380" y2="270" stroke="#2a3040"/><line x1="20" y1="145" x2="740" y2="145" stroke="#2a3040"/>
+      <text x="380" y="14" class="m" font-size="9" fill="#697283" text-anchor="middle">↑ GROWTH STRONG</text>
+      <text x="380" y="286" class="m" font-size="9" fill="#697283" text-anchor="middle">↓ GROWTH WEAK</text>
+      <text x="26" y="149" class="m" font-size="9" fill="#697283">INFLATION LOW / FALLING</text>
+      <text x="734" y="149" class="m" font-size="9" fill="#697283" text-anchor="end">INFLATION HIGH / RISING</text>
+      <text x="600" y="40" font-size="9" fill="#5fc98a" text-anchor="middle">REFLATION / NO-LANDING</text>
+      <text x="180" y="40" font-size="9" fill="#5aa9e0" text-anchor="middle">GOLDILOCKS</text>
+      <text x="180" y="262" font-size="9" fill="#e0686a" text-anchor="middle">DEFLATION / RECESSION</text>
+      <text x="600" y="262" font-size="9" fill="#e0a458" text-anchor="middle">STAGFLATION</text>
+      <!-- current state: growth strong (high), inflation high/rising -> upper-right (reflation), drifting toward stagflation edge -->
+      <circle cx="610" cy="78" r="11" fill="#2dd4bf" stroke="#0b0d12" stroke-width="2"/>
+      <text x="610" y="64" font-size="10" fill="#7fe8db" text-anchor="middle" font-weight="700">NOW</text>
+      <path d="M560 120 L600 88" stroke="#e0a458" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#dm)"/>
+      <defs><marker id="dm" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6" fill="#e0a458"/></marker></defs>
+      <text x="540" y="135" font-size="8.5" fill="#e3bd76" text-anchor="middle">energy push = drift toward stagflation edge</text>
+    </svg>
+  </div>
+  <div class="variant"><div class="h">WHAT IT MEANS</div><p>A "<b>no-landing with an energy tax</b>" backdrop: growth and earnings hold up, but a fresh oil/gasoline spike re-lit headline inflation (4.2%, a 3-year high) and keeps the Fed parked with real rates positive — so the index grinds rather than re-rates, and <b>leadership stays narrow</b> (you have to own the right sectors, not just "the market"). Yield curve positive + low VIX means no recession warning today; the live risk is now an <i>inflation/policy surprise</i> driven by energy, not a credit event. Watch whether the energy spike bleeds into <b>core</b> — so far core CPI (2.9%) is contained, which is why equities haven't broken.</p></div>
+</section>
+
+<!-- 03 TIER 1 SENTIMENT -->
+<section>
+  <div class="sh"><span class="n">03</span><h2>Tier 1 — Sentiment &amp; positioning</h2><span class="cn">情緒與部位</span></div>
+  <p class="lead">The composite read: <b>cautious (~38/100)</b>, but the interesting part is the <b>divergence</b> — surveys say Fear while leverage sits at an all-time record. Fearful crowds with borrowed money are fragile both ways.</p>
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:4px;font-weight:600">Risk-appetite gauge (0–100)</h4>
+      <svg viewBox="0 0 360 150" width="100%" height="150" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#e0686a"/><stop offset="0.5" stop-color="#d2a24a"/><stop offset="1" stop-color="#5fc98a"/></linearGradient></defs>
+        <path d="M40 130 A 140 140 0 0 1 320 130" fill="none" stroke="url(#g)" stroke-width="16" stroke-linecap="round"/>
+        <text x="40" y="146" class="m" font-size="10" fill="#e0686a">0 fear</text>
+        <text x="180" y="20" class="m" font-size="10" fill="#9aa3b5" text-anchor="middle">50</text>
+        <text x="320" y="146" class="m" font-size="10" fill="#5fc98a" text-anchor="end">100 greed</text>
+        <!-- needle at 38: angle 180-(38/100*180)=111.6deg; center (180,130) r96 -> x=180+96*cos(111.6)=145, y=130-96*sin(111.6)=41 -->
+        <line x1="180" y1="130" x2="145" y2="41" stroke="#e8eaf0" stroke-width="3"/>
+        <circle cx="180" cy="130" r="6" fill="#e8eaf0"/>
+        <text x="180" y="98" class="m" font-size="30" fill="#e8eaf0" text-anchor="middle" font-weight="600">38</text>
+        <text x="180" y="118" font-size="11" fill="#d2a24a" text-anchor="middle">CAUTIOUS</text>
+      </svg>
+      <p class="cap" style="margin-top:0">Composite of sentiment (F&amp;G 34, AAII), volatility (VIX ~18), and positioning (record margin, narrow breadth). Below 50 = risk-off tilt.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Components</h4>
+      <table>
+        <tr><th>Gauge</th><th>Reading</th><th>Signal</th></tr>
+        <tr><td><b>CNN Fear &amp; Greed</b></td><td class="m">34</td><td class="red">Fear</td></tr>
+        <tr><td><b>AAII bulls / bears</b></td><td class="m">30% / 52%</td><td class="grn">bears 1-yr high → contrarian +</td></tr>
+        <tr><td><b>VIX</b></td><td class="m">~18</td><td class="amb">mildly elevated</td></tr>
+        <tr><td><b>FINRA margin debt</b></td><td class="m">$1.30T</td><td class="red">record · greedy leverage</td></tr>
+        <tr><td><b>Margin / GDP</b></td><td class="m">4.1%</td><td class="red">record high</td></tr>
+        <tr><td><b>Breadth (leadership)</b></td><td class="m">narrow</td><td class="red">only Tech + Energy</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+    <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">Retail vs institutional — the positioning 2×2</h4>
+    <svg viewBox="0 0 760 230" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <line x1="380" y1="20" x2="380" y2="210" stroke="#2a3040"/><line x1="60" y1="115" x2="700" y2="115" stroke="#2a3040"/>
+      <text x="380" y="14" class="m" font-size="9" fill="#697283" text-anchor="middle">↑ HIGH LEVERAGE / EXPOSURE</text>
+      <text x="380" y="226" class="m" font-size="9" fill="#697283" text-anchor="middle">↓ LOW LEVERAGE / DE-RISKED</text>
+      <text x="64" y="119" class="m" font-size="9" fill="#697283">BEARISH SENTIMENT</text>
+      <text x="696" y="119" class="m" font-size="9" fill="#697283" text-anchor="end">BULLISH SENTIMENT</text>
+      <circle cx="230" cy="70" r="8" fill="#5aa9e0" stroke="#0b0d12" stroke-width="2"/>
+      <text x="230" y="56" font-size="11" fill="#8ec4ee" text-anchor="middle" font-weight="700">RETAIL</text>
+      <text x="230" y="92" font-size="9.5" fill="#9aa3b5" text-anchor="middle">bearish surveys, still levered</text>
+      <circle cx="430" cy="55" r="8" fill="#d2a24a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="430" y="41" font-size="11" fill="#e3bd76" text-anchor="middle" font-weight="700">INSTITUTIONAL</text>
+      <text x="430" y="77" font-size="9.5" fill="#9aa3b5" text-anchor="middle">fully invested, low cash, hedged</text>
+      <text x="380" y="205" font-size="9.5" fill="#eda3a4" text-anchor="middle">Both sit HIGH on the leverage axis — the fragile combination: fearful tone, but little dry powder.</text>
+    </svg>
+  </div>
+  <div class="variant"><div class="h">THE DIVERGENCE (and the contrarian read)</div><p>Surveys (F&amp;G 34, AAII bears at a 1-year high of 52%) say <b>capitulation/fear</b> — historically a <i>contrarian-bullish</i> setup for the next few weeks. But <b>margin debt is at an all-time record ($1.30T, +6.8% m/m, 4.1% of GDP)</b> and cash levels are low — i.e. the crowd is fearful in <i>words</i> yet maximally invested in <i>deeds</i>. That combination cuts both ways: a fear-driven dip is likely buyable (sentiment washout), but there is little dry powder and a lot of leverage, so an inflation/policy shock unwinds violently. <b>Net: own the trend, but size for a leverage air-pocket.</b></p></div>
+</section>
+
+<!-- 04 TIER 2 ROTATION HEATMAP -->
+<section>
+  <div class="sh"><span class="n">04</span><h2>Tier 2 — Sector rotation heatmap</h2><span class="cn">板塊輪動熱圖</span></div>
+  <p class="lead">Relative strength vs the S&amp;P 500 (sector return − index return) across horizons — <b>green = money flowing in, red = flowing out</b>. Sorted by YTD RS (leaders top). The "Regime" tag flags whether the move is a durable trend (Momentum) or a snap-back (Mean-Reversion).</p>
+  <div style="overflow-x:auto"><table class="hm" style="min-width:720px">
+    <tr><th class="lbl" style="text-align:left">Sector (L1)</th><th>1-week</th><th>1-month</th><th>YTD</th><th>1-year</th><th style="text-align:left">RRG quadrant</th><th style="text-align:left">Regime</th></tr>
+    <tr><td class="lbl">Technology <span style="color:var(--dim);font-weight:400">XLK</span></td><td class="hn2">−3.1</td><td class="hp3">+12.2</td><td class="hp3">+19.0</td><td class="hp3">+33.3</td><td><span class="q qL">Leading</span></td><td><span class="badge bM">Momentum</span></td></tr>
+    <tr><td class="lbl">Energy <span style="color:var(--dim);font-weight:400">XLE</span></td><td class="hp2">+4.9</td><td class="hn3">−9.6</td><td class="hp3">+17.1</td><td class="hp3">+14.6</td><td><span class="q qW">Weakening</span></td><td><span class="badge bMR">Mean-rev</span></td></tr>
+    <tr><td class="lbl">Materials <span style="color:var(--dim);font-weight:400">XLB</span></td><td class="hp1">+1.5</td><td class="hn2">−5.2</td><td class="hp2">+2.8</td><td class="hn2">−8.1</td><td><span class="q qW">Weakening</span></td><td><span class="badge bMR">Mean-rev</span></td></tr>
+    <tr><td class="lbl">Industrials <span style="color:var(--dim);font-weight:400">XLI</span></td><td class="hp2">+3.2</td><td class="hn2">−5.4</td><td class="hp1">+1.4</td><td class="hn2">−6.1</td><td><span class="q qW">Weakening</span></td><td><span class="badge bMR">Mean-rev</span></td></tr>
+    <tr><td class="lbl">Real Estate <span style="color:var(--dim);font-weight:400">XLRE</span></td><td class="hp2">+4.2</td><td class="hn2">−5.0</td><td class="hn1">−0.2</td><td class="hn3">−19.4</td><td><span class="q qLag">Lagging</span></td><td><span class="badge bMR">Mean-rev</span></td></tr>
+    <tr><td class="lbl">Cons. Staples <span style="color:var(--dim);font-weight:400">XLP</span></td><td class="hp2">+3.2</td><td class="hn2">−4.9</td><td class="hn1">−1.7</td><td class="hn3">−24.7</td><td><span class="q qLag">Lagging</span></td><td><span class="badge bMR">Mean-rev</span></td></tr>
+    <tr><td class="lbl">Utilities <span style="color:var(--dim);font-weight:400">XLU</span></td><td class="hp2">+2.4</td><td class="hn3">−9.8</td><td class="hn2">−5.7</td><td class="hn3">−17.4</td><td><span class="q qLag">Lagging</span></td><td><span class="badge bMR">Mean-rev</span></td></tr>
+    <tr><td class="lbl">Cons. Disc. <span style="color:var(--dim);font-weight:400">XLY</span></td><td class="hn1">−2.5</td><td class="hn1">−1.8</td><td class="hn3">−8.5</td><td class="hn3">−14.4</td><td><span class="q qLag">Lagging</span></td><td><span class="badge bMR">Mean-rev</span></td></tr>
+    <tr><td class="lbl">Comm. Services <span style="color:var(--dim);font-weight:400">XLC</span></td><td class="hn1">−1.0</td><td class="hn2">−4.9</td><td class="hn3">−11.6</td><td class="hn3">−13.0</td><td><span class="q qLag">Lagging</span></td><td><span class="badge bMR">Mean-rev</span></td></tr>
+    <tr><td class="lbl">Health Care <span style="color:var(--dim);font-weight:400">XLV</span></td><td class="hp3">+4.9</td><td class="hn1">−1.7</td><td class="hn3">−13.1</td><td class="hn3">−13.7</td><td><span class="q qI">Improving</span></td><td><span class="badge bMR">Mean-rev</span></td></tr>
+    <tr><td class="lbl">Financials <span style="color:var(--dim);font-weight:400">XLF</span></td><td class="hp2">+3.9</td><td class="hn2">−6.6</td><td class="hn3">−16.9</td><td class="hn3">−27.1</td><td><span class="q qI">Improving</span></td><td><span class="badge bMR">Mean-rev</span></td></tr>
+  </table></div>
+  <p class="cap">Values = relative strength (sector return minus S&amp;P, %). S&amp;P benchmark this period: −2.5% (1w), +5.0% (1m), +11.0% (YTD), +29.4% (1y). Source: IBKR price snapshots, 14 Jun 2026 (read-only).</p>
+  <div class="variant"><div class="h">HOW TO READ IT</div><p>The <b>columns disagree on purpose</b> — that's the signal. Down the YTD/1-year columns, leadership is <b>narrow and trend-driven</b>: only <b>Tech (+19% RS)</b> and <b>Energy (+17%)</b> are beating the index, everything else is bleeding relative strength. But the <b>1-week column flips green for defensives</b> (Health Care +4.9, Real Estate +4.2, Financials +3.9, Utilities +2.4) while Tech goes red (−3.1). Translation: a <b>short-term risk-off / defensive rotation</b> is happening <i>inside</i> a Tech-led bull — exactly what you'd expect with Fear sentiment and an energy-inflation scare, but an intact trend. Energy's leadership is now <b>weakening</b> (1m RS −9.6) even as the oil-price story dominates headlines — a classic "buy the rumour, the move is in the stocks" tell.</p></div>
+</section>
+
+<!-- 05 RRG + REGIME -->
+<section>
+  <div class="sh"><span class="n">05</span><h2>Rotation map &amp; regime</h2><span class="cn">輪動象限與型態</span></div>
+  <p class="lead">The same data as a rotation clock. <b>RS-Ratio (x)</b> = strength vs the index; <b>RS-Momentum (y)</b> = whether that strength is rising or falling. Sectors rotate clockwise: Improving → Leading → Weakening → Lagging.</p>
+  <div class="panel">
+    <svg viewBox="0 0 760 380" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <rect x="380" y="20" width="360" height="170" fill="rgba(95,201,138,.05)"/>
+      <rect x="380" y="190" width="360" height="170" fill="rgba(210,162,74,.05)"/>
+      <rect x="20" y="190" width="360" height="170" fill="rgba(224,104,106,.05)"/>
+      <rect x="20" y="20" width="360" height="170" fill="rgba(90,169,224,.05)"/>
+      <line x1="380" y1="20" x2="380" y2="360" stroke="#2a3040"/><line x1="20" y1="190" x2="740" y2="190" stroke="#2a3040"/>
+      <text x="735" y="36" class="m" font-size="10" fill="#5fc98a" text-anchor="end">LEADING</text>
+      <text x="735" y="356" class="m" font-size="10" fill="#d2a24a" text-anchor="end">WEAKENING</text>
+      <text x="28" y="356" class="m" font-size="10" fill="#e0686a">LAGGING</text>
+      <text x="28" y="36" class="m" font-size="10" fill="#5aa9e0">IMPROVING</text>
+      <text x="380" y="374" class="m" font-size="9" fill="#697283" text-anchor="middle">RS-Ratio (relative strength vs S&amp;P) →</text>
+      <text x="14" y="190" class="m" font-size="9" fill="#697283" transform="rotate(-90 14 190)">RS-Momentum →</text>
+      <circle cx="690" cy="90" r="8" fill="#8b84cf"/><text x="690" y="80" font-size="10" fill="#bcb3e6" text-anchor="middle" font-weight="700">XLK</text>
+      <circle cx="670" cy="300" r="8" fill="#e0a458"/><text x="670" y="290" font-size="10" fill="#e3bd76" text-anchor="middle" font-weight="700">XLE</text>
+      <circle cx="430" cy="260" r="7" fill="#5b81c4"/><text x="430" y="251" font-size="9" fill="#8aa7df" text-anchor="middle">XLB</text>
+      <circle cx="405" cy="262" r="7" fill="#5b81c4"/><text x="405" y="278" font-size="9" fill="#8aa7df" text-anchor="middle">XLI</text>
+      <circle cx="376" cy="258" r="7" fill="#c47a9e"/><text x="360" y="258" font-size="9" fill="#dba0bf" text-anchor="end">XLRE</text>
+      <circle cx="352" cy="256" r="7" fill="#c47a9e"/><text x="352" y="272" font-size="9" fill="#dba0bf" text-anchor="middle">XLP</text>
+      <circle cx="290" cy="305" r="7" fill="#c47a9e"/><text x="290" y="296" font-size="9" fill="#dba0bf" text-anchor="middle">XLU</text>
+      <circle cx="248" cy="215" r="7" fill="#e0686a"/><text x="248" y="206" font-size="9" fill="#eda3a4" text-anchor="middle">XLY</text>
+      <circle cx="200" cy="256" r="7" fill="#e0686a"/><text x="200" y="247" font-size="9" fill="#eda3a4" text-anchor="middle">XLC</text>
+      <circle cx="175" cy="150" r="7" fill="#5aa9e0"/><text x="175" y="141" font-size="9" fill="#8ec4ee" text-anchor="middle">XLV</text>
+      <circle cx="120" cy="135" r="7" fill="#5aa9e0"/><text x="120" y="126" font-size="9" fill="#8ec4ee" text-anchor="middle">XLF</text>
+    </svg>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px">
+    <div class="quad"><h4><span class="q qL">Leading</span></h4><p><b style="color:var(--txt)">Tech.</b> Strong RS + rising — the durable <b>momentum</b> trend (trend R²=0.52, VR&gt;1); own it, mind the 1-week cooldown.</p></div>
+    <div class="quad"><h4><span class="q qW">Weakening</span></h4><p><b style="color:var(--txt)">Energy, Industrials, Materials.</b> High RS but losing momentum → trim/raise stops; Energy most extended (1m RS −9.6).</p></div>
+    <div class="quad"><h4><span class="q qLag">Lagging</span></h4><p><b style="color:var(--txt)">Utilities, Staples, RE, Disc., Comm.</b> Out of favour; defensives only bouncing on this week's fear.</p></div>
+    <div class="quad"><h4><span class="q qI">Improving</span></h4><p><b style="color:var(--txt)">Financials, Health Care.</b> Deep laggards turning up from oversold — <b>mean-reversion</b> candidates, not trends yet (XLF VR=0.69).</p></div>
+  </div>
+  <p class="cap">Regime method (v2): for the heaviest names we compute the rigorous test from IBKR daily history — trend R² of log-price, lag-1 return autocorrelation, and the 5-day variance ratio (VR&gt;1 = trending/momentum, VR&lt;1 = mean-reverting). Confirmed: <b>XLK</b> R²=0.52, slope +56%/yr, VR=1.10 → Momentum; <b>XLE</b> R²=0.68 but VR=0.98 &amp; 1m RS rolling over → Weakening/mean-rev; <b>XLF</b> R²=0.31, slope −15%/yr, AC1 −0.09, VR=0.69 → Improving/mean-rev. The remaining sectors use the multi-horizon RS trend-consistency classifier; the weekly run extends the rigorous test to all 11.</p>
+</section>
+
+<!-- 06 DRILL DOWN -->
+<section>
+  <div class="sh"><span class="n">06</span><h2>Drill-down — L1→L4 into the AI-infra stack</h2><span class="cn">向下鑽取</span></div>
+  <p class="lead">The leading L1 (Tech) is where flow concentrates — but the alpha is deeper. Following the money down the tree lands in the chokepoint stack you already mapped.</p>
+  <div class="svgwide panel" style="overflow-x:auto">
+    <svg viewBox="0 0 1060 150" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#5a6377"/></marker></defs>
+      <rect x="20" y="55" width="150" height="40" rx="8" fill="#11261f" stroke="#4faf8e"/><text x="95" y="73" font-size="11" fill="#7cc9ad" text-anchor="middle" font-weight="600">L1 · Tech</text><text x="95" y="87" font-size="8.5" fill="#9aa3b5" text-anchor="middle">Leading · momentum</text>
+      <line x1="170" y1="75" x2="205" y2="75" stroke="#5a6377" marker-end="url(#ar)"/>
+      <rect x="205" y="55" width="150" height="40" rx="8" fill="#1a1e28" stroke="#2a3040"/><text x="280" y="73" font-size="11" fill="#e8eaf0" text-anchor="middle" font-weight="600">L2 · Semis</text><text x="280" y="87" font-size="8.5" fill="#9aa3b5" text-anchor="middle">SMH / SOXX</text>
+      <line x1="355" y1="75" x2="390" y2="75" stroke="#5a6377" marker-end="url(#ar)"/>
+      <rect x="390" y="55" width="150" height="40" rx="8" fill="#1a1e28" stroke="#2a3040"/><text x="465" y="73" font-size="11" fill="#e8eaf0" text-anchor="middle" font-weight="600">L3 · AI hardware</text><text x="465" y="87" font-size="8.5" fill="#9aa3b5" text-anchor="middle">accelerators + infra</text>
+      <line x1="540" y1="75" x2="575" y2="75" stroke="#5a6377" marker-end="url(#ar)"/>
+      <rect x="575" y="30" width="465" height="90" rx="8" fill="#1c1518" stroke="#5a3236"/><text x="807" y="48" font-size="11" fill="#eda3a4" text-anchor="middle" font-weight="600">L4 · the AI-infra chokepoints (your deep-dive reports)</text>
+      <g font-size="8.5" fill="#bcb3e6"><text x="600" y="70">· Optics 19/20</text><text x="600" y="84">· Compute 18/20</text><text x="600" y="98">· Power 18/20</text><text x="760" y="70">· Cooling 16/20</text><text x="760" y="84">· Networking 16/20</text><text x="760" y="98">· Substrates 18/20</text><text x="920" y="84" fill="#eda3a4">→ company picks</text></g>
+    </svg>
+  </div>
+  <div class="variant"><div class="h">CONNECTING THE TIERS</div><p>Macro (firm growth, energy-led inflation, narrow leadership) → Sentiment (fear + record leverage, contrarian-buyable dips) → Rotation (<b>Tech the only durable momentum leader</b>) → and within Tech, the <b>AI-infra chokepoint stack</b> is where the scarce-supply pricing power lives. So the top-down read says: stay with the Tech/AI trend, use fear-driven dips to add, and let the every-2-day chokepoint rotation pick the specific scarce link (the L4 reports). The near-term defensive bounce (Financials/Health Care improving) is a <i>mean-reversion trade, not a new trend</i> — fade it back toward the leaders unless breadth genuinely broadens. One macro caveat for AI-infra: an <b>energy-cost spike raises the operating bill for power-hungry datacenters</b>, which reinforces the Power-Delivery and Cooling chokepoints (efficiency becomes the binding constraint).</p></div>
+</section>
+
+<!-- 07 METHOD -->
+<section>
+  <div class="sh"><span class="n">07</span><h2>Method, caveats &amp; what to watch</h2><span class="cn">方法與觀察點</span></div>
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">Honest caveats (v2)</h4>
+      <p style="font-size:12px;color:var(--mut);line-height:1.6">Sector RS is computed from IBKR price snapshots (1w/1m/YTD/1y) — robust, but horizons are coarse (no 3m/6m yet). The rigorous regime test (trend R², autocorrelation, variance ratio) was run on full IBKR daily history for XLK/XLE/XLF + SPY this run; the other 8 use the multi-horizon RS classifier. Macro/sentiment figures (F&amp;G, AAII, margin debt, CPI/PCE, VIX, yields, GDPNow) are web-sourced as of ~9–13 Jun 2026 and may lag. The risk-appetite "38" and the regime tags are model judgments, not official numbers. The retail-vs-institutional 2×2 is directional (built from AAII + margin/cash proxies), not position-level data.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">What to watch next</h4>
+      <table>
+        <tr><td><b>Core CPI/PCE accelerates</b></td><td>energy bleeds into core = real Fed problem</td></tr>
+        <tr><td><b>F&amp;G &lt;20</b></td><td>capitulation → contrarian buy the leaders</td></tr>
+        <tr><td><b>Margin debt unwind</b></td><td>m/m decline = leverage air-pocket risk</td></tr>
+        <tr><td><b>Tech RS rolls over</b></td><td>1m RS turns negative = trend in question</td></tr>
+        <tr><td><b>Breadth broadens</b></td><td>laggards' RS turns up = real rotation, not a bounce</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="disc"><b>Not investment advice.</b> Personal research for a private knowledge base; not a recommendation or solicitation. Sector relative strength from IBKR price snapshots (read-only) as of 14 Jun 2026; regime test from IBKR daily history. Macro/sentiment figures web-sourced ~9–13 Jun 2026 and may be stale. Regime tags and the risk gauge are model judgments. Do your own due diligence.</div>
+
+<footer>
+  <p><b>Sources:</b> CNN Fear &amp; Greed (34, 12 Jun · cross-checked feargreedmeter) · AAII Sentiment Survey (bull 30.4% / bear 52.4%, 11 Jun) · FINRA / Advisor Perspectives / GuruFocus (margin debt ~$1.30T Apr, +6.8% m/m, 4.1% of GDP record) · BLS / CNBC / EY (CPI 4.2% y/y, core 2.9%, May) · BEA / TradingEconomics (core PCE ~3.3%) · CBOE / TradingEconomics (VIX ~18) · Federal Reserve H.15 / Advisor Perspectives (3M 3.71%, 2Y 4.09%, 10Y 4.49%; 10Y–3M +77bp, 2s10s +40bp) · CME FedWatch / Polymarket (Fed hold ~97%, 3.50–3.75%) · Atlanta Fed GDPNow (Q2 ~3.3%) · sector relative strength &amp; regime: IBKR price snapshots + daily history (XLK/XLF/XLE/XLV/XLP/XLY/XLI/XLB/XLU/XLC/XLRE vs SPY), read-only.</p>
+  <p style="margin-top:10px">Capital-Flow Stack · Weekly Macro &amp; Flow Monitor v2 (run2) · sits above the every-2-day AI-Infra chokepoint rotation.</p>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Infra Run #8 v5 — Compute Fabric (deeper): the Die-to-Wafer Hybrid-Bonding / SoIC Chokepoint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#13161e; --panel2:#1a1e28; --panel3:#212634; --line:#2a3040; --line2:#363d4f;
+    --txt:#e8eaf0; --mut:#9aa3b5; --dim:#697283;
+    --accent:#2dd4bf;        /* single brand accent (desaturated teal) */
+    --choke:#e0686a;         /* desaturated red — the chokepoint = D2W hybrid bonding */
+    /* categorical: packaging-line stages */
+    --up:#5b81c4; --sub:#5aa9e0; --bond:#8b84cf; --insp:#c47a9e; --dev:#d2a24a; --mod:#4faf8e;
+    /* direction */
+    --pos:#5fc98a; --neg:#e0686a; --warn:#d2a24a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px;-webkit-font-smoothing:antialiased}
+  .num{font-family:"JetBrains Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  header{border-bottom:1px solid var(--line);padding:38px 0 30px;margin-bottom:8px;background:
+     radial-gradient(900px 320px at 12% -40%,rgba(45,212,191,.10),transparent 60%),
+     radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
+  .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.6px;line-height:1.12;max-width:940px}
+  .sub{font-size:15px;font-weight:400;color:var(--mut);margin-top:12px;max-width:860px}
+  .sub b{color:#fff;font-weight:600}
+  .gauges{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+  .gauge{display:flex;align-items:center;gap:11px;border:1px solid var(--line2);border-radius:12px;padding:10px 15px;background:var(--panel)}
+  .gauge .gv{font-family:"JetBrains Mono",monospace;font-size:22px;font-weight:600;line-height:1}
+  .gauge .gl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);line-height:1.3}
+  .gauge .gl b{display:block;color:var(--mut);font-size:11px;letter-spacing:.02em;text-transform:none}
+  .meta{margin-top:20px;display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+  .meta div{padding-right:26px;margin-right:26px;border-right:1px solid var(--line)}
+  .meta div:last-child{border:0}
+  .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+  .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
+  .asof{margin-top:16px;display:inline-flex;align-items:center;gap:9px;font-size:11.5px;color:#c4ab78;background:rgba(210,162,74,.07);border:1px solid #3a3015;border-radius:9px;padding:8px 13px}
+  .asof .dot{width:7px;height:7px;border-radius:50%;background:var(--warn);flex:none}
+  nav.toc{position:sticky;top:0;z-index:20;background:rgba(11,13,18,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin-bottom:6px}
+  nav.toc .wrap{display:flex;gap:4px;flex-wrap:wrap;padding-top:9px;padding-bottom:9px}
+  nav.toc a{font-size:11px;color:var(--mut);text-decoration:none;padding:4px 9px;border-radius:7px;white-space:nowrap}
+  nav.toc a:hover{background:var(--panel2);color:var(--txt)}
+  section{padding:34px 0 2px}
+  .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+  .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.05em}
+  .sh h2{font-size:21px;font-weight:600;letter-spacing:-.3px}
+  .sh .cn{font-size:13px;color:var(--dim);font-weight:400;margin-left:auto}
+  .lead{color:var(--mut);font-size:13.5px;max-width:880px;margin-bottom:18px}
+  .lead b{color:var(--txt);font-weight:600}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
+  .kpi{padding:18px 20px;border-right:1px solid var(--line)}
+  .kpi:last-child{border-right:0}
+  .kpi .v{font-size:25px;font-weight:600;letter-spacing:-.5px}
+  .kpi .l{font-size:11.5px;color:var(--mut);margin-top:4px}
+  .kpi .d{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.4}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dev)}.grn{color:var(--pos)}
+  .matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .matrix th{background:var(--panel2);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);font-weight:600;padding:12px 14px;text-align:left;border-bottom:1px solid var(--line)}
+  .matrix td{padding:14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
+  .matrix tr:last-child td{border-bottom:0}
+  .matrix .dom{font-weight:600;font-size:14px;color:var(--txt);display:flex;align-items:center;gap:9px}
+  .matrix .dom .sw{width:10px;height:10px;border-radius:3px;flex:none}
+  .matrix .dom small{display:block;font-weight:400;font-size:10.5px;color:var(--dim);margin-top:2px}
+  .matrix td b{color:var(--txt);font-weight:600}
+  .chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--panel3);color:var(--mut);margin:2px 4px 2px 0;border:1px solid var(--line2)}
+  .chip.hot{background:rgba(224,104,106,.12);border-color:#5a3236;color:#efa0a1}
+  .gal{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:900px){.gal{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.gal{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column}
+  .card .svgbox{background:linear-gradient(180deg,#0e1117,#161a24);padding:14px;border-bottom:1px solid var(--line)}
+  .card .body{padding:14px 16px 16px}
+  .card h4{font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .card .role{font-size:12px;color:var(--mut);margin-top:6px;line-height:1.45}
+  .card .who{font-size:11px;color:var(--dim);margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px}
+  .card .who b{color:var(--bond)}
+  .badge{font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:5px;letter-spacing:.03em;flex:none}
+  .b-hot{background:rgba(224,104,106,.14);color:#eda3a4}
+  .b-now{background:rgba(45,212,191,.13);color:var(--accent)}
+  .b-next{background:rgba(90,169,224,.14);color:var(--sub)}
+  .b-emrg{background:rgba(210,162,74,.14);color:var(--dev)}
+  .svgwide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
+  .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
+  .tlgrid{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .tlhead{display:grid;grid-template-columns:150px repeat(4,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
+  .tlhead div{padding:11px 12px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);border-right:1px solid var(--line)}
+  .tlhead div:first-child{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-family:"Space Grotesk",sans-serif;display:flex;align-items:center}
+  .tlrow{display:grid;grid-template-columns:150px repeat(4,1fr);border-bottom:1px solid var(--line)}
+  .tlrow:last-child{border-bottom:0}
+  .tlrow .lab{padding:13px 12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;border-right:1px solid var(--line);background:var(--panel2)}
+  .tlrow .lab .sw{width:9px;height:9px;border-radius:3px;flex:none}
+  .tlrow .cell{padding:11px 12px;border-right:1px solid var(--line);font-size:11.5px;color:var(--mut);line-height:1.4}
+  .tlrow .cell:last-child{border-right:0}
+  .tlrow .cell b{color:var(--txt);font-weight:600;display:block;margin-bottom:2px;font-size:11.5px}
+  .tlrow .cell.hot{background:rgba(224,104,106,.06)}
+  @media(max-width:780px){.tlhead,.tlrow{grid-template-columns:96px repeat(4,1fr);font-size:10px}.tlrow .cell{font-size:10px}}
+  .choke{border:1px solid #5a3236;border-radius:14px;padding:22px 24px;background:
+    linear-gradient(135deg,rgba(224,104,106,.10),transparent 55%),var(--panel)}
+  .choke .ttl{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+  .choke .ttl svg{flex:none}
+  .choke .ttl h3{font-size:17px;font-weight:600;color:var(--choke)}
+  .choke p{font-size:13.5px;color:#d9c4c6;max-width:920px}.choke p b{color:#fff}
+  .choke .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:18px;border-top:1px solid #4a2c2f;padding-top:16px}
+  @media(max-width:780px){.choke .stats{grid-template-columns:1fr 1fr}}
+  .choke .stats div{padding-right:18px}
+  .choke .stats b{display:block;font-size:21px;color:var(--choke);font-weight:600}
+  .choke .stats span{font-size:10.5px;color:var(--dim)}
+  .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  .tbl th{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .tbl td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--mut)}
+  .tbl td b{color:var(--txt)}
+  .lyr{font-family:"JetBrains Mono",monospace;font-size:10.5px;padding:1px 7px;border-radius:5px;font-weight:600}
+  .lyBOND{background:rgba(139,132,207,.15);color:#aaa3e6}
+  .lyDEV{background:rgba(210,162,74,.15);color:#e3bd76}
+  .lyMOD{background:rgba(79,175,142,.15);color:#7cc9ad}
+  .lySUB{background:rgba(90,169,224,.15);color:#8ec4ee}
+  .lyINSP{background:rgba(196,122,158,.15);color:#dba0bf}
+  .lyTCB{background:rgba(91,129,196,.15);color:#8aa7df}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .two{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+  @media(max-width:780px){.two{grid-template-columns:1fr}}
+  .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:2px 0 16px}
+  .leg span{display:flex;align-items:center;gap:7px}
+  .leg .sw{width:11px;height:11px;border-radius:3px}
+  .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
+  footer{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}
+  footer b{color:var(--mut)}
+  .axis-zone{font-size:9px;font-family:"JetBrains Mono",monospace;letter-spacing:.04em}
+  .liw{width:100%;border-collapse:collapse;font-size:12px}
+  .liw th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .liw td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+  .liw td b{color:var(--txt)}
+  .dotR{color:var(--choke);font-weight:600}.dotA{color:var(--dev);font-weight:600}.dotG{color:var(--pos);font-weight:600}
+  .tabbtn{font-family:"Space Grotesk",sans-serif;background:var(--panel2);border:1px solid var(--line);color:var(--mut);padding:11px 16px;border-radius:10px 10px 0 0;font-size:13px;font-weight:600;cursor:pointer;border-bottom:none;display:flex;flex-direction:column;gap:2px;min-width:160px;text-align:left}
+  .tabbtn small{font-size:10px;font-weight:400;color:var(--dim)}
+  .tabbtn.on{background:var(--panel);color:var(--txt);border-color:var(--line2)}
+  .tabbtn.on small{color:var(--accent)}
+  .tabbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .stagebadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.04em}
+  .sg-early{background:rgba(95,201,138,.16);color:var(--pos)}
+  .sg-recog{background:rgba(210,162,74,.16);color:var(--dev)}
+  .sg-eu{background:rgba(224,104,106,.16);color:var(--choke)}
+  .mini{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+  .mini div{padding:11px 13px;border-right:1px solid var(--line)}
+  .mini div:last-child{border-right:0}
+  .mini .v{font-family:"JetBrains Mono",monospace;font-size:16px;font-weight:600}
+  .mini .l{font-size:10px;color:var(--mut);margin-top:2px}
+  .gap{border-left:3px solid var(--accent);background:rgba(45,212,191,.06);border-radius:8px;padding:12px 15px;margin:14px 0}
+  .gap .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:5px}
+  .gap p{font-size:12.5px;color:var(--mut);line-height:1.5}.gap p b{color:var(--txt)}
+  .mtd{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
+  @media(max-width:780px){.mtd{grid-template-columns:1fr}.mini{grid-template-columns:1fr 1fr 1fr}.tabbtn{min-width:0;flex:1}}
+  .mtc{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+  .mtc .h{font-size:11.5px;font-weight:600;color:var(--accent);margin-bottom:3px}
+  .mtc p{font-size:11.5px;color:var(--mut);line-height:1.45}.mtc p b{color:var(--txt)}
+  .bbr{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+  .bbr div{border-radius:8px;padding:9px 12px;font-size:11.5px;line-height:1.45;color:var(--mut)}
+  .bbr .bl{border-left:3px solid var(--pos);background:var(--panel2)}
+  .bbr .be{border-left:3px solid var(--choke);background:var(--panel2)}
+  .bbr b{display:block;font-size:10.5px;margin-bottom:2px}
+  .scen{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
+  .scen th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .scen td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--mut)}
+  .scen td b{color:var(--txt)}
+  /* svg fonts set via CSS rule only — never as an SVG presentation attribute */
+  svg text{font-family:"Space Grotesk",sans-serif}
+  svg text.m{font-family:"JetBrains Mono",monospace}
+  .svglabel{font-size:9px;fill:var(--dim)}
+  @media print{
+    nav.toc{display:none}
+    .tabbtn{display:none}
+    .tabpane{display:block!important;page-break-inside:avoid;margin-bottom:10px}
+    body{background:#fff;color:#111}
+    svg text{fill:#222}
+    .panel,.card,.choke,.kpis,.svgwide{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #8 · v5 · Compute Fabric (deeper)</div>
+    <h1>One layer below the package: the die-to-wafer hybrid-bonding chokepoint</h1>
+    <p class="sub">Run #2 found the chokepoint at <b>CoWoS advanced packaging</b> — the step that bolts the GPU and its memory onto one carrier. Go one floor lower and the next-generation package isn't bolted with tiny solder bumps at all: the dies are <b>fused directly, copper-to-copper, with no bumps</b> — a process called <b>hybrid bonding</b>, the heart of TSMC's SoIC 3D stacking that NVIDIA's Rubin and Feynman now demand. This report maps that bonding layer top-down and names a top-3 at <b>three different links</b> — the bonder, the inspection tool, the TCB incumbent — staged on the awareness curve so you can see what's still early versus already priced.</p>
+    <div class="gauges">
+      <div class="gauge"><span class="gv red">18<span style="font-size:13px;color:var(--dim)">/20</span></span><span class="gl"><b>Chokepoint severity</b>D2W hybrid bonding · EXTREME</span></div>
+      <div class="gauge"><span class="gv teal">9<span style="font-size:13px;color:var(--dim)">/20</span></span><span class="gl"><b>Remaining asymmetry</b>bonder mostly re-rated · edge in inspection</span></div>
+    </div>
+    <div class="meta">
+      <div><div class="k">Date</div><div class="vv num">14 Jun 2026</div></div>
+      <div><div class="k">Stack path</div><div class="vv">wafer → CoWoS interposer → <b style="color:var(--bond)">hybrid bond (SoIC)</b> → inspection → GPU+HBM stack → module</div></div>
+      <div><div class="k">Universe</div><div class="vv">Global · NL / US / HK / IL / DE</div></div>
+      <div><div class="k">Top-3</div><div class="vv">CAMT · BESI · ASMPT</div></div>
+    </div>
+    <div class="asof"><span class="dot"></span>As of 14 Jun 2026 · prices = last close via IBKR read-only · multiples are estimates, verify before sizing · personal research, NOT investment advice</div>
+  </div>
+</header>
+
+<nav class="toc"><div class="wrap">
+  <a href="#s1">01 Snapshot</a>
+  <a href="#s2">02 Framework</a>
+  <a href="#s3">03 Bond gallery</a>
+  <a href="#s4">04 How a 3D stack is built</a>
+  <a href="#s5">05 Where each bond is used</a>
+  <a href="#s6">06 Supply chain</a>
+  <a href="#s7">07 Timeline</a>
+  <a href="#s8">08 Chokepoint + severity</a>
+  <a href="#s9">09 Awareness curve</a>
+  <a href="#s10">10 Top-3 plays</a>
+  <a href="#s11">11 Beneficiaries + risks</a>
+  <a href="#s12">12 Decision table</a>
+</div></nav>
+
+<div class="wrap">
+
+<!-- 1. SNAPSHOT -->
+<section id="s1">
+  <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">為什麼是現在</span></div>
+  <p class="lead">Every AI accelerator is now a <b>stack of dies</b> — logic on logic, memory on logic — and the joints between them used to be tiny solder balls (microbumps). At the leading edge those balls are too big and too hot, so the dies are now <b>bonded directly, copper-to-copper, with no bumps at all</b>. That is <b>hybrid bonding</b>, and the hardest version — <b>die-to-wafer (D2W)</b>, used by TSMC's SoIC for NVIDIA Rubin/Feynman — needs sub-100-nanometre alignment that only a handful of tools on Earth can hit. Run #2 priced the <i>package</i> (CoWoS); this report asks whether the <b>bonding step underneath it</b> still hides asymmetry.</p>
+  <div class="kpis">
+    <div class="kpi"><div class="v num teal">~$2B</div><div class="l">hybrid-bonder market by 2028</div><div class="d">~50% of HBM on hybrid bonding by 2028 (HBM4E era) — TrendForce</div></div>
+    <div class="kpi"><div class="v num red">&lt;100nm</div><div class="l">overlay accuracy the D2W bond needs</div><div class="d">next-gen tool targets 50nm or better — few tools qualify (est.)</div></div>
+    <div class="kpi"><div class="v num amb">~90%</div><div class="l">SoIC capacity CAGR 2022–27</div><div class="d">vs CoWoS ~80%; SoIC capex ~$6.8–7B per 10k wafers (est.)</div></div>
+    <div class="kpi"><div class="v num grn">+104%</div><div class="l">BESI Q1-26 order intake YoY</div><div class="d">hybrid-bonding orders doubled to 20 customers; backlog 2×</div></div>
+  </div>
+
+  <div style="border:1px solid var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px;background:var(--panel)">
+    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px">EXPLAIN IT SIMPLY · 白話版</div>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6;max-width:920px">Imagine building a skyscraper out of chips by <b style="color:var(--txt)">stacking floors on top of each other</b> instead of laying them side by side. The old way glued the floors together with thousands of tiny solder balls; the new way <b style="color:var(--txt)">welds the copper wiring of one floor straight onto the next</b> — no glue, no balls — so signals travel a shorter distance and run cooler. That weld is <b style="color:var(--txt)">hybrid bonding</b>. To weld a small chip ("die") onto a big wafer perfectly, the machine has to line up the two within a fraction of a thousandth of a hair's width — and <b style="color:var(--txt)">only a couple of companies build a machine that good</b> (BESI, with Applied Materials; ASMPT second). Run #2 said "CoWoS packaging is the bottleneck." This report goes one floor down: <b style="color:var(--txt)">the bottleneck under the package is the welding machine — and the camera that checks every weld.</b> The investing question: now that the package is priced, is there money left in the <b style="color:var(--txt)">bonder-and-inspection layer below it — and which name is still early?</b></p>
+  </div>
+</section>
+
+<!-- 2. TWO-AXIS FRAMEWORK -->
+<section id="s2">
+  <div class="sh"><span class="n">02</span><h2>The framework — two orthogonal axes</h2><span class="cn">MECE 框架</span></div>
+  <p class="lead">Every advanced package is defined by <b>(what's being stacked × how it's joined)</b>. The <b>rows</b> say <i>what you're stacking</i> (logic-on-logic, HBM-on-logic, the 2.5D side-by-side baseline); the <b>columns</b> say <i>which joining method</i> binds. The chokepoint sits at one cell: <b>die-to-wafer hybrid bonding</b> for <b>logic 3D SoIC</b> — live in volume at TSMC now, with HBM4E joining in 2027+.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+    <div class="panel" style="padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">THE LAYER STACK · 分層 (read this first)</div>
+      <div style="font-size:12px;color:var(--mut);line-height:1.8">
+        <span class="lyr lySUB">SUB</span> the <b>CoWoS interposer / carrier</b> that holds the dies (Run #2's chokepoint) &nbsp;·&nbsp;
+        <span class="lyr lyBOND">BOND</span> the <b>hybrid-bond</b> step that fuses die-to-die copper-to-copper (this report's chokepoint) &nbsp;·&nbsp;
+        <span class="lyr lyINSP">INSP</span> the <b>inspection / metrology</b> that checks every bond for yield &nbsp;·&nbsp;
+        <span class="lyr lyDEV">DEV</span> the <b>GPU+HBM stack</b> the chipmaker ships.
+      </div>
+    </div>
+    <div class="panel" style="padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">6-TERM GLOSSARY · 名詞</div>
+      <div style="font-size:11.5px;color:var(--mut);line-height:1.7">
+        <b>Hybrid bonding</b> bumpless Cu-Cu + oxide direct bond · <b>SoIC</b> TSMC's 3D die-stacking platform · <b>D2W</b> die-to-wafer (the hard mode) · <b>W2W</b> wafer-to-wafer (the easier mode) · <b>TCB</b> thermal-compression bonding, the microbump incumbent · <b>HBM4/4E</b> the next memory generations (microbumps → hybrid bond)
+      </div>
+    </div>
+  </div>
+  <table class="matrix">
+    <tr>
+      <th style="width:200px">What's stacked (row) ↓ / how joined →</th>
+      <th style="width:150px">Joining method</th>
+      <th>Why it's the constraint</th>
+      <th style="width:210px">Who wins · key players</th>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--bond)"></span>Logic-on-logic 3D<small>SoIC · compute tiles · Rubin/Feynman</small></div></td>
+      <td><b>D2W hybrid bond</b></td>
+      <td><b>The chokepoint.</b> Volume hybrid bonding is live <i>here first</i> — TSMC SoIC for next-gen GPUs. Sub-100nm overlay; years of yield know-how. <span class="chip hot">D2W hybrid bonding</span></td>
+      <td><b>BESI</b>+Applied (Kinex), ASMPT (2nd); TSMC the buyer</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--up)"></span>HBM-on-logic (memory)<small>HBM4 now · HBM4E 2027+</small></div></td>
+      <td><b>TCB now → hybrid 2027</b></td>
+      <td><b>The mis-timed leg.</b> HBM4 <i>stays on microbumps/TCB</i> — hybrid bonding only arrives at HBM4E (~2027). Near-term rent is TCB, not hybrid. <span class="chip">TC bonding</span></td>
+      <td>ASMPT, Hanmi (TCB); BESI/Hynix (hybrid later)</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--insp)"></span>Every bond (yield gate)<small>overlay · void · bond-line inspection</small></div></td>
+      <td><b>Inspection / metrology</b></td>
+      <td><b>The under-priced gate.</b> A bumpless bond is invisible — you can't rework it, so 100% inspection is mandatory. Volume scales with every bond. <span class="chip">least-priced</span></td>
+      <td>Camtek (Hawk), Onto (Dragonfly), KLA</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--mod)"></span>2.5D side-by-side<small>CoWoS baseline · the old way</small></div></td>
+      <td><b>Microbump / TCB</b></td>
+      <td><b>The incumbent baseline.</b> Run #2's chokepoint; still the workhorse, but the leading edge is migrating up into 3D. <span class="chip">CoWoS-L</span></td>
+      <td>TSMC (CoWoS), ASE/Amkor (OSAT)</td>
+    </tr>
+  </table>
+  <p class="cap">The cell the leading-edge stack runs through is <b style="color:#efa0a1">logic 3D SoIC × D2W hybrid bonding</b>. Notice the row most people <i>think</i> is the story (HBM memory) is actually still on TCB — that timing gap is the variant in §8.</p>
+</section>
+
+<!-- 3. BOND GALLERY -->
+<section id="s3">
+  <div class="sh"><span class="n">03</span><h2>The bonding layer, illustrated</h2><span class="cn">鍵合技術</span></div>
+  <p class="lead">The four pieces of the joining layer that turn separate dies into a 3D stack. The first — die-to-wafer hybrid bonding — is where the scarcity rent concentrates, because it owns the hardest, highest-precision step the leading edge can't skip.</p>
+  <div class="gal">
+    <!-- D2W hybrid bond -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#8b84cf"/><stop offset="1" stop-color="#6f68b8"/></linearGradient></defs>
+          <!-- wafer base -->
+          <rect x="24" y="78" width="152" height="14" rx="2" fill="#1c2030" stroke="#8b84cf"/>
+          <text x="100" y="104" text-anchor="middle" class="svglabel">target wafer</text>
+          <!-- die descending -->
+          <rect x="74" y="34" width="52" height="20" rx="2" fill="url(#g1)"/>
+          <text x="100" y="26" text-anchor="middle" class="svglabel">die placed (no bumps)</text>
+          <!-- copper pads alignment -->
+          <g stroke="#d8a85a" stroke-width="2"><line x1="82" y1="54" x2="82" y2="78"/><line x1="100" y1="54" x2="100" y2="78"/><line x1="118" y1="54" x2="118" y2="78"/></g>
+          <text x="148" y="66" font-size="7.5" fill="#e3bd76">Cu→Cu</text>
+          <text x="100" y="70" text-anchor="middle" font-size="7" fill="#cfc9f2">&lt;100nm align</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>D2W hybrid bond <span class="badge b-hot">CHOKEPOINT</span></h4>
+        <p class="role">Places a small die onto a full wafer and fuses copper-to-copper directly — no solder. Sub-100nm overlay, oxide-to-oxide seal. The volume mode for logic 3D SoIC today.</p>
+        <p class="who">Tool makers: <b>BESI</b>+Applied (Kinex), ASMPT</p>
+      </div>
+    </div>
+    <!-- W2W hybrid bond -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="44" r="26" fill="#13283a" stroke="#5aa9e0"/>
+          <circle cx="100" cy="74" r="26" fill="#13283a" stroke="#5aa9e0"/>
+          <text x="100" y="20" text-anchor="middle" class="svglabel">two full wafers</text>
+          <line x1="58" y1="59" x2="142" y2="59" stroke="#d8a85a" stroke-width="2"/>
+          <text x="100" y="103" text-anchor="middle" class="svglabel">bonded face-to-face, then diced</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>W2W hybrid bond <span class="badge b-next">EASIER MODE</span></h4>
+        <p class="role">Bonds two whole wafers at once — higher throughput, but both wafers must be the same size and high-yield. Used in CMOS image sensors and some memory; less flexible for mixed die.</p>
+        <p class="who">Leaders: <b>EVG, SUSS</b> (XBC300), BESI</p>
+      </div>
+    </div>
+    <!-- inspection -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <text x="100" y="18" text-anchor="middle" class="svglabel">100% bond inspection</text>
+          <!-- stacked dies -->
+          <rect x="56" y="64" width="88" height="12" rx="2" fill="#1c2030" stroke="#c47a9e"/>
+          <rect x="64" y="52" width="72" height="12" rx="2" fill="#2a1c24" stroke="#c47a9e"/>
+          <!-- scan beam -->
+          <path d="M100 24 L84 50 L116 50 Z" fill="rgba(219,160,191,.25)" stroke="#dba0bf"/>
+          <circle cx="100" cy="24" r="4" fill="#dba0bf"/>
+          <text x="100" y="92" text-anchor="middle" font-size="7.5" fill="#dba0bf">voids · overlay · bond-line</text>
+          <text x="100" y="104" text-anchor="middle" class="svglabel">no rework — must pass first time</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Bond inspection <span class="badge b-now">UNDER-PRICED</span></h4>
+        <p class="role">A bumpless bond is buried and un-reworkable, so every bond is inspected for voids, overlay error and interface quality. Volume scales 1:1 with bonds — the picks-and-shovels of the bonders.</p>
+        <p class="who">Stack: <b>Camtek</b> (Hawk), Onto (Dragonfly G5), KLA</p>
+      </div>
+    </div>
+    <!-- TCB -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <text x="100" y="18" text-anchor="middle" class="svglabel">microbump + heat + force</text>
+          <rect x="40" y="74" width="120" height="12" rx="2" fill="#11161f" stroke="#5b81c4"/>
+          <rect x="60" y="56" width="80" height="12" rx="2" fill="#1a2230" stroke="#5b81c4"/>
+          <!-- bumps -->
+          <g fill="#8aa7df"><circle cx="74" cy="72" r="3"/><circle cx="94" cy="72" r="3"/><circle cx="114" cy="72" r="3"/></g>
+          <!-- heat -->
+          <g stroke="#e0a458" stroke-width="1.2"><line x1="80" y1="40" x2="80" y2="52"/><line x1="100" y1="40" x2="100" y2="52"/><line x1="120" y1="40" x2="120" y2="52"/></g>
+          <text x="100" y="36" text-anchor="middle" font-size="7.5" fill="#e0a458">heat + pressure</text>
+          <text x="100" y="102" text-anchor="middle" class="svglabel">HBM4 still uses this</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>TC bonding <span class="badge b-emrg">INCUMBENT</span></h4>
+        <p class="role">Thermal-compression bonding presses microbumped dies together with heat and force. Still the HBM4 workhorse (12→16 layer); hybrid bonding only displaces it at HBM4E (~2027+).</p>
+        <p class="who">Leaders: <b>ASMPT</b>, Hanmi Semiconductor</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. HOW A 3D STACK IS BUILT -->
+<section id="s4">
+  <div class="sh"><span class="n">04</span><h2>From dies to a 3D stack — the build-up</h2><span class="cn">晶粒如何疊成 3D 堆疊</span></div>
+  <p class="lead">Separate logic and memory dies enter from the left; the <b>value and scarcity concentrate in the middle</b> — at the hybrid bond — because that's the step that's hardest to add capacity for and impossible to skip on the leading edge.</p>
+  <div class="svgwide">
+    <svg viewBox="0 0 1060 300" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="ar4" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#5a6377"/></marker>
+      </defs>
+      <!-- stage 1 dies -->
+      <rect x="20" y="118" width="150" height="64" rx="8" fill="#13283a" stroke="#5aa9e0"/>
+      <text x="95" y="144" text-anchor="middle" font-size="12" fill="#8ec4ee" font-weight="600">Logic + HBM dies</text>
+      <text x="95" y="162" text-anchor="middle" font-size="9.5" fill="#9aa3b5">tested, thinned</text>
+      <line x1="170" y1="150" x2="206" y2="150" stroke="#5a6377" stroke-width="1.5" marker-end="url(#ar4)"/>
+
+      <!-- stage 2 surface prep -->
+      <rect x="208" y="118" width="150" height="64" rx="8" fill="#181f2c" stroke="#5b81c4"/>
+      <text x="283" y="140" text-anchor="middle" font-size="12" fill="#8aa7df" font-weight="600">Surface prep</text>
+      <text x="283" y="156" text-anchor="middle" font-size="9" fill="#9aa3b5">CMP · clean · activate</text>
+      <text x="283" y="170" text-anchor="middle" font-size="9" fill="#9aa3b5">(part of Kinex)</text>
+      <line x1="358" y1="150" x2="394" y2="150" stroke="#5a6377" stroke-width="1.5" marker-end="url(#ar4)"/>
+
+      <!-- stage 3 HYBRID BOND (chokepoint) -->
+      <rect x="396" y="104" width="170" height="92" rx="9" fill="#1c1518" stroke="#5a3236" stroke-width="1.6"/>
+      <rect x="412" y="92" width="138" height="18" rx="5" fill="#e0686a"/><text x="481" y="105" text-anchor="middle" font-size="9" fill="#1c1518" font-weight="700">CHOKEPOINT · BOND</text>
+      <text x="481" y="134" text-anchor="middle" font-size="12" fill="#cfc9f2" font-weight="600">D2W hybrid bond</text>
+      <text x="481" y="151" text-anchor="middle" font-size="9.5" fill="#bcb3e6">Cu-Cu, no bumps</text>
+      <text x="481" y="170" text-anchor="middle" font-size="8.5" fill="#eda3a4">the 3D stack is created here</text>
+      <text x="481" y="184" text-anchor="middle" font-size="8" fill="#9aa3b5">BESI+Applied · ASMPT</text>
+      <line x1="566" y1="150" x2="602" y2="150" stroke="#5a6377" stroke-width="1.5" marker-end="url(#ar4)"/>
+
+      <!-- stage 4 inspection -->
+      <rect x="604" y="118" width="150" height="64" rx="8" fill="#2a1c24" stroke="#c47a9e"/>
+      <text x="679" y="140" text-anchor="middle" font-size="12" fill="#dba0bf" font-weight="600">Inspection</text>
+      <text x="679" y="156" text-anchor="middle" font-size="9" fill="#9aa3b5">voids · overlay</text>
+      <text x="679" y="170" text-anchor="middle" font-size="9" fill="#9aa3b5">100%, no rework</text>
+      <line x1="754" y1="150" x2="790" y2="150" stroke="#5a6377" stroke-width="1.5" marker-end="url(#ar4)"/>
+
+      <!-- stage 5 stack -->
+      <rect x="792" y="118" width="150" height="64" rx="8" fill="#33302a" stroke="#d2a24a"/>
+      <text x="867" y="140" text-anchor="middle" font-size="12" fill="#e3bd76" font-weight="600">GPU + HBM stack</text>
+      <text x="867" y="156" text-anchor="middle" font-size="9" fill="#9aa3b5">→ CoWoS → module</text>
+      <text x="867" y="170" text-anchor="middle" font-size="9" fill="#9aa3b5">Nvidia · AMD · TSMC</text>
+
+      <!-- note -->
+      <rect x="20" y="214" width="922" height="66" rx="10" fill="#13161e" stroke="#2a3040"/>
+      <text x="38" y="238" font-size="11" fill="#e8eaf0" font-weight="600">What changes at each step</text>
+      <text x="38" y="258" font-size="10.5" fill="#9aa3b5">Separate dies are valuable but replaceable. After the hybrid bond they are one inseparable 3D part — that step adds the most value, is the</text>
+      <text x="38" y="272" font-size="10.5" fill="#eda3a4">hardest to add capacity for, and is un-reworkable (one bad bond scraps the whole stack). Everything to the right waits on the bonder upstream.</text>
+    </svg>
+  </div>
+  <p class="cap">Build-up view — the dies (left) are common inputs; the 3D part only <i>exists</i> after the hybrid bond. Capacity added downstream (inspection, module) is useless without bonder capacity upstream.</p>
+</section>
+
+<!-- 5. WHERE EACH BOND IS USED -->
+<section id="s5">
+  <div class="sh"><span class="n">05</span><h2>Where each bond is leveraged</h2><span class="cn">鍵合如何對應應用</span></div>
+  <p class="lead">The same bonding layer serves three different jobs — and the crucial nuance is the <b>timing</b>: hybrid bonding owns logic 3D <i>now</i>, but memory (HBM) stays on TCB until HBM4E in 2027+. The market often gets this leg wrong.</p>
+  <div class="svgwide">
+    <svg viewBox="0 0 1060 250" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <!-- LOGIC 3D -->
+      <text x="40" y="28" font-size="12" fill="#8b84cf" font-weight="600">LOGIC 3D · SoIC</text>
+      <text x="40" y="44" font-size="9.5" fill="#697283">Rubin / Feynman · the volume engine NOW</text>
+      <rect x="34" y="58" width="300" height="150" rx="10" fill="#181527" stroke="#3c3460"/>
+      <rect x="60" y="84" width="110" height="40" rx="6" fill="#2a2540" stroke="#8b84cf"/><text x="115" y="108" text-anchor="middle" font-size="9.5" fill="#cfc9f2">D2W hybrid bond</text>
+      <line x1="170" y1="104" x2="206" y2="104" stroke="#8b84cf" stroke-width="2"/>
+      <polygon points="208,104 201,100 201,108" fill="#8b84cf"/>
+      <rect x="212" y="84" width="106" height="40" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="265" y="103" text-anchor="middle" font-size="9" fill="#bcb3e6">compute tiles</text><text x="265" y="116" text-anchor="middle" font-size="8" fill="#9aa3b5">stacked at TSMC</text>
+      <text x="184" y="170" text-anchor="middle" font-size="9" fill="#eda3a4">hybrid bonding is LIVE here</text>
+      <text x="184" y="186" text-anchor="middle" font-size="8.5" fill="#9aa3b5">BESI+Applied Kinex · the rent today</text>
+
+      <!-- MEMORY HBM -->
+      <text x="380" y="28" font-size="12" fill="#5b81c4" font-weight="600">MEMORY · HBM</text>
+      <text x="380" y="44" font-size="9.5" fill="#697283">HBM4 now → HBM4E 2027+</text>
+      <rect x="374" y="58" width="300" height="150" rx="10" fill="#11151f" stroke="#2f3a52"/>
+      <rect x="400" y="84" width="110" height="40" rx="6" fill="#1a2230" stroke="#5b81c4"/><text x="455" y="103" text-anchor="middle" font-size="9.5" fill="#8aa7df">TCB (microbump)</text><text x="455" y="116" text-anchor="middle" font-size="8" fill="#9aa3b5">HBM4, 12→16 layer</text>
+      <line x1="510" y1="104" x2="546" y2="104" stroke="#5a6377" stroke-width="2" stroke-dasharray="4 3"/>
+      <polygon points="548,104 541,100 541,108" fill="#5a6377"/>
+      <rect x="552" y="84" width="110" height="40" rx="6" fill="#1c1825" stroke="#5a4a7a"/><text x="607" y="103" text-anchor="middle" font-size="9" fill="#bcb3e6">hybrid bond</text><text x="607" y="116" text-anchor="middle" font-size="8" fill="#9aa3b5">only at HBM4E ~2027</text>
+      <text x="524" y="170" text-anchor="middle" font-size="9" fill="#e3bd76">near-term rent = TCB (ASMPT)</text>
+      <text x="524" y="186" text-anchor="middle" font-size="8.5" fill="#9aa3b5">hybrid arrives a cycle later</text>
+
+      <!-- YIELD GATE -->
+      <text x="720" y="28" font-size="12" fill="#c47a9e" font-weight="600">YIELD GATE</text>
+      <text x="720" y="44" font-size="9.5" fill="#697283">spans both — every bond inspected</text>
+      <rect x="714" y="58" width="312" height="150" rx="10" fill="#1f1722" stroke="#4a2f3c"/>
+      <rect x="740" y="84" width="118" height="40" rx="6" fill="#2a1c24" stroke="#c47a9e"/><text x="799" y="103" text-anchor="middle" font-size="9.5" fill="#dba0bf">inspection / metrology</text><text x="799" y="116" text-anchor="middle" font-size="8" fill="#9aa3b5">Hawk · Dragonfly</text>
+      <line x1="858" y1="104" x2="894" y2="104" stroke="#c47a9e" stroke-width="2"/>
+      <polygon points="896,104 889,100 889,108" fill="#c47a9e"/>
+      <rect x="900" y="84" width="112" height="40" rx="6" fill="#241820" stroke="#5a3a4a"/><text x="956" y="103" text-anchor="middle" font-size="9" fill="#dba0bf">scales 1:1 w/ bonds</text><text x="956" y="116" text-anchor="middle" font-size="8" fill="#9aa3b5">logic + memory both</text>
+      <text x="870" y="170" text-anchor="middle" font-size="9" fill="#dba0bf">grows whichever leg wins</text>
+      <text x="870" y="186" text-anchor="middle" font-size="8.5" fill="#9aa3b5">Camtek · Onto · least-priced</text>
+    </svg>
+  </div>
+  <p class="cap">The tell: the inspection layer (right) is method-agnostic — it grows whether the volume is logic hybrid bonding <i>or</i> memory TCB. That's why it's the cleanest way to own the whole transition without betting on the timing.</p>
+</section>
+
+<!-- 6. SUPPLY-CHAIN MAP -->
+<section id="s6">
+  <div class="sh"><span class="n">06</span><h2>End-to-end supply chain — where it constricts</h2><span class="cn">供應鏈地圖</span></div>
+  <p class="lead">Read left→right. The <b style="color:#eda3a4">red, thinned arrows</b> mark where throughput constricts — into and out of the hybrid-bond step. Beneath, the <b>scarcity-premium bars peak at the bond</b>; the secondary rent pool sits at the GPU device (already priced in Run #2).</p>
+  <div class="leg">
+    <span><span class="sw" style="background:var(--up)"></span>upstream materials</span>
+    <span><span class="sw" style="background:var(--sub)"></span>interposer (CoWoS)</span>
+    <span><span class="sw" style="background:var(--bond)"></span>hybrid bond (chokepoint)</span>
+    <span><span class="sw" style="background:var(--insp)"></span>inspection</span>
+    <span><span class="sw" style="background:var(--dev)"></span>device (rent pool)</span>
+    <span><span class="sw" style="background:var(--mod)"></span>buyers</span>
+  </div>
+  <div class="svgwide">
+    <svg viewBox="0 0 1100 490" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="aT6" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#5a6377"/></marker>
+        <marker id="aR6" markerWidth="11" markerHeight="11" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#e0686a"/></marker>
+      </defs>
+      <!-- thick grey flows -->
+      <line x1="180" y1="180" x2="200" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
+      <!-- thin red into bond -->
+      <line x1="360" y1="180" x2="380" y2="180" stroke="#e0686a" stroke-width="2.4" marker-end="url(#aR6)"/>
+      <!-- thin red out of bond -->
+      <line x1="540" y1="180" x2="560" y2="180" stroke="#e0686a" stroke-width="2.4" marker-end="url(#aR6)"/>
+      <!-- thick grey after -->
+      <line x1="720" y1="180" x2="740" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
+      <line x1="900" y1="180" x2="920" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
+
+      <!-- C1 Materials -->
+      <rect x="20" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="20" y="40" width="5" height="262" rx="2" fill="#5b81c4"/>
+      <text x="36" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Bond materials</text>
+      <text x="36" y="74" font-size="9" fill="#8aa7df" font-weight="600">UPSTREAM</text>
+      <g font-size="9">
+        <rect x="32" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="98" fill="#fff" font-weight="600">CMP slurry / pads</text><text x="40" y="110" fill="#9aa3b5">planarize the bond face</text>
+        <rect x="32" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="136" fill="#fff" font-weight="600">Cleans / activation</text><text x="40" y="148" fill="#9aa3b5">wafer-surface chemistry</text>
+        <rect x="32" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="174" fill="#fff" font-weight="600">Dielectric / Cu</text><text x="40" y="186" fill="#9aa3b5">bond interface layers</text>
+      </g>
+      <text x="36" y="214" font-size="9" fill="#697283">consumables every bond burns</text>
+      <text x="36" y="228" class="m" font-size="8.5" fill="#697283">no clean pure-play (latent)</text>
+
+      <!-- C2 Interposer -->
+      <rect x="200" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="200" y="40" width="5" height="262" rx="2" fill="#5aa9e0"/>
+      <text x="216" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Interposer / CoWoS</text>
+      <text x="216" y="74" font-size="9" fill="#8ec4ee" font-weight="600">RUN #2 CHOKEPOINT</text>
+      <g font-size="9">
+        <rect x="212" y="84" width="136" height="32" rx="6" fill="#13283a" stroke="#2f4a5e"/><text x="220" y="98" fill="#fff" font-weight="600">TSMC CoWoS</text><text x="220" y="110" fill="#9aa3b5">→130k wpm late-26</text>
+        <rect x="212" y="122" width="136" height="32" rx="6" fill="#13283a" stroke="#2f4a5e"/><text x="220" y="136" fill="#fff" font-weight="600">ASE · Amkor</text><text x="220" y="148" fill="#9aa3b5">OSAT 2.5D capacity</text>
+        <rect x="212" y="160" width="136" height="32" rx="6" fill="#13283a" stroke="#2f4a5e"/><text x="220" y="174" fill="#fff" font-weight="600">Substrate / ABF</text><text x="220" y="186" fill="#9aa3b5">Run #6 layer</text>
+      </g>
+      <text x="216" y="214" font-size="9" fill="#9aa3b5">2.5D baseline, still tight</text>
+      <text x="216" y="228" class="m" font-size="8.5" fill="#697283">leading edge migrates to 3D →</text>
+
+      <!-- C3 HYBRID BOND CHOKEPOINT -->
+      <rect x="380" y="40" width="160" height="262" rx="10" fill="#1c1518" stroke="#5a3236" stroke-width="1.5"/>
+      <rect x="380" y="40" width="5" height="262" rx="2" fill="#8b84cf"/>
+      <rect x="394" y="26" width="132" height="20" rx="5" fill="#e0686a"/><text x="460" y="40" font-size="9.5" fill="#1c1518" font-weight="700" text-anchor="middle">CHOKEPOINT · BOND</text>
+      <text x="396" y="62" font-size="12" fill="#e8eaf0" font-weight="600">D2W hybrid bond</text>
+      <text x="396" y="76" font-size="9" fill="#aaa3e6" font-weight="600">3D STACKING</text>
+      <g font-size="9">
+        <rect x="392" y="86" width="136" height="32" rx="6" fill="#2a1a2f" stroke="#8b84cf"/><text x="400" y="100" fill="#fff" font-weight="700">BESI+Applied  ★</text><text x="400" y="112" fill="#cfb8e6">Kinex · sub-micron lead</text>
+        <rect x="392" y="124" width="136" height="32" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="400" y="138" fill="#fff" font-weight="600">ASMPT</text><text x="400" y="150" fill="#bcb3e6">2nd · broader scale</text>
+        <rect x="392" y="162" width="136" height="32" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="400" y="176" fill="#fff" font-weight="600">EVG · SUSS (W2W)</text><text x="400" y="188" fill="#bcb3e6">wafer-to-wafer mode</text>
+      </g>
+      <text x="396" y="216" font-size="9" fill="#eda3a4">all SoIC 3D stacks bonded here</text>
+      <text x="396" y="230" class="m" font-size="8.5" fill="#697283">years of yield know-how</text>
+
+      <!-- C4 Inspection -->
+      <rect x="560" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="560" y="40" width="5" height="262" rx="2" fill="#c47a9e"/>
+      <text x="576" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Inspection</text>
+      <text x="576" y="74" font-size="9" fill="#dba0bf" font-weight="600">YIELD GATE</text>
+      <g font-size="9">
+        <rect x="572" y="84" width="136" height="32" rx="6" fill="#2a1c24" stroke="#5a3a4a"/><text x="580" y="98" fill="#fff" font-weight="600">Camtek (Hawk)</text><text x="580" y="110" fill="#9aa3b5">HBM + hybrid bond</text>
+        <rect x="572" y="122" width="136" height="32" rx="6" fill="#2a1c24" stroke="#5a3a4a"/><text x="580" y="136" fill="#fff" font-weight="600">Onto (Dragonfly)</text><text x="580" y="148" fill="#9aa3b5">HBM4 ramp inspection</text>
+        <rect x="572" y="160" width="136" height="32" rx="6" fill="#2a1c24" stroke="#5a3a4a"/><text x="580" y="174" fill="#fff" font-weight="600">KLA</text><text x="580" y="186" fill="#9aa3b5">broad metrology incumbent</text>
+      </g>
+      <text x="576" y="214" font-size="9" fill="#dba0bf">least-priced, method-agnostic</text>
+      <text x="576" y="228" class="m" font-size="8.5" fill="#697283">scales 1:1 with every bond</text>
+
+      <!-- C5 Device -->
+      <rect x="740" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="740" y="40" width="5" height="262" rx="2" fill="#d2a24a"/>
+      <text x="756" y="60" font-size="12" fill="#e8eaf0" font-weight="600">GPU / device</text>
+      <text x="756" y="74" font-size="9" fill="#e3bd76" font-weight="600">RENT POOLS HERE</text>
+      <g font-size="9">
+        <rect x="752" y="84" width="136" height="32" rx="6" fill="#332a18" stroke="#5a4a2a"/><text x="760" y="98" fill="#fff" font-weight="600">Nvidia</text><text x="760" y="110" fill="#9aa3b5">Rubin/Feynman SoIC</text>
+        <rect x="752" y="122" width="136" height="32" rx="6" fill="#332a18" stroke="#5a4a2a"/><text x="760" y="136" fill="#fff" font-weight="600">AMD · TSMC</text><text x="760" y="148" fill="#9aa3b5">MI-series · SoIC fab</text>
+        <rect x="752" y="160" width="136" height="32" rx="6" fill="#332a18" stroke="#5a4a2a"/><text x="760" y="174" fill="#fff" font-weight="600">SK hynix · Micron</text><text x="760" y="186" fill="#9aa3b5">HBM stacks</text>
+      </g>
+      <text x="756" y="214" font-size="9" fill="#e3bd76">margin (rent) peaks here</text>
+      <text x="756" y="228" class="m" font-size="8.5" fill="#697283">already priced (Run #2)</text>
+
+      <!-- C6 Buyers -->
+      <rect x="920" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="920" y="40" width="5" height="262" rx="2" fill="#4faf8e"/>
+      <text x="936" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Systems + buyers</text>
+      <text x="936" y="74" font-size="9" fill="#7cc9ad" font-weight="600">DEMAND</text>
+      <g font-size="9">
+        <rect x="932" y="84" width="136" height="32" rx="6" fill="#11261f" stroke="#2f4a3e"/><text x="940" y="98" fill="#fff" font-weight="600">NVL racks · ODMs</text><text x="940" y="110" fill="#9aa3b5">Foxconn · Quanta</text>
+        <rect x="932" y="122" width="136" height="32" rx="6" fill="#11261f" stroke="#2f4a3e"/><text x="940" y="136" fill="#fff" font-weight="600">Hyperscalers</text><text x="940" y="148" fill="#9aa3b5">MSFT · Meta · AWS · GOOG</text>
+        <rect x="932" y="160" width="136" height="32" rx="6" fill="#11261f" stroke="#2f4a3e"/><text x="940" y="174" fill="#fff" font-weight="600">Neoclouds</text><text x="940" y="186" fill="#9aa3b5">CoreWeave et al.</text>
+      </g>
+      <text x="936" y="214" font-size="9" fill="#7cc9ad">demand visibility = high</text>
+      <text x="936" y="228" class="m" font-size="8.5" fill="#697283">capex funds the whole chain</text>
+
+      <!-- scarcity premium bars -->
+      <line x1="40" y1="432" x2="1080" y2="432" stroke="#2a3040" stroke-width="1"/>
+      <text x="40" y="328" font-size="9" fill="#697283">scaling constraint / scarcity premium  (taller = tighter)</text>
+      <g>
+        <rect x="80" y="414" width="40" height="18" rx="2" fill="#2dd4bf" opacity="0.30"/>
+        <rect x="260" y="386" width="40" height="46" rx="2" fill="#5aa9e0" opacity="0.65"/>
+        <rect x="440" y="338" width="40" height="94" rx="2" fill="#e0686a"/>
+        <rect x="620" y="396" width="40" height="36" rx="2" fill="#c47a9e" opacity="0.60"/>
+        <rect x="800" y="368" width="40" height="64" rx="2" fill="#d2a24a" opacity="0.85"/>
+        <rect x="980" y="412" width="40" height="20" rx="2" fill="#2dd4bf" opacity="0.30"/>
+      </g>
+      <text x="460" y="330" font-size="9" fill="#eda3a4" text-anchor="middle" font-weight="600">scarcity peaks at the bond</text>
+      <text x="820" y="360" font-size="8.5" fill="#e3bd76" text-anchor="middle">2nd: device rent pool</text>
+      <g font-size="8.5" fill="#697283" text-anchor="middle">
+        <text x="100" y="446">materials</text><text x="280" y="446">interposer</text><text x="460" y="446">hybrid bond</text><text x="640" y="446">inspection</text><text x="820" y="446">device</text><text x="1000" y="446">buyers</text>
+      </g>
+      <text x="550" y="468" font-size="9" fill="#697283" text-anchor="middle">Red arrows = constricted throughput into &amp; out of the bond — every downstream stage waits on the bonder. Scarcity (tightness) peaks at the bond; margin RENT pools one stage right at the GPU device — see §8.</text>
+    </svg>
+  </div>
+  <p class="cap">The tell of this layer: the <b>tightest</b> stage (the hybrid bond) and the <b>highest-margin</b> stage (the GPU device) are not the same box. Run #2 bought the package; this report asks whether the tighter box upstream — or the inspection gate beside it — is the better-priced entry.</p>
+</section>
+
+<!-- 7. TIMELINE -->
+<section id="s7">
+  <div class="sh"><span class="n">07</span><h2>Three-year evolution — by bonding-line stage</h2><span class="cn">多年發展時間軸</span></div>
+  <p class="lead">How the bonding layer migrates 2025→2028. The <b style="color:#eda3a4">tinted</b> cells mark supply-stress / catalyst windows — the hinge is the <b>logic-now → memory-2027</b> hand-off as HBM4E adopts hybrid bonding.</p>
+  <div class="tlgrid">
+    <div class="tlhead"><div>Stage ↓ / Year →</div><div>2025</div><div>2026</div><div>2027</div><div>2028</div></div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--bond)"></span>Logic 3D / SoIC</div>
+      <div class="cell hot"><b>SoIC ramps</b>TSMC D2W in mass production; Kinex live</div>
+      <div class="cell hot"><b>Rubin SoIC volume</b>SoIC cap ~10–15k wpm; BESI orders 2×</div>
+      <div class="cell"><b>Feynman scale</b>SoIC cap surges for NVDA/AVGO/AMD</div>
+      <div class="cell"><b>3D mainstream</b>logic-on-logic the default leading edge</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--up)"></span>Memory / HBM</div>
+      <div class="cell"><b>HBM3E volume</b>microbumps; hybrid bonding still validation</div>
+      <div class="cell hot"><b>HBM4 = TCB</b>12→16 layer on TCB (ASMPT/Hanmi win)</div>
+      <div class="cell hot"><b>HBM4E hybrid</b>SK hynix hybrid validation → mass prod</div>
+      <div class="cell"><b>~50% hybrid</b>HBM hybrid share approaches half; ~$2B bonder TAM</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--insp)"></span>Inspection</div>
+      <div class="cell"><b>Hawk ramps</b>Camtek HBM/hybrid inspection orders</div>
+      <div class="cell hot"><b>$260M+ visibility</b>two HBM makers booked 2026–27 (Camtek)</div>
+      <div class="cell"><b>Dual-leg demand</b>logic + memory both need 100% inspect</div>
+      <div class="cell"><b>Structural</b>inspection intensity rises with layer count</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--dev)"></span>Device / module</div>
+      <div class="cell"><b>Blackwell-Ultra</b>CoWoS-L; 2.5D still dominant</div>
+      <div class="cell hot"><b>Rubin launch</b>CoWoS-L + SoIC combined</div>
+      <div class="cell"><b>Rubin Ultra</b>more SoIC tiers per package</div>
+      <div class="cell"><b>Feynman</b>3D-heavy architecture matures</div>
+    </div>
+  </div>
+  <p class="cap">Reading down a column = what's live that year; reading across a row = one stage's arc. The hinge is <b>2026→27</b>: logic hybrid bonding is live now; the memory leg only joins at HBM4E — so today's hybrid-bond volume is logic, not memory.</p>
+</section>
+
+<!-- 8. CHOKEPOINT + SEVERITY -->
+<section id="s8">
+  <div class="sh"><span class="n">08</span><h2>The chokepoint — and how tight</h2><span class="cn">卡點與嚴重度</span></div>
+  <div class="choke">
+    <div class="ttl">
+      <svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 2 L22 20 H2 Z" fill="none" stroke="#e0686a" stroke-width="2" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="14" stroke="#e0686a" stroke-width="2"/><circle cx="12" cy="17" r="1.2" fill="#e0686a"/></svg>
+      <h3>Die-to-wafer copper-to-copper hybrid bonding</h3>
+    </div>
+    <p>You cannot build a leading-edge 3D accelerator without fusing the dies, and the volume way to do it is <b>die-to-wafer hybrid bonding</b> — a bumpless copper-to-copper bond at sub-100nm overlay that <b>only BESI (with Applied Materials' Kinex tool) and ASMPT can do at the ultra-high end</b>, with BESI the precision leader. The recipe is years of accumulated yield know-how, and the bond is <b>un-reworkable</b> — one bad joint scraps the whole stack. On top of base demand, NVIDIA's Rubin/Feynman move logic into SoIC, and SoIC carries <b>far higher equipment intensity</b> (~$6.8–7B per 10k wafers, est.) than CoWoS — a fresh, capital-heavy tool cycle. The catch for investors: the constraint is real, but BESI has <b>already re-rated</b> (+137% YTD to a 52-week high), so the edge now is narrow and specific.</p>
+    <div class="stats">
+      <div><b class="num">2</b><span>credible ultra-high-end D2W bonder suppliers</span></div>
+      <div><b class="num">+104%</b><span>BESI Q1-26 order intake YoY (hybrid 2×)</span></div>
+      <div><b class="num">~$2B</b><span>hybrid-bonder TAM by 2028 (TrendForce)</span></div>
+      <div><b class="num">&lt;100nm</b><span>overlay accuracy required (→50nm next-gen)</span></div>
+      <div><b class="num">0</b><span>rework possible — 100% inspection mandatory</span></div>
+    </div>
+  </div>
+
+  <!-- severity scorecard -->
+  <div class="panel" style="margin-top:14px">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
+      <h4 style="font-size:13px;font-weight:600">Chokepoint-severity scorecard <span style="color:var(--dim);font-weight:400;font-size:11px">· for the D2W hybrid-bond link (BESI) · 1 = mild, 5 = acute · CAMT &amp; ASMPT links scored in §12</span></h4>
+      <div style="text-align:right"><span class="num" style="font-size:26px;font-weight:600;color:var(--choke)">18</span><span class="num" style="font-size:13px;color:var(--dim)">/20</span><div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em">composite · EXTREME</div></div>
+    </div>
+    <div style="display:grid;gap:11px">
+      <div style="display:grid;grid-template-columns:180px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Supply concentration</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">5</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">Effectively a 2-player ultra-high-end duopoly (BESI+Applied, ASMPT), BESI the precision leader; no commodity alternative for sub-100nm D2W</div>
+      </div>
+      <div style="display:grid;grid-template-columns:180px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Lead time to add capacity</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:#3a3040"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">4</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">Tool build + install + yield-qualify is multi-quarter; SoIC fab capex ~$6.8–7B/10k wafers — but tools <i>can</i> be built</div>
+      </div>
+      <div style="display:grid;grid-template-columns:180px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Low substitutability</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:#3a3040"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">4</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">For leading-edge logic 3D there is no substitute; TCB is a real fallback for memory near-term, which caps the score below 5</div>
+      </div>
+      <div style="display:grid;grid-template-columns:180px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Demand-growth pressure</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">5</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">SoIC ~90% capacity CAGR; Rubin/Feynman demand; HBM4E layered on top in 2027 — order intake already doubling</div>
+      </div>
+    </div>
+    <p class="cap" style="margin-top:12px">Severity 18/20 — same as CoWoS (Run #2: 18) because both are advanced-packaging gates, but the substitutability notch is held at 4 (TCB is a genuine near-term memory fallback, unlike CoWoS which had none). Co-binding chokepoints: the <b>inspection gate</b> (§12, score 14) and the <b>TCB incumbent</b> for HBM4 (§12, score 15).</p>
+  </div>
+
+  <!-- variant / disaggregation -->
+  <div class="panel" style="margin-top:14px;border-color:#2c5a40;background:rgba(95,201,138,.05)">
+    <h4 style="font-size:13px;margin-bottom:6px;font-weight:600;color:var(--pos)">Variant perception · the disaggregation that is the edge <span class="cn" style="font-weight:400;color:var(--dim)">變異認知</span></h4>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+      <div style="border-left:3px solid var(--dim);padding-left:12px">
+        <div style="font-size:10.5px;font-weight:700;color:var(--dim);letter-spacing:.04em;margin-bottom:4px">CONSENSUS BELIEVES</div>
+        <p style="font-size:12px;color:var(--mut);line-height:1.55">"Hybrid bonding" is the next <b style="color:var(--txt)">HBM memory</b> story — buy the bonder makers because HBM4 is moving to bumpless bonding now, and that's where the volume is.</p>
+      </div>
+      <div style="border-left:3px solid var(--pos);padding-left:12px">
+        <div style="font-size:10.5px;font-weight:700;color:var(--pos);letter-spacing:.04em;margin-bottom:4px">THIS REPORT'S VARIANT</div>
+        <p style="font-size:12px;color:var(--mut);line-height:1.55">The timing is mis-priced. <b style="color:var(--txt)">HBM4 stays on TCB (microbumps)</b> — hybrid bonding in memory only arrives at <b style="color:var(--txt)">HBM4E in ~2027</b>. Today's hybrid-bond <i>volume</i> is <b style="color:var(--txt)">logic SoIC at TSMC</b> (BESI+Applied Kinex). So: the near-term HBM rent is <b style="color:var(--txt)">TCB (ASMPT/Hanmi)</b>, the near-term hybrid rent is <b style="color:var(--txt)">logic (BESI)</b>, and the one link that grows <i>either way</i> is the <b style="color:var(--txt)">inspection gate (Camtek)</b> — which has run the least.</p>
+      </div>
+    </div>
+    <p style="font-size:11.5px;color:var(--mut);line-height:1.55;margin-top:10px"><b style="color:var(--txt)">How it could be wrong:</b> HBM4E hybrid-bonding pulls forward into 2026 (bullish BESI sooner, bearish the "TCB bridge" thesis); BESI's +104% order surge proves lumpy/pull-forward; ASMPT closes the precision gap and the duopoly compresses pricing; or the SoIC ramp stalls if TSMC's 130k-CoWoS goalpost slips, taking the 3D-stacking volume with it. A 2027–28 packaging-capacity overshoot would hit the toolmakers' order book first.</p>
+    <div class="gap" style="margin-top:10px"><div class="h">RENT-CAPTURE TEST · who keeps the scarcity rent? <span style="color:var(--dim);font-weight:400">(margins settle it)</span></div><p>Rank by gross margin: <b>device &gt; bonder ≈ inspection &gt; OSAT.</b> The GPU maker (Nvidia/TSMC) captures the package-pricing rent — but it's <i>already priced</i> (Run #2). The bonder (BESI, GM ~64–66% guided into Q2-26) earns a genuine "sell-the-picks" rent — but trades at a full multiple after +137% YTD. The inspection vendor (Camtek, GM ~50%) earns a healthy, method-agnostic rent at a <b>lower multiple and a smaller move (+82% YTD)</b>. <b>So the scarcest link (the bonder) keeps strong rent but is fully-valued; the best-priced rent today sits one box over at inspection.</b></p></div>
+  </div>
+</section>
+
+<!-- 9. AWARENESS CURVE -->
+<section id="s9">
+  <div class="sh"><span class="n">09</span><h2>Are we early? The awareness curve</h2><span class="cn">現在是早期嗎</span></div>
+  <p class="lead">The game is owning a chokepoint <b>before</b> the crowd prices it — the way 2018 MLCC and 2021 CPU/substrate shortages showed up in <b>order books and lead-times weeks before the stocks moved</b>. The honest read in June 2026: the bonding layer has <i>largely</i> run (BESI +137% to a 52-wk high, AMAT +130%, ASMPT +137%). What's left is narrow: the <b>inspection gate</b> that grows whichever bonding method wins (Camtek, the laggard at +82%), and BESI's own <b>order-to-revenue inflection</b> (orders +104%, revenue still catching up). This section stages each name and lists the signals that flag the next leg before it hits reported revenue.</p>
+
+  <div class="svgwide" style="margin-bottom:14px">
+    <svg viewBox="0 0 1060 320" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="alphaz9" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5fc98a" stop-opacity="0.22"/><stop offset="1" stop-color="#5fc98a" stop-opacity="0"/></linearGradient></defs>
+      <rect x="40" y="40" width="190" height="230" fill="#11141c"/>
+      <rect x="230" y="40" width="200" height="230" fill="url(#alphaz9)" stroke="#2c5a40" stroke-dasharray="3 4"/>
+      <rect x="630" y="40" width="200" height="230" fill="#1a1216" opacity="0.5"/>
+      <text x="135" y="32" text-anchor="middle" class="axis-zone" fill="#697283">LATENT</text>
+      <text x="330" y="32" text-anchor="middle" class="axis-zone" fill="#5fc98a" font-weight="600">EARLY SIGNAL · ALPHA</text>
+      <text x="530" y="32" text-anchor="middle" class="axis-zone" fill="#d2a24a">RECOGNITION</text>
+      <text x="730" y="32" text-anchor="middle" class="axis-zone" fill="#e0686a">EUPHORIA</text>
+      <text x="930" y="32" text-anchor="middle" class="axis-zone" fill="#697283">FULLY PRICED</text>
+      <path d="M40,258 C 260,250 280,205 430,150 C 560,104 640,70 760,62 C 880,56 980,58 1020,58" fill="none" stroke="#4a5570" stroke-width="2.5"/>
+      <text x="48" y="288" font-size="10" fill="#697283">time · market awareness  →</text>
+      <text x="20" y="150" font-size="10" fill="#697283" transform="rotate(-90 20 150)">price / crowding →</text>
+      <!-- CAMT dot (early/alpha) -->
+      <circle cx="392" cy="156" r="7" fill="#5fc98a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="392" y="144" text-anchor="middle" font-size="11" fill="#7cd6a0" font-weight="700">CAMT</text>
+      <text x="392" y="182" text-anchor="middle" class="m" font-size="9" fill="#9aa3b5">+82% YTD · inspection</text>
+      <!-- BESI dot (recognition) -->
+      <circle cx="600" cy="92" r="7" fill="#d2a24a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="600" y="80" text-anchor="middle" font-size="11" fill="#e3bd76" font-weight="700">BESI</text>
+      <text x="600" y="118" text-anchor="middle" class="m" font-size="9" fill="#9aa3b5">+137% YTD · 52wk high</text>
+      <!-- ASMPT dot (recognition/euphoria edge) -->
+      <circle cx="742" cy="70" r="7" fill="#e0686a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="742" y="58" text-anchor="middle" font-size="11" fill="#eda3a4" font-weight="700">ASMPT</text>
+      <text x="756" y="84" text-anchor="start" class="m" font-size="9" fill="#9aa3b5">+137% · TCB bridge</text>
+      <!-- next-entry marker -->
+      <circle cx="285" cy="214" r="6" fill="none" stroke="#5fc98a" stroke-width="2" stroke-dasharray="2 2"/>
+      <text x="285" y="232" text-anchor="middle" font-size="9" fill="#7cd6a0">where the NEXT entry hides ↙</text>
+      <text x="330" y="262" text-anchor="middle" font-size="9.5" fill="#5fc98a">↑ you want to enter here</text>
+      <text x="745" y="250" text-anchor="middle" font-size="9.5" fill="#eda3a4">most retail buys here — too late</text>
+    </svg>
+  </div>
+  <p class="cap" style="margin-top:-4px;margin-bottom:14px">Horizontal = awareness stage (qualitative), not a linear return scale. Dot height ≈ how much of each story is already in the price as of 14 Jun 2026 — CAMT least, BESI/ASMPT most. CAMT sits left because it's method-agnostic and ran least; BESI is the quality chokepoint but at a 52-wk high.</p>
+
+  <div class="panel" style="margin-bottom:14px;border-color:#2c5a40;background:rgba(95,201,138,.05)">
+    <h4 style="font-size:13px;margin-bottom:6px;font-weight:600;color:var(--pos)">Still-latent watchlist — left of the earliest play <span class="cn" style="font-weight:400;color:var(--dim)">尚未被發現的早期標的</span></h4>
+    <p style="font-size:12px;color:var(--mut);line-height:1.55">All three top-3 names have moved (CAMT +82%, BESI +137%, ASMPT +137% YTD). To buy <i>before</i> the crowd you watch links that are <b>still unpriced or impossible to buy cleanly today</b>. Each below could become the next re-rate:</p>
+    <table class="tbl" style="margin-top:8px">
+      <tr><th>Latent candidate (link)</th><th>Why it could be next</th><th>Trigger that wakes it · where to watch</th></tr>
+      <tr><td><b>Hybrid-bond consumables</b> — CMP slurry, post-CMP cleans, wafer-surface activation (inside Entegris, Fujimi, JSR)</td><td>The consumable every bond burns; no clean pure-play, so it's structurally under-covered as a hybrid-bonding play</td><td>Advanced-packaging consumable mix called out on specialty-materials earnings calls; CMP-pad/slurry capacity adds</td></tr>
+      <tr><td><b>Hanmi Semiconductor</b> · KRX 042700 — TCB-bonder leader to SK hynix</td><td>Pure-play on the <i>HBM4 TCB bridge</i> the variant identifies — the near-term memory rent before hybrid bonding takes over</td><td>SK hynix HBM4 TCB order flow; the Hanmi–Hanwha patent dispute resolution (Korean exchange filings)</td></tr>
+      <tr><td><b>EV Group</b> (private) — wafer-to-wafer hybrid-bond co-leader</td><td>The W2W hybrid-bond star, but privately held — watch for an IPO or a listed proxy (SUSS MicroTec is the closest public read)</td><td>An EVG IPO filing; SUSS MicroTec (SMHN) hybrid-bond order disclosures as a listed proxy</td></tr>
+    </table>
+    <p class="cap" style="margin-top:6px">Watch-only ideas, not recommendations — most latent bets fail. The discipline: keep scanning <i>here</i> while the crowd buys what has already run.</p>
+  </div>
+
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:4px;font-weight:600">Leading indicators — the early-signal dashboard</h4>
+      <p style="font-size:11px;color:var(--dim);margin-bottom:10px">These move BEFORE reported revenue. Watch them to catch the next leg early.</p>
+      <table class="liw">
+        <tr><th>Signal · trigger</th><th>Where an amateur can actually read it</th></tr>
+        <tr><td><b>BESI hybrid-bonding order intake / book-to-bill</b><br><span class="dotG" style="font-size:11px">add &gt;€220M/qtr · trim &lt;€180M</span></td><td>BESI quarterly press release + transcript (besi.com IR); StockTitan recaps</td></tr>
+        <tr><td><b>Camtek HBM / Hawk order visibility</b><br><span class="dotG" style="font-size:11px">each HBM-maker booking = upside</span></td><td>Camtek 6-K filings (SEC EDGAR); earnings call &amp; PRs</td></tr>
+        <tr><td><b>TSMC SoIC capacity / CoWoS goalpost</b><br><span class="dotA" style="font-size:11px">130k wpm on-track = bullish chain</span></td><td>TSMC earnings call &amp; capex line; TrendForce / Tom's Hardware recaps</td></tr>
+        <tr><td><b>HBM4E hybrid-bonding adoption date</b><br><span class="dotA" style="font-size:11px">pull-forward = BESI sooner</span></td><td>SK hynix / Samsung roadmap PRs; SemiEngineering; TrendForce</td></tr>
+        <tr><td><b>ASMPT vs BESI precision share-shift</b><br><span class="dotR" style="font-size:11px">ASMPT ultra-high-end win = bearish BESI</span></td><td>ASMPT &amp; BESI earnings calls; TrendForce bonder notes</td></tr>
+        <tr><td><b>Hanmi TCB order flow (HBM4)</b><br><span class="dotA" style="font-size:11px">confirms the TCB-bridge thesis</span></td><td>Korea exchange (KRX) filings; The Elec; TrendForce</td></tr>
+        <tr><td><b>Hyperscaler capex guides</b><br><span class="dotG" style="font-size:11px">rising · a cut = exit signal</span></td><td>MSFT / GOOG / META / AMZN 10-Q capex line + call</td></tr>
+      </table>
+      <p style="font-size:10px;color:var(--dim);margin-top:8px">Thresholds are illustrative starting points — calibrate to your own risk. Every signal is readable from <b>free public sources</b> (statements, transcripts, PRs, exchange filings) weeks before it shows up in reported revenue.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">How to be early next time <span class="cn" style="font-weight:400;color:var(--dim)">如何提前布局</span></h4>
+      <div class="mtc" style="margin-bottom:9px"><div class="h">1 · Watch the order book, not the revenue line</div><p>In capital equipment, orders lead revenue by 2–4 quarters. BESI's hybrid-bond orders doubled while reported revenue still lags — that gap is the alpha window.</p></div>
+      <div class="mtc" style="margin-bottom:9px"><div class="h">2 · Go one layer below the obvious chokepoint</div><p>Run #2 said "CoWoS." Below the package, the dies are bonded by a tool, checked by an inspection system. The deeper you go, the less the crowd has modelled it (inspection is barely tied to the hybrid-bond story).</p></div>
+      <div class="mtc" style="margin-bottom:9px"><div class="h">3 · Separate the timing legs</div><p>"Hybrid bonding" is two stories on different clocks: logic now, memory at HBM4E. Price the legs separately and you avoid paying a memory multiple for a logic cycle.</p></div>
+      <div class="mtc"><div class="h">4 · Respect that "tight" ≠ "cheap"</div><p>This whole layer is tight — and the bonder is fully-valued. Tightness tells you the business is good; only price and the order-inflection tell you whether you're early.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. TOP-3 MULTI-TAB -->
+<section id="s10">
+  <div class="sh"><span class="n">10</span><h2>Top-3 chokepoint plays</h2><span class="cn">三大卡點標的 · 分頁</span></div>
+  <p class="lead">Three companies at <b>three different links</b> of the same bonding line — inspection gate, the bonder, the TCB incumbent — deliberately spread across the awareness curve. Ranked by <b>remaining asymmetry</b> (how much is still NOT priced): the higher up the curve, the more the story is already in the stock.</p>
+
+  <div role="tablist" aria-label="Top-3 plays" style="display:flex;gap:6px;margin-bottom:-1px;flex-wrap:wrap">
+    <button class="tabbtn on" role="tab" aria-selected="true" aria-controls="t1" id="tab1" tabindex="0" onclick="showTab('t1',this)">① Camtek · CAMT<small>Inspection gate · earliest</small></button>
+    <button class="tabbtn" role="tab" aria-selected="false" aria-controls="t2" id="tab2" tabindex="-1" onclick="showTab('t2',this)">② BESI · BESI<small>Hybrid bonder · the owner</small></button>
+    <button class="tabbtn" role="tab" aria-selected="false" aria-controls="t3" id="tab3" tabindex="-1" onclick="showTab('t3',this)">③ ASMPT · 0522<small>TCB incumbent · the bridge</small></button>
+  </div>
+
+  <!-- TAB 1: CAMT -->
+  <div class="tabpane" id="t1" role="tabpanel" aria-labelledby="tab1" style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">Camtek Ltd <span style="color:var(--dim);font-weight:400">NASDAQ: CAMT</span></h3>
+      <span class="stagebadge sg-early">EARLY · most remaining asymmetry</span>
+      <span style="font-size:12px;color:var(--mut)">Chokepoint: <b style="color:var(--txt)">advanced-packaging inspection &amp; metrology (the yield gate)</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The picks-and-shovels of the bonders: a bumpless bond is buried and un-reworkable, so <b>every bond must be inspected for voids, overlay and interface quality</b>. Camtek's <b>Hawk</b> platform targets exactly this — HBM, chiplets, hybrid bonding, wafers with up to 500M microbumps — and the company already has <b>&gt;$260M of HBM order visibility for 2026–27 from two HBM makers</b>. Crucially, it grows <b>whichever bonding method wins</b> (logic hybrid bond <i>or</i> memory TCB), making it the cleanest way to own the transition without betting the timing. The least-moved of the three (+82% YTD) — because the market files it under "inspection," not "hybrid bonding."</p>
+    <div class="mini">
+      <div><div class="v">$193.27</div><div class="l">Last price</div></div>
+      <div><div class="v" style="color:var(--pos)">+82%</div><div class="l">YTD return</div></div>
+      <div><div class="v">~$9B</div><div class="l">Mkt cap est.</div></div>
+      <div><div class="v">~mid-50s×</div><div class="l">P/E 2026e*</div></div>
+      <div><div class="v" style="color:var(--pos)">+13%</div><div class="l">FY26 rev growth</div></div>
+    </div>
+    <div class="gap"><div class="h">ASYMMETRIC INFO GAP · 變異認知</div><p>Consensus models CAMT as a cyclical back-end inspection vendor riding the general AI wave. The variant: <b>it is the method-agnostic yield gate of the entire 3D-stacking transition</b> — its tools are mandatory whether the volume is logic hybrid bonding or memory TCB, and it ran the least (+82% vs BESI/ASMPT +137%) precisely because the crowd doesn't tag it as a "hybrid bonding" name. The honest catch: it's still a richly-valued (~mid-50s× P/E est.) semicap stock, so a broad AI-capex wobble hits it hard.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① Business model 怎麼賺錢</div><p>Sells inspection &amp; metrology systems for advanced packaging (fee-per-tool) plus service/software. Capital equipment tied to packaging-capacity cycles.</p></div>
+      <div class="mtc"><div class="h">② Segments 營收結構</div><p>Concentrated in advanced-packaging / HBM inspection; the Hawk platform is the growth engine. Geographically Asia-heavy (TSMC, HBM makers).</p></div>
+      <div class="mtc"><div class="h">③ Growth drivers 成長來源</div><p>HBM layer-count growth, hybrid-bonding adoption, chiplet/3D inspection intensity. FY26 rev ~$559M (+13%); &gt;$260M HBM visibility 2026–27.</p></div>
+      <div class="mtc"><div class="h">④ End market 終端市場</div><p>HBM/DRAM, logic 3D (SoIC), chiplets, general advanced packaging. AI accelerators are the fastest-growing slice.</p></div>
+      <div class="mtc"><div class="h">⑤ Customers 主要客戶</div><p>HBM makers (SK hynix, Micron, Samsung), TSMC and OSATs, plus a tier-1 IDM ($45M+ Hawk orders for 2026).</p></div>
+      <div class="mtc"><div class="h">⑥ Moat 護城河</div><p>One of only three advanced-packaging inspection vendors (KLA, Camtek, Onto); qualified-tool lock-in, throughput + algorithm IP for buried-bond defects.</p></div>
+      <div class="mtc"><div class="h">⑦ Guidance 管理層展望</div><p>Q2-26 rev $129–131M; H2 &gt;25% above H1 on "unprecedented orders"; FY26 ~$559M / EPS ~$3.48, accelerating into 2027.</p></div>
+      <div class="mtc"><div class="h">⑧ Why chokepoint 為何卡點</div><p>An un-reworkable bond demands 100% inspection — no inspection capacity, no shippable 3D stack. It gates yield whichever bonding method dominates.</p></div>
+    </div>
+    <table class="scen">
+      <tr><th>Scenario</th><th>~12–18m path</th><th>Return</th><th>Prob.</th></tr>
+      <tr><td><b style="color:var(--pos)">Bull</b></td><td>HBM4E + logic 3D both ramp; re-rated as a core hybrid-bonding pick</td><td class="num" style="color:var(--pos)">+45%</td><td class="num">35%</td></tr>
+      <tr><td><b>Base</b></td><td>Steady semicap growth; orders convert as guided</td><td class="num">+12%</td><td class="num">40%</td></tr>
+      <tr><td><b style="color:var(--choke)">Bear</b></td><td>AI-capex digestion; HBM order air-pocket; multiple compresses</td><td class="num" style="color:var(--choke)">−30%</td><td class="num">25%</td></tr>
+      <tr><td colspan="2"><b>Probability-weighted EV</b></td><td class="num" style="color:var(--pos)">≈ +13%</td><td class="num">—</td></tr>
+    </table>
+    <p class="cap" style="margin-top:6px">Entry discipline: starter ~$175–195, add &lt;$150, reassess &gt;$216 (prior high). <b>Dated falsifier:</b> if the next 1–2 prints show HBM/Hawk order visibility shrinking (below the $260M 2026–27 backlog) despite the 3D-stacking ramp, the "method-agnostic yield gate" thesis is broken.</p>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--pos)">BULL</b>The only top-3 name that wins whichever bonding method takes share; least-priced, with hard HBM order visibility already booked.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>Still a high-multiple semicap; a broad AI-capex pause or HBM inventory correction hits inspection orders quickly.</div>
+    </div>
+  </div>
+
+  <!-- TAB 2: BESI -->
+  <div class="tabpane" id="t2" role="tabpanel" aria-labelledby="tab2" hidden style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">BE Semiconductor (BESI) <span style="color:var(--dim);font-weight:400">AEX: BESI</span></h3>
+      <span class="stagebadge sg-recog">RECOGNITION · live order-inflection</span>
+      <span style="font-size:12px;color:var(--mut)">Chokepoint: <b style="color:var(--txt)">die-to-wafer hybrid bonder (the deposition-grade bond tool)</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The owner of the chokepoint: the <b>precision leader in ultra-high-end D2W hybrid bonding</b>, partnered with Applied Materials (which owns ~9% of BESI) on the integrated <b>Kinex</b> tool already in mass production at TSMC. The order book has inflected hard — <b>Q1-26 orders +104.5% YoY, hybrid-bonding orders doubled across 20 customers, backlog up 2×, Q2-26 revenue guided +30–40% QoQ at 64–66% gross margin</b>. Re-rated (+137% YTD to a 52-wk high €317) — the quality is recognized; the question is the price.</p>
+    <div class="mini">
+      <div><div class="v">€317.00</div><div class="l">Last price</div></div>
+      <div><div class="v" style="color:var(--dev)">+137%</div><div class="l">YTD return</div></div>
+      <div><div class="v">~€25B</div><div class="l">Mkt cap est.</div></div>
+      <div><div class="v">~60×+</div><div class="l">P/E 2026e*</div></div>
+      <div><div class="v" style="color:var(--pos)">+104%</div><div class="l">Q1 orders YoY</div></div>
+    </div>
+    <div class="gap"><div class="h">ASYMMETRIC INFO GAP · 變異認知</div><p>The market correctly sees BESI as <i>the</i> hybrid-bonding chokepoint — that's why it's at a 52-wk high. The residual edge is the <b>order-to-revenue gap</b>: orders doubled (+104%) while revenue is still catching up, and the Q2 guide (+30–40% QoQ, 64–66% GM) hints the income statement re-rates next. The subtler variant most miss: the near-term <i>hybrid</i>-bond volume is <b>logic SoIC, not HBM</b> (HBM stays TCB to HBM4E), so BESI's 2026 ramp is driven by TSMC logic — a cleaner, less-hyped driver than the HBM-memory narrative. Medium remaining asymmetry: high quality, but much is priced.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① Business model 怎麼賺錢</div><p>Sells die-attach / flip-chip / TCB / hybrid-bonding assembly systems (capital equipment) + spares/service. High-margin tool sales tied to packaging-capacity cycles.</p></div>
+      <div class="mtc"><div class="h">② Segments 營收結構</div><p>Assembly equipment; <b>hybrid bonding</b> is the strategic growth driver, plus mobile, photonics, automotive/industrial. Q1-26 strength broad-based, hybrid-bonding standout.</p></div>
+      <div class="mtc"><div class="h">③ Growth drivers 成長來源</div><p>Logic 3D SoIC (TSMC/Kinex), HBM4E hybrid bonding (2027+), 6-sided/next-gen TCB. FY26 guided to accelerate; Q2 rev +30–40% QoQ.</p></div>
+      <div class="mtc"><div class="h">④ End market 終端市場</div><p>AI accelerators (the new driver), HBM, smartphones, photonics, autos. AI/HPC packaging is the re-rating lever.</p></div>
+      <div class="mtc"><div class="h">⑤ Customers 主要客戶</div><p>TSMC (SoIC hybrid bonding), HBM makers, OSATs, mobile assemblers. Order book now skewed to AI/hybrid bonding (20 customers).</p></div>
+      <div class="mtc"><div class="h">⑥ Moat 護城河</div><p>Sub-micron / 50nm-class overlay precision; Applied Materials partnership (Kinex, ~9% stake); decades of assembly IP; qualified-tool lock-in at TSMC.</p></div>
+      <div class="mtc"><div class="h">⑦ Guidance 管理層展望</div><p>FY26 clear acceleration in revenue &amp; gross margin; Q2-26 rev +30–40% QoQ, GM 64–66%; hybrid-bonding unit demand above prior peaks.</p></div>
+      <div class="mtc"><div class="h">⑧ Why chokepoint 為何卡點</div><p>No hybrid bonder, no leading-edge 3D stack — and only two credible ultra-high-end suppliers exist, with BESI the precision leader.</p></div>
+    </div>
+    <table class="scen">
+      <tr><th>Scenario</th><th>~12–18m path</th><th>Return</th><th>Prob.</th></tr>
+      <tr><td><b style="color:var(--pos)">Bull</b></td><td>Orders convert to revenue; HBM4E hybrid pulls forward; SoIC scales hard</td><td class="num" style="color:var(--pos)">+45%</td><td class="num">30%</td></tr>
+      <tr><td><b>Base</b></td><td>Strong revenue ramp but digests +137% YTD; multiple holds</td><td class="num">+8%</td><td class="num">45%</td></tr>
+      <tr><td><b style="color:var(--choke)">Bear</b></td><td>Order surge proves lumpy/pull-forward; ASMPT closes precision gap; multiple compresses from 52-wk high</td><td class="num" style="color:var(--choke)">−35%</td><td class="num">25%</td></tr>
+      <tr><td colspan="2"><b>Probability-weighted EV</b></td><td class="num" style="color:var(--pos)">≈ +8%</td><td class="num">—</td></tr>
+    </table>
+    <p class="cap" style="margin-top:6px">Entry discipline: this is a high-multiple stock at a 52-wk high — wait for a pullback toward €260–280, add &lt;€240, trim conviction if hybrid orders fall &lt;€180M/qtr or price runs &gt;€360 before revenue confirms. <b>Dated falsifier:</b> if Q2/Q3-26 hybrid-bonding order intake rolls over (back toward €180M/qtr) or backlog shrinks, the inflection thesis is broken.</p>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--pos)">BULL</b>The cleanest arms-dealer of leading-edge 3D packaging, with Applied Materials beside it and the order book already doubling before the income statement.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>Priced for perfection at a 52-wk high; cap-equipment cyclicality, a packaging-capacity overshoot, or an ASMPT precision win turns the order surge into an air-pocket.</div>
+    </div>
+  </div>
+
+  <!-- TAB 3: ASMPT -->
+  <div class="tabpane" id="t3" role="tabpanel" aria-labelledby="tab3" hidden style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">ASMPT Ltd <span style="color:var(--dim);font-weight:400">SEHK: 0522</span></h3>
+      <span class="stagebadge sg-eu">RECOGNITION/EUPHORIA · the TCB bridge</span>
+      <span style="font-size:12px;color:var(--mut)">Chokepoint: <b style="color:var(--txt)">TC bonding for HBM4 + #2 hybrid bonder</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The broader-portfolio rival: ASMPT is the <b>thermal-compression-bonding (TCB) workhorse for HBM4</b> (it won an SK hynix HBM4 TC-bonder order, and argues TCB stays the core platform through the 12→16-layer transition) <i>and</i> the #2 hybrid-bonder behind BESI. It's the way to own the <b>near-term HBM rent</b> the variant identifies — but it has also run hard (+137% YTD) and sits <b>~17% below its 52-wk high</b>, with a softer, more diversified core (SMT, mainstream assembly) that dilutes the AI-packaging signal. Carried here as the third, different link and a hedge on bonding-method timing.</p>
+    <div class="mini">
+      <div><div class="v">HK$182.90</div><div class="l">Last price</div></div>
+      <div><div class="v" style="color:var(--dev)">+137%</div><div class="l">YTD return</div></div>
+      <div><div class="v">~HK$76B</div><div class="l">Mkt cap est.</div></div>
+      <div><div class="v">~40×+</div><div class="l">P/E 2026e*</div></div>
+      <div><div class="v" style="color:var(--dev)">2nd</div><div class="l">hybrid-bond share</div></div>
+    </div>
+    <div class="gap" style="border-left-color:var(--dev);background:rgba(210,162,74,.06)"><div class="h" style="color:var(--dev)">ASYMMETRIC INFO GAP · 變異認知</div><p>The variant: ASMPT is the <b>TCB bridge</b> — while the crowd debates hybrid bonding, HBM4 actually stacks on <i>TCB</i> in 2026, and ASMPT (with Hanmi) owns that near-term rent. The catch is dilution: TCB and the AI-leading-edge are a minority of a large, cyclical assembly group (SMT, mainstream semi), so even a great HBM4 cycle moves the whole company less than a pure-play. It also trails BESI in ultra-high-end hybrid-bonding precision — so it's the <i>broad</i> bet, not the <i>scarce</i> one.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① Business model 怎麼賺錢</div><p>Sells semiconductor assembly + SMT (surface-mount) equipment + materials. Capital equipment across leading-edge and mainstream packaging.</p></div>
+      <div class="mtc"><div class="h">② Segments 營收結構</div><p>Two big legs: Semiconductor Solutions (incl. TCB / hybrid bonding) and SMT Solutions (mainstream electronics). AI packaging is the high-growth slice within a cyclical whole.</p></div>
+      <div class="mtc"><div class="h">③ Growth drivers 成長來源</div><p>HBM4 TCB (SK hynix order), hybrid-bonding #2 position, advanced logic packaging. Offset by mainstream SMT cyclicality.</p></div>
+      <div class="mtc"><div class="h">④ End market 終端市場</div><p>HBM/AI accelerators, plus autos, industrial, consumer electronics (SMT). The HBM/AI mix is the re-rating lever.</p></div>
+      <div class="mtc"><div class="h">⑤ Customers 主要客戶</div><p>SK hynix (HBM4 TCB), HBM/logic packagers and OSATs; broad SMT base across electronics OEMs.</p></div>
+      <div class="mtc"><div class="h">⑥ Moat 護城河</div><p>Scale + broad portfolio + installed base; TCB leadership for HBM. But ultra-high-end hybrid-bond precision lags BESI — a narrower moat at the leading edge.</p></div>
+      <div class="mtc"><div class="h">⑦ Guidance 管理層展望</div><p>Emphasizes TCB as the core HBM platform through 12→16 layers; AI/advanced-packaging order momentum offsetting softer mainstream demand.</p></div>
+      <div class="mtc"><div class="h">⑧ Why chokepoint 為何卡點</div><p>HBM4 stacks need a high-precision TCB bonder now — ASMPT and Hanmi own that step; ASMPT is also the only credible #2 to BESI in hybrid bonding.</p></div>
+    </div>
+    <table class="scen">
+      <tr><th>Scenario</th><th>~12–18m path</th><th>Return</th><th>Prob.</th></tr>
+      <tr><td><b style="color:var(--pos)">Bull</b></td><td>HBM4 TCB volume + hybrid-bond share gains; mainstream SMT recovers</td><td class="num" style="color:var(--pos)">+40%</td><td class="num">30%</td></tr>
+      <tr><td><b>Base</b></td><td>HBM strong but diluted by soft SMT; recovers toward prior high</td><td class="num">+8%</td><td class="num">40%</td></tr>
+      <tr><td><b style="color:var(--choke)">Bear</b></td><td>SMT cyclicality drags; BESI keeps hybrid lead; HBM TCB→hybrid shift sooner</td><td class="num" style="color:var(--choke)">−35%</td><td class="num">30%</td></tr>
+      <tr><td colspan="2"><b>Probability-weighted EV</b></td><td class="num" style="color:var(--pos)">≈ +4%</td><td class="num">—</td></tr>
+    </table>
+    <p class="cap" style="margin-top:6px">Entry discipline: the broad/diluted bet — size smaller; start ~HK$170–185, add &lt;HK$150, avoid chasing &gt;HK$210 (prior high HK$221). <b>Dated falsifier:</b> a deeper mainstream-SMT trough that swamps HBM gains in the next 1–2 prints, or a clear ASMPT loss of HBM4 TCB share to Hanmi.</p>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--pos)">BULL</b>Owns the HBM4 TCB rent now, is the only credible hybrid-bond #2, and SMT recovery adds a second engine.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>A cyclical assembly group where the AI leg is diluted; trails BESI on precision; mainstream SMT can drag the whole print.</div>
+    </div>
+  </div>
+  <p class="cap" style="margin-top:12px">*Valuation multiples are estimates from live last-close price, latest reported/consensus revenue/EPS run-rate and approximate share counts; verify on a data terminal before sizing. EV ≈ probability-weighted; a thin EV is a finding (argues for discipline), not a typo.</p>
+</section>
+
+<!-- 11. BENEFICIARY MAP + RISKS -->
+<section id="s11">
+  <div class="sh"><span class="n">11</span><h2>Beneficiary map &amp; key risks</h2><span class="cn">受惠族群與風險</span></div>
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Who benefits — by bonding-line link</h4>
+      <table class="tbl">
+        <tr><th>Company</th><th>Link</th><th>Angle</th></tr>
+        <tr><td><b>BESI</b> · BESI</td><td><span class="lyr lyBOND">BOND</span></td><td>D2W hybrid-bond precision leader; Kinex w/ Applied</td></tr>
+        <tr><td><b>Applied Materials</b> · AMAT</td><td><span class="lyr lyBOND">BOND</span></td><td>Kinex co-developer; ~9% BESI stake; surface-prep + metrology</td></tr>
+        <tr><td><b>Camtek</b> · CAMT</td><td><span class="lyr lyINSP">INSP</span></td><td>Hawk inspection; method-agnostic yield gate</td></tr>
+        <tr><td><b>Onto Innovation</b> · ONTO</td><td><span class="lyr lyINSP">INSP</span></td><td>Dragonfly G5 chosen for HBM4 ramp inspection</td></tr>
+        <tr><td><b>ASMPT</b> · 0522</td><td><span class="lyr lyTCB">TCB</span> <span class="lyr lyBOND">BOND</span></td><td>HBM4 TCB + #2 hybrid bonder</td></tr>
+        <tr><td><b>Hanmi Semi</b> · 042700</td><td><span class="lyr lyTCB">TCB</span></td><td>TCB-bonder leader to SK hynix (latent)</td></tr>
+        <tr><td><b>SUSS MicroTec</b> · SMHN</td><td><span class="lyr lyBOND">BOND</span></td><td>W2W/D2W bonder; listed EVG proxy</td></tr>
+        <tr><td><b>TSMC / Nvidia</b></td><td><span class="lyr lyDEV">DEV</span></td><td>SoIC fab / GPU — where the priced rent pools</td></tr>
+      </table>
+      <p class="cap" style="margin-top:10px">Layer key — <span class="lyr lyBOND">BOND</span> hybrid bond · <span class="lyr lyINSP">INSP</span> inspection · <span class="lyr lyTCB">TCB</span> thermal-compression bond · <span class="lyr lyDEV">DEV</span> device.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Risks to the thesis</h4>
+      <table class="tbl">
+        <tr><th>Risk</th><th>Watch</th></tr>
+        <tr><td><b>Order lumpiness / pull-forward</b></td><td>BESI book-to-bill swings quarter to quarter</td></tr>
+        <tr><td><b>Bonding-method timing</b></td><td>HBM4E hybrid pulls forward / TCB lingers longer</td></tr>
+        <tr><td><b>ASMPT closes precision gap</b></td><td>Ultra-high-end D2W win erodes BESI's moat</td></tr>
+        <tr><td><b>SoIC / CoWoS ramp slips</b></td><td>TSMC 130k-wpm goalpost moves; 3D volume delayed</td></tr>
+        <tr><td><b>Packaging-capacity overshoot</b></td><td>2027–28 tool-order air-pocket</td></tr>
+        <tr><td><b>Valuation</b></td><td>Layer +82–137% YTD; BESI at 52-wk high</td></tr>
+        <tr><td><b>Mislocated chokepoint</b></td><td>Rent pools at the GPU device, not the bonder</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 12. DECISION TABLE -->
+<section id="s12">
+  <div class="sh"><span class="n">12</span><h2>The decision — one table</h2><span class="cn">投資決策總表</span></div>
+  <p class="lead">Everything above reconciled into one view, ranked by <b>remaining asymmetry</b> (how much is still NOT in the price) — <i>not</i> by severity, which is why row #1 has the lowest severity score. One row-read: the <b>tightest</b> physical link (the hybrid bonder, severity 18) is the highest-quality business but at a 52-wk high; the <b>least-priced</b> entry is the inspection gate nobody tags as hybrid bonding (CAMT); ASMPT is the broad TCB-bridge hedge on bonding-method timing.</p>
+  <div style="overflow-x:auto">
+  <table class="tbl" style="min-width:900px">
+    <tr><th>#</th><th>Ticker</th><th>Chokepoint (link)</th><th>Severity</th><th>Awareness stage</th><th>Valuation</th><th>Remaining asymmetry</th><th>Framework lean</th><th>Key trigger to watch</th></tr>
+    <tr>
+      <td class="num">1</td><td><b>CAMT</b> · Camtek</td><td><span class="lyr lyINSP">INSP</span> inspection gate</td>
+      <td class="num">14/20</td><td><span class="stagebadge sg-early">EARLY</span></td><td class="num">~mid-50s× · +82% YTD</td>
+      <td class="dotG">Highest</td><td><b>Accumulate / starter</b></td><td>HBM/Hawk order visibility holding &gt;$260M 2026–27</td>
+    </tr>
+    <tr>
+      <td class="num">2</td><td><b>BESI</b> · BE Semi</td><td><span class="lyr lyBOND">BOND</span> D2W hybrid bonder</td>
+      <td class="num">18/20</td><td><span class="stagebadge sg-recog">RECOGNITION</span></td><td class="num">~60×+ 2026e · +137% YTD</td>
+      <td class="dotA">Medium</td><td><b>Own quality / buy pullbacks</b></td><td>Hybrid order intake &gt;€180M/qtr; revenue catch-up</td>
+    </tr>
+    <tr>
+      <td class="num">3</td><td><b>ASMPT</b> · 0522</td><td><span class="lyr lyTCB">TCB</span> TCB + #2 hybrid</td>
+      <td class="num">15/20</td><td><span class="stagebadge sg-eu">RECOG/EUPH</span></td><td class="num">~40×+ · +137% YTD</td>
+      <td class="dotA">Low-Med</td><td><b>Broad hedge / size small</b></td><td>HBM4 TCB share vs Hanmi; mainstream-SMT recovery</td>
+    </tr>
+  </table>
+  </div>
+  <p class="cap"><b>How each severity is derived</b> (same 0–20 rubric, four factors each 0–5: supply concentration · lead-time · low substitutability · demand): <b>BESI hybrid bonder = 18</b> (5+4+4+5 — duopoly, multi-quarter to add, no leading-edge substitute but TCB caps it, demand doubling). <b>ASMPT TCB+hybrid = 15</b> (4+4+3+4 — TCB has more vendors incl. Hanmi, a transitional bridge, demand strong but diluted by SMT). <b>CAMT inspection = 14</b> (4+3+3+4 — 3-vendor oligopoly, shorter lead-time, an adjacent gate, demand strong &amp; method-agnostic). So the same scarcity logic ranks the <i>links</i> — yet CAMT is the better <i>entry</i> precisely because it's the least-priced. <b>Tightness ≠ a good buy.</b> "Framework lean" is analysis, not advice.</p>
+
+  <div class="panel" style="margin-top:16px;border-color:var(--line2)">
+    <h4 style="font-size:13px;margin-bottom:8px;font-weight:600;color:var(--accent)">If you can only do one thing</h4>
+    <p style="font-size:12.5px;color:var(--mut);line-height:1.6">The market priced the CoWoS package in Run #2's window; it is now pricing the hybrid bonder (BESI, at a 52-wk high). What it has <i>not</i> fully tagged is that <b style="color:var(--txt)">the inspection gate (Camtek) grows whichever bonding method wins</b> — logic hybrid bond or memory TCB — yet it ran the least (+82%) because the crowd files it under "inspection," not "hybrid bonding." <b style="color:var(--txt)">BESI is the highest-quality way to own the chokepoint</b> but demands a pullback; CAMT is the genuinely <i>earlier</i> dollar; ASMPT is the broad bridge that hedges the bonding-method timing. The cautionary note: the whole layer is already +82–137% YTD — tightness is real, but you are no longer early on the bonder itself.</p>
+  </div>
+
+  <div class="panel" style="margin-top:14px;border-color:#3a3015;background:rgba(210,162,74,.05)">
+    <h4 style="font-size:13px;margin-bottom:8px;font-weight:600;color:var(--warn)">Open questions · honest self-critique <span class="cn" style="font-weight:400;color:var(--dim)">未解之處</span></h4>
+    <ul style="list-style:none;font-size:12px;color:var(--mut);line-height:1.6">
+      <li style="padding:3px 0;border-bottom:1px dashed var(--line2)">• <b style="color:var(--txt)">BESI's order inflection could be pull-forward.</b> I can't yet rule out that the +104% Q1 orders front-loaded a multi-customer hybrid-bond ramp; a single soft print would break the "orders lead revenue" read at a 52-wk-high valuation.</li>
+      <li style="padding:3px 0;border-bottom:1px dashed var(--line2)">• <b style="color:var(--txt)">Camtek's hybrid-bond exposure is unquantified.</b> Public data doesn't cleanly split Hawk revenue between HBM-TCB, logic hybrid bond and general advanced packaging — the "method-agnostic gate" call rests on the platform's stated scope + order visibility, not a modelled mix.</li>
+      <li style="padding:3px 0;border-bottom:1px dashed var(--line2)">• <b style="color:var(--txt)">Single-source / estimate figures.</b> The ~$6.8–7B/10k-wafer SoIC capex and BESI's exact D2W tool share are estimates (one analyst / qualitative "leader"); the ~$2B 2028 bonder TAM and ~50% HBM-hybrid share are TrendForce projections, not certainties.</li>
+      <li style="padding:3px 0;border-bottom:1px dashed var(--line2)">• <b style="color:var(--txt)">The timing leg is the real swing.</b> The whole variant hinges on HBM staying on TCB until HBM4E (~2027). If SK hynix/Samsung pull hybrid bonding into HBM4 in 2026, the TCB-bridge thesis (and ASMPT's near-term rent) weakens, while BESI gets a sooner-than-modeled HBM kicker.</li>
+      <li style="padding:3px 0">• <b style="color:var(--txt)">Valuation leaves little margin for error.</b> Every name is +82–137% YTD; BESI/CAMT/ASMPT are all richly-multipled semicap stocks. A broad AI-capex digestion would hit all three regardless of the chokepoint logic.</li>
+    </ul>
+  </div>
+</section>
+
+<div class="disc"><b>Not investment advice.</b> Automated research synthesis for idea generation only. Figures drawn from public reporting, SEC/exchange filings, company statements and third-party estimates as of 14 Jun 2026; prices are last close via IBKR read-only and may be stale; multiples are estimates. Verify against primary filings and do your own due diligence. No buy/sell recommendation implied. IBKR used read-only; no trade placed.</div>
+
+<footer>
+  <p><b>Sources:</b> TrendForce (NVIDIA Rubin/Feynman → TSMC SoIC; Besi/Applied/TEL benefit; hybrid-bonder ~$2B by 2028, ~50% HBM hybrid; SK hynix HBM4 TC-bonder order; BESI/ASMPT 2H25 demand) · Tom's Hardware / Nomad Semi (SoIC ~90% CAGR, ~$6.8–7B/10k-wafer capex, 130k CoWoS goalpost) · SemiEngineering (HBM4 stays on microbumps/TCB) · BESI Q1-26 results — GlobeNewswire / StockTitan / Investing.com transcript (orders €269.7M +104.5% YoY, backlog 2×, Q2 rev +30–40% QoQ, GM 64–66%, 20 hybrid-bond customers) · BaldEngineering / EE Times / Applied Materials IR (Kinex integrated D2W tool; AMAT ~9% BESI stake; in mass production at TSMC) · The Elec (SK hynix Applied/BESI inline-system order) · financialcontent (BESI sub-micron precision leadership) · eu.36kr (ASMPT: TCB still core HBM platform) · ad-hoc-news (SUSS MicroTec XBC300 Gen2; 2030 target) · SEC 6-K / Investing.com SWOT (Camtek FY26 ~$559M / EPS ~$3.48, Q2 $129–131M, >$260M HBM visibility, Hawk scope) · Onto Innovation (Dragonfly G5 HBM4 ramp; KLA/Camtek/Onto inspection trio) · IBKR read-only (live last-close quotes: BESI €317, AMAT $591.12, ASMPT HK$182.90, CAMT $193.27, ONTO $331.00, SMHN €95.50, TSM $434.50).</p>
+  <p style="margin-top:10px">Automated AI-Infra workflow · <b>Run #8 v5 · Compute Fabric (deeper): die-to-wafer hybrid-bonding / SoIC chokepoint</b> · supersedes Run #2's CoWoS cut by going one layer below the package to the bonding tool + inspection gate · recurs every 2 days.</p>
+</footer>
+
+</div>
+<script>
+(function(){
+  var tabs=[document.getElementById('tab1'),document.getElementById('tab2'),document.getElementById('tab3')];
+  var panes=['t1','t2','t3'];
+  window.showTab=function(id,btn){
+    panes.forEach(function(p){var el=document.getElementById(p);if(el){el.hidden=(p!==id);}});
+    tabs.forEach(function(t){if(t){t.classList.remove('on');t.setAttribute('aria-selected','false');t.tabIndex=-1;}});
+    if(btn){btn.classList.add('on');btn.setAttribute('aria-selected','true');btn.tabIndex=0;}
+  };
+  function focusTab(i){var n=tabs.length;i=(i+n)%n;tabs[i].focus();window.showTab(panes[i],tabs[i]);}
+  tabs.forEach(function(t,i){
+    if(!t)return;
+    t.addEventListener('keydown',function(e){
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();focusTab(i+1);}
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();focusTab(i-1);}
+      else if(e.key==='Home'){e.preventDefault();focusTab(0);}
+      else if(e.key==='End'){e.preventDefault();focusTab(tabs.length-1);}
+    });
+  });
+})();
+</script>
+</body>
+</html>

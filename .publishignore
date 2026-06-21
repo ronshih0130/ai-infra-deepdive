@@ -1,0 +1,13 @@
+# .publishignore — keep specific reports OUT of the public ai-infra-deepdive repo.
+#
+# publish.sh archives EVERY dated report from the Obsidian vault's "04 Reports/"
+# into archive/ so nothing is ever silently dropped. This repo is PUBLIC, so any
+# file committed here (homepage slug OR archive/) is web-reachable.
+#
+# To exclude a report, add one filename glob per line (matched against the vault
+# filename, not the slug). Examples:
+#   Options-Mastery-Dashboard_*.html
+#   *_PRIVATE_*.html
+#   *_DRAFT_*.html
+#
+# Lines starting with # and blank lines are ignored. Nothing is excluded by default.

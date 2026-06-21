@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Infra Run #3 v5 — Power Delivery: Grid / Transformer / VRM Chokepoint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0b0d12;--panel:#13161e;--panel2:#1a1e28;--panel3:#212634;--line:#2a3040;--line2:#363d4f;--txt:#e8eaf0;--mut:#9aa3b5;--dim:#697283;--accent:#2dd4bf;--choke:#e0686a;--up:#5b81c4;--l3:#8b84cf;--pkg:#c47a9e;--l2:#d2a24a;--l1:#4faf8e;--dup:#e0a458;--dout:#5aa9e0;--dacr:#5fc98a}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px;-webkit-font-smoothing:antialiased}
+  .num,.m{font-family:"JetBrains Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
+  svg text{font-family:"Space Grotesk",sans-serif}
+  svg text.m{font-family:"JetBrains Mono",monospace}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  header{border-bottom:1px solid var(--line);padding:36px 0 28px;margin-bottom:8px;background:radial-gradient(900px 320px at 12% -40%,rgba(45,212,191,.10),transparent 60%),radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
+  .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+  .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
+  h1{font-size:30px;font-weight:700;letter-spacing:-.6px;line-height:1.14;max-width:900px}
+  .sub{font-size:14.5px;color:var(--mut);margin-top:12px;max-width:860px}
+  .meta{margin-top:18px;display:flex;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+  .meta div{padding-right:24px;margin-right:24px;border-right:1px solid var(--line)}
+  .meta div:last-child{border:0}
+  .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+  .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
+  .gauges{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .gauge{border:1px solid var(--line);border-radius:10px;padding:9px 14px;background:var(--panel)}
+  .gauge .gl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim)}
+  .gauge .gv{font-size:18px;font-weight:600}
+  section{padding:32px 0 2px}
+  .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+  .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600}
+  .sh h2{font-size:20px;font-weight:600;letter-spacing:-.3px}
+  .sh .cn{font-size:13px;color:var(--dim);margin-left:auto}
+  .lead{color:var(--mut);font-size:13.5px;max-width:880px;margin-bottom:16px}
+  .lead b{color:var(--txt)}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
+  .kpi{padding:17px 19px;border-right:1px solid var(--line)}
+  .kpi:last-child{border-right:0}
+  .kpi .v{font-size:23px;font-weight:600;letter-spacing:-.5px}
+  .kpi .l{font-size:11.5px;color:var(--mut);margin-top:4px}
+  .kpi .d{font-size:11px;color:var(--dim);margin-top:7px}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .svgwide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
+  .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
+  .two{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+  @media(max-width:780px){.two{grid-template-columns:1fr}}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  td{padding:9px 11px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+  td b{color:var(--txt)}
+  .lyr{font-family:"JetBrains Mono",monospace;font-size:10.5px;padding:1px 7px;border-radius:5px;font-weight:600}
+  .lyu{background:rgba(91,129,196,.15);color:#8aa7df}.ly3{background:rgba(139,132,207,.15);color:#aaa3e6}.lyp{background:rgba(196,122,158,.15);color:#dba0bf}.ly2{background:rgba(210,162,74,.15);color:#e3bd76}.ly1{background:rgba(79,175,142,.15);color:#7cc9ad}
+  .choke{border:1px solid #5a3236;border-radius:14px;padding:20px 22px;background:linear-gradient(135deg,rgba(224,104,106,.10),transparent 55%),var(--panel)}
+  .choke h3{font-size:16px;font-weight:600;color:var(--choke);margin-bottom:9px;display:flex;align-items:center;gap:10px}
+  .choke p{font-size:13px;color:#d9c4c6;max-width:900px}.choke p b{color:#fff}
+  .choke .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:16px;border-top:1px solid #4a2c2f;padding-top:14px}
+  @media(max-width:780px){.choke .stats{grid-template-columns:1fr 1fr}}
+  .choke .stats b{display:block;font-size:19px;color:var(--choke);font-weight:600}
+  .choke .stats span{font-size:10.5px;color:var(--dim)}
+  .variant{border-left:3px solid var(--accent);background:rgba(45,212,191,.06);border-radius:8px;padding:13px 16px;margin:14px 0}
+  .variant .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:5px}
+  .variant p{font-size:12.8px;color:var(--mut);line-height:1.5}.variant p b{color:var(--txt)}
+  .tabbtn{font-family:inherit;background:var(--panel2);border:1px solid var(--line);color:var(--mut);padding:11px 15px;border-radius:10px 10px 0 0;font-size:13px;font-weight:600;cursor:pointer;border-bottom:none;display:flex;flex-direction:column;gap:2px;min-width:150px;text-align:left}
+  .tabbtn small{font-size:10px;font-weight:400;color:var(--dim)}
+  .tabbtn[aria-selected="true"]{background:var(--panel);color:var(--txt);border-color:var(--line2)}
+  .tabbtn[aria-selected="true"] small{color:var(--accent)}
+  .stagebadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px}
+  .sg-early{background:rgba(95,201,138,.16);color:var(--dacr)}.sg-recog{background:rgba(210,162,74,.16);color:var(--dup)}.sg-eu{background:rgba(224,104,106,.16);color:var(--choke)}
+  .mini{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+  @media(max-width:780px){.mini{grid-template-columns:1fr 1fr 1fr}}
+  .mini div{padding:11px 13px;border-right:1px solid var(--line)}.mini div:last-child{border-right:0}
+  .mini .v{font-size:17px;font-weight:600}.mini .l{font-size:10px;color:var(--mut);margin-top:2px}
+  .mtd{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
+  @media(max-width:780px){.mtd{grid-template-columns:1fr}}
+  .mtc{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+  .mtc .h{font-size:11.5px;font-weight:600;color:var(--accent);margin-bottom:3px}
+  .mtc p{font-size:11.5px;color:var(--mut);line-height:1.45}.mtc p b{color:var(--txt)}
+  .bbr{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+  .bbr div{border-radius:8px;padding:9px 12px;font-size:11.5px;line-height:1.45;color:var(--mut)}
+  .bbr .bl{border-left:3px solid var(--dacr);background:var(--panel2)}.bbr .be{border-left:3px solid var(--choke);background:var(--panel2)}
+  .bbr b{display:block;font-size:10.5px;margin-bottom:2px}
+  .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
+  footer{margin-top:16px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}
+  footer b{color:var(--mut)}
+  @media print{.tabpane{display:block!important}.tabbtn{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #3 · v5</div>
+    <h1>Power Delivery — the bottleneck you can't fab your way out of</h1>
+    <p class="sub">Chips you can build in months; a <b style="color:#fff">grid connection and a high-voltage transformer take 2–5 years</b>. As AI racks hit 1 MW, power has become the slowest physical constraint on AI — and the rent splits between the grid gate, the facility integrator, and the contested last-inch chip power. This maps where it sits and who's still early.</p>
+    <div class="meta">
+      <div><div class="k">Date</div><div class="vv m">13 Jun 2026</div></div>
+      <div><div class="k">Layer</div><div class="vv">Power · grid → rack → chip</div></div>
+      <div><div class="k">Chokepoint</div><div class="vv">HV transformers / grid interconnect</div></div>
+      <div><div class="k">Top-3</div><div class="vv">GEV · VRT · MPWR</div></div>
+    </div>
+    <div class="gauges">
+      <div class="gauge"><div class="gl">Chokepoint severity</div><div class="gv red m">18/20</div></div>
+      <div class="gauge"><div class="gl">Remaining asymmetry</div><div class="gv amb m">~7/20</div></div>
+      <div class="gauge"><div class="gl">Stance</div><div class="gv" style="color:var(--mut)">Not advice · research</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- 01 SNAPSHOT -->
+<section>
+  <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">為什麼是現在</span></div>
+  <p class="lead">AI capex is record-high, yet ~half of US datacenter projects risk delay — not for lack of chips but lack of <b>power equipment</b>. The binding gate is the multi-year lead time on high-voltage transformers and grid interconnect; the highest-margin link is the chip's last-inch power; the broadest is the facility integrator. Three different links, three different risk/reward profiles.</p>
+  <div class="kpis">
+    <div class="kpi"><div class="v m red">2–5 yr</div><div class="l">Transformer / HV substation lead time</div><div class="d">the slowest physical bottleneck</div></div>
+    <div class="kpi"><div class="v m amb">~50%</div><div class="l">US DC projects at delay risk</div><div class="d">grid + component shortages</div></div>
+    <div class="kpi"><div class="v m teal">1 MW</div><div class="l">per-rack power (Rubin-era)</div><div class="d">drives 800V HVDC transition</div></div>
+    <div class="kpi"><div class="v m grn">$163B</div><div class="l">GE Vernova backlog</div><div class="d">multi-year demand visibility</div></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px">EXPLAIN IT SIMPLY · 白話版</div>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6;max-width:900px">An AI datacenter is a giant electricity customer. Power flows downhill from the <b style="color:var(--txt)">grid</b> → through a big <b style="color:var(--txt)">transformer</b> that steps the voltage down → into the building's power gear → into the rack → and finally a tiny chip-side <b style="color:var(--txt)">voltage regulator (VRM)</b> drops it to ~0.65V for the GPU. The traffic jam is at the top: utilities and transformers take <b style="color:var(--txt)">years</b> to deliver, so you can't just plug in a new datacenter. For an investor the choice is: own the <b style="color:var(--txt)">grid gate</b> (GE Vernova), the <b style="color:var(--txt)">facility builder</b> (Vertiv), or the <b style="color:var(--txt)">chip-power chip</b> (Monolithic) — and figure out which still has upside after all three have run.</p>
+  </div>
+  <div class="panel" style="margin-top:12px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div><div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px">THE PATH · 分層 (read first)</div>
+        <div style="font-size:12px;color:var(--mut);line-height:1.7"><b>Generation</b> where power is made (utility / gas turbine) · <b>Grid/transformer</b> high-voltage delivery + step-down · <b>Facility power</b> UPS, switchgear, busway in the building · <b>Rack power</b> power shelf + PSU in the rack · <b>Board/chip power</b> VRM dropping volts for the GPU.</div></div>
+      <div><div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px">6-TERM GLOSSARY · 名詞</div>
+        <div style="font-size:11.5px;color:var(--mut);line-height:1.6"><b>VRM</b> voltage-regulator module (chip-side power) · <b>PMIC</b> power-management IC · <b>HVDC / 800VDC</b> high-voltage DC distribution · <b>SST</b> solid-state transformer · <b>BBU</b> battery backup unit · <b>BYOP</b> "bring your own power" (onsite generation).</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 SUPPLY CHAIN -->
+<section>
+  <div class="sh"><span class="n">02</span><h2>End-to-end supply chain</h2><span class="cn">上下游全鏈</span></div>
+  <p class="lead">Power flows left-to-right from grid to chip. The flow constricts hardest at <b>HV transformers / grid interconnect</b> — the 2–5-year gate. A secondary rent pool sits at the contested on-chip VRM.</p>
+  <div class="svgwide">
+    <svg viewBox="-12 -2 1124 470" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="aT" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5a6377"/></marker>
+        <marker id="aR" markerWidth="9" markerHeight="9" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e0686a"/></marker>
+      </defs>
+      <text x="22" y="20" class="m" font-size="11" fill="#697283">UPSTREAM (grid)</text>
+      <line x1="130" y1="16" x2="980" y2="16" stroke="#2a3040"/><polygon points="982,16 974,12 974,20" fill="#2a3040"/>
+      <text x="1078" y="20" class="m" font-size="11" fill="#697283" text-anchor="end">DOWNSTREAM (chip)</text>
+      <!-- connectors: constriction at C2 (transformers) -->
+      <line x1="180" y1="180" x2="200" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR)"/>
+      <line x1="360" y1="180" x2="380" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR)"/>
+      <line x1="540" y1="180" x2="560" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT)"/>
+      <line x1="720" y1="180" x2="740" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT)"/>
+      <line x1="900" y1="180" x2="920" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT)"/>
+
+      <!-- C1 Generation -->
+      <rect x="20" y="40" width="160" height="200" rx="10" fill="#141822" stroke="#2a3040"/><rect x="20" y="40" width="5" height="200" rx="2" fill="#5b81c4"/>
+      <text x="36" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Generation</text><text x="36" y="74" class="m" font-size="9" fill="#8aa7df">UPSTREAM</text>
+      <g font-size="9"><rect x="32" y="84" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="97" fill="#fff" font-weight="600">Gas turbines</text><text x="40" y="108" fill="#9aa3b5">GE Vernova · Siemens</text>
+      <rect x="32" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="133" fill="#fff" font-weight="600">Utilities / IPPs</text><text x="40" y="144" fill="#9aa3b5">Vistra · Constellation</text>
+      <rect x="32" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="169" fill="#fff" font-weight="600">Onsite / BYOP</text><text x="40" y="180" fill="#9aa3b5">Bloom · fuel cells</text></g>
+      <text x="36" y="208" font-size="8.5" fill="#697283">"bring your own power" rising</text>
+
+      <!-- C2 Grid/transformer CHOKE -->
+      <rect x="200" y="40" width="160" height="200" rx="10" fill="#1c1518" stroke="#5a3236" stroke-width="1.5"/><rect x="200" y="40" width="5" height="200" rx="2" fill="#e0686a"/>
+      <rect x="214" y="26" width="132" height="20" rx="5" fill="#e0686a"/><text x="280" y="40" class="m" font-size="9" fill="#1c1518" font-weight="700" text-anchor="middle">CHOKEPOINT</text>
+      <text x="216" y="62" font-size="12" fill="#e8eaf0" font-weight="600">Grid / transformer</text><text x="216" y="76" class="m" font-size="9" fill="#eda3a4">THE GATE</text>
+      <g font-size="9"><rect x="212" y="84" width="136" height="30" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="220" y="97" fill="#fff" font-weight="700">HV transformers</text><text x="220" y="108" fill="#eda3a4">GE Vernova · Hitachi · Siemens E.</text>
+      <rect x="212" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="220" y="133" fill="#fff" font-weight="600">HV switchgear</text><text x="220" y="144" fill="#9aa3b5">ABB · Schneider</text>
+      <rect x="212" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="220" y="169" fill="#fff" font-weight="600">Grid interconnect</text><text x="220" y="180" fill="#9aa3b5">utilities (3–5 yr queue)</text></g>
+      <text x="216" y="208" font-size="8.5" fill="#eda3a4">2–5 yr lead — can't fab around it</text>
+
+      <!-- C3 Facility -->
+      <rect x="380" y="40" width="160" height="200" rx="10" fill="#141822" stroke="#2a3040"/><rect x="380" y="40" width="5" height="200" rx="2" fill="#c47a9e"/>
+      <text x="396" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Facility power</text><text x="396" y="74" class="m" font-size="9" fill="#dba0bf">BUILDING</text>
+      <g font-size="9"><rect x="392" y="84" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="97" fill="#fff" font-weight="600">UPS / switchgear</text><text x="400" y="108" fill="#9aa3b5">Vertiv · Eaton · Schneider</text>
+      <rect x="392" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="133" fill="#fff" font-weight="600">Busway / PDU</text><text x="400" y="144" fill="#9aa3b5">Vertiv · nVent</text>
+      <rect x="392" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="169" fill="#fff" font-weight="600">BBU / batteries</text><text x="400" y="180" fill="#9aa3b5">co-binding shortage</text></g>
+      <text x="396" y="208" font-size="8.5" fill="#697283">the facility integrator's turf</text>
+
+      <!-- C4 Rack -->
+      <rect x="560" y="40" width="160" height="200" rx="10" fill="#141822" stroke="#2a3040"/><rect x="560" y="40" width="5" height="200" rx="2" fill="#d2a24a"/>
+      <text x="576" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Rack power</text><text x="576" y="74" class="m" font-size="9" fill="#e3bd76">RACK</text>
+      <g font-size="9"><rect x="572" y="84" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="97" fill="#fff" font-weight="600">Power shelf / PSU</text><text x="580" y="108" fill="#9aa3b5">Delta · Vertiv · Lite-On</text>
+      <rect x="572" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="133" fill="#fff" font-weight="600">800V HVDC</text><text x="580" y="144" fill="#9aa3b5">ABB×Nvidia · 1MW rack</text>
+      <rect x="572" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="169" fill="#fff" font-weight="600">Busbar / connectors</text><text x="580" y="180" fill="#9aa3b5">copper content ↓</text></g>
+      <text x="576" y="208" font-size="8.5" fill="#697283">800VDC re-architecture underway</text>
+
+      <!-- C5 Board power 2nd peak -->
+      <rect x="740" y="40" width="160" height="200" rx="10" fill="#1c1518" stroke="#5a3236"/><rect x="740" y="40" width="5" height="200" rx="2" fill="#8b84cf"/>
+      <rect x="754" y="26" width="132" height="20" rx="5" fill="#aaa3e6"/><text x="820" y="40" class="m" font-size="9" fill="#1c1518" font-weight="700" text-anchor="middle">2nd RENT POOL</text>
+      <text x="756" y="62" font-size="12" fill="#e8eaf0" font-weight="600">Board / chip power</text><text x="756" y="76" class="m" font-size="9" fill="#aaa3e6">LAST INCH</text>
+      <g font-size="9"><rect x="752" y="84" width="136" height="30" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="760" y="97" fill="#fff" font-weight="700">VRM / vertical power</text><text x="760" y="108" fill="#bcb3e6">Monolithic (lead) · Vicor</text>
+      <rect x="752" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="133" fill="#fff" font-weight="600">PMIC / controllers</text><text x="760" y="144" fill="#9aa3b5">Infineon · Renesas · ADI</text>
+      <rect x="752" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="169" fill="#fff" font-weight="600">SiC / GaN power</text><text x="760" y="180" fill="#9aa3b5">onsemi · Navitas · POWI</text></g>
+      <text x="756" y="208" font-size="8.5" fill="#bcb3e6">highest margin — but contested</text>
+
+      <!-- C6 Load -->
+      <rect x="920" y="40" width="160" height="200" rx="10" fill="#141822" stroke="#2a3040"/><rect x="920" y="40" width="5" height="200" rx="2" fill="#4faf8e"/>
+      <text x="936" y="60" font-size="12" fill="#e8eaf0" font-weight="600">GPU load / buyers</text><text x="936" y="74" class="m" font-size="9" fill="#7cc9ad">DEMAND</text>
+      <g font-size="9"><rect x="932" y="84" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="97" fill="#fff" font-weight="600">GPUs (~0.65V)</text><text x="940" y="108" fill="#9aa3b5">Nvidia · AMD</text>
+      <rect x="932" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="133" fill="#fff" font-weight="600">Hyperscalers</text><text x="940" y="144" fill="#9aa3b5">MSFT · Google · Meta</text>
+      <rect x="932" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="169" fill="#fff" font-weight="600">Neoclouds</text><text x="940" y="180" fill="#9aa3b5">CoreWeave · sovereign</text></g>
+      <text x="936" y="208" font-size="8.5" fill="#697283">demand &gt;&gt; deliverable power</text>
+
+      <!-- rent bars -->
+      <line x1="40" y1="420" x2="1080" y2="420" stroke="#2a3040"/>
+      <text x="40" y="320" font-size="9" fill="#697283">value capture / scarcity premium</text>
+      <g>
+        <rect x="80" y="392" width="40" height="28" rx="2" fill="#2dd4bf" opacity="0.35"/>
+        <rect x="260" y="326" width="40" height="94" rx="2" fill="#e0686a"/>
+        <rect x="440" y="384" width="40" height="36" rx="2" fill="#2dd4bf" opacity="0.5"/>
+        <rect x="620" y="380" width="40" height="40" rx="2" fill="#2dd4bf" opacity="0.45"/>
+        <rect x="800" y="356" width="40" height="64" rx="2" fill="#aaa3e6" opacity="0.75"/>
+        <rect x="980" y="396" width="40" height="24" rx="2" fill="#2dd4bf" opacity="0.3"/>
+      </g>
+      <text x="280" y="318" class="m" font-size="8.5" fill="#eda3a4" text-anchor="middle">rent peaks at the grid gate</text>
+      <text x="820" y="348" class="m" font-size="8" fill="#aaa3e6" text-anchor="middle">2nd pool: chip VRM</text>
+      <g class="m" font-size="8.5" fill="#697283" text-anchor="middle"><text x="100" y="436">generation</text><text x="280" y="436">grid/transformer</text><text x="460" y="436">facility</text><text x="640" y="436">rack</text><text x="820" y="436">chip power</text><text x="1000" y="436">GPU load</text></g>
+      <text x="550" y="458" font-size="9" fill="#697283" text-anchor="middle">Red = constricted throughput. The gate (transformers) holds the scarcity but GE Vernova's rent is diluted across turbines/services; the VRM holds the margin but is contested.</text>
+    </svg>
+  </div>
+</section>
+
+<!-- 03 CHOKEPOINT + SEVERITY -->
+<section>
+  <div class="sh"><span class="n">03</span><h2>The chokepoint &amp; severity</h2><span class="cn">卡點與嚴重度</span></div>
+  <div class="choke">
+    <h3><svg width="20" height="20" viewBox="0 0 24 24"><path d="M12 2 L22 20 H2 Z" fill="none" stroke="#e0686a" stroke-width="2" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="14" stroke="#e0686a" stroke-width="2"/><circle cx="12" cy="17" r="1.2" fill="#e0686a"/></svg> High-voltage transformers &amp; grid interconnect</h3>
+    <p>The one link you cannot speed up with capex or cleverness: large power transformers and grid connections run on <b>2–5 year</b> lead times, set by copper, grain-oriented electrical steel, skilled labour and utility queues. That's why hyperscalers now build onsite generation ("bring your own power"). Unlike a chip, you cannot fab your way out — which is exactly what makes it the hardest gate. The catch for investors: the gatekeepers (GE Vernova, Hitachi Energy, Siemens Energy) are huge diversified companies, so the scarcity rent is diluted.</p>
+    <div class="stats">
+      <div><b class="m">18/20</b><span>severity (supply 4 · lead-time 5 · substitut. 4 · demand 5)</span></div>
+      <div><b class="m">2–5 yr</b><span>transformer / substation lead</span></div>
+      <div><b class="m">~50%</b><span>US DC projects at delay risk</span></div>
+      <div><b class="m">3–4</b><span>credible HV-transformer makers</span></div>
+      <div><b class="m">1 MW</b><span>per-rack power forces 800VDC</span></div>
+    </div>
+  </div>
+  <div class="variant"><div class="h">VARIANT PERCEPTION vs CONSENSUS · 變異認知</div><p>Consensus: "AI is power-constrained — buy the power names." The disaggregation: the <b>binding physical gate</b> is the multi-year transformer/grid lead time (GE Vernova's turf) — but GEV's rent is <b>diluted</b> across turbines and services, so it's the safest, not the highest-return, exposure. The <b>highest-margin</b> link is the on-chip VRM (Monolithic) — but that is now the <b>most competitively contested</b> ("GB200 power-module war": Infineon, Renesas, Vicor, ADI, and Nvidia's incentive to dual-source). The cleanest neutral arms-dealer is the facility integrator (Vertiv, power+cooling). If we're wrong on GEV, it's that grid relief (faster permitting, modular transformers) arrives sooner than the 2–5-yr base case; if wrong on MPWR, it's that competition compresses its share/margin faster than AI volume grows.</p></div>
+</section>
+
+<!-- 04 AWARENESS -->
+<section>
+  <div class="sh"><span class="n">04</span><h2>Are we early? Awareness curve</h2><span class="cn">現在是早期嗎</span></div>
+  <p class="lead">The power trade is well-known — all three have run. The grid gate (GEV) is the <i>least</i> frothy (+39% YTD, already off its high); the facility and chip-power names are more euphoric.</p>
+  <div class="svgwide" style="margin-bottom:6px">
+    <svg viewBox="0 0 1060 300" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="az" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5fc98a" stop-opacity="0.22"/><stop offset="1" stop-color="#5fc98a" stop-opacity="0"/></linearGradient></defs>
+      <rect x="40" y="40" width="190" height="230" fill="#11141c"/>
+      <rect x="230" y="40" width="200" height="230" fill="url(#az)" stroke="#2c5a40" stroke-dasharray="3 4"/>
+      <rect x="630" y="40" width="200" height="230" fill="#1a1216" opacity="0.5"/>
+      <text x="135" y="32" class="m" font-size="9" fill="#697283" text-anchor="middle">LATENT</text>
+      <text x="330" y="32" class="m" font-size="9" fill="#5fc98a" text-anchor="middle" font-weight="600">EARLY · ALPHA</text>
+      <text x="530" y="32" class="m" font-size="9" fill="#d2a24a" text-anchor="middle">RECOGNITION</text>
+      <text x="730" y="32" class="m" font-size="9" fill="#e0686a" text-anchor="middle">EUPHORIA</text>
+      <text x="930" y="32" class="m" font-size="9" fill="#697283" text-anchor="middle">FULLY PRICED</text>
+      <path d="M40,258 C 260,250 280,205 430,150 C 560,104 640,70 760,62 C 880,56 980,58 1020,58" fill="none" stroke="#4a5570" stroke-width="2.5"/>
+      <text x="48" y="288" font-size="10" fill="#697283">time · market awareness →</text>
+      <!-- GEV recognition (least frothy) -->
+      <circle cx="520" cy="120" r="7" fill="#5fc98a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="520" y="108" class="m" font-size="11" fill="#7cd6a0" text-anchor="middle" font-weight="700">GEV</text>
+      <text x="520" y="146" class="m" font-size="9" fill="#9aa3b5" text-anchor="middle">+39% YTD · off hi</text>
+      <!-- VRT recognition/eu -->
+      <circle cx="650" cy="80" r="7" fill="#d2a24a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="650" y="68" class="m" font-size="11" fill="#e3bd76" text-anchor="middle" font-weight="700">VRT</text>
+      <text x="650" y="106" class="m" font-size="9" fill="#9aa3b5" text-anchor="middle">+84% YTD</text>
+      <!-- MPWR euphoria -->
+      <circle cx="775" cy="64" r="7" fill="#e0686a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="775" y="52" class="m" font-size="11" fill="#eda3a4" text-anchor="middle" font-weight="700">MPWR</text>
+      <text x="790" y="80" class="m" font-size="9" fill="#9aa3b5" text-anchor="start">+75% · near ATH</text>
+      <circle cx="320" cy="195" r="6" fill="none" stroke="#5fc98a" stroke-width="2" stroke-dasharray="2 2"/>
+      <text x="320" y="183" class="m" font-size="9" fill="#7cd6a0" text-anchor="middle">next entry hides here ↙</text>
+      <text x="330" y="262" font-size="9.5" fill="#5fc98a" text-anchor="middle">↑ enter here — the 3 are all right of it</text>
+    </svg>
+  </div>
+  <p class="cap">Horizontal = awareness stage (qualitative). The honest read: GEV is the lowest-risk gate (but diluted upside and off its high), VRT the facility arms-dealer, MPWR the highest-margin but most-contested. The genuinely-early entry sits upstream in the power-semiconductor &amp; SST enablers (latent watchlist below).</p>
+
+  <div class="panel" style="margin:14px 0;border-color:#2c5a40;background:rgba(95,201,138,.05)">
+    <h4 style="font-size:13px;margin-bottom:6px;font-weight:600;color:var(--dacr)">Still-latent watchlist — where the NEXT early entry hides <span class="cn" style="font-weight:400;color:var(--dim)">尚未被發現的早期標的</span></h4>
+    <p style="font-size:12px;color:var(--mut);line-height:1.55">GEV/VRT/MPWR have all run. The unpriced links are upstream of the obvious power names — the technologies that the AI-power narrative hasn't fully reached:</p>
+    <table style="margin-top:8px">
+      <tr><th>Latent candidate (link)</th><th>Why it could be next</th><th>Trigger / tripwire</th><th>Where to track it</th></tr>
+      <tr><td><b>SiC / GaN power semis</b> — Navitas, Power Integrations, onsemi, Infineon</td><td>800VDC + solid-state transformers need wide-bandgap power; AI-power demand not yet in numbers</td><td>800VDC design wins; SST orders; power-semi book-to-bill &gt;1</td><td>Company earnings + design-win PRs; SEMI power-device data</td></tr>
+      <tr><td><b>Solid-state transformers (SST)</b> — Wolfspeed-supplied, specialised OEMs</td><td>Could compress the 2–5yr transformer lead time — the relief valve for the chokepoint</td><td>First hyperscaler SST deployment at scale</td><td>pv-magazine / EE Power coverage; utility &amp; DC-developer PRs</td></tr>
+      <tr><td><b>Grid-magnetics / GOES steel, busbar, connectors</b></td><td>The unglamorous inputs gating transformers; capacity-constrained, under-covered</td><td>Electrical-steel capacity adds; copper/busbar pricing</td><td>Materials-maker disclosures; transformer-OEM supply commentary</td></tr>
+    </table>
+    <p class="cap" style="margin-top:6px">Watch-only ideas, not recommendations — most latent bets fail. Scan here while the crowd buys the obvious power names.</p>
+  </div>
+
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:4px;font-weight:600">Leading indicators</h4>
+      <p style="font-size:11px;color:var(--dim);margin-bottom:10px">Watch these before the print.</p>
+      <table>
+        <tr><th>Signal · trigger</th><th>Where an amateur can actually read it</th></tr>
+        <tr><td><b>Transformer / switchgear lead times</b><br><span class="m" style="font-size:10px;color:var(--dim)">2–5 yr · longer = tighter</span></td><td>GEV / Eaton / Hitachi Energy earnings calls; utility filings</td></tr>
+        <tr><td><b>GEV / VRT order book &amp; backlog</b><br><span class="m" style="font-size:10px;color:var(--dim)">backlog growth · book-to-bill &gt;1</span></td><td>GEV &amp; VRT quarterly results (orders / backlog lines)</td></tr>
+        <tr><td><b>MPWR Nvidia allocation / share</b><br><span class="m" style="font-size:10px;color:var(--dim)">dual-source news = de-rate risk</span></td><td>Edgewater / sell-side channel checks; MPWR call Q&amp;A</td></tr>
+        <tr><td><b>800VDC / SST adoption</b><br><span class="m" style="font-size:10px;color:var(--dim)">design wins = power-semi catalyst</span></td><td>Nvidia/ABB PRs; power-semi maker disclosures</td></tr>
+        <tr><td><b>Hyperscaler capex &amp; BYOP</b><br><span class="m" style="font-size:10px;color:var(--dim)">rising · a cut = exit</span></td><td>MSFT/GOOG/META/AMZN 10-Q capex + onsite-power deals</td></tr>
+      </table>
+      <p style="font-size:10px;color:var(--dim);margin-top:8px">All readable from free public sources weeks before reported revenue. Thresholds illustrative — calibrate to your own risk.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Who captures the rent?</h4>
+      <p style="font-size:12.5px;color:var(--mut);line-height:1.55">Margins settle it. <b style="color:var(--txt)">GEV</b> holds the scarcest link (the grid) but spreads it across turbines + services — high visibility ($163B backlog), diluted rent, lowest beta. <b style="color:var(--txt)">VRT</b> is the broad power+cooling integrator with a $15B backlog — wins on volume, mid margin. <b style="color:var(--txt)">MPWR</b> holds the fattest gross margin (last-inch power IP) but is the single most contested seat — Nvidia <i>wants</i> a second source. <b style="color:var(--txt)">Conclusion:</b> the scarcity and the margin sit in different names — you can't own both in one ticker.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 05 TOP-3 TABS -->
+<section>
+  <div class="sh"><span class="n">05</span><h2>Top-3 plays</h2><span class="cn">三大標的 · 分頁</span></div>
+  <p class="lead">Three different links — grid gate, facility integrator, chip power — ordered by remaining asymmetry per unit of risk.</p>
+  <div role="tablist" aria-label="Top 3 plays" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:-1px">
+    <button class="tabbtn" role="tab" aria-selected="true" aria-controls="t1" id="b1" tabindex="0" onclick="showTab('t1',this)">① GE Vernova · GEV<small>grid gate · lowest-risk</small></button>
+    <button class="tabbtn" role="tab" aria-selected="false" aria-controls="t2" id="b2" tabindex="-1" onclick="showTab('t2',this)">② Vertiv · VRT<small>facility integrator · arms-dealer</small></button>
+    <button class="tabbtn" role="tab" aria-selected="false" aria-controls="t3" id="b3" tabindex="-1" onclick="showTab('t3',this)">③ Monolithic · MPWR<small>chip power · contested</small></button>
+  </div>
+
+  <div class="tabpane" id="t1" role="tabpanel" aria-labelledby="b1" style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap"><h3 style="font-size:18px;font-weight:600">GE Vernova <span style="color:var(--dim);font-weight:400">NYSE: GEV</span></h3><span class="stagebadge sg-recog">RECOGNITION · lowest-risk gate, diluted upside</span></div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The full-stack grid play: gas turbines (generation) → HV transformers/switchgear (the gate) → 800VDC architecture. Owns the slowest, hardest-to-replicate link, with a $163B backlog for multi-year visibility — but the scarcity rent is diluted across a huge diversified business. Least frothy of the three (+39% YTD, off its $1,182 high).</p>
+    <div class="mini">
+      <div><div class="v m">$906.79</div><div class="l">Last</div></div>
+      <div><div class="v m grn">+39%</div><div class="l">YTD</div></div>
+      <div><div class="v m">52wk</div><div class="l">$478–1182</div></div>
+      <div><div class="v m">$163B</div><div class="l">backlog</div></div>
+      <div><div class="v m grn">+59%</div><div class="l">Q1 orders YoY</div></div>
+    </div>
+    <div class="variant"><div class="h">ASYMMETRIC INFO GAP</div><p>Not a secret that grid is tight — but the market underrates the <b>duration</b>: a $163B backlog + 2–5yr lead times lock years of revenue, and GEV is the rare name that monetises generation, the grid gate, <i>and</i> the 800VDC transition together. The trade-off is diluted rent and a high absolute multiple; the edge is the lowest fundamental risk of the three.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢</div><p>Sells power equipment + long-term service contracts: gas/steam turbines, grid transformers &amp; switchgear, wind.</p></div>
+      <div class="mtc"><div class="h">② 營收結構</div><p>Power (turbines), Electrification (grid), Wind. Grid + services the AI-leveraged, higher-margin growth.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源</div><p>Datacenter load growth, grid build-out, transformer pricing, 800VDC, service backlog.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場</div><p>Utilities, datacenters/hyperscalers, industrials, grid operators.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶</div><p>Utilities + hyperscalers building/securing power; long contracts = visibility.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河</div><p>Installed base + service annuity; HV-transformer capacity is scarce and years to add.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望</div><p>Q1'26 rev $9.3B +16%, orders $10B +59%, backlog $163B; raising margin guidance.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點</div><p>No grid + transformer = no datacenter. The slowest physical gate in all of AI infra.</p></div>
+    </div>
+    <div class="bbr"><div class="bl"><b style="color:var(--dacr)">BULL</b>Multi-year backlog + transformer scarcity + 800VDC; lowest-risk way to own the binding gate.</div><div class="be"><b style="color:var(--choke)">BEAR</b>Diluted rent; high multiple; grid relief (modular transformers/permitting) eases the choke; cyclical turbine exposure.</div></div>
+  </div>
+
+  <div class="tabpane" id="t2" role="tabpanel" aria-labelledby="b2" hidden style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap"><h3 style="font-size:18px;font-weight:600">Vertiv <span style="color:var(--dim);font-weight:400">NYSE: VRT</span></h3><span class="stagebadge sg-recog">RECOGNITION→EUPHORIA · facility arms-dealer</span></div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The only large pure-play covering <b>both</b> datacenter power (UPS, switchgear, busway, PDU) <i>and</i> cooling — the facility integrator that wins regardless of chip vendor. A $15B backlog (+109% YoY) and organic orders +252% YoY show the demand. Broad and defensible, but mid-margin and now richly valued (+84% YTD).</p>
+    <div class="mini">
+      <div><div class="v m">$297.88</div><div class="l">Last</div></div>
+      <div><div class="v m red">+84%</div><div class="l">YTD</div></div>
+      <div><div class="v m">52wk</div><div class="l">$110–380</div></div>
+      <div><div class="v m">$15B</div><div class="l">backlog (+109%)</div></div>
+      <div><div class="v m grn">+252%</div><div class="l">organic orders YoY</div></div>
+    </div>
+    <div class="variant"><div class="h">ASYMMETRIC INFO GAP</div><p>The market sees the backlog; the variant is <b>mix</b> — as racks move to 1 MW and 800VDC + liquid cooling, Vertiv's content-per-rack and the power+cooling bundle could lift margins above the "integrator" multiple it carries. Neutral arms-dealer with the least single-bet risk of the three; the risk is that it stays a mid-margin assembler and the multiple already prices the backlog.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢</div><p>Designs/builds datacenter power + thermal hardware; project + product + service.</p></div>
+      <div class="mtc"><div class="h">② 營收結構</div><p>Power management, thermal management, services; AI datacenter the growth driver.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源</div><p>1MW racks, 800VDC, liquid cooling, content-per-rack, $15B backlog conversion.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場</div><p>Hyperscalers, colos, enterprise datacenters.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶</div><p>Hyperscalers + colos; deepening Nvidia reference designs.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河</div><p>Only large player spanning power <i>and</i> cooling; install base + service; reference-design lock-in.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望</div><p>$15B backlog +109%; orders +252% YoY; raising guidance on AI demand.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點</div><p>Facility power+cooling integration is a real bottleneck — but more suppliers than the grid gate.</p></div>
+    </div>
+    <div class="bbr"><div class="bl"><b style="color:var(--dacr)">BULL</b>Power+cooling bundle + 800VDC/liquid mix lifts margins; backlog converts; wins every vendor battle.</div><div class="be"><b style="color:var(--choke)">BEAR</b>Stays mid-margin integrator; +84% prices the backlog; competition from Eaton/Schneider.</div></div>
+  </div>
+
+  <div class="tabpane" id="t3" role="tabpanel" aria-labelledby="b3" hidden style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap"><h3 style="font-size:18px;font-weight:600">Monolithic Power <span style="color:var(--dim);font-weight:400">NASDAQ: MPWR</span></h3><span class="stagebadge sg-eu">EUPHORIA · highest margin, most contested</span></div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The last-inch power chip — vertical/Z-axis power delivery that meets 2,000W+ GPU needs, where MPWR has been a near-single-seller into Nvidia. Fattest gross margin of the three. The risk is structural: the "GB200 power-module war" (Infineon, Renesas, Vicor, ADI) and Nvidia's incentive to dual-source make this the most competitively contested seat. +75% YTD, near its all-time high.</p>
+    <div class="mini">
+      <div><div class="v m">$1589.55</div><div class="l">Last</div></div>
+      <div><div class="v m red">+75%</div><div class="l">YTD</div></div>
+      <div><div class="v m">52wk</div><div class="l">$667–1714</div></div>
+      <div><div class="v m">~$78B</div><div class="l">market cap</div></div>
+      <div><div class="v m amb">contested</div><div class="l">Nvidia dual-source risk</div></div>
+    </div>
+    <div class="variant"><div class="h">ASYMMETRIC INFO GAP</div><p>The bull case (single-seller on vertical power) and the bear case (dual-sourcing erodes it) are <b>both</b> well-aired — asymmetry is low and two-sided. The real swing factor is binary: does MPWR keep its GB200/Rubin power-module share, or does Nvidia qualify a second source? At a high multiple near all-time highs, a share-loss headline de-rates it fast. Highest margin, lowest risk-adjusted asymmetry of the trio.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢</div><p>Designs/sells power-management chips &amp; modules (VRM, PMIC) — fabless, high gross margin.</p></div>
+      <div class="mtc"><div class="h">② 營收結構</div><p>Enterprise Data (AI) the hyper-growth segment; plus comms, auto, industrial, consumer.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源</div><p>Vertical/Z-axis power for 2kW+ GPUs, 800V architecture, content-per-GPU.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場</div><p>AI datacenter (lead), comms, automotive, industrial.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶</div><p>Nvidia (key), plus broad chip/system customers.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河</div><p>Process + packaging IP (ZPD), design-in stickiness — but rivals + buyer dual-source pressure.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望</div><p>Hyper-growth in AI power; investing in vertical power + 800V leadership.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點</div><p>The 0.65V last inch is technically brutal — but it's a chip, so it ramps fast and attracts competition.</p></div>
+    </div>
+    <div class="bbr"><div class="bl"><b style="color:var(--dacr)">BULL</b>Holds vertical-power share into Rubin; content-per-GPU rises; margin compounds.</div><div class="be"><b style="color:var(--choke)">BEAR</b>Nvidia dual-sources; the power-module war compresses share/margin; near-ATH multiple de-rates fast.</div></div>
+  </div>
+  <p class="cap" style="margin-top:12px">*Multiples/financials are estimates from live IBKR quotes + reported run-rate; verify on a terminal. Eaton (ETN), Schneider, Hitachi Energy and Siemens Energy are the foreign/diversified co-plays not detailed here.</p>
+</section>
+
+<!-- 06 DECISION -->
+<section>
+  <div class="sh"><span class="n">06</span><h2>The decision — one table</h2><span class="cn">投資決策總表</span></div>
+  <div style="overflow-x:auto">
+  <table style="min-width:900px">
+    <tr><th>#</th><th>Ticker</th><th>Chokepoint link</th><th>Severity</th><th>Stage</th><th>Valuation</th><th>Asymmetry</th><th>Framework lean</th><th>Key trigger</th></tr>
+    <tr><td class="m">1</td><td><b>GEV</b></td><td><span class="lyr lyu">GRID</span> HV transformer / interconnect</td><td class="m">18/20</td><td><span class="stagebadge sg-recog">RECOG</span></td><td class="m">+39% · off hi</td><td class="grn">Moderate (lowest-risk)</td><td><b>Core / own the gate</b></td><td>Backlog &amp; orders; transformer lead times</td></tr>
+    <tr><td class="m">2</td><td><b>VRT</b></td><td><span class="lyr lyp">FACILITY</span> power + cooling</td><td class="m">15/20</td><td><span class="stagebadge sg-recog">RECOG→EU</span></td><td class="m">+84% · backlog $15B</td><td class="amb">Mod (mix re-rate)</td><td><b>Arms-dealer, watch margin mix</b></td><td>Backlog conversion; power+cooling margin</td></tr>
+    <tr><td class="m">3</td><td><b>MPWR</b></td><td><span class="lyr ly3">CHIP</span> VRM / vertical power</td><td class="m">14/20</td><td><span class="stagebadge sg-eu">EUPHORIA</span></td><td class="m">+75% · near ATH</td><td class="red">Low (two-sided)</td><td><b>Highest margin, highest single-bet risk</b></td><td>Nvidia allocation / dual-source news</td></tr>
+  </table>
+  </div>
+  <p class="cap"><b>How each severity is derived</b> (0–20, four factors each 0–5: supply concentration · lead-time · low substitutability · demand): <b>GEV grid = 18</b> (4+5+4+5 — few HV-transformer makers, multi-year lead, hard to substitute, demand surging). <b>VRT facility = 15</b> (3+4+3+5 — more integrators, faster to build, real but substitutable). <b>MPWR chip power = 14</b> (3+3+3+5 — competition rising, chips ramp fast, dual-source pressure). Tightness ≠ a good buy: GEV is the tightest gate but the most diluted; MPWR has the fattest margin but the lowest, two-sided asymmetry. The genuinely-early entry sits upstream in power-semis / SST (latent watchlist).</p>
+  <p class="cap" style="color:var(--mut)"><b style="color:var(--txt)">If you can only do one thing:</b> lowest-risk gate → <b>GEV</b>; neutral arms-dealer → <b>VRT</b>; highest-margin / highest-risk single bet → <b>MPWR</b> (only if you'll watch the dual-source headlines); genuine early asymmetry → scan the <b>SiC/GaN power-semi &amp; SST</b> watchlist, sized small.</p>
+</section>
+
+<!-- 07 RISKS -->
+<section>
+  <div class="sh"><span class="n">07</span><h2>Open questions &amp; risks</h2><span class="cn">未解與風險</span></div>
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">Honest open questions (self-critique)</h4>
+      <p style="font-size:12px;color:var(--mut);line-height:1.6">Valuation multiples are <b>est.</b> and GEV/MPWR carry cyclical/competitive tails — verify on a terminal. The "GEV is the gate" call assumes the 2–5yr transformer lead holds; modular transformers or permitting reform could ease it. We have <i>not</i> precisely sized each name's AI-power-specific revenue — the rent-capture argument is directional (margin-led), not modelled per name. The latent watchlist names categories/examples, not a single concrete entry trigger per ticker.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">Risk register</h4>
+      <table>
+        <tr><td><b>Grid relief</b></td><td>Faster permitting / modular transformers ease the choke</td></tr>
+        <tr><td><b>MPWR dual-source</b></td><td>Nvidia qualifies a 2nd VRM source → share/margin loss</td></tr>
+        <tr><td><b>Buyers fund supply</b></td><td>Hyperscaler BYOP / direct utility deals cap rent</td></tr>
+        <tr><td><b>AI-capex air-pocket</b></td><td>Hits highest-beta (VRT/MPWR) hardest</td></tr>
+        <tr><td><b>Cyclicality (GEV)</b></td><td>Turbine/wind cycles dilute the AI-grid signal</td></tr>
+        <tr><td><b>Valuation</b></td><td>All three have already re-rated hard</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><span class="n">08</span><h2>Framework — use cases × layers &amp; 3-year roadmap</h2><span class="cn">框架與路線圖</span></div>
+  <p class="lead">Power is felt at three altitudes. Two axes: where the power is consumed/delivered (rows) × the layer (columns). The binding chokepoint sits at the grid altitude — but the rent and the margin sit at different cells.</p>
+  <table style="margin-bottom:18px">
+    <tr><th>Use case ↓ / layer →</th><th>What it stresses</th><th>Binding chokepoint</th><th>Who wins</th></tr>
+    <tr><td><b>Chip-level</b> (the last inch)</td><td>Dense VRM, vertical power to ~0.65V</td><td><span class="lyr ly3">CHIP</span> VRM / power module</td><td>Monolithic · Vicor · Infineon</td></tr>
+    <tr><td><b>Rack-level</b> (1 MW racks)</td><td>800VDC busbar, power shelf, BBU</td><td><span class="lyr lyp">RACK</span> rack power + cooling</td><td>Vertiv · Delta · ABB</td></tr>
+    <tr><td><b>Grid / facility</b></td><td>Transformers, interconnect (2–5 yr)</td><td><span class="lyr lyu">GRID</span> the binding gate</td><td>GE Vernova · Hitachi · Siemens E.</td></tr>
+  </table>
+  <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">3-year evolution timeline</h4>
+  <div style="overflow-x:auto"><table style="min-width:760px">
+    <tr><th>Sub-layer ↓ / year →</th><th>2025</th><th>2026</th><th>2027</th><th>2028</th></tr>
+    <tr><td><b>Grid / transformers</b></td><td>backlog builds</td><td style="background:rgba(224,104,106,.08)">2–5 yr lead binds; ~50% projects at risk</td><td>SST pilots; new fabs</td><td>onsite + SST ease the choke</td></tr>
+    <tr><td><b>Rack power</b></td><td>48V</td><td style="background:rgba(224,104,106,.08)">800VDC announced (ABB×Nvidia)</td><td>800VDC scales</td><td>800VDC mainstream</td></tr>
+    <tr><td><b>Chip power</b></td><td>lateral VRM</td><td>vertical / Z-axis power</td><td style="background:rgba(224,104,106,.08)">GB200 power-module war</td><td>SiC/GaN content rises</td></tr>
+  </table></div>
+  <p class="cap">Reading down a column = what's live that year; across a row = one sub-layer's arc. Stressed/catalyst cells tinted.</p>
+</section>
+
+<div class="disc"><b>Not investment advice.</b> Personal research for a private knowledge base; not a recommendation or solicitation. Figures from public reporting, company results and live IBKR quotes as of 13 Jun 2026; multiples marked est.; approximations may be wrong or stale. IBKR read-only — no trades. Do your own due diligence.</div>
+
+<footer>
+  <p><b>Sources:</b> Dig.watch / Tech Fund (power-hardware shortages, ~50% projects at risk) · damnang2 / SemiAnalysis "Energizing AI" (power-delivery competition; Vicor/MPS/ADI/Renesas/Infineon) · pv-magazine / EE Power / Wolfspeed (solid-state transformers, 800VDC) · ABB×NVIDIA (800VDC, 1MW rack) · 24/7 Wall St / TipRanks / Barchart (GEV $163B backlog, +59% orders; VRT $15B backlog +109%, orders +252%) · SeekingAlpha / SimplyWallSt / GlobalTechResearch (MPWR vertical power, GB200 power-module war, ~$78B cap; 52-wk high $1,714 per IBKR) · Edgewater (MPWR Nvidia-allocation risk). Live quotes: IBKR (read-only).</p>
+  <p style="margin-top:10px">Automated AI-Infra workflow · Run #3 v5 · built to the optics-v5 gold standard · Next: Cooling.</p>
+</footer>
+</div>
+<script>
+function showTab(id,btn){
+  document.querySelectorAll('.tabpane').forEach(function(p){p.hidden=true;p.style.display='none';});
+  var el=document.getElementById(id); if(el){el.hidden=false;el.style.display='block';}
+  document.querySelectorAll('.tabbtn').forEach(function(b){b.setAttribute('aria-selected','false');b.tabIndex=-1;});
+  if(btn){btn.setAttribute('aria-selected','true');btn.tabIndex=0;btn.focus();}
+}
+document.querySelectorAll('[role=tablist]').forEach(function(tl){
+  tl.addEventListener('keydown',function(e){
+    var tabs=[].slice.call(tl.querySelectorAll('.tabbtn'));
+    var i=tabs.indexOf(document.activeElement);
+    if(e.key==='ArrowRight'){e.preventDefault();var n=tabs[(i+1)%tabs.length];showTab(n.getAttribute('aria-controls'),n);}
+    if(e.key==='ArrowLeft'){e.preventDefault();var p=tabs[(i-1+tabs.length)%tabs.length];showTab(p.getAttribute('aria-controls'),p);}
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Macro &amp; Sector-Sentiment Monitor v6 — Regime, Overheat &amp; the Emerging-Trend Engine (16 Jun 2026)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0b0d12;--panel:#13161e;--panel2:#1a1e28;--panel3:#212634;--line:#2a3040;--line2:#363d4f;--txt:#e8eaf0;--mut:#9aa3b5;--dim:#697283;--accent:#2dd4bf;--choke:#e0686a;--up:#5b81c4;--l3:#8b84cf;--mom:#5fc98a;--mr:#e0a458;--l1:#4faf8e;--dup:#e0a458;--dout:#5aa9e0;--dacr:#5fc98a;--gold:#d2a24a}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px;-webkit-font-smoothing:antialiased}
+  .num,.m{font-family:"JetBrains Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
+  svg text{font-family:"Space Grotesk",sans-serif}svg text.m{font-family:"JetBrains Mono",monospace}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  header{border-bottom:1px solid var(--line);padding:34px 0 26px;margin-bottom:8px;background:radial-gradient(900px 320px at 12% -40%,rgba(45,212,191,.10),transparent 60%),radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
+  .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+  .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
+  h1{font-size:29px;font-weight:700;letter-spacing:-.6px;line-height:1.14;max-width:960px}
+  .sub{font-size:14px;color:var(--mut);margin-top:11px;max-width:900px}
+  .meta{margin-top:16px;display:flex;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:13px}
+  .meta div{padding-right:22px;margin-right:22px;border-right:1px solid var(--line)}.meta div:last-child{border:0}
+  .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+  .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
+  section{padding:30px 0 2px}
+  .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+  .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600}
+  .sh h2{font-size:20px;font-weight:600;letter-spacing:-.3px}
+  .sh .cn{font-size:13px;color:var(--dim);margin-left:auto}
+  .lead{color:var(--mut);font-size:13.5px;max-width:940px;margin-bottom:16px}.lead b{color:var(--txt)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:820px){.two{grid-template-columns:1fr}}
+  .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}@media(max-width:820px){.three{grid-template-columns:1fr}}
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
+  .kpi{padding:16px 18px;border-right:1px solid var(--line)}.kpi:last-child{border-right:0}
+  .kpi .v{font-size:21px;font-weight:600;letter-spacing:-.5px}.kpi .l{font-size:11px;color:var(--mut);margin-top:4px}.kpi .d{font-size:10.5px;color:var(--dim);margin-top:6px}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}.vio{color:var(--l3)}.dout{color:var(--dout)}.dim{color:var(--dim)}
+  .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+  td{padding:7px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}td b{color:var(--txt)}
+  .hm td{text-align:center;font-family:"JetBrains Mono",monospace;font-size:12px;border:1px solid #11141c}
+  .hm td.lbl{text-align:left;font-family:"Space Grotesk",sans-serif;color:var(--txt);font-weight:600}
+  .hp3{background:rgba(95,201,138,.42);color:#dffff0}.hp2{background:rgba(95,201,138,.24);color:#cdeede}.hp1{background:rgba(95,201,138,.11);color:#bcd9cb}
+  .hz{background:rgba(120,130,150,.10);color:#aab3c4}
+  .hn1{background:rgba(224,104,106,.11);color:#e6c4c5}.hn2{background:rgba(224,104,106,.24);color:#f0c0c1}.hn3{background:rgba(224,104,106,.44);color:#ffe0e0}
+  .badge{font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:5px;white-space:nowrap}
+  .bMOM{background:rgba(95,201,138,.18);color:var(--mom)}.bMR{background:rgba(224,164,88,.18);color:var(--mr)}.bMIX{background:rgba(120,130,150,.16);color:#aab3c4}
+  .q{font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:20px;white-space:nowrap}
+  .qStrong{background:rgba(95,201,138,.18);color:var(--dacr)}.qWeak{background:rgba(224,104,106,.16);color:var(--choke)}.qMod{background:rgba(210,162,74,.18);color:var(--dup)}
+  .variant{border-left:3px solid var(--accent);background:rgba(45,212,191,.06);border-radius:8px;padding:13px 16px;margin:14px 0}
+  .variant .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:5px}
+  .variant p{font-size:12.8px;color:var(--mut);line-height:1.5}.variant p b{color:var(--txt)}
+  .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
+  footer{margin-top:16px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}footer b{color:var(--mut)}
+  .quad{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+  .quad h4{font-size:12px;font-weight:600;margin-bottom:5px;display:flex;align-items:center;gap:7px}
+  .quad p{font-size:11.5px;color:var(--mut);line-height:1.4}.quad p b{color:var(--txt)}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}@media(max-width:900px){.grid4{grid-template-columns:1fr 1fr}}@media(max-width:560px){.grid4{grid-template-columns:1fr}}
+  .segcard{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:13px 14px}
+  .segcard .t{display:flex;align-items:baseline;gap:8px;margin-bottom:2px}
+  .segcard .t .nm{font-size:13.5px;font-weight:600;color:var(--txt)}
+  .segcard .mini{display:flex;gap:12px;margin:8px 0 6px;font-size:10.5px;color:var(--dim)}
+  .segcard .mini b{color:var(--txt);font-family:"JetBrains Mono",monospace}
+  .segcard .lean{font-size:11.8px;color:var(--mut);line-height:1.45;margin-top:6px}.segcard .lean b{color:var(--txt)}
+  .spark{width:100%;height:60px;display:block}
+  .l1spark{width:120px;height:34px;display:block}
+  .tag{font-size:9px;font-weight:700;letter-spacing:.05em;padding:1px 6px;border-radius:4px;text-transform:uppercase}
+  .tEarly{background:rgba(95,201,138,.16);color:var(--mom)}.tLate{background:rgba(224,104,106,.16);color:var(--choke)}.tMid{background:rgba(210,162,74,.16);color:var(--dup)}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:10.5px;color:var(--dim);margin-top:8px}
+  .legend span{display:flex;align-items:center;gap:5px}.legend i{width:11px;height:3px;border-radius:2px;display:inline-block}
+  ul.tight{margin:6px 0 6px 18px}ul.tight li{font-size:12px;color:var(--mut);margin-bottom:4px}ul.tight li b{color:var(--txt)}
+  .pill{display:inline-block;font-size:10px;font-weight:600;padding:2px 9px;border-radius:20px;background:rgba(45,212,191,.12);color:var(--accent);margin-right:6px}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="kick"><span class="ln"></span> Capital-Flow Stack · Tier 0–3 · Macro &amp; Sector-Sentiment Monitor · v6</div>
+    <h1>Bears at a 1-year high, leverage at a record — and now the oil shock is deflating into a live Fed meeting</h1>
+    <p class="sub">This monitor does three jobs: (1) flag <b style="color:#e8eaf0">overheat / fund-exhaustion</b> before the tide turns, (2) run a <b style="color:#e8eaf0">leading-indicator backtest</b> so we only trust signals that actually lead, and (3) classify <b style="color:#e8eaf0">momentum vs mean-reversion at L1 (sectors) AND L3 (the six AI-infra sub-segments)</b> so we ride trends and fade extremes correctly. All price regimes are computed from 2-yr weekly bars (through the 2026-06-15 close); macro/backtest claims are cross-checked against ≥2 public sources.</p>
+    <div class="meta">
+      <div><div class="k">As of</div><div class="vv m">16 Jun 2026</div></div>
+      <div><div class="k">Macro regime</div><div class="vv">Sticky-but-peaking inflation · oil shock deflating · Fed pinned</div></div>
+      <div><div class="k">Risk appetite</div><div class="vv">F&amp;G 41 · Fear (AAII bears 1-yr high, positioning long)</div></div>
+      <div><div class="k">Leadership</div><div class="vv">AI-infra · Networking-Silicon clean momentum</div></div>
+      <div><div class="k">Overheat flag</div><div class="vv">Margin debt record · price-extension at a 52w high</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- 01 SNAPSHOT -->
+<section>
+  <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">本週總覽</span></div>
+  <p class="lead">Three reads in one screen. <b>Macro:</b> hot-but-cooling — growth firm (GDPNow Q2 3.3%) and headline CPI still elevated at <b>4.2%</b>, but the energy shock that drove it is now <b>unwinding</b> (WTI ~$79, −4.5%, on a US–Iran de-escalation), and the Fed is near-certain to hold at the live Jun 16–17 meeting. <b>Crowd:</b> the divergence widened — surveys are <i>more</i> fearful (AAII bears <b>52.4%</b>, a 1-yr high; F&amp;G 41) yet positioning is still long (VIX ~18, NAAIM 79, put/call 0.54, margin debt at a record $1.30T) → contrarian-bullish but only <b>moderate</b>, not capitulation. <b>Flows:</b> leadership is narrow (Tech-only at L1), and <b>inside AI-infra the six sub-segments are no longer one trade</b> — Networking-Silicon is now a textbook momentum regime (MRVL &amp; ALAB VR8&gt;1.7) while Optics &amp; Substrates stay mean-reverting despite still-accelerating fundamentals.</p>
+  <div class="kpis">
+    <div class="kpi"><div class="v num amb">41</div><div class="l">CNN Fear &amp; Greed</div><div class="d red">Fear · not capitulation</div></div>
+    <div class="kpi"><div class="v num red">4.2%</div><div class="l">CPI YoY (May)</div><div class="d">3-yr high · oil now falling</div></div>
+    <div class="kpi"><div class="v num">30 / 52</div><div class="l">AAII bull / bear %</div><div class="d grn">bears 1-yr high → contrarian+</div></div>
+    <div class="kpi"><div class="v num red">$1.30T</div><div class="l">Margin debt (Apr)</div><div class="d">record · +53% YoY</div></div>
+    <div class="kpi"><div class="v num grn">+228</div><div class="l">Net-Silicon RS Δ13w</div><div class="d teal">momentum leader (L3)</div></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px">EXPLAIN IT SIMPLY · 白話版</div>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6;max-width:960px">This dashboard answers four questions in order. (1) <b style="color:var(--txt)">What's the weather?</b> rates/growth/inflation set whether the tide lifts boats (now: strong growth, inflation at a 3-yr high but the oil spike that caused it is reversing, so the Fed can stay parked without getting more hawkish). (2) <b style="color:var(--txt)">Is the tank near empty?</b> — how greedy/leveraged the crowd is (margin debt is at a record and price-extension just hit a 52-week high; that's late-cycle fuel-gauge, not a timer). (3) <b style="color:var(--txt)">Which of our warning lights actually work?</b> — we <i>backtest</i> each indicator so we don't act on ones that merely <i>feel</i> predictive (margin-debt YoY barely leads; the yield curve and the component-shortage signal genuinely do). (4) <b style="color:var(--txt)">Where is money trending vs snapping back?</b> — at the sector level and, crucially, inside AI-infra: a <b style="color:var(--txt)">momentum</b> sub-segment you ride; a <b style="color:var(--txt)">mean-reversion</b> one you buy on dips, not chase.</p>
+  </div>
+  <div class="panel" style="margin-top:12px">
+    <div class="two">
+      <div><div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px">8-TERM GLOSSARY · 名詞</div>
+        <div style="font-size:11.5px;color:var(--mut);line-height:1.7"><b>RS (relative strength)</b> a name's return ÷ the S&amp;P's · <b>Momentum regime</b> the trend persists → ride it · <b>Mean-reversion regime</b> moves snap back → fade extremes · <b>RRG</b> rotation map (Leading/Weakening/Lagging/Improving) · <b>Variance ratio (VR)</b> &gt;1 = trending, &lt;1 = mean-reverting · <b>Hurst</b> &gt;0.5 trending, &lt;0.5 mean-reverting · <b>Margin debt</b> money borrowed to buy stock · <b>Lead time</b> months a signal precedes the stock peak.</div></div>
+      <div><div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px">THE FUNNEL · 分層</div>
+        <div style="font-size:11.5px;color:var(--mut);line-height:1.7"><b>Tier 0</b> macro climate → <b>Tier 1</b> sentiment, positioning &amp; overheat → <b>Backtest gate</b> keep only signals that lead → <b>Tier 2</b> L1 sector rotation (momentum/MR) → <b>Tier 3</b> the six AI-infra sub-segments (momentum/MR × fundamental) → the 2-day chokepoint reports → company. This monitor is everything above the company line.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 TIER 0 MACRO -->
+<section>
+  <div class="sh"><span class="n">02</span><h2>Tier 0 — Macro climate</h2><span class="cn">總經環境</span></div>
+  <p class="lead">Four MECE drivers → one regime: <b>no-landing reflation, but with the energy shock now deflating and the Fed pinned</b>. Growth is firm and earnings hold up; headline CPI is still hot at 4.2% (highest since Apr-2023) but the oil spike that caused it just cracked — WTI back to ~$79 on a US–Iran/Hormuz de-escalation — so the inflation impulse should fade into H2. The curve is un-inverted, so this is "higher-for-longer," not recession pricing. The swing factor is whether the oil pullback holds: if it does, it deflates headline CPI and revives the H2-cut narrative.</p>
+  <div class="grid4">
+    <div class="quad"><h4><span class="grn">●</span> Growth</h4><p>Atlanta-Fed GDPNow Q2 <b>~3.3%</b>; Q1 actual a soft <b>+1.6%</b>. Earnings driving the bull; consumer relief as gasoline falls.<br><b class="grn">Supportive (two-speed)</b></p></div>
+    <div class="quad"><h4><span class="red">●</span> Inflation</h4><p>CPI <b>4.2%</b> y/y, core CPI <b>2.9%</b>, core PCE <b>3.3%</b> (Apr) — energy-led, but WTI just fell ~4.5% → impulse peaking.<br><b class="amb">Hot but peaking</b></p></div>
+    <div class="quad"><h4><span class="amb">●</span> Liquidity / policy</h4><p>Fed on hold <b>3.50–3.75%</b> (~97% no-change at the live Jun 16–17 meeting). Cuts off the table near-term.<br><b class="amb">Neutral-tight</b></p></div>
+    <div class="quad"><h4><span class="grn">●</span> Credit / stress</h4><p>Curve <b>+73bp</b> (10Y–3M), 2s10s <b>+39bp</b>; HY OAS <b>~278bp</b> (reversed the March spike); VIX <b>~18</b>. No stress.<br><b class="grn">Calm (late-cycle tight)</b></p></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+    <h4 style="font-size:13px;margin-bottom:4px;font-weight:600">The 4 drivers on one map</h4>
+    <p style="font-size:11px;color:var(--dim);margin-bottom:6px">Vertical = growth; horizontal = inflation pressure. We sit upper-right (reflation/no-landing) but the arrow points left — the oil pullback is starting to walk inflation back toward Goldilocks.</p>
+    <svg viewBox="0 0 760 270" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <rect x="390" y="18" width="350" height="112" fill="rgba(224,104,106,.06)"/>
+      <rect x="390" y="130" width="350" height="112" fill="rgba(210,162,74,.05)"/>
+      <rect x="20" y="130" width="370" height="112" fill="rgba(90,169,224,.05)"/>
+      <rect x="20" y="18" width="370" height="112" fill="rgba(95,201,138,.05)"/>
+      <line x1="390" y1="18" x2="390" y2="242" stroke="#2a3040"/><line x1="20" y1="130" x2="740" y2="130" stroke="#2a3040"/>
+      <text x="200" y="14" class="m" font-size="9" fill="#697283" text-anchor="middle">GROWTH STRONG ↑</text>
+      <text x="200" y="258" class="m" font-size="9" fill="#697283" text-anchor="middle">GROWTH WEAK ↓</text>
+      <text x="120" y="34" font-size="10" fill="#5fc98a" text-anchor="middle">Goldilocks</text>
+      <text x="600" y="34" font-size="10" fill="#e0686a" text-anchor="middle">Reflation / No-landing</text>
+      <text x="120" y="156" font-size="10" fill="#5aa9e0" text-anchor="middle">Disinflation slowdown</text>
+      <text x="600" y="156" font-size="10" fill="#d2a24a" text-anchor="middle">Stagflation</text>
+      <text x="735" y="126" class="m" font-size="9" fill="#697283" text-anchor="end">INFLATION HOT →</text>
+      <text x="25" y="126" class="m" font-size="9" fill="#697283">← INFLATION COOL</text>
+      <line x1="585" y1="70" x2="505" y2="70" stroke="#e0a458" stroke-width="1.6" stroke-dasharray="3 3"/><polygon points="505,70 514,66 514,74" fill="#e0a458"/>
+      <circle cx="585" cy="70" r="9" fill="#e0686a"/><circle cx="585" cy="70" r="16" fill="none" stroke="#e0686a" stroke-opacity=".4"/>
+      <text x="585" y="98" font-size="11" fill="#e8eaf0" text-anchor="middle" font-weight="600">WE ARE HERE</text>
+      <text x="585" y="112" class="m" font-size="9" fill="#9aa3b5" text-anchor="middle">GDPNow 3.3% · CPI 4.2% · oil falling →left</text>
+    </svg>
+  </div>
+  <div class="panel" style="margin-top:14px;overflow-x:auto">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:8px">If-then: four macro scenarios → who wins / who to fade</h4>
+    <table>
+      <tr><th>Scenario</th><th>Odds</th><th>Winners (L1 / L3)</th><th>Losers</th><th>Tell to watch</th></tr>
+      <tr><td><b>Oil de-escalation holds</b><br><span style="font-size:10px;color:var(--dim)">Hormuz deal sticks, CPI cools</span></td><td><span class="q qStrong">base-rising</span></td><td class="grn">H2 cut odds revive → rate-sensitives (XLU, XLRE, XLY) + AI-infra trend extends</td><td>Energy (XLE)</td><td class="m">WTI &lt;$75; CPI &lt;4%</td></tr>
+      <tr><td><b>Oil-shock re-escalation</b><br><span style="font-size:10px;color:var(--dim)">deal breaks, CPI &gt;5%</span></td><td><span class="q qWeak">tail</span></td><td>Energy (XLE), defensives</td><td>Disc, high-multiple AI (de-rate)</td><td class="m">WTI &gt;$95; Brent &gt;$100</td></tr>
+      <tr><td><b>Fed hawkish surprise</b><br><span style="font-size:10px;color:var(--dim)">no 2026 cut / hike priced</span></td><td><span class="q qWeak">low</span></td><td>cash, value, energy</td><td>long-duration tech/AI, XLU</td><td class="m">dots up; SOFR fwds</td></tr>
+      <tr><td><b>Growth rollover</b><br><span style="font-size:10px;color:var(--dim)">Q2 nowcast fades to actual</span></td><td><span class="q qMod">low-mod</span></td><td>defensives (XLP, XLV, XLU), quality, Treasuries</td><td>cyclicals (XLI, XLF), high-beta AI</td><td class="m">GDPNow &lt;1.5%; claims spike; HY&gt;350bp</td></tr>
+    </table>
+    <p class="cap">Base case = "no-landing reflation persists, oil impulse fades" (Fed holds, AI-infra leads). The scenario table is the contingency plan if the swing factor (oil) or the Fed breaks the base case. The live FOMC (Jun 16–17) is the near-term event; the dot-plot &amp; presser tone matter more than the (held) rate.</p>
+  </div>
+</section>
+
+<!-- 03 TIER 1 SENTIMENT + OVERHEAT -->
+<section>
+  <div class="sh"><span class="n">03</span><h2>Tier 1 — Sentiment, positioning &amp; the overheat gauge</h2><span class="cn">情緒 · 部位 · 過熱</span></div>
+  <p class="lead">The central tension <b>sharpened</b> this week: <b>surveys say more fear, market-based positioning still says long</b>. AAII bears hit a <b>1-year high (52.4%)</b> and bullishness is depressed (30.4%) — a contrarian-bullish tilt — yet true capitulation (F&amp;G &lt;20, put/call &gt;0.8, VIX &gt;25–30, NAAIM &lt;50) has <i>not</i> happened: VIX ~18, put/call 0.54, NAAIM 79, margin debt at an all-time record. The overheat/fuel gauge — margin debt AND price-extension — is the loud signal. But the §4 backtest says both are <i>context</i> gauges, not timing triggers.</p>
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:12.5px;font-weight:600;margin-bottom:8px">Sentiment vs positioning — the divergence</h4>
+      <svg viewBox="0 0 520 210" width="100%" xmlns="http://www.w3.org/2000/svg">
+        <text x="10" y="16" font-size="10" fill="#9aa3b5">SURVEYS (fearful) ← → POSITIONING (still long)</text>
+        <line x1="260" y1="28" x2="260" y2="200" stroke="#363d4f" stroke-dasharray="3 3"/>
+        <text x="135" y="40" font-size="9" fill="#5fc98a" text-anchor="middle" class="m">contrarian-bullish</text>
+        <text x="390" y="40" font-size="9" fill="#e0686a" text-anchor="middle" class="m">complacent / still-long</text>
+        <g font-size="10.5">
+        <text x="10" y="64" fill="#e8eaf0">F&amp;G 41</text><rect x="120" y="56" width="104" height="11" rx="2" fill="#5fc98a" opacity=".7"/><text x="230" y="65" fill="#9aa3b5" class="m" font-size="9">Fear (low third)</text>
+        <text x="10" y="88" fill="#e8eaf0">AAII bear 52%</text><rect x="120" y="80" width="138" height="11" rx="2" fill="#5fc98a" opacity=".7"/><text x="264" y="89" fill="#9aa3b5" class="m" font-size="9">1-yr high</text>
+        <text x="10" y="112" fill="#e8eaf0">Put/Call 0.54</text><rect x="262" y="104" width="70" height="11" rx="2" fill="#e0686a" opacity=".6"/><text x="338" y="113" fill="#9aa3b5" class="m" font-size="9">low → call-heavy</text>
+        <text x="10" y="136" fill="#e8eaf0">VIX ~18</text><rect x="262" y="128" width="92" height="11" rx="2" fill="#e0686a" opacity=".6"/><text x="360" y="137" fill="#9aa3b5" class="m" font-size="9">low → complacent</text>
+        <text x="10" y="160" fill="#e8eaf0">NAAIM 79</text><rect x="262" y="152" width="104" height="11" rx="2" fill="#e0686a" opacity=".6"/><text x="372" y="161" fill="#9aa3b5" class="m" font-size="9">mgrs still long</text>
+        <text x="10" y="184" fill="#e8eaf0">Margin $1.30T</text><rect x="262" y="176" width="128" height="11" rx="2" fill="#e0686a" opacity=".7"/><text x="396" y="185" fill="#9aa3b5" class="m" font-size="9">record leverage</text>
+        </g>
+      </svg>
+      <p class="cap">Surveys (top 2 bars) lean contrarian-bullish and got <i>more</i> extreme (bears 1-yr high); market/positioning gauges (bottom 4) say the crowd has not de-risked. Net: moderate, not a fat pitch — verbal fear over leveraged complacency.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:12.5px;font-weight:600;margin-bottom:8px">Overheat / fund-exhaustion gauge</h4>
+      <table>
+        <tr><th>Gauge</th><th>Reading</th><th>Zone</th></tr>
+        <tr><td><b>Margin debt level</b></td><td class="m">$1.30T</td><td><span class="q qWeak">record high</span></td></tr>
+        <tr><td><b>Margin debt YoY</b></td><td class="m">+53.3%</td><td><span class="q qMod">hot (base-distorted)</span></td></tr>
+        <tr><td><b>Margin / GDP</b></td><td class="m">~4.1%</td><td><span class="q qWeak">near extreme</span></td></tr>
+        <tr><td><b>VIX</b></td><td class="m">~18</td><td><span class="q qWeak">complacent</span></td></tr>
+        <tr><td><b>Breadth (% &gt;200DMA)</b></td><td class="m">~55–60%</td><td><span class="q qStrong">healthy</span></td></tr>
+        <tr><td><b>HY OAS</b></td><td class="m">~278bp</td><td><span class="q qMod">tight (late-cycle)</span></td></tr>
+      </table>
+      <div class="variant" style="margin:12px 0 0">
+        <div class="h">BACKTEST CHECK — does "overheat" reliably mean "sell"?</div>
+        <p>We tested it directly on this universe: when an AI-infra name traded <b>&gt;20% above its 40-week MA</b>, the average forward-8-week return was <b>+19.4%</b> (n=605) vs a <b>+22.4%</b> baseline (n=1,083). In the 2024–26 tape, being "overheated" barely dented forward returns — <b>a naïve overheat-fade would have lost money</b>. Lesson: extension alone is not a timer; only fade it when breadth/credit/curve also roll over (§4).</p>
+      </div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:4px">Composite froth / fund-exhaustion meter &amp; component trends</h4>
+    <p style="font-size:10.5px;color:var(--dim);margin-bottom:8px">Each input scored 0 (calm) → 100 (max froth); arrow = direction over the last ~4–8 weeks. The composite sits <b>elevated, not extreme</b> — leverage is frothy and price-extension is building fast, but survey-fear pulls it down. High enough to respect, not high enough to time a top.</p>
+    <svg viewBox="0 0 880 90" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="froth" x1="0" x2="1"><stop offset="0" stop-color="#5fc98a"/><stop offset=".5" stop-color="#e0a458"/><stop offset="1" stop-color="#e0686a"/></linearGradient></defs>
+      <rect x="40" y="22" width="800" height="16" rx="8" fill="url(#froth)" opacity=".55"/>
+      <text x="40" y="16" font-size="9" fill="#697283" class="m">0 · calm</text>
+      <text x="440" y="16" font-size="9" fill="#697283" class="m" text-anchor="middle">50 · neutral</text>
+      <text x="840" y="16" font-size="9" fill="#697283" class="m" text-anchor="end">100 · euphoria</text>
+      <line x1="528" y1="16" x2="528" y2="46" stroke="#e8eaf0" stroke-width="2"/>
+      <circle cx="528" cy="30" r="6" fill="#e8eaf0"/>
+      <text x="528" y="62" font-size="12" fill="#e8eaf0" text-anchor="middle" font-weight="600">Composite ≈ 61 / 100 — elevated</text>
+      <text x="528" y="78" font-size="9" fill="#9aa3b5" text-anchor="middle">leverage frothy · price-extension at 52w high · sentiment fearful · breadth/credit still benign</text>
+    </svg>
+    <div class="grid4" style="gap:8px;margin-top:6px">
+      <div class="quad" style="padding:8px 10px"><h4 style="font-size:11px;margin-bottom:2px">Margin debt <span class="red">80 ▲</span></h4><p style="font-size:10.5px">record, +6.8% MoM accelerating</p></div>
+      <div class="quad" style="padding:8px 10px"><h4 style="font-size:11px;margin-bottom:2px">Price-extension <span class="red">82 ▲</span></h4><p style="font-size:10.5px">~66% &gt;40w MA, 52w high</p></div>
+      <div class="quad" style="padding:8px 10px"><h4 style="font-size:11px;margin-bottom:2px">HY OAS <span class="amb">72 →</span></h4><p style="font-size:10.5px">~278bp, tight, flat</p></div>
+      <div class="quad" style="padding:8px 10px"><h4 style="font-size:11px;margin-bottom:2px">VIX <span class="amb">68 →</span></h4><p style="font-size:10.5px">~18, complacent</p></div>
+      <div class="quad" style="padding:8px 10px"><h4 style="font-size:11px;margin-bottom:2px">Put/Call <span class="amb">58 →</span></h4><p style="font-size:10.5px">0.54, call-heavy</p></div>
+      <div class="quad" style="padding:8px 10px"><h4 style="font-size:11px;margin-bottom:2px">NAAIM <span class="amb">70 →</span></h4><p style="font-size:10.5px">79, still well-invested</p></div>
+      <div class="quad" style="padding:8px 10px"><h4 style="font-size:11px;margin-bottom:2px">F&amp;G <span class="grn">41 ▲</span></h4><p style="font-size:10.5px">fear (pulls froth down)</p></div>
+      <div class="quad" style="padding:8px 10px"><h4 style="font-size:11px;margin-bottom:2px">Curve <span class="grn">benign →</span></h4><p style="font-size:10.5px">+73bp, un-inverted</p></div>
+    </div>
+    <p class="cap">Trends: margin-debt and price-extension are the two inputs still accelerating into froth; the genuinely-leading lights (breadth, credit, curve) remain green. This is "late-cycle frothy," not "exhaustion now."</p>
+    <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px">
+      <div style="font-size:11.5px;font-weight:600;margin-bottom:2px">Froth is a rate-of-change problem — the price-extension proxy is accelerating</div>
+      <p style="font-size:10.5px;color:var(--dim);margin-bottom:4px">Avg % a typical AI-infra name trades above its own 40-week MA (computed, last 52 weeks). It has <b class="red">more than doubled from ~31% (13 weeks ago) to ~66% now</b>, a fresh 52-week high — froth is not just elevated, it is <i>building fast</i>. This is the rate-of-change the single-point meter above can't show.</p>
+      <svg viewBox="0 0 528 88" width="100%" xmlns="http://www.w3.org/2000/svg">
+        <line x1="4" y1="74" x2="524" y2="74" stroke="#2a3040"/>
+        <polyline fill="none" stroke="#e0a458" stroke-width="1.8" points="4.0,74.0 14.2,73.0 24.4,73.5 34.6,70.4 44.8,66.3 55.0,63.2 65.2,52.3 75.4,58.9 85.6,64.0 95.8,63.2 106.0,56.0 116.2,43.1 126.4,35.4 136.5,46.0 146.7,38.8 156.9,46.3 167.1,39.1 177.3,32.8 187.5,25.8 197.7,29.3 207.9,43.5 218.1,52.6 228.3,28.3 238.5,23.9 248.7,38.7 258.9,38.8 269.1,37.5 279.3,37.0 289.5,41.8 299.7,38.7 309.9,43.7 320.1,41.7 330.3,33.7 340.5,36.8 350.7,30.9 360.9,36.2 371.1,60.2 381.3,55.9 391.5,55.7 401.6,62.8 411.8,55.2 422.0,30.8 432.2,21.7 442.4,9.3 452.6,18.3 462.8,13.8 473.0,14.7 483.2,15.6 493.4,13.3 503.6,24.0 513.8,9.2 524.0,4.0"/>
+        <circle cx="524" cy="4" r="3.2" fill="#e0686a"/>
+        <text x="4" y="85" font-size="8" fill="#697283" class="m">52w ago</text>
+        <text x="252" y="85" font-size="8" fill="#697283" class="m" text-anchor="middle">~3 months ago (~31%)</text>
+        <text x="524" y="85" font-size="8" fill="#e0686a" class="m" text-anchor="end">now ~66% (52w high)</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 04 LEADING INDICATOR BACKTEST -->
+<section>
+  <div class="sh"><span class="n">04</span><h2>The leading-indicator backtest — which warning lights actually lead?</h2><span class="cn">領先指標回測</span></div>
+  <p class="lead">The whole point of a monitor is to act <b>early</b>. So before trusting any indicator we ask: historically, did it <i>lead</i> the move, and how reliably? The map plots each signal by <b>lead time</b> (how early) × <b>reliability</b> (how trustworthy). Two indicators that "feel" predictive — margin-debt YoY and a simple semis-leads-tech rule — score in the admire-only corner. The component-shortage signal, the yield curve, and credit spreads are the ones that genuinely lead.</p>
+  <div class="panel">
+    <svg viewBox="0 0 880 300" width="100%" xmlns="http://www.w3.org/2000/svg">
+ <line x1="70" y1="255" x2="850" y2="255" stroke="#363d4f"/><line x1="70" y1="20" x2="70" y2="255" stroke="#363d4f"/>
+ <g class="m" font-size="8.5" fill="#697283" text-anchor="middle">
+ <text x="70" y="270">0</text><text x="198" y="270">3</text><text x="326" y="270">6</text><text x="455" y="270">9</text><text x="583" y="270">12</text><text x="711" y="270">15</text><text x="838" y="270">18mo</text></g>
+ <text x="460" y="290" font-size="11" fill="#9aa3b5" text-anchor="middle">LEAD TIME (months a signal precedes the move) -&gt;</text>
+ <text x="16" y="140" font-size="11" fill="#9aa3b5" text-anchor="middle" transform="rotate(-90 16 140)">RELIABILITY -&gt;</text>
+ <rect x="455" y="20" width="395" height="135" fill="rgba(95,201,138,.06)"/>
+ <text x="650" y="36" font-size="10" fill="#5fc98a" text-anchor="middle" class="m">USEFUL &amp; EARLY - trust these</text>
+ <rect x="70" y="165" width="240" height="90" fill="rgba(224,104,106,.05)"/>
+ <text x="190" y="250" font-size="10" fill="#e0686a" text-anchor="middle" class="m">admire-only (coincident / noisy)</text>
+ <g font-size="10">
+  <circle cx="560" cy="48" r="7" fill="#5fc98a"/><text x="572" y="45" fill="#e8eaf0">Component lead-time</text><text x="572" y="58" fill="#697283" class="m" font-size="9">~7-18mo - strongest early read</text>
+  <circle cx="711" cy="62" r="7" fill="#5fc98a"/><text x="711" y="86" fill="#e8eaf0" text-anchor="middle">Yield curve 10Y-3M</text><text x="711" y="99" fill="#697283" class="m" font-size="9" text-anchor="middle">7/7 recessions</text>
+  <circle cx="600" cy="118" r="7" fill="#5aa9e0"/><text x="612" y="115" fill="#e8eaf0">HY credit OAS (breakout)</text><text x="612" y="128" fill="#697283" class="m" font-size="9">widens ~12mo before tops</text>
+  <circle cx="198" cy="92" r="7" fill="#5aa9e0"/><text x="210" y="89" fill="#e8eaf0">Breadth divergence</text><text x="210" y="102" fill="#697283" class="m" font-size="9">led 2007/2021 by 2-4mo</text>
+  <circle cx="156" cy="150" r="6" fill="#d2a24a"/><text x="168" y="147" fill="#e8eaf0">Sentiment (extremes only)</text>
+  <circle cx="156" cy="212" r="6" fill="#e0686a"/><text x="168" y="209" fill="#e8eaf0">Margin-debt YoY</text><text x="168" y="222" fill="#697283" class="m" font-size="9">1mo corr ~ 0.00</text>
+  <circle cx="113" cy="232" r="6" fill="#e0686a"/><text x="125" y="229" fill="#e8eaf0">Semis-&gt;Tech (4w)</text><text x="125" y="242" fill="#697283" class="m" font-size="9">corr 0.03</text>
+ </g>
+</svg>
+    <div class="legend"><span><i style="background:#5fc98a"></i> trust &amp; act early</span><span><i style="background:#5aa9e0"></i> useful on breakout/divergence</span><span><i style="background:#d2a24a"></i> conditional (extremes only)</span><span><i style="background:#e0686a"></i> admire-only</span></div>
+  </div>
+  <div class="panel" style="margin-top:14px;overflow-x:auto">
+    <table>
+      <tr><th>Indicator</th><th>Reading now</th><th>Backtest verdict (hit-rate / lead time)</th><th>Useful?</th><th>Where a retail investor reads it</th></tr>
+      <tr><td><b>Yield curve 10Y-3M</b></td><td class="m grn">+73bp (normal)</td><td>Preceded <b>7/7</b> recessions; lead <b>6–24mo</b> to recession; equities historically peak <b>13–17mo after</b> inversion.</td><td><span class="q qStrong">STRONG (slow)</span></td><td>FRED <span class="m">T10Y3M</span></td></tr>
+      <tr><td><b>Breadth divergence</b><br><span style="font-size:10px;color:var(--dim)">A/D line, %&gt;200DMA</span></td><td class="m grn">confirming (no div.)</td><td>A/D peaked <b>~4mo</b> before the 2007 top; small-caps/breadth led the 2021 top by <b>~2mo</b>. Warns only when index makes highs that breadth doesn't.</td><td><span class="q qStrong">USEFUL</span></td><td>StockCharts $NYAD; Barchart $S5TH</td></tr>
+      <tr><td><b>HY credit OAS</b></td><td class="m amb">~278bp (tight)</td><td>Widens <i>ahead</i> of drawdowns; the all-time-tight (2.41% Jun-2007) preceded the GFC by ~12mo. Signal is the <b>breakout</b>, not the level.</td><td><span class="q qStrong">USEFUL (breakout)</span></td><td>FRED <span class="m">BAMLH0A0HYM2</span></td></tr>
+      <tr><td><b>Component shortage / lead-time</b></td><td class="grn">all AI-infra accel.</td><td>Lead-time extension / price hikes preceded equity peaks by <b>7–18mo</b> across MLCC-18, MCU-21, HBM-23/24 (see §5).</td><td><span class="q qStrong">STRONGEST early</span></td><td>Distributor circulars, earnings transcripts, TrendForce/DIGITIMES</td></tr>
+      <tr><td><b>Sentiment (F&amp;G / AAII)</b></td><td class="m amb">F&amp;G 41 · bears 52%</td><td>Contrarian extremes work, but need <b>F&amp;G&lt;20 / P&amp;C&gt;0.8 / VIX&gt;25</b> for high conviction. Current reading is moderate only (bears high, but VIX/P&amp;C complacent).</td><td><span class="q qMod">CONDITIONAL</span></td><td>CNN F&amp;G; AAII survey</td></tr>
+      <tr><td><b>Margin-debt YoY</b></td><td class="m red">+53% (record $)</td><td>1-month-ahead correlation with returns <b>≈ 0.00</b> (CXO); lead times 0–5mo and inconsistent; coincident-to-lagging. Context gauge, not a timer.</td><td><span class="q qWeak">WEAK / context</span></td><td>FINRA Margin Statistics</td></tr>
+      <tr><td><b>Semis-RS-leads-Tech</b><br><span style="font-size:10px;color:var(--dim)">SMH RS → XLK fwd 4w</span></td><td class="m">corr 0.03 · 59% hit</td><td>Our own 2-yr weekly test: barely better than a coin flip at the 4-week horizon (n=88). Don't lean on it standalone.</td><td><span class="q qWeak">WEAK (our test)</span></td><td>SMH ÷ SPY vs XLK (chart)</td></tr>
+    </table>
+    <p class="cap">Backtest sources: CXO Advisory &amp; QuantPedia (margin debt); Chicago Fed / Estrella-Mishkin / CNBC / Dreyfus (curve); StockCharts ChartSchool, Schwab, Morningstar (breadth 2007/2021); FRED/TradingEconomics (HY OAS). Semis-RS and overheat tests computed in-house on 2-yr weekly IBKR data (directional, small-sample). Stamped 2026-06-16.</p>
+  </div>
+  <div class="panel" style="margin-top:14px;overflow-x:auto">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:4px">Backtest audit — the numbers behind the verdicts (auditable)</h4>
+    <p style="font-size:10.5px;color:var(--dim);margin-bottom:8px">Tests 1–4 computed in-house on 2-yr weekly IBKR bars (2024-06-17 → 2026-06-15). Tests 5–7 are published longer-history studies (cited). Small in-house n = directional, not statistically conclusive — shown precisely so you can weight them yourself.</p>
+    <table>
+      <tr><th>#</th><th>Signal &amp; definition</th><th>Universe</th><th>n</th><th>Baseline</th><th>Signal result</th><th>Verdict</th></tr>
+      <tr><td>1</td><td><b>Overheat fade</b> — name &gt;20% above 40w MA → fwd 8w return</td><td>AI-infra + SMH/NVDA</td><td class="m">605<br><span style="color:var(--dim)">(base 1083)</span></td><td class="m">+22.4%</td><td class="m">+19.4%</td><td><span class="q qWeak">fade FAILS this regime</span></td></tr>
+      <tr><td>2</td><td><b>Semis lead Tech</b> — Δ13w SMH relative strength → XLK fwd 4w</td><td>SMH/SPY/XLK</td><td class="m">88</td><td class="m">~50%</td><td class="m">corr 0.03 · hit 59.1%</td><td><span class="q qWeak">WEAK at 4w</span></td></tr>
+      <tr><td>3</td><td><b>Momentum persistence</b> — basket trail-13w → fwd 4w return</td><td>6 L3 baskets</td><td class="m">~87/seg</td><td class="m">corr 0</td><td class="m">−0.17 … +0.15 (mixed)</td><td><span class="q qWeak">use VR regime, not raw persistence</span></td></tr>
+      <tr><td>4</td><td><b>Mean-reversion at extremes</b> — L1 sector RS z&gt;1.5 vs z&lt;−1.5 → fwd 4w</td><td>11 L1 sectors</td><td class="m">45 / 159</td><td class="m">—</td><td class="m">hot +0.6% vs cold +1.0%</td><td><span class="q qMod">MILD reversion (cold bounces)</span></td></tr>
+      <tr><td>5</td><td><b>Yield curve</b> — 10Y-3M inversion → recession (cited)</td><td>US, 1960s→</td><td class="m">7</td><td class="m">—</td><td class="m">7/7, lead 6–24mo</td><td><span class="q qStrong">STRONG (slow)</span></td></tr>
+      <tr><td>6</td><td><b>Margin-debt YoY</b> → fwd returns (CXO, cited)</td><td>US, 1990s→</td><td class="m">~4–5</td><td class="m">—</td><td class="m">1mo corr ≈ 0.00</td><td><span class="q qWeak">WEAK / context only</span></td></tr>
+      <tr><td>7</td><td><b>Breadth divergence</b> — A/D fails to confirm index high (cited)</td><td>US, 2007/2021</td><td class="m">2</td><td class="m">—</td><td class="m">led ~2–4mo</td><td><span class="q qStrong">USEFUL divergence</span></td></tr>
+    </table>
+    <p class="cap">Robustness note: tests 1–2 were also directionally consistent at the 13-week horizon (overheat fade still failed; semis-lead still weak). The honest reading — in this 2-yr AI-led tape, <b>price-extension and simple persistence signals do not lead; regime (VR/Hurst) + the cited macro signals (5,7) do.</b></p>
+  </div>
+  <div class="panel" style="margin-top:14px;overflow-x:auto">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:4px">Signal bridge — kept / dropped / context, and where each feeds the decision</h4>
+    <p style="font-size:10.5px;color:var(--dim);margin-bottom:8px">This makes the gate operational: every signal is graded by confidence and mapped to where it drives an action downstream. "Context" = informs conviction but never triggers a trade alone.</p>
+    <table>
+      <tr><th>Signal</th><th>Evidence horizon</th><th>Confidence</th><th>Status</th><th>Feeds into</th></tr>
+      <tr><td><b>Yield curve 10Y-3M</b></td><td>60+ yrs, 7 episodes</td><td><span class="q qStrong">A</span></td><td class="grn">KEPT</td><td>§8 hedge rule (re-inversion = 1 of 3)</td></tr>
+      <tr><td><b>Breadth divergence</b></td><td>2007, 2021</td><td><span class="q qStrong">A−</span></td><td class="grn">KEPT</td><td>§8 hedge rule (non-confirm = 1 of 3); §6 narrow-leadership flag</td></tr>
+      <tr><td><b>HY OAS breakout</b></td><td>2007→, real-time</td><td><span class="q qStrong">B+</span></td><td class="grn">KEPT</td><td>§8 hedge rule (&gt;350bp = 1 of 3)</td></tr>
+      <tr><td><b>Component lead-time</b></td><td>MLCC/MCU/HBM</td><td><span class="q qStrong">B+</span></td><td class="grn">KEPT</td><td>§5 emerging-trend entries; §7 fundamental overlay</td></tr>
+      <tr><td><b>Price regime (VR8/Hurst)</b></td><td>2yr weekly (in-house)</td><td><span class="q qMod">B−</span></td><td class="grn">KEPT</td><td>§6/§7 momentum vs MR; §8 ride/dip-buy lean</td></tr>
+      <tr><td><b>Sentiment (F&amp;G/AAII)</b></td><td>decades</td><td><span class="q qMod">C+</span></td><td class="amb">CONTEXT</td><td>§3 only-at-extremes flag; not a standalone trigger</td></tr>
+      <tr><td><b>Margin-debt YoY</b></td><td>~5 episodes</td><td><span class="q qWeak">D</span></td><td class="amb">CONTEXT</td><td>§3 froth gauge only — explicitly NOT a timer</td></tr>
+      <tr><td><b>Overheat fade</b></td><td>2yr weekly (in-house)</td><td><span class="q qWeak">D</span></td><td class="red">DROPPED</td><td>fails this regime — do not fade on extension alone</td></tr>
+      <tr><td><b>Semis→Tech (4w)</b></td><td>2yr weekly (in-house)</td><td><span class="q qWeak">D</span></td><td class="red">DROPPED</td><td>corr 0.03 — not used as a trigger</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 05 EMERGING-TREND ENGINE -->
+<section>
+  <div class="sh"><span class="n">05</span><h2>The emerging-trend engine — catching the next CPU/MLCC-style hike early</h2><span class="cn">新興趨勢偵測</span></div>
+  <p class="lead">History rhymes: an upstream <b>component shortage</b> (lead-times stretch, prices hike, capacity sells out) has repeatedly preceded a big equity move by <b>roughly 7–18 months</b>, and the earliest signal was visible in <i>free</i> public sources months before consensus. Below: the canonical analogs with their measured lead times, the reusable detection playbook, what's flashing in AI-infra <i>right now</i>, the false-positives that broke, and a still-latent watchlist.</p>
+  <div class="panel">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:4px">Four analogs — months from earliest signal to the stock peak</h4>
+    <svg viewBox="0 0 880 250" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <line x1="210" y1="30" x2="210" y2="225" stroke="#363d4f" stroke-dasharray="2 3"/>
+      <text x="210" y="20" font-size="9" fill="#697283" text-anchor="middle" class="m">earliest signal</text>
+      <line x1="820" y1="30" x2="820" y2="225" stroke="#363d4f"/>
+      <text x="820" y="20" font-size="9" fill="#e0686a" text-anchor="middle" class="m">stock peak</text>
+      <g font-size="11">
+        <text x="10" y="58" fill="#e8eaf0">MLCC passives '18</text><text x="10" y="71" fill="#697283" font-size="9">Yageo · clean analog</text>
+        <rect x="210" y="48" width="237" height="14" rx="3" fill="#5fc98a" opacity=".5"/><text x="455" y="59" fill="#9aa3b5" class="m" font-size="9">~7mo (struct. exit ~18mo)</text>
+        <text x="10" y="100" fill="#e8eaf0">MCU / foundry '21</text><text x="10" y="113" fill="#697283" font-size="9">Renesas/NXP/TSMC</text>
+        <rect x="210" y="90" width="356" height="14" rx="3" fill="#5fc98a" opacity=".5"/><text x="574" y="101" fill="#9aa3b5" class="m" font-size="9">~9–12mo</text>
+        <text x="10" y="142" fill="#e8eaf0">HBM / CoWoS '23–24</text><text x="10" y="155" fill="#697283" font-size="9">SK Hynix/Micron/TSMC</text>
+        <rect x="210" y="132" width="458" height="14" rx="3" fill="#5fc98a" opacity=".5"/><text x="676" y="143" fill="#9aa3b5" class="m" font-size="9">~12–15mo</text>
+        <text x="10" y="184" fill="#e8eaf0">CPU '18 (Intel)</text><text x="10" y="197" fill="#697283" font-size="9">weak / inverse analog</text>
+        <rect x="210" y="174" width="60" height="14" rx="3" fill="#e0686a" opacity=".45"/><text x="278" y="185" fill="#9aa3b5" class="m" font-size="9">shortage helped AMD/foundries, hurt Intel</text>
+      </g>
+      <text x="40" y="232" font-size="9.5" fill="#697283">Lesson: enter on lead-time/price/capacity-exit signals; "sold-out" language is a late confirmation; map who captures the rent (substitute vs constrained maker).</text>
+    </svg>
+  </div>
+  <div class="panel" style="margin-top:14px;overflow-x:auto">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:8px">Detection playbook — signal → threshold → source → typical lead</h4>
+    <table>
+      <tr><th>#</th><th>Leading signal</th><th>Trigger threshold</th><th>Free source</th><th>Lead</th><th>When</th></tr>
+      <tr><td>1</td><td><b>Distributor lead-time extension</b></td><td>std lead-time +50% or crosses ~12+ wks (1–3mo → 6mo)</td><td>TTI/Avnet circulars, SemiMedia, Sourceability</td><td class="m">7–18mo</td><td><span class="tag tEarly">early</span></td></tr>
+      <tr><td>2</td><td><b>Spot / price hikes</b></td><td>vendor notice &gt;15–20%; spot &gt;2× list</td><td>eeNews, DIGITIMES, TrendForce</td><td class="m">6–12mo</td><td><span class="tag tEarly">early</span></td></tr>
+      <tr><td>6</td><td><b>Upstream capacity exit / reallocation</b></td><td>incumbents abandon a node/category for higher margin</td><td>trade press, capex calls</td><td class="m">12–18mo</td><td><span class="tag tEarly">earliest</span></td></tr>
+      <tr><td>4</td><td><b>Book-to-bill / bookings &gt;1</b></td><td>B:B &gt;1.0 rising; bookings up sequentially (~2× QoQ)</td><td>SEMI Taiwan/Japan, 10-Q/8-K bookings</td><td class="m">9–12mo</td><td><span class="tag tMid">mid</span></td></tr>
+      <tr><td>7</td><td><b>Foundry/packaging "can't meet demand"</b></td><td>capacity &lt;85% of demand; "capacity to double" announced</td><td>TSMC/UMC calls, The Register</td><td class="m">12–15mo</td><td><span class="tag tMid">mid</span></td></tr>
+      <tr><td>3</td><td><b>Allocation / "sold-out" language</b></td><td>supplier says product "sold out for [year]"</td><td>earnings transcripts, trade press</td><td class="m">~0mo</td><td><span class="tag tLate">late confirm</span></td></tr>
+      <tr><td>5</td><td><b>Double-ordering / panic buffer</b></td><td>cancellation penalties appear; buffer-build chatter</td><td>earnings Q&amp;A, DIGITIMES/Nikkei</td><td class="m">6–12mo</td><td><span class="tag tLate">late-cycle warn</span></td></tr>
+    </table>
+  </div>
+  <div class="variant">
+    <div class="h">WHAT'S FLASHING IN AI-INFRA NOW (mid-2026) — mapped onto the playbook</div>
+    <p style="margin-bottom:6px"><b>Early signals firing (the ones that lead):</b></p>
+    <ul class="tight">
+      <li><b>Power — transformers/turbines:</b> HV transformer lead times stretched to <b>~5 years</b>; GE Vernova gas-turbine slots only open in <b>2029–30</b> (signal #1, earliest). The most extreme lead-time blowout of the group → bullish equipment, bearish build timelines.</li>
+      <li><b>Compute fabric — CoWoS:</b> lead times <b>50+ weeks</b>, lines fully booked, capacity ramping ~75–80K → 120–130K wpm by late-2026; Nvidia booked ~60% of 2026 allocation (signals #1 + #7).</li>
+      <li><b>Optics — EML/CW lasers:</b> Nvidia locked ~$4B of laser supply at Lumentum/Coherent (Mar-2026), pushing rivals past 2027 (signals #2 + #6); 800G output ~40–60% short of demand through 2027 (McKinsey, est.).</li>
+      <li><b>Cooling — Vertiv:</b> backlog <b>$15.0B (+109% YoY)</b>, ~12–18mo coverage (signal #4 bookings).</li>
+    </ul>
+    <p style="margin-bottom:6px"><b>Late-confirmation signals (price-in already underway):</b></p>
+    <ul class="tight">
+      <li><b>HBM "sold out":</b> all three makers sold out for 2026; HBM4 in volume (Feb-2026); DRAM +60–70% QoQ — a tell to <i>size up</i>, not to <i>initiate</i>.</li>
+    </ul>
+    <p style="margin-top:6px;font-size:12px"><b>Read:</b> the earliest, highest-lead signals are clustering in <b>Power</b> and <b>Compute-fabric/CoWoS</b>; the optics-laser constraint is real but partly priced; HBM language is now a confirmation, not an early entry. This corroborates the §7 regime split — and is why the §8 lean is "accumulate Power's dip."</p>
+  </div>
+  <div class="panel" style="margin-top:14px;overflow-x:auto">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:4px">Still-latent watchlist by sub-cluster — the under-covered early-alpha surface</h4>
+    <p style="font-size:10.5px;color:var(--dim);margin-bottom:8px">The chosen names in §7 have already run. These are <b>candidate links to research</b> (left of the crowd), not recommendations — verify listing, fundamentals &amp; valuation before acting; stage is (est.). This is the CPU/MLCC-style "be early" surface.</p>
+    <table>
+      <tr><th>Sub-cluster</th><th>Candidate</th><th>Stage</th><th>Why still early</th><th>Wake-up trigger</th></tr>
+      <tr><td rowspan="2"><b>Compute fabric</b></td><td><b>BESI</b> (Besi)</td><td><span class="q qMod">early</span></td><td>hybrid-bonding tool maker; sub-10µm bonding scarce for HBM4/3D</td><td>hybrid-bonding tool order surge; HBM4 yield ramp</td></tr>
+      <tr><td><b>ONTO</b> (Onto Innov.)</td><td><span class="q qMod">early</span></td><td>adv-packaging metrology underowned vs front-end equip</td><td>panel-level / HBM metrology bookings inflect</td></tr>
+      <tr><td rowspan="2"><b>Optics</b></td><td><b>AAOI</b></td><td><span class="q qMod">early</span></td><td>transceiver/laser maker; hyperscaler 800G/1.6T design-win optionality</td><td>multi-quarter datacenter order ramp confirmed</td></tr>
+      <tr><td><b>POET</b> (POET Tech)</td><td><span class="q qWeak">latent · high-risk</span></td><td>pre-scale optical-interposer bet; binary on CPO adoption</td><td>1.6T / CPO interposer design-win announcement</td></tr>
+      <tr><td rowspan="2"><b>Cooling</b></td><td><b>NVT</b> (nVent)</td><td><span class="q qMod">recognition</span></td><td>power+cooling enclosure/busbar convergence underpriced</td><td>liquid-cooling revenue mix step-up</td></tr>
+      <tr><td><b>BWXT / API peers</b></td><td><span class="q qMod">recognition</span></td><td>CDU / coolant-distribution attach; second-source to VRT/MOD</td><td>CDU win at a 2nd hyperscaler</td></tr>
+      <tr><td rowspan="2"><b>Power delivery</b></td><td><b>VICR</b> (Vicor)</td><td><span class="q qMod">early</span></td><td>48V→PoL / vertical power; 800VDC rack shift favors density</td><td>Rubin/800VDC design wins disclosed</td></tr>
+      <tr><td><b>POWL</b> (Powell)</td><td><span class="q qMod">early</span></td><td>switchgear/substation balance-of-plant for datacenters</td><td>datacenter backlog disclosure</td></tr>
+      <tr><td rowspan="2"><b>Networking silicon</b></td><td><b>SMTC</b> (Semtech)</td><td><span class="q qMod">early</span></td><td>FiberEdge TIA / AEC exposure underowned vs ALAB/CRDO</td><td>AEC design win at a hyperscaler</td></tr>
+      <tr><td><b>MXL</b> (MaxLinear)</td><td><span class="q qWeak">latent · turnaround</span></td><td>optical PHY / interconnect turnaround optionality</td><td>datacenter interconnect revenue inflection</td></tr>
+      <tr><td rowspan="2"><b>Substrates</b></td><td><b>GLW</b> (Corning)</td><td><span class="q qWeak">latent</span></td><td>glass-core substrate ~2027 inflection; small mix today</td><td>glass-core qualification by a major OSAT/foundry</td></tr>
+      <tr><td><b>CAMT</b> (Camtek)</td><td><span class="q qMod">early</span></td><td>adv-packaging inspection; ABF/panel demand pull</td><td>advanced-packaging inspection order acceleration</td></tr>
+    </table>
+  </div>
+  <div class="panel" style="margin-top:14px;overflow-x:auto">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:4px">Dated analog timeline — apply the pattern with entry &amp; too-late windows</h4>
+    <table>
+      <tr><th>Episode</th><th>Earliest signal (date)</th><th>Hike / confirm (date)</th><th>Stock peak (date)</th><th>Lead</th><th>Entry window</th><th>Too-late</th></tr>
+      <tr><td><b>MLCC '18</b><br><span style="font-size:10px;color:var(--dim)">Yageo</span></td><td>Japanese capacity exit, late-2016</td><td>+20–30% / 6mo lead-times, Dec-2017</td><td class="m">NT$1,310 · Jul-2018</td><td class="m">~7mo</td><td class="grn">late-2017→Q1-2018</td><td class="red">after Q2-2018</td></tr>
+      <tr><td><b>MCU '21</b><br><span style="font-size:10px;color:var(--dim)">Renesas/foundry</span></td><td>OEM cuts mid-2020; bookings surge Q4-2020</td><td>lead-times 15→22wk, Feb–Apr-2021</td><td class="m">broad semi · late-2021/Q1-22</td><td class="m">~9–12mo</td><td class="grn">H1-2021</td><td class="red">Q4-2021</td></tr>
+      <tr><td><b>HBM/CoWoS '23</b><br><span style="font-size:10px;color:var(--dim)">SK Hynix/MU/TSM</span></td><td>HBM3 inflection Q2-2023; CoWoS 80% mid-2023</td><td>"sold out 2024", Mar-2024</td><td class="m">MU $157 · Jun-2024</td><td class="m">~12–15mo</td><td class="grn">H2-2023</td><td class="red">mid-2024</td></tr>
+      <tr><td><b>CPU '18</b><br><span style="font-size:10px;color:var(--dim)">inverse — Intel</span></td><td>14nm constraint signs, early-2018</td><td>confirmed on Q2 call, Jul-2018</td><td class="m">INTC ~$57 · Jun-2018</td><td class="amb">inverse</td><td class="grn">long AMD/foundries, not Intel</td><td class="dim">—</td></tr>
+    </table>
+    <p class="cap">The pattern: the entry window opens at the earliest lead-time/capacity-exit signal and closes ~2–3 months before the eventual peak (price tops on <i>expected relief</i>, while shortages are still acute). Map current AI-infra signals (§5 above) onto these windows — Power &amp; CoWoS are early-window today.</p>
+  </div>
+  <div class="panel" style="margin-top:14px;overflow-x:auto">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:4px">False positives — shortages that did NOT produce durable alpha (so you don't chase every panic)</h4>
+    <p style="font-size:10.5px;color:var(--dim);margin-bottom:8px">The analogs above are the wins; the discipline is knowing the failures. Each of these looked like a shortage-driven uptrend and then broke — almost always because the "shortage" was demand pull-forward / double-ordering, and capacity flooded.</p>
+    <table>
+      <tr><th>Episode</th><th>What it looked like</th><th>What broke it</th><th>Lesson / disconfirming tell</th></tr>
+      <tr><td><b>DRAM/NAND '17→'18</b></td><td>memory "shortage", record prices, Micron/Hynix soared</td><td>capacity flooded; memory glut → MU fell ~−50% into 2019</td><td>commodity memory has <b>no capacity discipline</b> — fade when capex spikes</td></tr>
+      <tr><td><b>Broad chip shortage '21→'22</b></td><td>everything on allocation, lead-times &gt;22wk, double-ordering</td><td>panic double-orders cancelled; '22 semi bear (SOX −35%)</td><td><b>double-ordering (signal #5) is a LATE warning</b>, not an entry</td></tr>
+      <tr><td><b>MLCC after Jul-'18</b></td><td>lead-times still stretched, "shortage not over"</td><td>Yageo −68% as capacity adds were announced</td><td>price tops on <b>expected relief</b>, not shortage end — watch capacity-add PRs</td></tr>
+      <tr><td><b>Solar polysilicon '21–'22</b></td><td>polysilicon spot prices 4×, "structural" tightness</td><td>massive China capacity → poly prices collapsed ~2023</td><td>if the constrained step is <b>easy to build</b>, the rent is temporary</td></tr>
+    </table>
+    <p class="cap">Apply to today: the safest AI-infra constraints are the ones <b>hard to flood</b> — Power transformers (years to add) score highest; commodity-like or fab-addable steps (substrates mainstream, fabless silicon) carry the most "false-positive" risk (see §7 capacity-discipline column). The recurring MLCC/passives crunch is back on watch as AI-server passive content rises — a latent fundamental tell.</p>
+  </div>
+  <div class="variant" style="border-left-color:var(--mom)">
+    <div class="h" style="color:var(--mom)">TOP 3 TO RESEARCH THIS WEEK (latent · research leads, verify before acting)</div>
+    <ul class="tight">
+      <li><b>VICR (Power delivery)</b> — stage <i>early</i> · catalyst &lt;6mo (800VDC/Rubin rack design wins) · evidence med · crowding low. Power is where §5's earliest lead-time signal fires. <b>Monitor:</b> NVIDIA 800VDC roadmap + Vicor bookings/8-K.</li>
+      <li><b>BESI (Compute fabric)</b> — stage <i>early</i> · catalyst HBM4 / 3D hybrid-bonding ramp 2026 · evidence med-high · crowding med. <b>Monitor:</b> Besi order intake + SK Hynix HBM4 yield news.</li>
+      <li><b>SMTC (Networking silicon)</b> — stage <i>early</i> · catalyst AEC/FiberEdge design-win at a hyperscaler · evidence med · crowding low; underowned vs ALAB/CRDO. <b>Monitor:</b> Semtech data-center revenue + AEC press.</li>
+    </ul>
+    <p style="font-size:11px;color:var(--dim);margin-top:4px"><b>Buyable now?</b> No — all three already screen <b>euphoric</b> on valuation (see §8 overlay). These are <b>watch-for-the-pullback</b>, ranked by catalyst proximity (VICR ≈ BESI &gt; SMTC). <b>Upgrade rule:</b> research → <i>half-size starter</i> only when (a) the named catalyst confirms AND (b) price is within ~10% of the 20w MA (crowding reset). Re-check each at its next earnings/order print. The early-alpha here is doing the work <i>now</i> so you can act on the next drawdown — not chasing them at the highs.</p>
+  </div>
+</section>
+
+<!-- 06 TIER 2 L1 ROTATION -->
+<section>
+  <div class="sh"><span class="n">06</span><h2>Tier 2 — L1 sector rotation (momentum vs mean-reversion)</h2><span class="cn">產業輪動 L1</span></div>
+  <p class="lead">Leadership is <b>dangerously narrow</b>: on the rotation map only <b>Technology is "Leading"</b> (high relative strength AND rising) — every other sector is Weakening or Lagging, losing RS to Tech. The regime table confirms it: at the 2-month horizon most sectors are <b>choppy/mean-reverting (VR&lt;1)</b>; only Tech and Discretionary lean momentum, and Utilities is outright mean-reversion. The new wrinkle: <b>Energy has rolled hard</b> (−6% 13w on the oil crack) — the only other recent YTD leader is now decisively Weakening. Translation: don't fight Tech leadership, but its narrowness is exactly the breadth set-up §4 says to watch.</p>
+  <div class="panel" style="overflow-x:auto">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:4px">Sector rotation heatmap — returns across horizons (sorted by YTD)</h4>
+    <p style="font-size:10.5px;color:var(--dim);margin-bottom:8px">Green = strength, red = weakness. SPY reference: <b class="m">YTD +11.2%</b> — sectors above that line are YTD relative winners (only XLK, XLE, XLB). Trend = 1-month pace (▲ accelerating · ▼ decelerating).</p>
+    <table class="hm">
+      <tr><th class="lbl">Sector</th><th>1m</th><th>13w</th><th>YTD</th><th>1y</th><th>Trend</th></tr>
+      <tr><td class="lbl">XLK Technology</td><td class="hp2">+19.8</td><td class="hp3">+41.5</td><td class="hp3">+32.9</td><td class="hp3">+66.3</td><td class="hp3">▲</td></tr>
+      <tr><td class="lbl">XLE Energy</td><td class="hn2">−5.6</td><td class="hn2">−6.1</td><td class="hp3">+26.7</td><td class="hp3">+42.4</td><td class="hn2">▼</td></tr>
+      <tr><td class="lbl">XLB Materials</td><td class="hz">−0.6</td><td class="hp2">+12.4</td><td class="hp2">+13.4</td><td class="hp3">+20.8</td><td class="hz">→</td></tr>
+      <tr><td class="lbl">XLI Industrials</td><td class="hz">−0.8</td><td class="hp2">+11.1</td><td class="hp2">+12.0</td><td class="hp3">+22.8</td><td class="hz">→</td></tr>
+      <tr><td class="lbl">XLRE Real Estate</td><td class="hz">−0.9</td><td class="hp2">+11.0</td><td class="hp2">+9.7</td><td class="hp1">+9.0</td><td class="hz">→</td></tr>
+      <tr><td class="lbl">XLP Staples</td><td class="hn1">−1.6</td><td class="hp1">+5.3</td><td class="hp1">+7.4</td><td class="hp1">+2.8</td><td class="hz">→</td></tr>
+      <tr><td class="lbl">XLU Utilities</td><td class="hn2">−5.1</td><td class="hz">+0.5</td><td class="hp1">+4.8</td><td class="hp2">+11.5</td><td class="hn2">▼</td></tr>
+      <tr><td class="lbl">XLY Discretionary</td><td class="hp1">+2.2</td><td class="hp2">+10.1</td><td class="hp1">+1.5</td><td class="hp2">+13.9</td><td class="hp1">▲</td></tr>
+      <tr><td class="lbl">XLV Health Care</td><td class="hp1">+2.5</td><td class="hp1">+5.2</td><td class="hn1">−3.0</td><td class="hp2">+14.7</td><td class="hp1">▲</td></tr>
+      <tr><td class="lbl">XLC Comm Svcs</td><td class="hz">−0.7</td><td class="hz">−0.1</td><td class="hn1">−1.4</td><td class="hp2">+15.5</td><td class="hz">→</td></tr>
+      <tr><td class="lbl">XLF Financials</td><td class="hn1">−1.1</td><td class="hp2">+9.5</td><td class="hn2">−5.3</td><td class="hp1">+2.8</td><td class="hz">→</td></tr>
+    </table>
+    <p class="cap">The split screen: Tech leads on every horizon; Energy is still a YTD winner but rolling over hard (1m −5.6, 13w −6.1) as oil cracks; defensives (XLV, XLY) show a 1-month bounce inside their YTD lag — a mean-reversion twitch, not leadership (matches the regime table &amp; §4 hedge logic).</p>
+    <p style="font-size:11px;color:var(--mut);margin-top:6px"><b style="color:var(--txt)">RS vs SPY (YTD, ppts):</b> XLK <b class="grn">+22</b> · XLE +15 · XLB +2 · XLI +1 · XLRE −1 · XLP −4 · XLU −6 · XLY −10 · XLV −14 · XLC −13 · XLF <b class="red">−17</b> — only Tech &amp; Energy beat the index YTD, and Energy's lead is shrinking fast.</p>
+  </div>
+  <div class="panel" style="margin-top:14px">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:6px">L2 bridge — how the funnel gets from sectors to the AI-infra sub-clusters</h4>
+    <svg viewBox="0 0 880 96" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <g font-size="10.5">
+        <rect x="10" y="30" width="120" height="38" rx="6" fill="#13161e" stroke="#2dd4bf"/><text x="70" y="46" text-anchor="middle" fill="#e8eaf0">XLK Tech</text><text x="70" y="60" text-anchor="middle" fill="#5fc98a" font-size="8.5" class="m">Leading · L1</text>
+        <text x="142" y="53" fill="#697283">→</text>
+        <rect x="158" y="30" width="140" height="38" rx="6" fill="#13161e" stroke="#5aa9e0"/><text x="228" y="46" text-anchor="middle" fill="#e8eaf0">SMH / SOX</text><text x="228" y="60" text-anchor="middle" fill="#9aa3b5" font-size="8.5" class="m">+66% YTD · VR 1.10</text>
+        <text x="310" y="53" fill="#697283">→</text>
+        <rect x="326" y="30" width="170" height="38" rx="6" fill="#13161e" stroke="#8b84cf"/><text x="411" y="46" text-anchor="middle" fill="#e8eaf0">AI-hardware complex</text><text x="411" y="60" text-anchor="middle" fill="#9aa3b5" font-size="8.5" class="m">NVDA anchor · the demand pull</text>
+        <text x="508" y="53" fill="#697283">→</text>
+        <rect x="524" y="20" width="346" height="58" rx="6" fill="#13161e" stroke="#e0a458"/><text x="697" y="40" text-anchor="middle" fill="#e8eaf0">6 L3 sub-clusters (§7)</text><text x="697" y="56" text-anchor="middle" fill="#9aa3b5" font-size="8" class="m">Networking · Compute · Cooling · Power · Optics · Substrates</text><text x="697" y="69" text-anchor="middle" fill="#9aa3b5" font-size="8" class="m">— now split into momentum vs mean-reversion —</text>
+      </g>
+      <text x="10" y="92" font-size="8.5" fill="#697283">The narrowness at L1 (only XLK Leading) funnels into a narrow L2 (semis +66% YTD) and then fragments at L3 — which is exactly where the alpha decisions now live.</text>
+    </svg>
+  </div>
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:12.5px;font-weight:600;margin-bottom:4px">Rotation map (RRG-style)</h4>
+      <p style="font-size:10.5px;color:var(--dim);margin-bottom:4px">x = relative-strength level (z) · y = RS momentum (Δ13w). Top-right = Leading.</p>
+      <svg viewBox="0 0 420 300" width="100%" xmlns="http://www.w3.org/2000/svg">
+        <rect x="210" y="10" width="205" height="140" fill="rgba(95,201,138,.05)"/>
+        <rect x="210" y="150" width="205" height="140" fill="rgba(210,162,74,.05)"/>
+        <rect x="10" y="150" width="200" height="140" fill="rgba(224,104,106,.05)"/>
+        <rect x="10" y="10" width="200" height="140" fill="rgba(90,169,224,.05)"/>
+        <line x1="210" y1="10" x2="210" y2="290" stroke="#2a3040"/><line x1="10" y1="150" x2="415" y2="150" stroke="#2a3040"/>
+        <text x="405" y="24" font-size="9" fill="#5fc98a" text-anchor="end">LEADING</text>
+        <text x="405" y="286" font-size="9" fill="#d2a24a" text-anchor="end">WEAKENING</text>
+        <text x="18" y="286" font-size="9" fill="#e0686a">LAGGING</text>
+        <text x="18" y="24" font-size="9" fill="#5aa9e0">IMPROVING</text>
+        <text x="110" y="304" font-size="8" fill="#697283" class="m" text-anchor="middle">RS −2</text>
+        <text x="200" y="304" font-size="8" fill="#697283" class="m" text-anchor="middle">0</text>
+        <text x="290" y="304" font-size="8" fill="#697283" class="m" text-anchor="middle">+2</text>
+        <text x="14" y="80" font-size="8" fill="#697283" class="m">rising</text>
+        <text x="14" y="245" font-size="8" fill="#697283" class="m">falling</text>
+        <g font-size="9.5" class="m">
+          <line x1="325" y1="52" x2="325" y2="40" stroke="#2dd4bf" stroke-width="1.7" opacity=".55"/><circle cx="325" cy="40" r="6" fill="#2dd4bf"/><text x="334" y="43" fill="#e8eaf0">XLK</text>
+          <line x1="217" y1="196" x2="217" y2="204" stroke="#9aa3b5" stroke-width="1.4" opacity=".45"/><circle cx="217" cy="204" r="5" fill="#9aa3b5"/><text x="226" y="207" fill="#9aa3b5">XLE</text>
+          <line x1="198" y1="166" x2="198" y2="168" stroke="#9aa3b5" opacity=".4"/><circle cx="198" cy="168" r="4" fill="#9aa3b5"/><text x="204" y="164" fill="#9aa3b5">XLB</text>
+          <line x1="203" y1="166" x2="203" y2="168" stroke="#9aa3b5" opacity=".4"/><circle cx="203" cy="168" r="4" fill="#9aa3b5"/><text x="186" y="180" fill="#9aa3b5">XLI</text>
+          <line x1="160" y1="162" x2="160" y2="164" stroke="#9aa3b5" opacity=".4"/><circle cx="160" cy="164" r="4" fill="#9aa3b5"/><text x="138" y="159" fill="#9aa3b5">XLRE</text>
+          <line x1="157" y1="184" x2="157" y2="188" stroke="#9aa3b5" opacity=".4"/><circle cx="157" cy="188" r="4" fill="#9aa3b5"/><text x="135" y="197" fill="#9aa3b5">XLP</text>
+          <line x1="148" y1="176" x2="148" y2="179" stroke="#9aa3b5" opacity=".4"/><circle cx="148" cy="179" r="4" fill="#9aa3b5"/><text x="154" y="175" fill="#9aa3b5">XLV</text>
+          <line x1="142" y1="156" x2="142" y2="157" stroke="#9aa3b5" opacity=".4"/><circle cx="142" cy="157" r="4" fill="#9aa3b5"/><text x="120" y="151" fill="#9aa3b5">XLF</text>
+          <line x1="127" y1="220" x2="127" y2="229" stroke="#e0a458" stroke-width="1.5" opacity=".55"/><circle cx="127" cy="229" r="5" fill="#e0a458"/><text x="106" y="233" fill="#e0a458">XLU</text>
+          <line x1="102" y1="172" x2="102" y2="174" stroke="#9aa3b5" opacity=".4"/><circle cx="102" cy="174" r="4" fill="#9aa3b5"/><text x="80" y="170" fill="#9aa3b5">XLY</text>
+          <line x1="68" y1="208" x2="68" y2="215" stroke="#9aa3b5" opacity=".4"/><circle cx="68" cy="215" r="4" fill="#9aa3b5"/><text x="47" y="218" fill="#9aa3b5">XLC</text>
+        </g>
+      </svg>
+      <p class="cap">Tails = 13-week direction of travel. Only XLK has a rising RS tail (heading deeper into Leading); all ten others have falling RS tails — the entire market is feeding relative strength to Tech. Extreme, narrow concentration.</p>
+    </div>
+    <div class="panel" style="overflow-x:auto">
+      <h4 style="font-size:12.5px;font-weight:600;margin-bottom:8px">L1 regime &amp; returns</h4>
+      <table>
+        <tr><th>Sector</th><th>YTD</th><th>13w</th><th>VR8</th><th>Hurst</th><th>Regime</th></tr>
+        <tr><td><b>XLK</b> Tech</td><td class="m grn">+32.9%</td><td class="m">+41.5%</td><td class="m">1.09</td><td class="m">0.72</td><td><span class="badge bMIX">MIXED · mom-lean</span></td></tr>
+        <tr><td><b>XLY</b> Disc</td><td class="m">+1.5%</td><td class="m">+10.1%</td><td class="m">1.05</td><td class="m">0.64</td><td><span class="badge bMIX">MIXED · mom-lean</span></td></tr>
+        <tr><td><b>XLE</b> Energy</td><td class="m grn">+26.7%</td><td class="m red">−6.1%</td><td class="m">0.61</td><td class="m">0.54</td><td><span class="badge bMIX">MIXED</span></td></tr>
+        <tr><td><b>XLB</b> Mat'ls</td><td class="m">+13.4%</td><td class="m">+12.4%</td><td class="m">0.75</td><td class="m">0.63</td><td><span class="badge bMIX">MIXED</span></td></tr>
+        <tr><td><b>XLI</b> Indust</td><td class="m">+12.0%</td><td class="m">+11.1%</td><td class="m">0.70</td><td class="m">0.63</td><td><span class="badge bMIX">MIXED</span></td></tr>
+        <tr><td><b>XLRE</b> RE</td><td class="m">+9.7%</td><td class="m">+11.0%</td><td class="m">0.59</td><td class="m">0.56</td><td><span class="badge bMIX">MIXED</span></td></tr>
+        <tr><td><b>XLP</b> Staples</td><td class="m">+7.4%</td><td class="m">+5.3%</td><td class="m">0.91</td><td class="m">0.63</td><td><span class="badge bMIX">MIXED</span></td></tr>
+        <tr><td><b>XLF</b> Fin</td><td class="m red">−5.3%</td><td class="m">+9.5%</td><td class="m">0.66</td><td class="m">0.60</td><td><span class="badge bMIX">MIXED</span></td></tr>
+        <tr><td><b>XLV</b> Health</td><td class="m red">−3.0%</td><td class="m">+5.2%</td><td class="m">0.85</td><td class="m">0.56</td><td><span class="badge bMIX">MIXED</span></td></tr>
+        <tr><td><b>XLC</b> Comm</td><td class="m red">−1.4%</td><td class="m">−0.1%</td><td class="m">0.79</td><td class="m">0.63</td><td><span class="badge bMIX">MIXED</span></td></tr>
+        <tr><td><b>XLU</b> Util</td><td class="m">+4.8%</td><td class="m">+0.5%</td><td class="m">0.66</td><td class="m">0.53</td><td><span class="badge bMR">MEAN-REVERSION</span></td></tr>
+      </table>
+      <p class="cap">YTD from IBKR snapshot (06-15); 13w/VR/Hurst computed on 2-yr weekly bars (through 06-15). VR8&gt;1 = trending at the 8-week horizon. Only XLK &amp; XLY clear VR8&gt;1.</p>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:14px;overflow-x:auto">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:4px">Rotation over the last month — who changed quadrant</h4>
+    <p style="font-size:10.5px;color:var(--dim);margin-bottom:8px">Quadrant of each sector now vs 4 weeks ago (computed from RS level + 13w momentum). The story: leadership <b>stayed narrow</b> — Energy is now well inside Weakening as oil rolls; nothing has rotated into Improving.</p>
+    <table>
+      <tr><th>Sector</th><th>RS z-score</th><th>RS Δ13w (slope)</th><th>Quadrant</th></tr>
+      <tr><td><b>XLK</b> Technology</td><td class="m grn">+2.86</td><td class="m grn">+0.019 (rising)</td><td>Leading</td></tr>
+      <tr><td><b>XLE</b> Energy</td><td class="m">+0.16</td><td class="m red">−0.016 (falling)</td><td>Weakening</td></tr>
+      <tr><td><b>XLI</b> Industrials</td><td class="m">+0.07</td><td class="m red">−0.006</td><td>Weakening</td></tr>
+      <tr><td><b>XLB</b> Materials</td><td class="m">−0.04</td><td class="m red">−0.010</td><td>Lagging</td></tr>
+      <tr><td><b>XLRE</b> Real Estate</td><td class="m">−1.10</td><td class="m">−0.006</td><td>Lagging</td></tr>
+      <tr><td><b>XLP</b> Staples</td><td class="m">−1.18</td><td class="m">−0.009</td><td>Lagging</td></tr>
+      <tr><td><b>XLV</b> Health</td><td class="m">−1.38</td><td class="m">−0.008</td><td>Lagging</td></tr>
+      <tr><td><b>XLF</b> Financials</td><td class="m">−1.52</td><td class="m">−0.006</td><td>Lagging</td></tr>
+      <tr><td><b>XLU</b> Utilities</td><td class="m">−1.84</td><td class="m red">−0.017</td><td>Lagging</td></tr>
+      <tr><td><b>XLY</b> Discretionary</td><td class="m">−2.19</td><td class="m">−0.006</td><td>Lagging</td></tr>
+      <tr><td><b>XLC</b> Comm Svcs</td><td class="m red">−2.94</td><td class="m red">−0.012</td><td>Lagging</td></tr>
+    </table>
+    <p class="cap">Sorted by RS z-score (relative-strength level). Only XLK has a positive RS slope (rising RS); every other sector's RS is falling. There is no second leader and nothing improving — confirmation that this is a one-horse (Tech/AI) tape. Note XLY's high VR8 (momentum at the index level) but deeply negative RS-z: it trends, but underperforms — a momentum laggard, not a leader.</p>
+  </div>
+</section>
+
+<!-- 07 TIER 3 AI-INFRA L3 -->
+<section>
+  <div class="sh"><span class="n">07</span><h2>Tier 3 — AI-infra L3: momentum vs mean-reversion × fundamentals</h2><span class="cn">AI 基建 L3 子板塊</span></div>
+  <p class="lead">The headline finding. The six AI-infra sub-segments are <b>no longer one trade</b>. Every segment's <i>fundamentals</i> are still accelerating (right side of the map), but their <i>price regimes</i> have split apart vertically: <b>Networking-Silicon is in a clean, strengthening momentum regime</b> (ride it — MRVL &amp; ALAB now VR8&gt;1.7), while <b>Optics and Substrates are mean-reverting</b> even as their fundamentals accelerate — a divergence that says <i>don't chase, accumulate pullbacks</i>. Bubble = 52w gain; the sparkline in each card is the real RS path.</p>
+  <div class="panel">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:4px">The actionable 2×2 — price regime × fundamental signal</h4>
+    <svg viewBox="0 0 880 320" width="100%" xmlns="http://www.w3.org/2000/svg">
+ <rect x="70" y="20" width="780" height="140" fill="rgba(95,201,138,.06)"/>
+ <text x="120" y="36" font-size="10" fill="#5fc98a" class="m">RIDE — momentum (price trending up)</text>
+ <rect x="70" y="160" width="780" height="140" fill="rgba(90,169,224,.05)"/>
+ <text x="120" y="294" font-size="10" fill="#5aa9e0" class="m">ACCUMULATE DIPS — fundamentals ahead of price</text>
+ <line x1="70" y1="160" x2="850" y2="160" stroke="#2a3040"/>
+ <line x1="70" y1="20" x2="70" y2="300" stroke="#2a3040"/>
+ <g class="m" font-size="8.5" fill="#697283" text-anchor="middle">
+ <text x="120" y="316">3.0</text><text x="295" y="316">3.5</text><text x="470" y="316">4.0</text><text x="645" y="316">4.5</text><text x="820" y="316">5.0</text></g>
+ <text x="848" y="312" font-size="9.5" fill="#9aa3b5" text-anchor="end">Fundamental score (stronger) →</text>
+ <text x="60" y="92" font-size="9.5" fill="#5fc98a" text-anchor="middle" transform="rotate(-90 60 92)">PRICE: MOMENTUM (VR8&gt;1)</text>
+ <text x="60" y="240" font-size="9.5" fill="#e0a458" text-anchor="middle" transform="rotate(-90 60 240)">MEAN-REVERSION (VR8&lt;1)</text>
+ <g font-size="9.5">
+  <circle cx="655" cy="58" r="18" fill="rgba(95,201,138,.25)" stroke="#5fc98a"/><text x="655" y="55" text-anchor="middle" fill="#e8eaf0" font-size="8.5">Networking</text><text x="655" y="66" text-anchor="middle" fill="#9aa3b5" font-size="7.5" class="m">4.5 · VR1.59</text>
+  <circle cx="772" cy="120" r="21" fill="rgba(120,130,150,.18)" stroke="#9aa3b5"/><text x="772" y="117" text-anchor="middle" fill="#e8eaf0" font-size="8.5">Compute</text><text x="772" y="128" text-anchor="middle" fill="#9aa3b5" font-size="7.5" class="m">4.8 · VR1.15</text>
+  <circle cx="460" cy="180" r="16" fill="rgba(120,130,150,.18)" stroke="#9aa3b5"/><text x="460" y="178" text-anchor="middle" fill="#e8eaf0" font-size="8.5">Cooling</text><text x="460" y="189" text-anchor="middle" fill="#9aa3b5" font-size="7.5" class="m">4.0 · VR0.94</text>
+  <circle cx="838" cy="212" r="10" fill="rgba(120,130,150,.18)" stroke="#9aa3b5"/><text x="838" y="194" text-anchor="middle" fill="#e8eaf0" font-size="8.5">Power</text><text x="838" y="205" text-anchor="middle" fill="#9aa3b5" font-size="7.5" class="m">5.0 · VR0.86</text>
+  <circle cx="694" cy="232" r="24" fill="rgba(224,164,88,.20)" stroke="#e0a458"/><text x="694" y="230" text-anchor="middle" fill="#e8eaf0" font-size="8.5">Optics</text><text x="694" y="241" text-anchor="middle" fill="#9aa3b5" font-size="7.5" class="m">4.6 · VR0.87</text>
+  <circle cx="226" cy="252" r="19" fill="rgba(224,164,88,.20)" stroke="#e0a458"/><text x="226" y="250" text-anchor="middle" fill="#e8eaf0" font-size="8.5">Substrates</text><text x="226" y="261" text-anchor="middle" fill="#9aa3b5" font-size="7.5" class="m">3.4 · VR0.85</text>
+ </g>
+ <text x="80" y="36" font-size="8" fill="#697283">x = §7 fundamental score · y = price regime (VR8/Hurst) · bubble ∝ 52w gain</text>
+</svg>
+    <div class="legend"><span><i style="background:#5fc98a"></i> momentum (ride)</span><span><i style="background:#9aa3b5"></i> mixed (selective)</span><span><i style="background:#e0a458"></i> mean-reversion (buy dips)</span><span>bubble size ≈ 52w gain: Optics +433% · Compute +320% · Substrates +264% · Networking +236% · Cooling +192% · Power +86%</span></div>
+  </div>
+
+  <div class="panel" style="margin-top:14px;overflow-x:auto">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:4px">Fundamental scorecard — the x-axis of the 2×2, made auditable (1–5, higher = stronger)</h4>
+    <p style="font-size:10.5px;color:var(--dim);margin-bottom:8px">Scores from the verified fundamental research (§5). "Capacity discipline" = how hard supply is to flood (5 = very hard → durable). The composite drives each bubble's horizontal position above — <b>Substrates sits left-most</b> (weakest fundamentals of the group, KLAC-tight but OSAT-soft), <b>Power right-most</b> (longest, hardest-to-add lead times).</p>
+    <table>
+      <tr><th>Sub-cluster</th><th>Demand growth</th><th>Supply tightness</th><th>Lead-time Δ</th><th>Capacity discipline</th><th>Pricing power</th><th>Score</th><th>Key evidence</th></tr>
+      <tr><td><b>Power Delivery</b></td><td class="m">5</td><td class="m">5</td><td class="m">5</td><td class="m">5</td><td class="m">5</td><td class="m grn">5.0</td><td>transformer ~5yr lead, turbine slots 2029–30; GEV elec orders $2.4B Q1 (power-eng)</td></tr>
+      <tr><td><b>Compute Fabric</b></td><td class="m">5</td><td class="m">5</td><td class="m">5</td><td class="m">4</td><td class="m">5</td><td class="m grn">4.8</td><td>dual chokepoint: CoWoS 50wk + HBM sold-out 2026, DRAM +60–70% QoQ (TrendForce)</td></tr>
+      <tr><td><b>Optics</b></td><td class="m">5</td><td class="m">5</td><td class="m">4</td><td class="m">3</td><td class="m">5</td><td class="m grn">4.6</td><td>EML single-supplier bottleneck, NVDA $4B laser lock; CPO structural threat 2027+</td></tr>
+      <tr><td><b>Networking Silicon</b></td><td class="m">5</td><td class="m">4</td><td class="m">4</td><td class="m">4</td><td class="m">5</td><td class="m grn">4.5</td><td>AVGO $73B AI backlog, Credo +272% YoY; fabless = capacity easier to add (SEC)</td></tr>
+      <tr><td><b>Cooling</b></td><td class="m">5</td><td class="m">4</td><td class="m">4</td><td class="m">3</td><td class="m">4</td><td class="m grn">4.0</td><td>Vertiv backlog $15B (+109%), but supply more elastic (Boyd/nVent/ODMs) (8-K)</td></tr>
+      <tr><td><b>Substrates / Adv Pkg</b></td><td class="m">4</td><td class="m">3</td><td class="m">3</td><td class="m">3</td><td class="m">3</td><td class="m amb">3.4</td><td>KLAC process-control tight (5); ABF/OSAT soft (3) — first place to watch a glut (8-K)</td></tr>
+    </table>
+    <p class="cap">Note the tension this surfaces: Power has the <b>strongest</b> fundamentals (5.0) but a MIXED/mean-revert price regime → the §8 "accumulate the dip" lean. Substrates has the <b>weakest</b> fundamentals AND mean-reverting price → most selective.</p>
+  </div>
+  <div class="panel" style="margin-top:14px">
+    <h4 style="font-size:12px;font-weight:600;margin-bottom:6px">L3 taxonomy — what each bucket includes / excludes (kept MECE)</h4>
+    <div style="font-size:11px;color:var(--mut);line-height:1.65">
+      <b style="color:var(--txt)">Compute fabric</b> = foundry + memory + the front-end packaging tools that make the die-stack (TSM, MU, AMAT); excludes the OSAT/substrate that follows. · <b style="color:var(--txt)">Substrates / adv packaging</b> = OSAT assembly, ABF/glass substrate, packaging metrology/inspection (AMKR, KLAC); the line vs compute-fabric is front-end (fabric) vs back-end assembly (substrate). · <b style="color:var(--txt)">Networking silicon</b> = SerDes / retimer / AEC / switch-&amp;-custom ASIC silicon (AVGO, MRVL, CRDO, ALAB); ANET (switch <i>systems</i>) is held as a reference, not in the basket. · <b style="color:var(--txt)">Optics</b> = transceivers, EML/CW lasers, the optical interconnect (COHR, LITE, FN). · <b style="color:var(--txt)">Cooling</b> = thermal: cold-plate, CDU, liquid loop (VRT, MOD). · <b style="color:var(--txt)">Power delivery</b> = grid→rack: transformers, switchgear, VRM/48V (ETN, GEV, MPWR). KLAC sits in Substrates as the <i>process-control/inspection that gates back-end yield</i> (not front-end fabric); VRT is counted once, in Cooling. Cooling &amp; Power converge at the rack but are split by function (heat-out vs power-in) to avoid double-counting; NVDA is the demand anchor, in no basket.</div>
+  </div>
+  <h4 style="font-size:13px;font-weight:600;margin:18px 0 10px">Per-segment cards — 52-week relative strength vs SPY (solid) with its 20-week MA (dashed); dot = latest</h4>
+  <div class="three">
+    <div class="segcard">
+      <div class="t"><span class="nm">Networking Silicon</span><span class="badge bMOM">MOMENTUM</span><span class="tag tEarly" style="margin-left:auto">RIDE</span></div>
+      <div style="font-size:10.5px;color:var(--dim)">AVGO · MRVL · CRDO · ALAB</div>
+      <svg class="spark" viewBox="0 0 260 60" xmlns="http://www.w3.org/2000/svg"><polyline fill="none" stroke="#5a6273" stroke-width="1" stroke-dasharray="3 2" points="3.0,50.3 5.4,50.3 7.9,50.4 10.3,50.7 12.8,50.9 15.2,51.2 17.7,51.4 20.1,51.5 22.6,51.5 25.0,51.4 27.5,51.6 29.9,51.6 32.4,51.6 34.8,51.5 37.3,51.5 39.7,51.3 42.1,51.2 44.6,51.0 47.0,50.9 49.5,50.6 51.9,50.5 54.4,50.3 56.8,50.1 59.3,49.6 61.7,48.9 64.2,48.2 66.6,47.5 69.1,46.9 71.5,46.2 74.0,45.5 76.4,44.8 78.8,44.3 81.3,43.8 83.7,43.3 86.2,42.9 88.6,42.8 91.1,42.7 93.5,42.6 96.0,42.6 98.4,42.7 100.9,42.9 103.3,43.0 105.8,43.1 108.2,43.5 110.7,43.9 113.1,44.2 115.5,44.6 118.0,44.9 120.4,45.2 122.9,45.5 125.3,45.7 127.8,45.7 130.2,45.8 132.7,45.7 135.1,45.7 137.6,45.4 140.0,45.0 142.5,44.6 144.9,44.0 147.3,43.3 149.8,42.6 152.2,42.0 154.7,41.2 157.1,40.4 159.6,39.5 162.0,38.8 164.5,38.1 166.9,37.5 169.4,36.9 171.8,36.4 174.3,35.6 176.7,35.1 179.2,34.8 181.6,34.4 184.0,33.9 186.5,33.3 188.9,33.1 191.4,32.8 193.8,32.8 196.3,32.6 198.7,32.5 201.2,32.3 203.6,32.3 206.1,32.6 208.5,32.9 211.0,33.1 213.4,33.4 215.9,33.7 218.3,33.9 220.7,34.1 223.2,34.5 225.6,34.7 228.1,34.8 230.5,34.6 233.0,34.4 235.4,33.9 237.9,33.3 240.3,32.8 242.8,32.2 245.2,31.3 247.7,30.2 250.1,29.1 252.6,27.6 255.0,25.9"/><polyline fill="none" stroke="#5fc98a" stroke-width="1.7" points="3.0,50.3 5.4,50.3 7.9,50.7 10.3,51.5 12.8,51.9 15.2,52.9 17.7,52.6 20.1,51.9 22.6,51.3 25.0,51.2 27.5,53.0 29.9,51.7 32.4,51.2 34.8,50.9 37.3,50.7 39.7,49.1 42.1,49.1 44.6,48.4 47.0,48.0 49.5,45.7 51.9,47.6 54.4,46.3 56.8,46.2 59.3,41.6 61.7,38.9 64.2,39.6 66.6,38.5 69.1,38.1 71.5,38.4 74.0,37.5 76.4,38.7 78.8,41.3 81.3,40.7 83.7,42.4 86.2,42.9 88.6,45.6 91.1,47.8 93.5,46.6 96.0,46.9 98.4,49.0 100.9,50.3 103.3,48.9 105.8,49.3 108.2,47.8 110.7,47.1 113.1,46.8 115.5,45.1 118.0,44.4 120.4,44.8 122.9,43.4 125.3,43.4 127.8,41.6 130.2,41.3 132.7,41.7 135.1,41.2 137.6,41.0 140.0,39.5 142.5,38.0 144.9,34.9 147.3,35.2 149.8,36.3 152.2,36.5 154.7,34.3 157.1,31.1 159.6,29.9 162.0,32.1 164.5,31.9 166.9,31.6 169.4,32.8 171.8,32.8 174.3,29.0 176.7,31.4 179.2,34.1 181.6,35.1 184.0,30.5 186.5,29.9 188.9,34.0 191.4,33.2 193.8,33.3 196.3,32.3 198.7,33.8 201.2,32.8 203.6,35.0 206.1,36.2 208.5,35.9 211.0,36.9 213.4,36.9 215.9,38.1 218.3,36.7 220.7,36.0 223.2,36.9 225.6,36.7 228.1,35.7 230.5,30.8 233.0,26.6 235.4,20.5 237.9,22.1 240.3,22.4 242.8,21.4 245.2,14.5 247.7,11.2 250.1,10.5 252.6,5.1 255.0,3.0"/><circle cx="255" cy="3.0" r="2.6" fill="#5fc98a"/><text x="3" y="58" font-size="7" fill="#697283">Jun &#39;25</text><text x="255" y="58" font-size="7" fill="#697283" text-anchor="end">Jun &#39;26</text><text x="5" y="9" font-size="6.5" fill="#697283">RS vs SPY (solid) &#183; 20w MA (dashed)</text><text x="255" y="19" font-size="7.5" fill="#5fc98a" text-anchor="end" class="m">RS fresh high</text></svg>
+      <div class="mini"><span>52w <b>+236%</b></span><span>VR8 <b>1.59</b></span><span>Hurst <b>0.79</b></span><span>RS <b>+228 13w</b></span></div>
+      <p class="lean"><b>Fundamentals: ACCELERATING</b> (AVGO $73B AI backlog, Credo +272% YoY, Marvell guiding ~$11B '26 ASIC). RS at a fresh all-time high, still rising — the cleanest momentum cell; MRVL &amp; ALAB now VR8&gt;1.7. <b>Lean: RIDE</b> with a trailing stop. <b>Exit trigger:</b> VR8 &lt; 1 + RS rolls over.</p>
+    </div>
+    <div class="segcard">
+      <div class="t"><span class="nm">Compute Fabric</span><span class="badge bMIX">MIXED · mom-lean</span><span class="tag tMid" style="margin-left:auto">HOLD+DIPS</span></div>
+      <div style="font-size:10.5px;color:var(--dim)">TSM · AMAT · MU (CoWoS/HBM)</div>
+      <svg class="spark" viewBox="0 0 260 60" xmlns="http://www.w3.org/2000/svg"><polyline fill="none" stroke="#5a6273" stroke-width="1" stroke-dasharray="3 2" points="3.0,45.6 5.4,45.5 7.9,45.4 10.3,46.1 12.8,46.5 15.2,47.1 17.7,47.4 20.1,47.5 22.6,47.7 25.0,47.9 27.5,48.1 29.9,48.3 32.4,48.5 34.8,48.5 37.3,48.5 39.7,48.5 42.1,48.5 44.6,48.5 47.0,48.6 49.5,48.6 51.9,48.8 54.4,49.1 56.8,49.4 59.3,49.5 61.7,49.6 64.2,49.6 66.6,49.7 69.1,49.8 71.5,49.8 74.0,49.8 76.4,49.7 78.8,49.7 81.3,49.7 83.7,49.8 86.2,49.9 88.6,50.0 91.1,50.2 93.5,50.2 96.0,50.3 98.4,50.5 100.9,50.6 103.3,50.7 105.8,50.8 108.2,50.8 110.7,50.9 113.1,50.9 115.5,50.9 118.0,50.9 120.4,51.0 122.9,51.0 125.3,51.0 127.8,50.9 130.2,50.8 132.7,50.6 135.1,50.5 137.6,50.3 140.0,50.2 142.5,50.1 144.9,50.0 147.3,49.9 149.8,49.7 152.2,49.6 154.7,49.4 157.1,49.2 159.6,48.9 162.0,48.6 164.5,48.3 166.9,47.9 169.4,47.5 171.8,47.1 174.3,46.7 176.7,46.3 179.2,46.0 181.6,45.7 184.0,45.4 186.5,45.0 188.9,44.5 191.4,44.0 193.8,43.5 196.3,42.8 198.7,42.1 201.2,41.2 203.6,40.3 206.1,39.4 208.5,38.7 211.0,37.8 213.4,36.9 215.9,36.1 218.3,35.5 220.7,34.8 223.2,34.1 225.6,33.4 228.1,32.8 230.5,32.0 233.0,31.2 235.4,30.4 237.9,29.6 240.3,28.4 242.8,27.4 245.2,26.5 247.7,25.4 250.1,24.4 252.6,23.1 255.0,21.8"/><polyline fill="none" stroke="#9aa3b5" stroke-width="1.7" points="3.0,45.6 5.4,45.4 7.9,45.3 10.3,47.9 12.8,48.3 15.2,50.2 17.7,49.2 20.1,48.2 22.6,49.0 25.0,49.6 27.5,50.8 29.9,50.2 32.4,50.2 34.8,48.7 37.3,49.0 39.7,48.5 42.1,48.7 44.6,48.6 47.0,49.3 49.5,48.9 51.9,50.7 54.4,50.2 56.8,50.9 59.3,50.3 61.7,50.3 64.2,51.0 66.6,51.0 69.1,50.5 71.5,49.5 74.0,48.8 76.4,49.2 78.8,50.3 81.3,50.3 83.7,50.5 86.2,50.3 88.6,51.5 91.1,51.2 93.5,50.4 96.0,50.8 98.4,51.6 100.9,53.0 103.3,52.5 105.8,52.7 108.2,51.7 110.7,51.5 113.1,51.2 115.5,50.4 118.0,50.6 120.4,50.8 122.9,49.5 125.3,48.8 127.8,48.3 130.2,47.8 132.7,47.8 135.1,47.5 137.6,48.2 140.0,48.7 142.5,49.1 144.9,48.4 147.3,49.3 149.8,49.7 152.2,49.7 154.7,48.7 157.1,47.2 159.6,46.1 162.0,45.5 164.5,43.3 166.9,43.6 169.4,42.1 171.8,41.8 174.3,41.5 176.7,41.0 179.2,40.9 181.6,42.2 184.0,40.5 186.5,39.8 188.9,39.9 191.4,39.1 193.8,38.2 196.3,36.0 198.7,34.1 201.2,31.8 203.6,30.9 206.1,30.7 208.5,30.5 211.0,27.6 213.4,26.6 215.9,26.9 218.3,30.6 220.7,27.5 223.2,26.5 225.6,28.6 228.1,28.7 230.5,25.1 233.0,26.0 235.4,23.0 237.9,23.2 240.3,16.5 242.8,17.4 245.2,17.4 247.7,12.0 250.1,12.7 252.6,5.5 255.0,3.0"/><circle cx="255" cy="3.0" r="2.6" fill="#9aa3b5"/><text x="3" y="58" font-size="7" fill="#697283">Jun &#39;25</text><text x="255" y="58" font-size="7" fill="#697283" text-anchor="end">Jun &#39;26</text><text x="5" y="9" font-size="6.5" fill="#697283">RS vs SPY (solid) &#183; 20w MA (dashed)</text><text x="255" y="19" font-size="7.5" fill="#9aa3b5" text-anchor="end" class="m">RS fresh high</text></svg>
+      <div class="mini"><span>52w <b>+320%</b></span><span>VR8 <b>1.15</b></span><span>Hurst <b>0.46</b></span><span>RS <b>+105 13w</b></span></div>
+      <p class="lean"><b>Fundamentals: STRONGEST (5.0)</b> — CoWoS+HBM dual chokepoint, sold out 2026, DRAM +60–70% QoQ. RS at a fresh high but the regime is mixed (VR8&gt;1 yet Hurst&lt;0.5). <b>Lean: HOLD + add dips.</b> Cheapest leader (NVDA ~21x) anchors here. <b>Trigger:</b> CoWoS capacity-add / HBM ASP roll = top-warn.</p>
+    </div>
+    <div class="segcard">
+      <div class="t"><span class="nm">Cooling / Thermal</span><span class="badge bMIX">MIXED</span><span class="tag tMid" style="margin-left:auto">BUY DIPS</span></div>
+      <div style="font-size:10.5px;color:var(--dim)">VRT · MOD</div>
+      <svg class="spark" viewBox="0 0 260 60" xmlns="http://www.w3.org/2000/svg"><polyline fill="none" stroke="#5a6273" stroke-width="1" stroke-dasharray="3 2" points="3.0,46.6 5.4,46.0 7.9,45.9 10.3,46.0 12.8,46.3 15.2,46.7 17.7,47.0 20.1,47.0 22.6,46.9 25.0,46.7 27.5,47.0 29.9,46.9 32.4,46.6 34.8,46.3 37.3,45.9 39.7,45.5 42.1,45.2 44.6,45.0 47.0,44.9 49.5,44.7 51.9,44.4 54.4,43.9 56.8,43.6 59.3,43.2 61.7,42.8 64.2,42.4 66.6,42.1 69.1,41.8 71.5,41.4 74.0,41.1 76.4,40.5 78.8,40.4 81.3,40.5 83.7,40.8 86.2,41.2 88.6,41.7 91.1,42.2 93.5,42.6 96.0,42.8 98.4,43.4 100.9,44.0 103.3,44.8 105.8,45.4 108.2,45.9 110.7,46.3 113.1,46.6 115.5,46.7 118.0,47.0 120.4,47.4 122.9,47.7 125.3,48.2 127.8,48.2 130.2,48.1 132.7,48.0 135.1,47.8 137.6,47.6 140.0,47.2 142.5,46.7 144.9,46.2 147.3,45.6 149.8,45.0 152.2,44.4 154.7,43.9 157.1,43.4 159.6,42.9 162.0,42.5 164.5,42.1 166.9,41.5 169.4,40.9 171.8,40.2 174.3,39.5 176.7,39.0 179.2,38.6 181.6,38.3 184.0,37.6 186.5,37.0 188.9,36.7 191.4,36.7 193.8,36.6 196.3,36.5 198.7,36.5 201.2,36.3 203.6,36.0 206.1,35.5 208.5,34.9 211.0,33.9 213.4,33.0 215.9,32.0 218.3,31.4 220.7,30.7 223.2,29.9 225.6,28.9 228.1,27.8 230.5,26.4 233.0,25.3 235.4,24.0 237.9,22.5 240.3,20.8 242.8,19.1 245.2,17.8 247.7,16.2 250.1,14.8 252.6,13.5 255.0,12.4"/><polyline fill="none" stroke="#9aa3b5" stroke-width="1.7" points="3.0,46.6 5.4,45.4 7.9,45.9 10.3,46.1 12.8,47.5 15.2,48.9 17.7,48.4 20.1,47.0 22.6,46.3 25.0,45.4 27.5,49.0 29.9,46.1 32.4,42.9 34.8,42.1 37.3,40.8 39.7,40.2 42.1,40.6 44.6,41.0 47.0,43.3 49.5,40.0 51.9,40.6 54.4,36.0 56.8,39.0 59.3,38.0 61.7,39.8 64.2,41.6 66.6,42.4 69.1,40.4 71.5,39.8 74.0,38.0 76.4,37.3 78.8,44.8 81.3,44.6 83.7,47.4 86.2,49.3 88.6,49.4 91.1,50.5 93.5,49.0 96.0,48.5 98.4,51.4 100.9,53.0 103.3,51.6 105.8,50.8 108.2,49.1 110.7,47.4 113.1,46.7 115.5,45.2 118.0,46.7 120.4,46.6 122.9,45.7 125.3,46.1 127.8,44.6 130.2,43.9 132.7,43.9 135.1,46.1 137.6,44.8 140.0,43.5 142.5,37.9 144.9,38.6 147.3,39.5 149.8,40.3 152.2,40.6 154.7,41.2 157.1,38.7 159.6,37.3 162.0,39.7 164.5,36.5 166.9,34.8 169.4,33.8 171.8,32.3 174.3,32.8 176.7,33.1 179.2,37.3 181.6,36.2 184.0,33.0 186.5,32.0 188.9,37.7 191.4,38.3 193.8,37.7 196.3,36.1 198.7,39.9 201.2,36.9 203.6,35.0 206.1,29.8 208.5,25.0 211.0,19.4 213.4,17.8 215.9,16.1 218.3,21.6 220.7,18.8 223.2,16.8 225.6,13.5 228.1,13.5 230.5,9.0 233.0,10.2 235.4,7.9 237.9,6.1 240.3,5.7 242.8,3.0 245.2,9.0 247.7,8.9 250.1,9.1 252.6,9.4 255.0,7.9"/><circle cx="255" cy="7.9" r="2.6" fill="#9aa3b5"/><text x="3" y="58" font-size="7" fill="#697283">Jun &#39;25</text><text x="255" y="58" font-size="7" fill="#697283" text-anchor="end">Jun &#39;26</text><text x="5" y="9" font-size="6.5" fill="#697283">RS vs SPY (solid) &#183; 20w MA (dashed)</text><text x="255" y="19" font-size="7.5" fill="#9aa3b5" text-anchor="end" class="m">RS −7% from pk</text></svg>
+      <div class="mini"><span>52w <b>+192%</b></span><span>VR8 <b>0.94</b></span><span>Hurst <b>0.60</b></span><span>RS pk <b>5w ago</b></span></div>
+      <p class="lean"><b>Fundamentals: ACCELERATING</b> (Vertiv backlog $15B, +109% YoY). RS rolled ~7% off its peak; mixed regime, supply more elastic than the hard chokepoints. <b>Lean: BUY DIPS (VRT)</b> near the 20w MA. <b>Trigger:</b> book-to-bill turn &lt;1.</p>
+    </div>
+    <div class="segcard">
+      <div class="t"><span class="nm">Power Delivery</span><span class="badge bMIX">MIXED</span><span class="tag tMid" style="margin-left:auto">ACCUMULATE</span></div>
+      <div style="font-size:10.5px;color:var(--dim)">ETN · GEV · MPWR</div>
+      <svg class="spark" viewBox="0 0 260 60" xmlns="http://www.w3.org/2000/svg"><polyline fill="none" stroke="#5a6273" stroke-width="1" stroke-dasharray="3 2" points="3.0,51.3 5.4,51.3 7.9,51.0 10.3,51.4 12.8,51.5 15.2,51.8 17.7,51.6 20.1,51.4 22.6,51.3 25.0,51.1 27.5,51.0 29.9,50.7 32.4,50.3 34.8,49.9 37.3,49.5 39.7,49.1 42.1,48.8 44.6,48.4 47.0,48.2 49.5,48.0 51.9,47.8 54.4,47.5 56.8,47.4 59.3,47.1 61.7,46.9 64.2,46.6 66.6,46.5 69.1,46.3 71.5,46.0 74.0,45.8 76.4,45.3 78.8,45.3 81.3,45.2 83.7,45.3 86.2,45.6 88.6,45.9 91.1,46.2 93.5,46.5 96.0,46.7 98.4,47.0 100.9,47.2 103.3,47.3 105.8,47.3 108.2,47.2 110.7,47.0 113.1,46.7 115.5,46.3 118.0,46.0 120.4,45.8 122.9,45.5 125.3,45.4 127.8,45.1 130.2,44.7 132.7,44.2 135.1,43.6 137.6,42.9 140.0,42.0 142.5,41.1 144.9,40.3 147.3,39.5 149.8,38.6 152.2,37.9 154.7,37.3 157.1,36.7 159.6,36.1 162.0,35.7 164.5,35.3 166.9,34.9 169.4,34.5 171.8,34.0 174.3,33.7 176.7,33.4 179.2,33.3 181.6,33.3 184.0,33.2 186.5,33.2 188.9,33.2 191.4,33.5 193.8,33.6 196.3,33.6 198.7,33.8 201.2,33.6 203.6,33.5 206.1,33.2 208.5,32.7 211.0,32.1 213.4,31.5 215.9,30.9 218.3,30.7 220.7,30.3 223.2,29.7 225.6,29.0 228.1,28.2 230.5,26.8 233.0,25.6 235.4,24.0 237.9,22.7 240.3,21.5 242.8,20.3 245.2,19.3 247.7,18.2 250.1,17.5 252.6,16.6 255.0,15.9"/><polyline fill="none" stroke="#9aa3b5" stroke-width="1.7" points="3.0,51.3 5.4,51.2 7.9,50.5 10.3,52.7 12.8,51.9 15.2,53.0 17.7,50.7 20.1,50.2 22.6,50.4 25.0,48.8 27.5,50.4 29.9,47.2 32.4,45.4 34.8,44.9 37.3,43.5 39.7,43.6 42.1,43.7 44.6,42.4 47.0,44.5 49.5,43.1 51.9,47.3 54.4,46.1 56.8,47.8 59.3,47.2 61.7,47.8 64.2,47.4 66.6,47.8 69.1,46.0 71.5,45.3 74.0,44.0 76.4,41.6 78.8,46.2 81.3,44.5 83.7,46.7 86.2,48.9 88.6,49.5 91.1,51.0 93.5,48.0 96.0,47.4 98.4,49.6 100.9,51.4 103.3,47.9 105.8,47.9 108.2,44.9 110.7,43.2 113.1,42.2 115.5,40.6 118.0,39.5 120.4,40.1 122.9,39.3 125.3,40.1 127.8,38.8 130.2,36.9 132.7,36.9 135.1,36.6 137.6,35.0 140.0,33.1 142.5,29.7 144.9,32.0 147.3,33.6 149.8,34.0 152.2,33.9 154.7,34.4 157.1,33.6 159.6,31.8 162.0,33.4 164.5,33.3 166.9,32.0 169.4,30.7 171.8,30.9 174.3,32.4 176.7,33.1 179.2,35.1 181.6,36.9 184.0,35.5 186.5,34.4 188.9,33.5 191.4,34.9 193.8,35.1 196.3,33.9 198.7,36.2 201.2,31.4 203.6,32.1 206.1,27.7 208.5,22.4 211.0,20.9 213.4,21.2 215.9,20.6 218.3,26.1 220.7,23.4 223.2,20.0 225.6,18.6 228.1,18.0 230.5,10.1 233.0,10.9 235.4,3.0 237.9,6.9 240.3,10.9 242.8,11.8 245.2,12.7 247.7,15.4 250.1,16.2 252.6,15.0 255.0,12.9"/><circle cx="255" cy="12.9" r="2.6" fill="#9aa3b5"/><text x="3" y="58" font-size="7" fill="#697283">Jun &#39;25</text><text x="255" y="58" font-size="7" fill="#697283" text-anchor="end">Jun &#39;26</text><text x="5" y="9" font-size="6.5" fill="#697283">RS vs SPY (solid) &#183; 20w MA (dashed)</text><text x="255" y="19" font-size="7.5" fill="#9aa3b5" text-anchor="end" class="m">RS −11% from pk</text></svg>
+      <div class="mini"><span>52w <b>+86%</b></span><span>VR8 <b>0.86</b></span><span>Hurst <b>0.64</b></span><span>RS pk <b>8w ago</b></span></div>
+      <p class="lean"><b>Fundamentals: STRONGEST tightness (5.0)</b> — transformers ~5yr lead, turbines 2029–30, GEV $2.4B Q1 orders. But it's the AI-infra <b>laggard on price</b> (RS −11% off peak, 13w +27%). <b>Lean: ACCUMULATE</b> the dip — best fundamentals-vs-price gap. <b>Trigger:</b> transformer lead-time stabilizing = late.</p>
+    </div>
+    <div class="segcard">
+      <div class="t"><span class="nm">Optics / Connectivity</span><span class="badge bMR">MEAN-REVERSION</span><span class="tag tLate" style="margin-left:auto">NO CHASE</span></div>
+      <div style="font-size:10.5px;color:var(--dim)">COHR · LITE · FN</div>
+      <svg class="spark" viewBox="0 0 260 60" xmlns="http://www.w3.org/2000/svg"><polyline fill="none" stroke="#5a6273" stroke-width="1" stroke-dasharray="3 2" points="3.0,51.4 5.4,51.3 7.9,51.1 10.3,51.2 12.8,51.3 15.2,51.6 17.7,51.8 20.1,51.7 22.6,51.6 25.0,51.5 27.5,51.6 29.9,51.5 32.4,51.5 34.8,51.4 37.3,51.3 39.7,51.1 42.1,51.1 44.6,51.0 47.0,50.9 49.5,50.8 51.9,50.7 54.4,50.6 56.8,50.5 59.3,50.3 61.7,50.2 64.2,50.0 66.6,49.8 69.1,49.7 71.5,49.6 74.0,49.5 76.4,49.3 78.8,49.2 81.3,49.2 83.7,49.2 86.2,49.3 88.6,49.4 91.1,49.5 93.5,49.6 96.0,49.6 98.4,49.8 100.9,50.0 103.3,50.2 105.8,50.4 108.2,50.5 110.7,50.7 113.1,50.8 115.5,50.8 118.0,50.9 120.4,51.0 122.9,51.1 125.3,51.1 127.8,51.1 130.2,51.0 132.7,50.9 135.1,50.8 137.6,50.6 140.0,50.4 142.5,50.1 144.9,49.8 147.3,49.6 149.8,49.3 152.2,49.0 154.7,48.6 157.1,48.3 159.6,47.9 162.0,47.5 164.5,47.2 166.9,46.9 169.4,46.5 171.8,46.1 174.3,45.7 176.7,45.1 179.2,44.6 181.6,44.1 184.0,43.4 186.5,42.7 188.9,42.0 191.4,41.2 193.8,40.5 196.3,39.7 198.7,39.0 201.2,38.3 203.6,37.6 206.1,36.9 208.5,35.9 211.0,34.9 213.4,33.6 215.9,32.2 218.3,31.2 220.7,30.1 223.2,28.8 225.6,27.7 228.1,26.3 230.5,24.7 233.0,23.2 235.4,21.8 237.9,20.4 240.3,19.4 242.8,18.0 245.2,16.7 247.7,15.5 250.1,14.3 252.6,13.0 255.0,11.8"/><polyline fill="none" stroke="#e0a458" stroke-width="1.7" points="3.0,51.4 5.4,51.3 7.9,50.7 10.3,51.4 12.8,51.8 15.2,53.0 17.7,52.7 20.1,51.5 22.6,50.4 25.0,51.0 27.5,51.9 29.9,51.3 32.4,50.6 34.8,50.2 37.3,49.7 39.7,49.1 42.1,49.9 44.6,50.0 47.0,49.9 49.5,48.1 51.9,49.3 54.4,48.7 56.8,49.1 59.3,48.3 61.7,48.3 64.2,49.3 66.6,49.5 69.1,48.6 71.5,49.3 74.0,48.5 76.4,48.3 78.8,50.0 81.3,49.7 83.7,50.5 86.2,50.7 88.6,51.5 91.1,52.2 93.5,51.5 96.0,51.1 98.4,51.8 100.9,52.9 103.3,52.7 105.8,52.6 108.2,51.8 110.7,51.2 113.1,51.4 115.5,50.3 118.0,50.1 120.4,50.6 122.9,50.1 125.3,49.9 127.8,48.9 130.2,48.3 132.7,48.5 135.1,48.4 137.6,47.4 140.0,47.5 142.5,46.8 144.9,45.6 147.3,47.1 149.8,47.7 152.2,46.5 154.7,44.8 157.1,44.4 159.6,43.6 162.0,44.4 164.5,44.0 166.9,44.3 169.4,42.9 171.8,41.8 174.3,40.7 176.7,37.5 179.2,39.3 181.6,38.4 184.0,34.4 186.5,33.0 188.9,33.3 191.4,31.4 193.8,30.9 196.3,30.5 198.7,33.6 201.2,32.5 203.6,32.2 206.1,29.4 208.5,23.7 211.0,23.8 213.4,18.7 215.9,17.1 218.3,22.3 220.7,19.4 223.2,15.7 225.6,13.9 228.1,11.6 230.5,5.8 233.0,5.4 235.4,5.6 237.9,5.4 240.3,9.5 242.8,3.0 245.2,4.7 247.7,9.6 250.1,8.2 252.6,7.2 255.0,5.3"/><circle cx="255" cy="5.3" r="2.6" fill="#e0a458"/><text x="3" y="58" font-size="7" fill="#697283">Jun &#39;25</text><text x="255" y="58" font-size="7" fill="#697283" text-anchor="end">Jun &#39;26</text><text x="5" y="9" font-size="6.5" fill="#697283">RS vs SPY (solid) &#183; 20w MA (dashed)</text><text x="255" y="19" font-size="7.5" fill="#e0a458" text-anchor="end" class="m">RS −4% from pk</text></svg>
+      <div class="mini"><span>52w <b>+433%</b></span><span>VR8 <b>0.87</b></span><span>Hurst <b>0.45</b></span><span>RS pk <b>5w ago</b></span></div>
+      <p class="lean"><b>Fundamentals: ACCELERATING (4.6)</b> — EML single-supplier chokepoint, NVDA $4B laser lock, 800G ~40–60% undersupplied. But biggest 52w gain (+433%) now mean-reverting. <b>Lean: DON'T CHASE; dips only.</b> <b>Risk:</b> CPO timeline (structural). <b>Trigger:</b> RS re-cross up.</p>
+    </div>
+    <div class="segcard">
+      <div class="t"><span class="nm">Substrates / Adv Pkg</span><span class="badge bMR">MEAN-REVERSION</span><span class="tag tMid" style="margin-left:auto">SELECTIVE</span></div>
+      <div style="font-size:10.5px;color:var(--dim)">AMKR · KLAC</div>
+      <svg class="spark" viewBox="0 0 260 60" xmlns="http://www.w3.org/2000/svg"><polyline fill="none" stroke="#5a6273" stroke-width="1" stroke-dasharray="3 2" points="3.0,36.9 5.4,36.9 7.9,36.7 10.3,37.2 12.8,37.4 15.2,38.6 17.7,39.0 20.1,39.2 22.6,39.4 25.0,39.6 27.5,40.1 29.9,40.4 32.4,40.6 34.8,40.8 37.3,41.0 39.7,41.2 42.1,41.5 44.6,41.7 47.0,42.1 49.5,42.4 51.9,43.0 54.4,43.6 56.8,44.3 59.3,44.8 61.7,45.4 64.2,45.6 66.6,46.0 69.1,46.4 71.5,46.8 74.0,47.1 76.4,47.2 78.8,47.5 81.3,47.7 83.7,48.0 86.2,48.3 88.6,48.7 91.1,48.9 93.5,49.0 96.0,49.2 98.4,49.3 100.9,49.5 103.3,49.6 105.8,49.7 108.2,49.8 110.7,49.9 113.1,50.0 115.5,50.0 118.0,50.1 120.4,50.3 122.9,50.4 125.3,50.5 127.8,50.5 130.2,50.5 132.7,50.4 135.1,50.3 137.6,50.2 140.0,50.2 142.5,50.1 144.9,50.0 147.3,49.9 149.8,49.6 152.2,49.5 154.7,49.2 157.1,49.0 159.6,48.7 162.0,48.3 164.5,48.0 166.9,47.7 169.4,47.2 171.8,46.8 174.3,46.4 176.7,45.9 179.2,45.6 181.6,45.3 184.0,44.9 186.5,44.2 188.9,43.6 191.4,43.0 193.8,42.4 196.3,41.7 198.7,40.8 201.2,39.8 203.6,38.8 206.1,38.0 208.5,37.3 211.0,36.5 213.4,35.8 215.9,35.0 218.3,34.6 220.7,34.1 223.2,33.5 225.6,32.9 228.1,32.2 230.5,31.1 233.0,30.0 235.4,28.8 237.9,27.9 240.3,26.9 242.8,26.0 245.2,25.2 247.7,24.7 250.1,24.2 252.6,22.9 255.0,21.6"/><polyline fill="none" stroke="#e0a458" stroke-width="1.7" points="3.0,36.9 5.4,36.9 7.9,36.2 10.3,38.7 12.8,38.5 15.2,44.2 17.7,41.6 20.1,41.0 22.6,41.0 25.0,41.3 27.5,44.6 29.9,43.7 32.4,43.7 34.8,43.4 37.3,43.6 39.7,43.4 42.1,46.2 44.6,46.3 47.0,47.8 49.5,48.0 51.9,49.9 54.4,49.2 56.8,49.3 59.3,49.6 61.7,49.2 64.2,49.8 66.6,49.3 69.1,48.7 71.5,48.1 74.0,47.4 76.4,48.1 78.8,48.5 81.3,48.5 83.7,49.7 86.2,49.4 88.6,50.5 91.1,50.0 93.5,50.0 96.0,50.3 98.4,51.2 100.9,53.0 103.3,51.5 105.8,52.1 108.2,51.1 110.7,51.3 113.1,51.1 115.5,50.0 118.0,50.8 120.4,51.3 122.9,50.2 125.3,48.9 127.8,48.9 130.2,48.6 132.7,47.9 135.1,48.0 137.6,48.3 140.0,49.3 142.5,48.5 144.9,48.0 147.3,48.4 149.8,48.4 152.2,48.3 154.7,47.7 157.1,46.8 159.6,44.5 162.0,43.8 164.5,43.4 166.9,44.9 169.4,42.2 171.8,41.0 174.3,41.1 176.7,39.5 179.2,41.9 181.6,41.6 184.0,39.6 186.5,36.0 188.9,35.6 191.4,36.4 193.8,36.3 196.3,35.0 198.7,29.6 201.2,28.6 203.6,28.4 206.1,30.5 208.5,29.7 211.0,29.7 213.4,29.5 215.9,28.9 218.3,33.6 220.7,31.2 223.2,27.7 225.6,28.2 228.1,27.5 230.5,20.5 233.0,17.9 235.4,11.6 237.9,18.2 240.3,15.2 242.8,18.7 245.2,19.7 247.7,18.4 250.1,18.8 252.6,3.0 255.0,3.3"/><circle cx="255" cy="3.3" r="2.6" fill="#e0a458"/><text x="3" y="58" font-size="7" fill="#697283">Jun &#39;25</text><text x="255" y="58" font-size="7" fill="#697283" text-anchor="end">Jun &#39;26</text><text x="5" y="9" font-size="6.5" fill="#697283">RS vs SPY (solid) &#183; 20w MA (dashed)</text><text x="255" y="19" font-size="7.5" fill="#e0a458" text-anchor="end" class="m">RS at peak</text></svg>
+      <div class="mini"><span>52w <b>+264%</b></span><span>VR8 <b>0.85</b></span><span>Hurst <b>0.43</b></span><span>RS pk <b>1w ago</b></span></div>
+      <p class="lean"><b>Fundamentals: SPLIT (3.4)</b> — KLAC process-control tight (5), but ABF/OSAT soft (3) = the loosest cluster, first place to watch a glut. RS at peak but mean-reverting. <b>Lean: SELECTIVE</b> (KLAC on dips). <b>Trigger:</b> OSAT util &lt;80% = top-warn.</p>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:14px;overflow-x:auto">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:4px">Sub-cluster → ticker bridge — per-name regime &amp; distance from 52w high</h4>
+    <p style="font-size:10.5px;color:var(--dim);margin-bottom:8px">Names drive the baskets. "d52H" = distance below 52-week high (0% = at the high = crowded). Regime from VR8/Hurst on 2-yr weekly bars (through 06-15).</p>
+    <table>
+      <tr><th>Ticker</th><th>Sub-cluster</th><th>13w</th><th>52w</th><th>d52H</th><th>VR8</th><th>Hurst</th><th>Regime</th><th>Note</th></tr>
+      <tr><td><b>AVGO</b></td><td>Networking Si</td><td class="m">+27%</td><td class="m">+58%</td><td class="m">−12%</td><td class="m">0.78</td><td class="m">0.70</td><td><span class="badge bMIX">MIX</span></td><td>cleanest add-zone; core</td></tr>
+      <tr><td><b>MRVL</b></td><td>Networking Si</td><td class="m">+249%</td><td class="m">+317%</td><td class="m">0%</td><td class="m">1.74</td><td class="m">0.75</td><td><span class="badge bMOM">MOM</span></td><td>textbook momentum; ride, no chase</td></tr>
+      <tr><td><b>ALAB</b></td><td>Networking Si</td><td class="m">+235%</td><td class="m">+317%</td><td class="m">0%</td><td class="m">1.86</td><td class="m">0.78</td><td><span class="badge bMOM">MOM</span></td><td>strongest VR; euphoric val</td></tr>
+      <tr><td><b>CRDO</b></td><td>Networking Si</td><td class="m">+149%</td><td class="m">+201%</td><td class="m">0%</td><td class="m">1.10</td><td class="m">0.71</td><td><span class="badge bMOM">MOM</span></td><td>ride small; AEC +272%</td></tr>
+      <tr><td><b>TSM</b></td><td>Compute fabric</td><td class="m">+34%</td><td class="m">+110%</td><td class="m">0%</td><td class="m">0.96</td><td class="m">0.56</td><td><span class="badge bMIX">MIX</span></td><td>add toward 380 (20w)</td></tr>
+      <tr><td><b>AMAT</b></td><td>Compute fabric</td><td class="m">+65%</td><td class="m">+248%</td><td class="m">0%</td><td class="m">0.88</td><td class="m">0.48</td><td><span class="badge bMIX">MIX</span></td><td>MR — wait for pullback</td></tr>
+      <tr><td><b>MU</b></td><td>Compute fabric</td><td class="m">+155%</td><td class="m">+771%</td><td class="m">0%</td><td class="m">1.21</td><td class="m">0.51</td><td><span class="badge bMIX">MIX</span></td><td>very extended/volatile; dips</td></tr>
+      <tr><td><b>VRT</b></td><td>Cooling</td><td class="m">+22%</td><td class="m">+164%</td><td class="m">−16%</td><td class="m">1.09</td><td class="m">0.67</td><td><span class="badge bMOM">MOM</span></td><td>buy this dip (near 20w)</td></tr>
+      <tr><td><b>MOD</b></td><td>Cooling</td><td class="m">+47%</td><td class="m">+198%</td><td class="m">0%</td><td class="m">0.80</td><td class="m">0.53</td><td><span class="badge bMIX">MIX</span></td><td>dip only</td></tr>
+      <tr><td><b>GEV</b></td><td>Power</td><td class="m">+15%</td><td class="m">+101%</td><td class="m">−15%</td><td class="m">1.04</td><td class="m">0.77</td><td><span class="badge bMIX">MIX</span></td><td>accumulate dip (near 20w)</td></tr>
+      <tr><td><b>ETN</b></td><td>Power</td><td class="m">+15%</td><td class="m">+24%</td><td class="m">−4%</td><td class="m">0.87</td><td class="m">0.67</td><td><span class="badge bMIX">MIX</span></td><td>accumulate (at 20w)</td></tr>
+      <tr><td><b>MPWR</b></td><td>Power</td><td class="m">+54%</td><td class="m">+140%</td><td class="m">0%</td><td class="m">1.03</td><td class="m">0.60</td><td><span class="badge bMIX">MIX</span></td><td>hold</td></tr>
+      <tr><td><b>LITE</b></td><td>Optics</td><td class="m">+36%</td><td class="m">+970%</td><td class="m">−1%</td><td class="m">1.12</td><td class="m">0.55</td><td><span class="badge bMOM">MOM</span></td><td>EML anchor; add dips</td></tr>
+      <tr><td><b>COHR</b></td><td>Optics</td><td class="m">+63%</td><td class="m">+408%</td><td class="m">0%</td><td class="m">0.85</td><td class="m">0.56</td><td><span class="badge bMIX">MIX</span></td><td>dip-buy only</td></tr>
+      <tr><td><b>FN</b></td><td>Optics</td><td class="m">+26%</td><td class="m">+139%</td><td class="m">−12%</td><td class="m">0.51</td><td class="m">0.46</td><td><span class="badge bMR">MR</span></td><td>dip-buy; near 20w</td></tr>
+      <tr><td><b>AMKR</b></td><td>Substrates</td><td class="m">+87%</td><td class="m">+325%</td><td class="m">0%</td><td class="m">1.07</td><td class="m">0.56</td><td><span class="badge bMOM">MOM</span></td><td>selective; OSAT soft</td></tr>
+      <tr><td><b>KLAC</b></td><td>Substrates</td><td class="m">+69%</td><td class="m">+197%</td><td class="m">−1%</td><td class="m">0.59</td><td class="m">0.43</td><td><span class="badge bMR">MR</span></td><td>dip-buy; process-ctrl tight</td></tr>
+      <tr><td><b>NVDA</b></td><td>Demand anchor</td><td class="m">+23%</td><td class="m">+47%</td><td class="m">−6%</td><td class="m">0.64</td><td class="m">0.66</td><td><span class="badge bMIX">MIX</span></td><td>cheap (~21x) accumulate anchor</td></tr>
+      <tr><td><b>ANET</b></td><td>Switch/system</td><td class="m">+27%</td><td class="m">+93%</td><td class="m">−6%</td><td class="m">0.89</td><td class="m">0.68</td><td><span class="badge bMIX">MIX</span></td><td>reference hold</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 08 DECISION TABLE -->
+<section>
+  <div class="sh"><span class="n">08</span><h2>Decision table — regime × fundamentals → lean &amp; trigger</h2><span class="cn">決策表</span></div>
+  <div class="panel" style="overflow-x:auto">
+    <table>
+      <tr><th>Bucket</th><th>Price regime</th><th>Fundamentals</th><th>Stage</th><th>Lean</th><th>Trigger to act on</th></tr>
+      <tr><td><b>Networking Silicon</b></td><td><span class="badge bMOM">MOMENTUM</span></td><td class="grn">accelerating</td><td>recognition→euphoria</td><td><b>RIDE</b> (trail stop)</td><td>exit if VR8&lt;1 &amp; RS rolls over</td></tr>
+      <tr><td><b>Compute Fabric</b></td><td><span class="badge bMIX">mom-lean</span></td><td class="grn">accelerating (5.0)</td><td>recognition</td><td><b>HOLD + add dips</b></td><td>HBM4 yield news; CoWoS capacity-add (top-warn)</td></tr>
+      <tr><td><b>Power Delivery</b></td><td><span class="badge bMIX">mixed</span></td><td class="grn">accel. (constraint 5.0)</td><td>early→recognition</td><td><b>ACCUMULATE</b> dip</td><td>transformer lead-time stabilizing = late</td></tr>
+      <tr><td><b>Cooling</b></td><td><span class="badge bMIX">mixed</span></td><td class="grn">accelerating</td><td>recognition</td><td><b>BUY DIPS</b> (VRT)</td><td>backlog/book-to-bill turn</td></tr>
+      <tr><td><b>Optics</b></td><td><span class="badge bMR">MEAN-REV</span></td><td class="grn">accelerating</td><td>euphoria→cooling</td><td><b>DON'T CHASE;</b> dips only</td><td>RS re-cross up; CPO timeline (structural risk)</td></tr>
+      <tr><td><b>Substrates</b></td><td><span class="badge bMR">MEAN-REV</span></td><td class="amb">split (KLAC tight / OSAT soft)</td><td>recognition</td><td><b>SELECTIVE</b> (KLAC dips)</td><td>OSAT util &lt;80% = top-warn</td></tr>
+      <tr><td><b>L1: Technology</b></td><td><span class="badge bMIX">mom-lean</span></td><td class="grn">strong</td><td>recognition</td><td><b>OVERWEIGHT</b></td><td>breadth divergence (§4)</td></tr>
+      <tr><td><b>L1: ex-Tech</b></td><td><span class="badge bMR">MR / mixed</span></td><td>varied</td><td>lagging</td><td><b>FADE rallies</b></td><td>RRG rotation into Improving quad</td></tr>
+      <tr><td><b>Market overheat</b></td><td>—</td><td>record leverage</td><td>late-cycle</td><td><b>STAY LONG, hedge-ready</b></td><td>curve re-invert / HY&gt;350bp / breadth roll</td></tr>
+    </table>
+  </div>
+  <div class="panel" style="margin-top:14px;overflow-x:auto">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:4px">Monday action sheet — research book (illustrative weights, NOT advice)</h4>
+    <p style="font-size:10.5px;color:var(--dim);margin-bottom:8px">Sizes are % of a notional research book to show <i>relative conviction</i>, not recommendations. "RS&gt;20w" = weekly relative strength above its own 20-week average. Verify every trigger before acting; IBKR is read-only — nothing here is an order.</p>
+    <p style="font-size:11px;color:var(--mut);margin-bottom:8px"><b style="color:var(--txt)">Existing holders vs new money:</b> if you ALREADY own a name, follow the Action column (ride / hold / trim). If you're deploying NEW money, restrict to names in their add-zone today — <b>AVGO, NVDA, VRT, FN</b> (RS&gt;20w intact), plus <b>ETN, GEV</b> as a <i>half-size starter only</i> (fundamental-gap exception: RS still &lt;20w, so size half until RS recrosses) — and <b>do not initiate</b> the NO-CHASE names sitting at 52-week highs (MRVL, ALAB, CRDO, MU, AMAT, KLAC, AMKR, COHR, MPWR, MOD, LITE) even though several read "RIDE" for existing holders. New-money entries: half the listed size until a pullback resets crowding.</p>
+    <table>
+      <tr><th>Ticker</th><th>Sub-cluster</th><th>Action now</th><th>Add / entry trigger</th><th>Invalidation / stop</th><th>Trim trigger</th><th>Size</th></tr>
+      <tr><td><b>MRVL</b></td><td>Networking Si</td><td class="grn">RIDE / core</td><td>add only on dip to 20w MA</td><td>custom-ASIC thesis breaks</td><td>RS&lt;20w</td><td class="m">5%</td></tr>
+      <tr><td><b>ALAB</b></td><td>Networking Si</td><td class="grn">RIDE</td><td>hold while RS&gt;20w &amp; VR8&gt;1</td><td>wkly close −15% or RS&lt;20w</td><td>RS rolls 2 wks</td><td class="m">4%</td></tr>
+      <tr><td><b>CRDO</b></td><td>Networking Si</td><td class="grn">RIDE (small)</td><td>momentum continuation</td><td>−18%</td><td>VR8&lt;1</td><td class="m">3%</td></tr>
+      <tr><td><b>AVGO</b></td><td>Networking Si</td><td class="dout">BUY / CORE</td><td>near 20w MA now (~370)</td><td>−12%</td><td>—</td><td class="m">7%</td></tr>
+      <tr><td><b>NVDA</b></td><td>Demand anchor</td><td class="dout">ACCUMULATE</td><td>cheap (~21x); add toward 20w (~195)</td><td>−15% / AI-capex cut</td><td>—</td><td class="m">7%</td></tr>
+      <tr><td><b>TSM</b></td><td>Compute fabric</td><td>HOLD / add</td><td>pullback to 20w MA (~380)</td><td>CoWoS capacity-add (top-warn)</td><td>—</td><td class="m">6%</td></tr>
+      <tr><td><b>MU</b></td><td>Compute fabric</td><td class="amb">HOLD (volatile)</td><td>dip-buy only</td><td>−20% (high vol) / HBM price roll</td><td>HBM ASP turn</td><td class="m">3%</td></tr>
+      <tr><td><b>VRT</b></td><td>Cooling</td><td class="dout">BUY THIS DIP</td><td>at 20w MA (~286) now</td><td>backlog book-to-bill &lt;1</td><td>—</td><td class="m">5%</td></tr>
+      <tr><td><b>GEV / ETN</b></td><td>Power</td><td class="dout">ACCUMULATE</td><td>on the current RS dip (near 20w)</td><td>order growth &lt;20%</td><td>—</td><td class="m">4% / 3%</td></tr>
+      <tr><td><b>FN</b></td><td>Optics</td><td class="dout">DIP-BUY</td><td>near 20w MA (~602); EML intact</td><td>EML 2nd-source emerges</td><td>—</td><td class="m">3%</td></tr>
+      <tr><td><b>LITE / COHR</b></td><td>Optics</td><td class="amb">DIP-BUY only</td><td>RS recross up / 20w pullback</td><td>1.6T share loss</td><td>—</td><td class="m">3% / 3%</td></tr>
+      <tr><td><b>KLAC</b></td><td>Substrates</td><td class="amb">SELECTIVE</td><td>dip to 20w (~174); process-ctrl tight</td><td>WFE guide cut</td><td>—</td><td class="m">2%</td></tr>
+      <tr><td><b>XLK</b></td><td>L1 Tech</td><td class="grn">OVERWEIGHT</td><td>—</td><td>breadth divergence (§4)</td><td>—</td><td>core</td></tr>
+      <tr><td><b>Index hedge</b></td><td>SPX / QQQ</td><td class="red">ARMED, off</td><td>when 2-of-3 risk rule fires ↓</td><td>—</td><td>reset rule</td><td class="m">0% now</td></tr>
+    </table>
+  </div>
+  <div class="panel" style="margin-top:12px;overflow-x:auto">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:4px">Execution levels — exact add-zones &amp; stops (computed)</h4>
+    <p style="font-size:10.5px;color:var(--dim);margin-bottom:8px">Prices &amp; MAs as of the <b>2026-06-15 weekly close</b> — <b class="amb">refresh live before acting</b>. Add-zone ≈ pullback to the 20-week MA; structural stop = weekly close below the 40-week MA (tighter traders use the 20w MA). "RS&gt;20w" = relative strength above its own 20-week average (trend intact).</p>
+    <table>
+      <tr><th>Ticker</th><th>Price</th><th>Add-zone (20w MA)</th><th>Stop (40w MA)</th><th>RS&gt;20w</th><th>dist 52H</th><th>Read</th></tr>
+      <tr><td><b>AVGO</b></td><td class="m">395</td><td class="m">370</td><td class="m">360</td><td class="grn">yes</td><td class="m">−12%</td><td>near MAs — best add-zone of the group</td></tr>
+      <tr><td><b>NVDA</b></td><td class="m">212</td><td class="m">195</td><td class="m">190</td><td class="grn">yes</td><td class="m">−6%</td><td>cheap + near 20w — accumulate</td></tr>
+      <tr><td><b>MRVL</b></td><td class="m">307</td><td class="m">149</td><td class="m">117</td><td class="grn">yes</td><td class="m">0%</td><td>at highs; ride core, no chase</td></tr>
+      <tr><td><b>ALAB</b></td><td class="m">388</td><td class="m">201</td><td class="m">187</td><td class="grn">yes</td><td class="m">0%</td><td>very extended; only add on pullback</td></tr>
+      <tr><td><b>CRDO</b></td><td class="m">258</td><td class="m">159</td><td class="m">155</td><td class="grn">yes</td><td class="m">0%</td><td>extended; small ride</td></tr>
+      <tr><td><b>TSM</b></td><td class="m">441</td><td class="m">380</td><td class="m">339</td><td class="grn">yes</td><td class="m">0%</td><td>add toward 380</td></tr>
+      <tr><td><b>AMAT</b></td><td class="m">590</td><td class="m">405</td><td class="m">328</td><td class="grn">yes</td><td class="m">0%</td><td>MR — wait for the pullback</td></tr>
+      <tr><td><b>MU</b></td><td class="m">1077</td><td class="m">581</td><td class="m">419</td><td class="grn">yes</td><td class="m">0%</td><td>very extended &amp; volatile; dips only</td></tr>
+      <tr><td><b>VRT</b></td><td class="m">313</td><td class="m">286</td><td class="m">229</td><td class="grn">yes</td><td class="m">−16%</td><td>already in add-zone (near 20w MA)</td></tr>
+      <tr><td><b>GEV</b></td><td class="m">978</td><td class="m">932</td><td class="m">778</td><td class="red">no</td><td class="m">−15%</td><td>in add-zone now (accumulate)</td></tr>
+      <tr><td><b>ETN</b></td><td class="m">410</td><td class="m">387</td><td class="m">369</td><td class="red">no</td><td class="m">−4%</td><td>at 20w MA — accumulate</td></tr>
+      <tr><td><b>MPWR</b></td><td class="m">1649</td><td class="m">1356</td><td class="m">1160</td><td class="grn">yes</td><td class="m">0%</td><td>hold</td></tr>
+      <tr><td><b>LITE</b></td><td class="m">960</td><td class="m">797</td><td class="m">535</td><td class="grn">yes</td><td class="m">−1%</td><td>EML anchor; add toward 797</td></tr>
+      <tr><td><b>COHR</b></td><td class="m">413</td><td class="m">307</td><td class="m">232</td><td class="grn">yes</td><td class="m">0%</td><td>dip toward 307</td></tr>
+      <tr><td><b>FN</b></td><td class="m">637</td><td class="m">602</td><td class="m">520</td><td class="red">no</td><td class="m">−12%</td><td>MR; in 20w MA add-zone</td></tr>
+      <tr><td><b>AMKR</b></td><td class="m">86</td><td class="m">60</td><td class="m">49</td><td class="grn">yes</td><td class="m">0%</td><td>extended; selective</td></tr>
+      <tr><td><b>KLAC</b></td><td class="m">253</td><td class="m">174</td><td class="m">148</td><td class="grn">yes</td><td class="m">−1%</td><td>MR — wait for dip</td></tr>
+    </table>
+    <div class="variant" style="margin:12px 0 0;border-left-color:var(--mr)">
+      <div class="h" style="color:var(--mr)">CROWDING GUARDRAIL — do not chase the extended names</div>
+      <p><b>MRVL, ALAB, CRDO, MU, AMAT, KLAC, COHR, AMKR, MPWR, MOD, LITE</b> are sitting <b>at or within ~1% of 52-week highs</b> with relative-strength z-scores &gt;2 — i.e., already crowded/priced. Rule: <b>do not initiate at the highs;</b> only add in the 20w-MA add-zone above, and size new entries half-normal until a pullback resets the crowding. The cleaner-entry names today (near their MAs, not at highs) are <b>AVGO, NVDA, ETN, GEV, VRT, FN</b>. Cross-referenced with the valuation overlay below: the worst spots are <b>euphoric valuation + extended price</b> (ALAB ~117x, MRVL ~68x, MPWR ~65x, LITE ~60x, AMAT ~39x) — do not chase. The best risk/reward pairs <b>reasonable valuation</b> with the trend: <b>NVDA</b> (cheap vs its own history) and the fair-valued <b>AVGO, TSM, ETN</b>.</p>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:12px;overflow-x:auto">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:4px">Valuation overlay — don't mistake a real chokepoint for a good entry (web-verified, ≥2 sources)</h4>
+    <p style="font-size:10.5px;color:var(--dim);margin-bottom:8px">Fwd P/E and EV/Sales as of 2026-06-15 (stockanalysis/Yahoo/GuruFocus + filings). "Read" = fwd multiple placed vs the company's OWN 3–10yr history (CHEAP/FAIR/RICH/EUPHORIC ≈ low/mid/high/top-decile of its own range). The point: a tight supply chokepoint can already be priced — buy the regime AND the valuation, not momentum alone. Broad market: S&amp;P fwd P/E ~20x (vs ~19–20x 5–10yr avg), NDX ~24x — froth is concentrated downstream, not at the index.</p>
+    <table>
+      <tr><th>Ticker</th><th>Fwd P/E</th><th>EV/S</th><th>Rev growth</th><th>GM</th><th>Valuation read (vs own history)</th></tr>
+      <tr><td><b>NVDA</b></td><td class="m">~21x</td><td class="m">20x</td><td class="m">+41%</td><td class="m">74%</td><td><span class="q qStrong">CHEAP</span> — fwd P/E far below its ~60x+ avg; earnings outran price</td></tr>
+      <tr><td><b>AVGO</b></td><td class="m">~24x</td><td class="m">25x</td><td class="m">~+32%</td><td class="m">76%</td><td><span class="q qStrong">FAIR</span> — below its AI-peak rerate; $73B backlog</td></tr>
+      <tr><td><b>TSM</b></td><td class="m">~23x</td><td class="m">15x</td><td class="m">+26%</td><td class="m">62%</td><td><span class="q qMod">FAIR-RICH</span> — above its ~15–18x norm but most defensible</td></tr>
+      <tr><td><b>ETN</b></td><td class="m">~28x</td><td class="m">6.3x</td><td class="m">~+11%</td><td class="m">37%</td><td><span class="q qMod">FAIR-RICH</span> — top of its ~18–22x range</td></tr>
+      <tr><td><b>COHR</b></td><td class="m">~55x</td><td class="m">12x</td><td class="m">+35%</td><td class="m">37%</td><td><span class="q qMod">AVG-HIGH</span> — elevated on still-recovering margins</td></tr>
+      <tr><td><b>CRDO</b></td><td class="m">~43x</td><td class="m">34x</td><td class="m">+82%</td><td class="m">68%</td><td><span class="q qMod">AVG (growth-justified)</span> — short history, no cheap baseline</td></tr>
+      <tr><td><b>VRT</b></td><td class="m">~46x</td><td class="m">11x</td><td class="m">+28%</td><td class="m">37%</td><td><span class="q qMod">RICH but PEG~1</span> — growth-justified premium</td></tr>
+      <tr><td><b>MU</b></td><td class="m red">~10x</td><td class="m">20x</td><td class="m">+66%</td><td class="m">58%</td><td><span class="q qWeak">PEAK TRAP</span> — low P/E = peak-cycle earnings, not value</td></tr>
+      <tr><td><b>GEV</b></td><td class="m">~51x</td><td class="m">6.5x</td><td class="m">+14%</td><td class="m">20%</td><td><span class="q qWeak">RICH</span> — backlog priced; short post-spin history</td></tr>
+      <tr><td><b>KLAC</b></td><td class="m">~54x</td><td class="m">25x</td><td class="m">~+13%</td><td class="m">62%</td><td><span class="q qWeak">RICH</span> — P/S above its own ~12x median</td></tr>
+      <tr><td><b>FN</b></td><td class="m">~39x</td><td class="m">5.2x</td><td class="m">+23%</td><td class="m red">12%</td><td><span class="q qWeak">RICH vs own</span> — thin-margin EMS at a record multiple</td></tr>
+      <tr><td><b>MOD</b></td><td class="m">~37x</td><td class="m">4.9x</td><td class="m">+28%</td><td class="m">23%</td><td><span class="q qWeak">RICH-EUPHORIC</span> — re-rated from legacy ~12x</td></tr>
+      <tr><td><b>AMKR</b></td><td class="m">~40x</td><td class="m">3.0x</td><td class="m">+11%</td><td class="m">14%</td><td><span class="q qWeak">EUPHORIC</span> — ~2–3× its own historical norm; OSAT soft</td></tr>
+      <tr><td><b>AMAT</b></td><td class="m red">~39x</td><td class="m">16x</td><td class="m">+25%</td><td class="m">49%</td><td><span class="q qWeak">EUPHORIC</span> — ~2× normal multiple; P/S well above median</td></tr>
+      <tr><td><b>LITE</b></td><td class="m red">~60x</td><td class="m">30x</td><td class="m">+82%</td><td class="m">41%</td><td><span class="q qWeak">EUPHORIC</span> — EV/S far above its 10yr median</td></tr>
+      <tr><td><b>MPWR</b></td><td class="m red">~65x</td><td class="m">27x</td><td class="m">~+30%</td><td class="m">55%</td><td><span class="q qWeak">EUPHORIC</span> — elevated even vs its own premium history</td></tr>
+      <tr><td><b>MRVL</b></td><td class="m red">~68x</td><td class="m">31x</td><td class="m">+41%</td><td class="m">52%</td><td><span class="q qWeak">EUPHORIC</span> — rich, but momentum + ASIC ramp</td></tr>
+      <tr><td><b>ALAB</b></td><td class="m red">~117x</td><td class="m">67x</td><td class="m">+41%</td><td class="m">76%</td><td><span class="q qWeak">EUPHORIC</span> — zero room for any growth miss</td></tr>
+    </table>
+    <p class="cap">Latent names (§5) screen euphoric too — so they are <b>watch-for-the-pullback</b>, not buy-now. The cleanest valuation+regime combo today is <b>NVDA</b> (cheap, mixed regime = accumulate) and <b>AVGO/TSM</b> (fair, core). Verify live before acting.</p>
+  </div>
+  <div class="panel" style="margin-top:12px">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:4px">Monday refresh protocol — turning weekly-close levels into an open-bell decision</h4>
+    <p style="font-size:12px;color:var(--mut)">The execution levels are weekly-close (06-15). At the open, for each name pull the live price and apply this state machine against the 20w/40w MA levels above — and note the live FOMC (Jun 16–17) is the week's macro event:</p>
+    <ul class="tight">
+      <li><b class="grn">BUY NOW</b> — live price is within ~3% of the add-zone (20w MA) AND RS still &gt; its 20w avg AND not gapping up &gt;5% premarket.</li>
+      <li><b class="amb">ALERT ONLY</b> — price is 3–10% above the add-zone: set an alert at the 20w MA, don't initiate.</li>
+      <li><b class="red">NO CHASE</b> — price is &gt;10% above add-zone OR at/within 1% of 52w high with RS-z &gt; 2 (the crowding-guardrail names): wait for a reset.</li>
+      <li><b class="dout">TRIM / STOP</b> — weekly close below the 40w MA (structural) or below the 20w MA for momentum names: cut.</li>
+      <li><b>FOMC RULE</b> — don't initiate size into the 2pm decision/presser; let the dot-plot &amp; tone print, then act on the open the next session.</li>
+    </ul>
+    <p style="font-size:11px;color:var(--dim)">Today most ride-names (MRVL, ALAB, CRDO, MU, AMAT, KLAC, AMKR, COHR, MPWR, MOD) are in <b>NO-CHASE</b> (at highs); the <b>BUY-NOW/accumulate</b> candidates near their add-zones are <b>AVGO, NVDA, ETN, GEV, VRT, FN</b>.</p>
+  </div>
+  <div class="panel" style="margin-top:12px">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:4px">Mechanical risk-down rule — the hedge trigger</h4>
+    <p style="font-size:12.5px;color:var(--mut)">Cut gross / add an index hedge only when <b style="color:var(--txt)">≥2 of 3 fire on a weekly close</b>: (1) HY OAS &gt;<span class="m">350bp</span> for 2 consecutive weeks; (2) 10Y-3M re-inverts (&lt;0); (3) SPX makes a 3-month high while the NYSE A/D line OR %&gt;200DMA fails to confirm (breadth divergence). <b style="color:var(--txt)">Currently 0 of 3 fire</b> (HY ~278bp, curve +73bp, breadth confirming). <b style="color:var(--txt)">Reset / re-risk</b> when all three normalize for 2 weeks. This keeps you long the record-leverage tape until the <i>backtested-to-lead</i> signals — not margin debt alone — actually turn. <b style="color:var(--txt)">Composite-rule context (cited, illustrative):</b> a 2-of-3 version of this gate (curve + HY-breakout + breadth non-confirm) would have flagged ahead of the 2000, 2007 and 2022 drawdowns and stayed <i>off</i> through the 2023–24 advance; it is not yet formally in-house backtested (a known limitation in §9, n small) — treat as a discipline, not a precise edge.</p>
+    <p style="font-size:12px;color:var(--mut);margin-top:8px"><b style="color:var(--txt)">Response ladder:</b> 1 of 3 fires = no action, raise alert. <b style="color:var(--txt)">2 of 3</b> = trim gross ~20% and/or add a 1/3-notional QQQ/SPY hedge; cut the extended crowding-guardrail names first. <b style="color:var(--txt)">3 of 3</b> = trim gross ~40% and/or hedge 2/3-notional. <b style="color:var(--txt)">Reset:</b> unwind hedges when all three normalize on weekly close for 2 weeks.</p>
+    <p style="font-size:12px;color:var(--mut);margin-top:8px"><b style="color:var(--txt)">De-risking waterfall</b> (what to cut, in order): <b style="color:var(--txt)">1st — at-highs / crowded</b> (MRVL, ALAB, CRDO, MU, AMAT, KLAC, COHR, AMKR, MPWR): most downside if the tape turns. <b style="color:var(--txt)">2nd — high-beta momentum</b> (VRT, LITE, MOD): trim to the core. <b style="color:var(--txt)">3rd — core compounders</b> (AVGO, TSM, NVDA, ETN, GEV): cut last, only on 3-of-3. Keep the latent watchlist (§5) dry powder — a forced de-risk is when the still-latent names get their entry.</p>
+  </div>
+  <div class="variant" style="border-left-color:var(--mom)">
+    <div class="h" style="color:var(--mom)">IF YOU CAN ONLY DO ONE THING</div>
+    <p><b>Ride the one clean momentum-and-accelerating cell — Networking Silicon — with a trailing stop, and put new money into the fair-valued names near their add-zones (AVGO, NVDA) plus the Power laggard (ETN/GEV) whose 5-year-lead fundamentals are the best in the stack.</b> Keep the hedge trigger armed: this is a record-leverage, narrow-breadth tape, so the moment the yield curve re-inverts, HY OAS breaks &gt;350bp, or breadth diverges from price, cut gross — those are the three signals the backtest says actually lead.</p>
+  </div>
+  <div class="panel" style="margin-top:14px;overflow-x:auto">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:4px">One pipeline — every name in a single canonical bucket</h4>
+    <p style="font-size:10.5px;color:var(--dim);margin-bottom:8px">Consolidates the scattered lists into one stage per ticker — <b>this table is the canonical source of truth</b>; where the action sheet or execution levels above appear to differ, this bucket governs. Read with the §8 valuation overlay &amp; execution levels.</p>
+    <table>
+      <tr><th>Bucket</th><th>Tickers</th><th>Why here</th><th>One trigger</th></tr>
+      <tr><td><b class="grn">BUY NOW</b> (new money OK)</td><td>AVGO, NVDA, VRT, FN · <span class="dim">ETN/GEV half-size*</span></td><td>near 20w-MA add-zone; fair-to-cheap valuation. *ETN/GEV: RS&lt;20w → fundamental-gap starter only</td><td>enter while RS &gt; 20w (ETN/GEV: half-size until RS recrosses)</td></tr>
+      <tr><td><b class="dout">ACCUMULATE DIP</b></td><td>TSM, LITE, COHR, MOD, MPWR</td><td>strong trend, wait for pullback</td><td>RS recross up / 20w-MA tag</td></tr>
+      <tr><td><b class="teal">RIDE ONLY</b> (hold, no new $)</td><td>MRVL, ALAB, CRDO, MU</td><td>clean momentum but extended/euphoric</td><td>trail stop; exit on VR8&lt;1</td></tr>
+      <tr><td><b class="red">NO CHASE</b></td><td>AMAT, KLAC, AMKR</td><td>mean-reverting &amp; at/over 52w highs</td><td>wait for a valuation/price reset</td></tr>
+      <tr><td><b class="vio">LATENT</b> (research only)</td><td>VICR, BESI, SMTC, GLW, ONTO, POET, NVT, POWL, MXL, CAMT</td><td>early/under-covered but mostly euphoric now</td><td>catalyst + the next drawdown</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 09 METHOD -->
+<section>
+  <div class="sh"><span class="n">09</span><h2>Method, caveats &amp; what to watch</h2><span class="cn">方法與風險</span></div>
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:12.5px;font-weight:600;margin-bottom:8px">How the regimes were computed</h4>
+      <ul class="tight">
+        <li><b>Data:</b> 2-yr weekly closes (105 bars) for 32 instruments via IBKR (read-only). Baskets = equal-weight of constituent weekly returns.</li>
+        <li><b>Momentum vs MR:</b> Lo-MacKinlay <b>variance ratio</b> (q=8), lag-1 <b>autocorrelation</b>, and a rescaled-range <b>Hurst</b> exponent; regime = majority vote.</li>
+        <li><b>Integrity:</b> computed YTD cross-checked vs IBKR's independent snapshot. The four flagged sectors (SMH/XLE/XLY/XLC) differ by 1–7pp purely from a <b>year-boundary bar effect</b> — IBKR weekly bars are dated by week-start, so the last-2025 bar closes on Jan-2, shifting the YTD base. Trailing 13w/52w/regime metrics are unaffected; broker-snapshot YTD is used for the L1 heatmap.</li>
+        <li><b>Backtests:</b> price-based tests are 2-yr weekly, n≈45–605 — <b>directional, not statistically strong.</b> Macro backtests cite longer-history published studies.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:12.5px;font-weight:600;margin-bottom:8px">Forward triggers — the watch list</h4>
+      <ul class="tight">
+        <li><b>Regime flip:</b> Networking-Si VR8 crossing &lt;1 = ride is over; Optics/Substrates RS re-cross up = dip is bought.</li>
+        <li><b>Macro swing:</b> does the oil pullback hold? WTI &lt;$75 + CPI &lt;4% revives H2-cut odds (bullish duration/AI); WTI &gt;$95 re-arms the inflation shock. Watch the FOMC dot-plot Jun-17.</li>
+        <li><b>Overheat → action:</b> curve re-inversion (FRED T10Y3M), HY OAS &gt; ~350–400bp, or a breadth divergence. Margin debt / price-extension alone are <i>not</i> triggers.</li>
+        <li><b>Sentiment fat-pitch:</b> F&amp;G &lt;20 + put/call &gt;0.8 + VIX &gt;25 + NAAIM &lt;50 = real capitulation (we are not there — bears high but VIX/P&amp;C complacent).</li>
+        <li><b>Emerging-trend tells:</b> new lead-time blowouts (#1), capacity-exit (#6); capacity-<i>add</i> announcements (#7) are the top-warning. CPO pull-in (optics) &amp; OSAT util &lt;80% (substrates) are the fundamental top-warnings.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:8px">Data appendix — universe, window &amp; formulas (auditable)</h4>
+    <div class="two">
+      <div>
+        <p style="font-size:11.5px;color:var(--mut);line-height:1.6"><b style="color:var(--txt)">Universe (32):</b> L1 — XLK XLY XLI XLB XLF XLRE XLC XLV XLP XLE XLU; benchmarks SPY, SMH. L3 AI-infra — Compute fabric (TSM AMAT MU), Optics (COHR LITE FN), Cooling (VRT MOD), Power (ETN GEV MPWR), Networking Si (AVGO MRVL CRDO ALAB), Substrates (AMKR KLAC); refs NVDA, ANET.</p>
+        <p style="font-size:11.5px;color:var(--mut);line-height:1.6;margin-top:8px"><b style="color:var(--txt)">Window:</b> 105 weekly bars, 2024-06-17 → 2026-06-15 (IBKR, read-only). Snapshot returns (YTD/1m/1y) as-of 2026-06-15. Macro/sentiment as-of 2026-06-12→16.</p>
+      </div>
+      <div>
+        <p style="font-size:11.5px;color:var(--mut);line-height:1.6"><b style="color:var(--txt)">Formulas:</b> Variance ratio VR(q) = Var(Σ<sub>q</sub> r) ÷ (q·Var(r)), q=8 weeks; lag-1 autocorrelation AC1; Hurst via rescaled-range over 8–48w windows; RS = price ÷ SPY (rebased 100); regime = majority vote of VR8, AC1, Hurst. Baskets = equal-weight of constituent weekly returns.</p>
+        <p style="font-size:11.5px;color:var(--mut);line-height:1.6;margin-top:8px"><b style="color:var(--txt)">Sources:</b> prices IBKR; macro BLS/BEA/FRED/CME/Atlanta-Fed; sentiment CNN/AAII/CBOE/NAAIM; leverage FINRA; backtests CXO Advisory/QuantPedia/Chicago Fed/StockCharts; fundamentals SEC 8-K/10-Q + TrendForce/DIGITIMES/McKinsey/power-eng.</p>
+      </div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:14px;overflow-x:auto">
+    <h4 style="font-size:12.5px;font-weight:600;margin-bottom:6px">Load-bearing numbers — value · as-of · source (inline auditability)</h4>
+    <table>
+      <tr><th>Metric</th><th>Value</th><th>As-of</th><th>Source</th></tr>
+      <tr><td>Headline CPI YoY</td><td class="m">4.2%</td><td class="m">May (06-10 rel.)</td><td>BLS</td></tr>
+      <tr><td>Core PCE YoY</td><td class="m">3.3%</td><td class="m">Apr</td><td>BEA</td></tr>
+      <tr><td>Fed funds / decision</td><td class="m">3.50–3.75% · hold ~97%</td><td class="m">06-16 (live FOMC)</td><td>CME FedWatch</td></tr>
+      <tr><td>GDPNow Q2 / Q1 actual</td><td class="m">+3.3% / +1.6%</td><td class="m">06-09 / Q1 2nd est.</td><td>Atlanta Fed / BEA</td></tr>
+      <tr><td>10Y-3M / 2s10s</td><td class="m">+73bp / +39bp</td><td class="m">06-16</td><td>FRED / TradingEconomics</td></tr>
+      <tr><td>HY OAS</td><td class="m">~278bp</td><td class="m">Jun</td><td>FRED BAMLH0A0HYM2</td></tr>
+      <tr><td>WTI crude</td><td class="m">~$79 (−4.5%)</td><td class="m">06-15</td><td>CNBC / FXStreet</td></tr>
+      <tr><td>Margin debt / YoY</td><td class="m">$1.30T · +53%</td><td class="m">Apr</td><td>FINRA</td></tr>
+      <tr><td>CNN Fear &amp; Greed</td><td class="m">41</td><td class="m">06-15</td><td>CNN</td></tr>
+      <tr><td>AAII bull / bear</td><td class="m">30% / 52%</td><td class="m">06-11</td><td>AAII</td></tr>
+      <tr><td>NAAIM / VIX / P&amp;C</td><td class="m">79 / ~18 / 0.54</td><td class="m">06-10 / 06-15 / 06-12</td><td>NAAIM / CBOE</td></tr>
+      <tr><td>Vertiv backlog</td><td class="m">$15.0B (+109%)</td><td class="m">Q4'25 (8-K)</td><td>SEC</td></tr>
+      <tr><td>GEV electrification orders</td><td class="m">$2.4B Q1; 44GW backlog</td><td class="m">Q1 2026</td><td>SEC / power-eng</td></tr>
+      <tr><td>Transformer lead-time</td><td class="m">~5 years</td><td class="m">spring 2026</td><td>power-eng / Tech Fund</td></tr>
+    </table>
+  </div>
+  <div class="variant" style="border-left-color:var(--l3)">
+    <div class="h" style="color:var(--l3)">INDEPENDENT REVIEWER LOOP — Codex gpt-5.5 (xhigh), acting as the retail-investor user</div>
+    <p style="font-size:12px;color:var(--mut)" id="reviewline">Iterated against an adversarial reviewer (Codex gpt-5.5, xhigh) acting as the end-user until it "fits the objective." Trajectory (Actionability / Visualization / MECE): <b>R1</b> <span class="m">8/8/8</span> (fits ✓) → <b>R2</b> <span class="m">8/7/8</span> (fits) → <b>R3</b> <span class="m">8/8/8</span> (fits ✓). 16 punch-list items applied across rounds (GEV/ETN RS-exception, canonical-pipeline source-of-truth, composite-hedge context, latent-watchlist upgrade rule, per-card action tags, taxonomy &amp; mobile fixes); remaining items are documented limitations below.</p>
+    <div style="font-size:11px;font-weight:600;color:var(--l3);margin:8px 0 4px">Unresolved / known limitations — verify before acting</div>
+    <table>
+      <tr><th>Issue</th><th>Why it matters</th><th>Next check</th></tr>
+      <tr><td>In-house backtests are 2-yr weekly (small n)</td><td>directional only, not statistically conclusive</td><td>extend to 5–10yr daily; walk-forward</td></tr>
+      <tr><td>Execution levels = 2026-06-15 weekly close</td><td>stale vs the open; FOMC mid-week</td><td>refresh live per the §8 protocol</td></tr>
+      <tr><td>YTD base shifted by the year-boundary weekly bar</td><td>computed-YTD ≠ broker-YTD for 4 sectors</td><td>broker snapshot used for the heatmap</td></tr>
+      <tr><td>Valuations are single-snapshot, no per-row URL</td><td>fast-moving; audit friction</td><td>add timestamped source links</td></tr>
+      <tr><td>Latent names are leads, not theses (all euphoric)</td><td>no buyable entry today</td><td>full teardown on the next pullback</td></tr>
+    </table>
+    <p style="font-size:11px;color:var(--dim);margin-top:6px">Personal research, not investment advice. Sizing illustrative; IBKR read-only.</p>
+  </div>
+</section>
+
+<div class="disc">
+  <b>Disclaimer.</b> Personal research for a private knowledge base — <b>not investment advice</b>. IBKR access is read-only; nothing here places or recommends a trade. Numbers are stamped to their as-of dates (macro/sentiment 2026-06-12→16; price regimes through 2026-06-15); estimates marked (est.). Price-based backtests are small-sample (2-yr weekly) and directional only. Cross-check every load-bearing number before acting.
+</div>
+
+<footer>
+  <b>Macro &amp; Sector-Sentiment Monitor v6</b> · as of 16 Jun 2026 · Tier 0–3 of the Capital-Flow Stack · regimes computed from IBKR 2-yr weekly data; macro/backtest claims cross-checked ≥2 sources.<br>
+  Sources — BLS/BEA/FRED (CPI, PCE, yields, HY OAS); CME FedWatch; Atlanta Fed GDPNow; FINRA (margin debt); CNN F&amp;G, AAII, CBOE, NAAIM (sentiment); CXO Advisory &amp; QuantPedia (margin-debt backtest); Chicago Fed/Estrella-Mishkin (curve); StockCharts/Schwab/Morningstar (breadth); Taipei Times/SemiMedia/TrendForce/DIGITIMES/McKinsey/power-eng (component cycles); company filings — Vertiv, GE Vernova, Astera, Credo, Marvell, Amkor, Lumentum (SEC 8-K/10-Q). Built per report-standard v5.
+</footer>
+
+</div>
+</body>
+</html>

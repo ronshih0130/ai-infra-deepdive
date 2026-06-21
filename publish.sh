@@ -81,6 +81,28 @@ for f in "$VAULT"/*20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]*.html; do
 done
 shopt -u nullglob
 
+# --- generate archive/index.html: a browsable listing of EVERY archived report ---
+# Answers "where are the rest of my reports?" — the curated homepage shows the latest
+# of each family; this lists the complete dated history (one-offs + superseded runs).
+if [ -d archive ]; then
+  arch_tmp=$(mktemp)
+  for f in $(ls -t archive/*.html 2>/dev/null); do
+    base=$(basename "$f")
+    [ "$base" = "index.html" ] && continue
+    d=$(printf '%s' "$base" | grep -oE '20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]' | head -1 || true)
+    title=$(grep -oiE '<title>[^<]*</title>' "$f" | head -1 | sed -E 's#</?[Tt][Ii][Tt][Ll][Ee]>##g' || true)
+    [ -z "$title" ] && title="$base"
+    printf '    <a class="row" href="%s"><span class="d">%s</span><span class="t">%s</span><span class="f">%s</span></a>\n' "$base" "${d:-—}" "$title" "$base" >> "$arch_tmp"
+  done
+  {
+    printf '%s' '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>AI-Infra Deep-Dive — Full Report Archive</title><style>:root{--bg:#0e1116;--line:#2a323d;--ink:#e6edf3;--muted:#9aa7b4;--faint:#8692a0;--accent2:#3fb6a8;--mono:ui-monospace,Menlo,Consolas,monospace;--sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5}.wrap{max-width:1040px;margin:0 auto;padding:30px 28px 70px}a{color:var(--accent2);text-decoration:none}h1{font-size:26px;margin:0 0 4px}.sub{color:var(--muted);max-width:74ch}.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}.row{display:grid;grid-template-columns:104px 1fr;gap:2px 16px;padding:11px 12px;border-bottom:1px solid var(--line);align-items:baseline}.row:hover{background:#11161d}.d{font-family:var(--mono);font-size:12px;color:var(--faint)}.t{font-size:14px;color:var(--ink)}.f{grid-column:2;font-family:var(--mono);font-size:10.5px;color:var(--faint)}</style></head><body><nav style="background:#0e1117;border-bottom:1px solid #2a3040;padding:10px 22px;font-size:12px;display:flex;gap:16px;align-items:center;position:sticky;top:0"><a href="../index.html" style="color:#2dd4bf;font-weight:700">&larr; AI-Infra Deep-Dive</a><span style="color:#5a6377;margin-left:auto">Full archive · personal research, not investment advice</span></nav><div class="wrap"><div class="eyebrow">Complete archive · auto-generated every publish</div><h1>Full Report Archive</h1><p class="sub">Every dated report ever produced — rotation layers, the weekly engines, and one-off teardowns — newest first. The curated landing page shows the latest of each family; this is the complete history.</p><div style="margin-top:22px">'
+    cat "$arch_tmp"
+    printf '%s' '</div></div></body></html>'
+  } > archive/index.html
+  rm -f "$arch_tmp"
+  echo "regenerated archive/index.html ($(grep -c 'class="row"' archive/index.html) reports)"
+fi
+
 # --- regenerate the rotation table in index.html from index-rows.tsv ---
 # The landing-page table used to be hand-edited and silently drifted out of sync
 # with the slugs on every run. Now each row's DATE is auto-stamped from the live

@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Infra Run #14 v5 — Compute Fabric / AI Test &amp; Burn-in / the ATE Tollgate Chokepoint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#13161e; --panel2:#1a1e28; --panel3:#212634; --line:#2a3040; --line2:#363d4f;
+    --txt:#e8eaf0; --mut:#9aa3b5; --dim:#697283;
+    --accent:#2dd4bf;        /* single brand accent (desaturated teal) */
+    --choke:#e0686a;         /* desaturated red */
+    /* categorical: supply layers */
+    --up:#5b81c4; --l3:#8b84cf; --pkg:#c47a9e; --l2:#d2a24a; --l1:#4faf8e;
+    /* categorical: device domains */
+    --dup:#e0a458; --dout:#5aa9e0; --dacr:#5fc98a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px;-webkit-font-smoothing:antialiased}
+  .num{font-family:"JetBrains Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  header{border-bottom:1px solid var(--line);padding:38px 0 30px;margin-bottom:8px;background:
+     radial-gradient(900px 320px at 12% -40%,rgba(45,212,191,.10),transparent 60%),
+     radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
+  .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.6px;line-height:1.12;max-width:940px}
+  .sub{font-size:15px;font-weight:400;color:var(--mut);margin-top:12px;max-width:880px}
+  .meta{margin-top:20px;display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+  .meta div{padding-right:26px;margin-right:26px;border-right:1px solid var(--line)}
+  .meta div:last-child{border:0}
+  .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+  .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
+  .asof{margin-top:14px;display:inline-flex;align-items:center;gap:9px;font-size:11.5px;color:#c4ab78;background:rgba(210,162,74,.08);border:1px solid #3a3015;border-radius:9px;padding:7px 13px}
+  /* gauges */
+  .gauges{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+  .gge{border:1px solid var(--line);border-radius:12px;padding:12px 16px;background:var(--panel);min-width:188px}
+  .gge .gl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim)}
+  .gge .gv{font-size:23px;font-weight:600;margin-top:3px}
+  .gge .gd{font-size:10.5px;color:var(--mut);margin-top:3px}
+  .gge.sev .gv{color:var(--choke)}.gge.asy .gv{color:var(--accent)}
+  /* sticky toc */
+  nav.toc{position:sticky;top:0;z-index:40;background:rgba(11,13,18,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:9px 0;font-size:11.5px}
+  nav.toc .wrap{display:flex;gap:5px;flex-wrap:wrap}
+  nav.toc a{color:var(--mut);text-decoration:none;padding:4px 9px;border-radius:7px;border:1px solid transparent;white-space:nowrap}
+  nav.toc a:hover{color:var(--txt);border-color:var(--line2);background:var(--panel)}
+  section{padding:34px 0 2px}
+  .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+  .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.05em}
+  .sh h2{font-size:21px;font-weight:600;letter-spacing:-.3px}
+  .sh .cn{font-size:13px;color:var(--dim);font-weight:400;margin-left:auto}
+  .lead{color:var(--mut);font-size:13.5px;max-width:900px;margin-bottom:18px}
+  .lead b{color:var(--txt);font-weight:600}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
+  .kpi{padding:18px 20px;border-right:1px solid var(--line)}
+  .kpi:last-child{border-right:0}
+  .kpi .v{font-size:24px;font-weight:600;letter-spacing:-.5px}
+  .kpi .l{font-size:11.5px;color:var(--mut);margin-top:4px}
+  .kpi .d{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.4}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}
+  .matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .matrix th{background:var(--panel2);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);font-weight:600;padding:12px 14px;text-align:left;border-bottom:1px solid var(--line)}
+  .matrix td{padding:14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
+  .matrix tr:last-child td{border-bottom:0}
+  .matrix .dom{font-weight:600;font-size:14px;color:var(--txt);display:flex;align-items:center;gap:9px}
+  .matrix .dom .sw{width:10px;height:10px;border-radius:3px;flex:none}
+  .matrix .dom small{display:block;font-weight:400;font-size:10.5px;color:var(--dim);margin-top:2px}
+  .matrix td b{color:var(--txt);font-weight:600}
+  .chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--panel3);color:var(--mut);margin:2px 4px 2px 0;border:1px solid var(--line2)}
+  .chip.hot{background:rgba(224,104,106,.12);border-color:#5a3236;color:#efa0a1}
+  .gal{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+  @media(max-width:980px){.gal{grid-template-columns:1fr 1fr 1fr}}
+  @media(max-width:620px){.gal{grid-template-columns:1fr 1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column}
+  .card .svgbox{background:linear-gradient(180deg,#0e1117,#161a24);padding:12px;border-bottom:1px solid var(--line)}
+  .card .body{padding:13px 14px 15px}
+  .card h4{font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:6px}
+  .card .role{font-size:11.5px;color:var(--mut);margin-top:6px;line-height:1.45}
+  .card .who{font-size:10.5px;color:var(--dim);margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px}
+  .card .who b{color:var(--l3)}
+  .badge{font-size:9px;font-weight:600;padding:2px 6px;border-radius:5px;letter-spacing:.03em;flex:none}
+  .b-hot{background:rgba(224,104,106,.14);color:#eda3a4}
+  .b-now{background:rgba(45,212,191,.13);color:var(--accent)}
+  .b-next{background:rgba(90,169,224,.14);color:var(--dout)}
+  .b-emrg{background:rgba(210,162,74,.14);color:var(--dup)}
+  .svgwide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
+  .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
+  .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:2px 0 16px}
+  .leg span{display:flex;align-items:center;gap:7px}
+  .leg .sw{width:11px;height:11px;border-radius:3px}
+  .tlgrid{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .tlhead{display:grid;grid-template-columns:135px repeat(4,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
+  .tlhead div{padding:11px 12px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);border-right:1px solid var(--line)}
+  .tlhead div:first-child{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-family:"Space Grotesk",sans-serif;display:flex;align-items:center}
+  .tlrow{display:grid;grid-template-columns:135px repeat(4,1fr);border-bottom:1px solid var(--line)}
+  .tlrow:last-child{border-bottom:0}
+  .tlrow .lab{padding:13px 12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;border-right:1px solid var(--line);background:var(--panel2)}
+  .tlrow .lab .sw{width:9px;height:9px;border-radius:3px;flex:none}
+  .tlrow .cell{padding:11px 12px;border-right:1px solid var(--line);font-size:11.5px;color:var(--mut);line-height:1.4}
+  .tlrow .cell:last-child{border-right:0}
+  .tlrow .cell b{color:var(--txt);font-weight:600;display:block;margin-bottom:2px;font-size:11.5px}
+  .tlrow .cell.hot{background:rgba(224,104,106,.06)}
+  @media(max-width:780px){.tlhead,.tlrow{grid-template-columns:90px repeat(4,1fr);font-size:10px}.tlrow .cell{font-size:10px}}
+  .choke{border:1px solid #5a3236;border-radius:14px;padding:22px 24px;background:
+    linear-gradient(135deg,rgba(224,104,106,.10),transparent 55%),var(--panel)}
+  .choke .ttl{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+  .choke .ttl svg{flex:none}
+  .choke .ttl h3{font-size:17px;font-weight:600;color:var(--choke)}
+  .choke p{font-size:13.5px;color:#d9c4c6;max-width:920px}.choke p b{color:#fff}
+  .choke .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:18px;border-top:1px solid #4a2c2f;padding-top:16px}
+  @media(max-width:780px){.choke .stats{grid-template-columns:1fr 1fr}}
+  .choke .stats div{padding-right:18px}
+  .choke .stats b{display:block;font-size:20px;color:var(--choke);font-weight:600}
+  .choke .stats span{font-size:10.5px;color:var(--dim)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .two{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+  @media(max-width:780px){.two{grid-template-columns:1fr}}
+  .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  .tbl th{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .tbl td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--mut)}
+  .tbl td b{color:var(--txt)}
+  .lyr{font-family:"JetBrains Mono",monospace;font-size:10.5px;padding:1px 7px;border-radius:5px;font-weight:600}
+  .ly3{background:rgba(139,132,207,.15);color:#aaa3e6}
+  .ly2{background:rgba(210,162,74,.15);color:#e3bd76}
+  .ly1{background:rgba(79,175,142,.15);color:#7cc9ad}
+  .lyu{background:rgba(91,129,196,.15);color:#8aa7df}
+  .lyp{background:rgba(196,122,158,.15);color:#dba0bf}
+  .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
+  footer{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}
+  footer b{color:var(--mut)}
+  .axis-zone{font-size:9px;font-family:"JetBrains Mono",monospace;letter-spacing:.04em}
+  .liw{width:100%;border-collapse:collapse;font-size:12px}
+  .liw th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .liw td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+  .liw td b{color:var(--txt)}
+  .dotR{color:var(--choke);font-weight:600}.dotA{color:var(--dup);font-weight:600}.dotG{color:var(--dacr);font-weight:600}
+  .tabbtn{font-family:"Space Grotesk",sans-serif;background:var(--panel2);border:1px solid var(--line);color:var(--mut);padding:11px 16px;border-radius:10px 10px 0 0;font-size:13px;font-weight:600;cursor:pointer;border-bottom:none;display:flex;flex-direction:column;gap:2px;min-width:175px;text-align:left}
+  .tabbtn small{font-size:10px;font-weight:400;color:var(--dim)}
+  .tabbtn.on{background:var(--panel);color:var(--txt);border-color:var(--line2)}
+  .tabbtn.on small{color:var(--accent)}
+  .tabbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .stagebadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.04em}
+  .sg-early{background:rgba(95,201,138,.16);color:var(--dacr)}
+  .sg-recog{background:rgba(210,162,74,.16);color:var(--dup)}
+  .sg-eu{background:rgba(224,104,106,.16);color:var(--choke)}
+  .mini{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+  .mini div{padding:11px 13px;border-right:1px solid var(--line)}
+  .mini div:last-child{border-right:0}
+  .mini .v{font-family:"JetBrains Mono",monospace;font-size:16px;font-weight:600}
+  .mini .l{font-size:10px;color:var(--mut);margin-top:2px}
+  @media(max-width:780px){.mini{grid-template-columns:1fr 1fr 1fr}}
+  .gap{border-left:3px solid var(--accent);background:rgba(45,212,191,.06);border-radius:8px;padding:12px 15px;margin:14px 0}
+  .gap .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:5px}
+  .gap p{font-size:12.5px;color:var(--mut);line-height:1.5}.gap p b{color:var(--txt)}
+  .mtd{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
+  @media(max-width:780px){.mtd{grid-template-columns:1fr}.tabbtn{min-width:0;flex:1}}
+  .mtc{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+  .mtc .h{font-size:11.5px;font-weight:600;color:var(--accent);margin-bottom:3px}
+  .mtc p{font-size:11.5px;color:var(--mut);line-height:1.45}.mtc p b{color:var(--txt)}
+  .bbr{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+  .bbr div{border-radius:8px;padding:9px 12px;font-size:11.5px;line-height:1.45;color:var(--mut)}
+  .bbr .bl{border-left:3px solid var(--dacr);background:var(--panel2)}
+  .bbr .be{border-left:3px solid var(--choke);background:var(--panel2)}
+  .bbr b{display:block;font-size:10.5px;margin-bottom:2px}
+  .scn{width:100%;border-collapse:collapse;font-size:12px}
+  .scn th{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+  .scn td{padding:9px 11px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+  .scn td b{color:var(--txt)}
+  .scn .bull{border-left:3px solid var(--dacr)}.scn .base{border-left:3px solid var(--dup)}.scn .bear{border-left:3px solid var(--choke)}
+  svg text{font-family:"Space Grotesk",sans-serif}
+  svg text.m{font-family:"JetBrains Mono",monospace}
+  .svglabel{font-size:9px;fill:var(--dim)}
+  @media print{
+    nav.toc{display:none}
+    .tabpane[hidden]{display:block!important}
+    .tabbtn{display:none!important}
+    svg text{fill:#111}
+    body{background:#fff;color:#111}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #14 · v5 · Compute Fabric (deeper / refresh)</div>
+    <h1>The AI Test Tollgate — every chip must pass it, and why the highest-moat link ran the least</h1>
+    <p class="sub">Runs #2 and #8 chased compute fabric down the <b style="color:#fff">assembly</b> chain (CoWoS, then the hybrid bond). This refresh goes to the <b style="color:#fff">back-end test &amp; burn-in</b> gate every GPU die and every HBM stack must clear before it can ship. The binding link is <b style="color:#fff">high-parallelism test capacity</b> — and the 2026 twist is that test demand scales with <b style="color:#fff">complexity</b> (HBM4, 3D stacking, chiplets), not just units. The whole test complex has already run hard; the report's job is the inversion — the highest-moat <b style="color:#fff">test gate (Advantest) ran the LEAST</b>.</p>
+    <div class="gauges">
+      <div class="gge sev"><div class="gl">Chokepoint severity</div><div class="gv num">18<span style="font-size:13px;color:var(--dim)">/20</span></div><div class="gd">AI test &amp; burn-in tollgate · acute</div></div>
+      <div class="gge asy"><div class="gl">Remaining asymmetry</div><div class="gv num">6<span style="font-size:13px;color:var(--dim)">/20</span></div><div class="gd">low — complex ran +50–470% YTD</div></div>
+      <div class="gge"><div class="gl">Honest read</div><div class="gv" style="font-size:15px;color:var(--txt)">Mostly priced</div><div class="gd">relative value at the gate; early dollar latent</div></div>
+    </div>
+    <div class="meta">
+      <div><div class="k">Date</div><div class="vv num">22 Jun 2026</div></div>
+      <div><div class="k">Test flow</div><div class="vv">wafer sort → ATE gate → burn-in → SLT → ship</div></div>
+      <div><div class="k">Universe</div><div class="vv">Global · JP / US / IT / KR</div></div>
+      <div><div class="k">Top-3</div><div class="vv">6857/ATEYY · FORM · AEHR</div></div>
+    </div>
+    <div class="asof">Prices = last close <b style="color:#e7cf9e">~Fri 19 Jun 2026</b> · IBKR read-only (never trade) · multiples are estimates — verify on a terminal · <b style="color:#e7cf9e">personal research, not investment advice</b></div>
+  </div>
+</header>
+
+<nav class="toc"><div class="wrap">
+  <a href="#s1">01 Snapshot</a><a href="#s2">02 Framework</a><a href="#s3">03 Test gallery</a><a href="#s4">04 Test flow</a><a href="#s5">05 Where it bites</a><a href="#s6">06 Supply chain</a><a href="#s7">07 Timeline</a><a href="#s8">08 Chokepoint + severity</a><a href="#s9">09 Awareness curve</a><a href="#s10">10 Top-3 plays</a><a href="#s11">11 Beneficiaries + risks</a><a href="#s12">12 Decision</a>
+</div></nav>
+
+<div class="wrap">
+
+<!-- 1. SNAPSHOT -->
+<section id="s1">
+  <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">為什麼是現在</span></div>
+  <p class="lead">A finished AI accelerator is worth tens of thousands of dollars and a packaged HBM stack pulls together a dozen-plus dies bonded together (Run #8). You cannot ship either until it has been <b>tested</b> — proven good — and increasingly <b>burned-in</b> (run hot under voltage to weed out early failures). Test is the last gate, it is concentrated in very few hands, and — the key 2026 fact — it gets <b>heavier per chip every generation</b>: more stacked dies, tighter pitches and chiplet partitioning multiply the number of test "insertions." The catch this report is honest about: the market already noticed. Every test stock is up triple digits in 2026 — except, oddly, the one with the deepest moat.</p>
+  <div class="kpis">
+    <div class="kpi"><div class="v num teal">~$11–12B</div><div class="l">ATE market, CY2026 (est.)</div><div class="d">SoC tester $8.7–9.5B + memory tester $2.2–2.7B (Advantest sizing); probe + burn-in on top</div></div>
+    <div class="kpi"><div class="v num red">~58% / &gt;60%</div><div class="l">Advantest share: ATE / HBM test</div><div class="d">Advantest + Teradyne ≈ 80% of all ATE — a duopoly gate</div></div>
+    <div class="kpi"><div class="v num amb">3k→10k</div><div class="l">Advantest systems/yr by 2028</div><div class="d">capacity ramp 3,000→5,000 in 2026, →10,000 by end-2028 — the choke-reliever</div></div>
+    <div class="kpi"><div class="v num grn">+55% vs +174–474%</div><div class="l">Advantest YTD vs the rest</div><div class="d">the gate ran LEAST; AEHR +474%, COHU +200%, FORM +174% (the inversion)</div></div>
+  </div>
+
+  <div style="border:1px solid var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px;background:var(--panel)">
+    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px">EXPLAIN IT SIMPLY · 白話版</div>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6;max-width:920px">Imagine a factory that makes very expensive watches. Before any watch ships, it goes through a special, very expensive <b style="color:var(--txt)">testing machine</b> that checks it works, then sits in a hot room for hours to catch the ones that will break early (that's <b style="color:var(--txt)">burn-in</b>). For AI chips, almost the whole world's testing runs through two companies' machines — and one of them, <b style="color:var(--txt)">Advantest</b>, makes more than half. As chips get more complicated (stacking memory in towers, splitting a chip into "chiplets"), each one needs <b style="color:var(--txt)">more testing time</b> — so the testers get busier even if the number of chips doesn't grow much. That's the hidden engine. The honest catch: investors already figured this out — the small testing stocks have <b style="color:var(--txt)">tripled or quadrupled</b> in a year. The strange part, and this report's main idea: the company with the <b style="color:var(--txt)">strongest grip (Advantest) went up the least</b>. So the question isn't "is testing a good business" (it is) — it's "what's left to earn, and is anything still early?"</p>
+  </div>
+</section>
+
+<!-- 2. FRAMEWORK -->
+<section id="s2">
+  <div class="sh"><span class="n">02</span><h2>The framework — two orthogonal axes</h2><span class="cn">MECE 框架</span></div>
+  <p class="lead">Every test job lives at one <b>(what device × which insertion)</b> coordinate. The <b>device domain</b> says what's being tested; the <b>insertion</b> says where in the flow. The chokepoint sits at one cell: <b>high-parallelism final &amp; memory test of GPU/HBM at the ATE gate</b> — the spot where supply concentration, lead-time and "can't-skip-it" all bind at once.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+    <div class="panel" style="padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">THE INSERTION STACK · 測試流程 (read this first)</div>
+      <div style="font-size:12px;color:var(--mut);line-height:1.85">
+        <span class="lyr lyu">I1</span> <b>Wafer sort / probe</b> — test each die on the wafer through a <b>probe card</b>; screen Known-Good-Die &nbsp;·&nbsp;
+        <span class="lyr ly3">I2</span> <b>ATE final test</b> — the big tester checks the packaged/stacked part end-to-end <span class="chip hot">the chokepoint</span> &nbsp;·&nbsp;
+        <span class="lyr ly2">I3</span> <b>Burn-in</b> — run it hot under voltage for hours to catch early-life failures &nbsp;·&nbsp;
+        <span class="lyr ly1">I4</span> <b>System-level test (SLT)</b> — run the chip in a real system board, the most realistic screen
+      </div>
+    </div>
+    <div class="panel" style="padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">6-TERM GLOSSARY · 名詞</div>
+      <div style="font-size:11.5px;color:var(--mut);line-height:1.75">
+        <b>ATE</b> automated test equipment (the tester) · <b>probe card</b> the consumable needle-array that touches the wafer · <b>KGD</b> known-good-die (only good die get stacked) · <b>burn-in</b> heat+voltage stress screen · <b>SLT</b> system-level test · <b>insertion</b> one test step; more insertions = more test time/$
+      </div>
+    </div>
+  </div>
+  <table class="matrix">
+    <tr>
+      <th style="width:185px">Device domain (what)</th>
+      <th style="width:120px">Test intensity</th>
+      <th>Where the chokepoint sits across the insertions</th>
+      <th style="width:230px">Who wins · key players</th>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--dout)"></span>Logic / GPU + XPU<small>NVIDIA, custom ASICs</small></div></td>
+      <td>High &amp; rising</td>
+      <td><b>SoC ATE is the gate.</b> Huge die, billions of transistors → long high-parallelism final test; SLT increasingly required for AI parts. <span class="chip hot">Advantest/Teradyne SoC ATE</span></td>
+      <td><b>Advantest</b>, Teradyne (SoC ATE); FormFactor/Technoprobe (logic probe); Cohu (SLT/handler)</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--dup)"></span>Memory / HBM<small>SK Hynix, Micron, Samsung</small></div></td>
+      <td>Highest</td>
+      <td><b>Where it binds hardest.</b> HBM stacks 12–16 dies — every die must be KGD or the stack is scrap; wafer probe + memory ATE + KGSD. <span class="chip hot">Advantest &gt;60% HBM test</span></td>
+      <td><b>Advantest</b> (HBM test), <b>FormFactor</b> (DRAM/HBM probe, record), Aehr (HBM burn-in roadmap)</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--dacr)"></span>3D / chiplet / hetero<small>CoWoS, SoIC, chiplets</small></div></td>
+      <td>Multiplying</td>
+      <td><b>The second-derivative.</b> Each partition adds an insertion; pre-bond + post-bond test; burn-in moves left to protect costly stacks. <span class="chip hot">burn-in + KGD intensity</span></td>
+      <td><b>Aehr</b> (wafer/package burn-in), test-socket makers, SLT (SK Hynix/TSMC in-house)</td>
+    </tr>
+  </table>
+  <p class="cap">The chokepoint originates in the <b>ATE gate</b> (memory + logic final test, Advantest/Teradyne ≈ 80%) and radiates outward — into the consumable <b>probe-card</b> razor (FormFactor) upstream and the <b>burn-in</b> screen (Aehr) downstream. One concentrated gate, three rent pools — and the rent only accrues where supply is concentrated AND the buyer can't self-supply.</p>
+</section>
+
+<!-- 3. TEST GALLERY -->
+<section id="s3">
+  <div class="sh"><span class="n">03</span><h2>The test layer, component by component</h2><span class="cn">測試元件 · 圖解</span></div>
+  <p class="lead">Five pieces of the back-end test stack. The chokepoint is the <b>ATE platform</b> (the tester itself) plus the <b>consumable interface</b> (probe cards, sockets) it can't run without. Note how every device — logic, memory, 3D — must pass through several of these.</p>
+  <div class="gal">
+    <!-- Probe card -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 190 104" width="100%" height="104" xmlns="http://www.w3.org/2000/svg">
+          <text x="12" y="22" class="svglabel">probe card</text>
+          <rect x="20" y="28" width="150" height="16" rx="3" fill="#2a2540" stroke="#8b84cf"/>
+          <text x="95" y="40" text-anchor="middle" font-size="8" fill="#cfc9f2">MEMS needle array</text>
+          <line x1="40" y1="44" x2="40" y2="62" stroke="#8b84cf" stroke-width="1.4"/><line x1="60" y1="44" x2="60" y2="62" stroke="#8b84cf" stroke-width="1.4"/>
+          <line x1="80" y1="44" x2="80" y2="62" stroke="#8b84cf" stroke-width="1.4"/><line x1="100" y1="44" x2="100" y2="62" stroke="#8b84cf" stroke-width="1.4"/>
+          <line x1="120" y1="44" x2="120" y2="62" stroke="#8b84cf" stroke-width="1.4"/><line x1="140" y1="44" x2="140" y2="62" stroke="#8b84cf" stroke-width="1.4"/>
+          <rect x="20" y="66" width="150" height="20" rx="3" fill="#11261f" stroke="#3a6b54"/>
+          <text x="95" y="79" text-anchor="middle" font-size="8" fill="#7cc9ad">wafer of die</text>
+          <text x="12" y="100" class="svglabel">the needles that touch every die</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Probe card <span class="badge b-now">CONSUMABLE</span></h4>
+        <p class="role">Custom needle-array (MEMS) that contacts each die at wafer sort. Re-designed per chip, wears out, recurring razor revenue. Scales with insertions + die count.</p>
+        <p class="who">Leaders: <b>FormFactor</b>, Technoprobe, MJC</p>
+      </div>
+    </div>
+    <!-- ATE tester CHOKEPOINT -->
+    <div class="card" style="border-color:#5a3236">
+      <div class="svgbox" style="background:linear-gradient(180deg,#1c1417,#241317)">
+        <svg viewBox="0 0 190 104" width="100%" height="104" xmlns="http://www.w3.org/2000/svg">
+          <text x="12" y="22" class="svglabel">ATE tester</text>
+          <rect x="20" y="28" width="150" height="58" rx="6" fill="#2a1a1f" stroke="#e0686a"/>
+          <rect x="28" y="36" width="60" height="18" rx="3" fill="#e0686a"/><text x="58" y="49" text-anchor="middle" font-size="7" fill="#fff">pin electronics</text>
+          <rect x="28" y="58" width="60" height="18" rx="3" fill="#3a1f24" stroke="#e0686a"/><text x="58" y="71" text-anchor="middle" font-size="6.5" fill="#eda3a4">parallel sites</text>
+          <rect x="96" y="36" width="66" height="40" rx="3" fill="#3a1f24" stroke="#e0686a"/>
+          <text x="129" y="54" text-anchor="middle" font-size="7" fill="#eda3a4">test program</text>
+          <text x="129" y="66" text-anchor="middle" font-size="6.5" fill="#eda3a4">+ DUT slots</text>
+          <text x="12" y="100" class="svglabel">checks the chip end-to-end</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>ATE platform <span class="badge b-hot">CHOKEPOINT</span></h4>
+        <p class="role">The tester. SoC + memory ATE drives signals into the chip and reads them back, many parts in parallel. Long lead-times; software + parallelism = the moat. The gate everything passes.</p>
+        <p class="who">Duopoly: <b>Advantest</b>, Teradyne</p>
+      </div>
+    </div>
+    <!-- Burn-in -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 190 104" width="100%" height="104" xmlns="http://www.w3.org/2000/svg">
+          <text x="12" y="22" class="svglabel">burn-in (heat + voltage)</text>
+          <rect x="24" y="30" width="142" height="50" rx="6" fill="#33302a" stroke="#d2a24a"/>
+          <path d="M40 44 q4 -8 8 0 q4 8 8 0" fill="none" stroke="#e0a458" stroke-width="1.6"/>
+          <path d="M64 44 q4 -8 8 0 q4 8 8 0" fill="none" stroke="#e0a458" stroke-width="1.6"/>
+          <text x="120" y="46" text-anchor="middle" font-size="8" fill="#e3bd76">&gt;95°C · hours</text>
+          <rect x="40" y="58" width="110" height="14" rx="2" fill="#1c1a12" stroke="#d2a24a"/>
+          <text x="95" y="68" text-anchor="middle" font-size="7.5" fill="#e3bd76">wafer / packaged parts</text>
+          <text x="12" y="98" class="svglabel">weeds out early-life failures</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Burn-in <span class="badge b-emrg">FASTEST-GROWING</span></h4>
+        <p class="role">Stress the part hot, under voltage, for hours to catch "infant-mortality" defects before they fail in a $40k accelerator. Moving "left" (to wafer level) for AI/HBM. Lumpy, small base.</p>
+        <p class="who">WLBI/PLBI: <b>Aehr</b>; sockets; in-house</p>
+      </div>
+    </div>
+    <!-- Test socket / contactor -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 190 104" width="100%" height="104" xmlns="http://www.w3.org/2000/svg">
+          <text x="12" y="22" class="svglabel">test socket / contactor</text>
+          <rect x="30" y="30" width="130" height="20" rx="3" fill="#1b2030" stroke="#5b81c4"/>
+          <text x="95" y="43" text-anchor="middle" font-size="8" fill="#8aa7df">packaged chip</text>
+          <g stroke="#5b81c4" stroke-width="1.3"><line x1="46" y1="50" x2="46" y2="62"/><line x1="66" y1="50" x2="66" y2="62"/><line x1="86" y1="50" x2="86" y2="62"/><line x1="106" y1="50" x2="106" y2="62"/><line x1="126" y1="50" x2="126" y2="62"/><line x1="146" y1="50" x2="146" y2="62"/></g>
+          <rect x="30" y="64" width="130" height="18" rx="3" fill="#13283a" stroke="#5aa9e0"/>
+          <text x="95" y="76" text-anchor="middle" font-size="7.5" fill="#8ec4ee">load board / tester</text>
+          <text x="12" y="98" class="svglabel">&gt;24GHz · the package interface</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Test socket <span class="badge b-next">LATENT</span></h4>
+        <p class="role">The reusable contact between a packaged part and the tester. HBM4 sockets must handle high-GHz-class signals (&gt;24GHz target, est.) and &gt;95°C. Consumable, scales with insertions, still priced like a commodity.</p>
+        <p class="who">ISC, Leeno, Yamaichi, Smiths</p>
+      </div>
+    </div>
+    <!-- SLT -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 190 104" width="100%" height="104" xmlns="http://www.w3.org/2000/svg">
+          <text x="12" y="22" class="svglabel">system-level test (SLT)</text>
+          <rect x="24" y="30" width="142" height="50" rx="6" fill="#0e1a14" stroke="#24533c"/>
+          <rect x="36" y="44" width="34" height="22" rx="3" fill="#123124" stroke="#5fc98a"/><text x="53" y="58" text-anchor="middle" font-size="7" fill="#7cc9ad">AI chip</text>
+          <line x1="70" y1="55" x2="92" y2="55" stroke="#5fc98a" stroke-width="1.4"/>
+          <rect x="92" y="40" width="60" height="30" rx="3" fill="#11261f" stroke="#3a6b54"/><text x="122" y="58" text-anchor="middle" font-size="7" fill="#7cc9ad">real board</text>
+          <text x="12" y="98" class="svglabel">runs the chip like a real server</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>SLT <span class="badge b-next">RISING</span></h4>
+        <p class="role">Run the finished chip in a realistic system to catch what structured tests miss. Increasingly required for complex AI parts — but hyperscalers/memory makers can build it in-house (the disintermediation watch).</p>
+        <p class="who">Cohu, Advantest; SK Hynix in-house</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. TEST FLOW ASSEMBLY -->
+<section id="s4">
+  <div class="sh"><span class="n">04</span><h2>From wafer to known-good chip — the test flow</h2><span class="cn">測試流程如何疊加</span></div>
+  <p class="lead">The same die passes test several times. Each architecture step <b>adds</b> insertions — which is exactly why test demand grows faster than chip <i>units</i>. Follow how a simple part vs. an HBM/3D part diverge.</p>
+  <div class="svgwide">
+    <svg viewBox="0 0 1060 300" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="ar4" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#5a6377"/></marker>
+      </defs>
+      <rect x="20" y="120" width="120" height="60" rx="8" fill="#11261f" stroke="#3a6b54"/>
+      <text x="80" y="146" text-anchor="middle" font-size="12" fill="#7cc9ad" font-weight="600">wafer of die</text>
+      <text x="80" y="164" text-anchor="middle" font-size="10" fill="#9aa3b5">GPU or HBM die</text>
+      <line x1="140" y1="150" x2="190" y2="150" stroke="#5a6377" stroke-width="1.5" marker-end="url(#ar4)"/>
+
+      <!-- A simple part -->
+      <rect x="200" y="20" width="300" height="78" rx="9" fill="#1a1e28" stroke="#5aa9e0"/>
+      <text x="214" y="40" font-size="11" fill="#8ec4ee" font-weight="600">A · simple logic part (few insertions)</text>
+      <rect x="214" y="50" width="84" height="34" rx="4" fill="#2a2540" stroke="#8b84cf"/><text x="256" y="71" text-anchor="middle" font-size="8" fill="#cfc9f2">wafer sort</text>
+      <rect x="304" y="50" width="84" height="34" rx="4" fill="#2a1a1f" stroke="#e0686a"/><text x="346" y="71" text-anchor="middle" font-size="8" fill="#eda3a4">final test</text>
+      <rect x="394" y="50" width="92" height="34" rx="4" fill="#1b2030" stroke="#2f3a52"/><text x="440" y="71" text-anchor="middle" font-size="8" fill="#9aa3b5">ship</text>
+      <text x="214" y="96" font-size="8.5" fill="#697283">2 insertions · short test time · burn-in often skipped</text>
+
+      <!-- B HBM stack -->
+      <rect x="200" y="112" width="300" height="76" rx="9" fill="#1a1e28" stroke="#d2a24a"/>
+      <text x="214" y="132" font-size="11" fill="#e3bd76" font-weight="600">B · HBM stack (KGD-gated)</text>
+      <rect x="214" y="142" width="56" height="34" rx="4" fill="#2a2540" stroke="#8b84cf"/><text x="242" y="160" text-anchor="middle" font-size="7" fill="#cfc9f2">sort each</text><text x="242" y="170" text-anchor="middle" font-size="7" fill="#cfc9f2">die ×12-16</text>
+      <rect x="276" y="142" width="50" height="34" rx="4" fill="#33302a" stroke="#d2a24a"/><text x="301" y="160" text-anchor="middle" font-size="7" fill="#e3bd76">burn-in</text><text x="301" y="170" text-anchor="middle" font-size="6.5" fill="#e3bd76">(KGD)</text>
+      <rect x="332" y="142" width="50" height="34" rx="4" fill="#2a1a1f" stroke="#e0686a"/><text x="357" y="163" text-anchor="middle" font-size="7" fill="#eda3a4">stack test</text>
+      <rect x="388" y="142" width="48" height="34" rx="4" fill="#2a1a1f" stroke="#e0686a"/><text x="412" y="163" text-anchor="middle" font-size="7" fill="#eda3a4">final</text>
+      <rect x="442" y="142" width="44" height="34" rx="4" fill="#1b2030" stroke="#2f3a52"/><text x="464" y="163" text-anchor="middle" font-size="7.5" fill="#9aa3b5">ship</text>
+      <text x="214" y="186" font-size="8.5" fill="#697283">one bad die scraps the stack → test EVERY die known-good first</text>
+
+      <!-- C 3D chiplet -->
+      <rect x="200" y="202" width="300" height="84" rx="9" fill="#1a1e28" stroke="#2dd4bf"/>
+      <text x="214" y="222" font-size="11" fill="#2dd4bf" font-weight="600">C · 3D / chiplet accelerator (most insertions)</text>
+      <rect x="214" y="232" width="48" height="22" rx="3" fill="#2a2540" stroke="#8b84cf"/><text x="238" y="247" text-anchor="middle" font-size="6.5" fill="#cfc9f2">sort ×N</text>
+      <rect x="266" y="232" width="44" height="22" rx="3" fill="#33302a" stroke="#d2a24a"/><text x="288" y="247" text-anchor="middle" font-size="6.5" fill="#e3bd76">pre-bond</text>
+      <rect x="314" y="232" width="46" height="22" rx="3" fill="#2a1a1f" stroke="#e0686a"/><text x="337" y="247" text-anchor="middle" font-size="6.5" fill="#eda3a4">post-bond</text>
+      <rect x="214" y="258" width="48" height="22" rx="3" fill="#33302a" stroke="#d2a24a"/><text x="238" y="273" text-anchor="middle" font-size="6.5" fill="#e3bd76">burn-in</text>
+      <rect x="266" y="258" width="44" height="22" rx="3" fill="#2a1a1f" stroke="#e0686a"/><text x="288" y="273" text-anchor="middle" font-size="6.5" fill="#eda3a4">final</text>
+      <rect x="314" y="258" width="46" height="22" rx="3" fill="#0e1a14" stroke="#24533c"/><text x="337" y="273" text-anchor="middle" font-size="6.5" fill="#7cc9ad">SLT</text>
+      <text x="372" y="248" font-size="8.5" fill="#7cd6a0">every partition adds an insertion →</text>
+      <text x="372" y="262" font-size="8.5" fill="#697283">pre + post-bond + SLT pile up</text>
+      <text x="372" y="276" font-size="8.5" fill="#697283">most test time per shipped chip</text>
+
+      <text x="540" y="150" font-size="10" fill="#5a6377">insertions / test $  ↑</text>
+      <line x1="545" y1="250" x2="545" y2="60" stroke="#3a3f55" stroke-width="1.5"/>
+      <polygon points="545,55 541,63 549,63" fill="#3a3f55"/>
+      <text x="560" y="250" font-size="9.5" fill="#8ec4ee">A fewest</text>
+      <text x="560" y="160" font-size="9.5" fill="#e3bd76">B more</text>
+      <text x="560" y="70" font-size="9.5" fill="#2dd4bf">C most</text>
+
+      <rect x="660" y="40" width="380" height="220" rx="10" fill="#13161e" stroke="#2a3040"/>
+      <text x="680" y="66" font-size="11" fill="#e8eaf0" font-weight="600">What changes as you go A → B → C</text>
+      <text x="680" y="92" font-size="10.5" fill="#9aa3b5">• Insertions multiply: 2 → 5 → 7+ per part —</text>
+      <text x="690" y="108" font-size="10.5" fill="#9aa3b5">each one is tester + interface time.</text>
+      <text x="680" y="132" font-size="10.5" fill="#9aa3b5">• KGD is forced: a bad die scraps a costly</text>
+      <text x="690" y="148" font-size="10.5" fill="#9aa3b5">stack, so test moves earlier ("shift-left").</text>
+      <text x="680" y="172" font-size="10.5" fill="#9aa3b5">• Burn-in + SLT get added for AI reliability,</text>
+      <text x="690" y="188" font-size="10.5" fill="#9aa3b5">not just final test.</text>
+      <text x="680" y="230" font-size="10.5" fill="#eda3a4">• Net: test demand grows with COMPLEXITY,</text>
+      <text x="690" y="246" font-size="10.5" fill="#eda3a4">faster than chip unit volume. The hidden engine.</text>
+    </svg>
+  </div>
+  <p class="cap">Flow view — the same physical chip count can drive far more test as parts move A → C. This "insertions multiply" effect is the structural reason the test gate compounds even in a flat-unit year.</p>
+</section>
+
+<!-- 5. DEPLOYMENT -->
+<section id="s5">
+  <div class="sh"><span class="n">05</span><h2>Where it bites — by device domain</h2><span class="cn">在哪裡卡最緊</span></div>
+  <p class="lead">Three device domains, three test-intensity profiles. The gate binds hardest in <b>memory/HBM</b> (KGD on every die in a tall stack) and <b>3D/chiplet</b> (insertions multiply); logic/GPU drives the long high-parallelism SoC test.</p>
+  <div class="svgwide">
+    <svg viewBox="0 0 1060 250" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <text x="40" y="28" font-size="12" fill="#5aa9e0" font-weight="600">LOGIC / GPU + XPU</text>
+      <text x="40" y="44" font-size="9.5" fill="#697283">big die · long SoC test · SLT rising</text>
+      <rect x="34" y="58" width="280" height="150" rx="10" fill="#0e1722" stroke="#244258"/>
+      <rect x="70" y="86" width="100" height="46" rx="5" fill="#13283a" stroke="#5aa9e0"/><text x="120" y="113" text-anchor="middle" font-size="9" fill="#8ec4ee">GPU die</text>
+      <rect x="190" y="86" width="96" height="20" rx="4" fill="#2a1a1f" stroke="#e0686a"/><text x="238" y="100" text-anchor="middle" font-size="7.5" fill="#eda3a4">SoC ATE</text>
+      <rect x="190" y="112" width="96" height="20" rx="4" fill="#0e1a14" stroke="#24533c"/><text x="238" y="126" text-anchor="middle" font-size="7.5" fill="#7cc9ad">SLT</text>
+      <line x1="170" y1="109" x2="190" y2="98" stroke="#e0686a" stroke-width="1.6"/><line x1="170" y1="109" x2="190" y2="122" stroke="#5fc98a" stroke-width="1.4"/>
+      <text x="174" y="196" text-anchor="middle" font-size="8.5" fill="#5aa9e0">Advantest/Teradyne SoC ATE = gate</text>
+
+      <text x="380" y="28" font-size="12" fill="#e0a458" font-weight="600">MEMORY / HBM</text>
+      <text x="380" y="44" font-size="9.5" fill="#697283">12–16 die stack · KGD on every die</text>
+      <rect x="374" y="58" width="280" height="150" rx="10" fill="#1a160e" stroke="#5a4624"/>
+      <rect x="404" y="78" width="120" height="12" rx="2" fill="#2a2412" stroke="#e0a458"/>
+      <rect x="404" y="94" width="120" height="12" rx="2" fill="#2a2412" stroke="#e0a458"/>
+      <rect x="404" y="110" width="120" height="12" rx="2" fill="#2a2412" stroke="#e0a458"/>
+      <rect x="404" y="126" width="120" height="12" rx="2" fill="#33302a" stroke="#d2a24a"/>
+      <text x="464" y="136" text-anchor="middle" font-size="7" fill="#e3bd76">base die</text>
+      <text x="560" y="98" text-anchor="start" font-size="8.5" fill="#e3bd76">probe +</text>
+      <text x="560" y="112" text-anchor="start" font-size="8.5" fill="#e3bd76">memory ATE</text>
+      <text x="560" y="126" text-anchor="start" font-size="8.5" fill="#e3bd76">+ KGSD</text>
+      <text x="514" y="196" text-anchor="middle" font-size="8.5" fill="#e0a458">one bad die = scrap → test all → tightest</text>
+
+      <text x="720" y="28" font-size="12" fill="#5fc98a" font-weight="600">3D / CHIPLET / HETERO</text>
+      <text x="720" y="44" font-size="9.5" fill="#697283">pre + post-bond · insertions multiply</text>
+      <rect x="714" y="58" width="312" height="150" rx="10" fill="#0e1a14" stroke="#24533c"/>
+      <rect x="744" y="86" width="40" height="40" rx="4" fill="#123124" stroke="#5fc98a"/><text x="764" y="110" text-anchor="middle" font-size="7" fill="#7cc9ad">chiplet</text>
+      <rect x="792" y="86" width="40" height="40" rx="4" fill="#123124" stroke="#5fc98a"/><text x="812" y="110" text-anchor="middle" font-size="7" fill="#7cc9ad">chiplet</text>
+      <rect x="840" y="86" width="40" height="40" rx="4" fill="#123124" stroke="#5fc98a"/><text x="860" y="110" text-anchor="middle" font-size="7" fill="#7cc9ad">HBM</text>
+      <rect x="744" y="138" width="136" height="18" rx="3" fill="#33302a" stroke="#d2a24a"/><text x="812" y="151" text-anchor="middle" font-size="7.5" fill="#e3bd76">burn-in moves left (Aehr)</text>
+      <text x="900" y="100" text-anchor="start" font-size="8.5" fill="#7cc9ad">pre-bond</text>
+      <text x="900" y="114" text-anchor="start" font-size="8.5" fill="#7cc9ad">+ post-bond</text>
+      <text x="900" y="128" text-anchor="start" font-size="8.5" fill="#7cc9ad">+ SLT</text>
+      <text x="870" y="196" text-anchor="middle" font-size="8.5" fill="#5fc98a">most insertions per chip = fastest growth</text>
+    </svg>
+  </div>
+  <p class="cap">Domain view — test intensity rises left → right. Memory/HBM is the tightest (KGD), 3D/chiplet the fastest-growing (insertions multiply). All three route through the same concentrated ATE gate.</p>
+</section>
+
+<!-- 6. SUPPLY CHAIN -->
+<section id="s6">
+  <div class="sh"><span class="n">06</span><h2>End-to-end supply chain</h2><span class="cn">上下游全鏈</span></div>
+  <div class="leg">
+    <span><span class="sw" style="background:var(--up)"></span>Devices under test</span>
+    <span><span class="sw" style="background:var(--l3)"></span>Probe-card interface</span>
+    <span><span class="sw" style="background:var(--choke)"></span>ATE test gate (chokepoint)</span>
+    <span><span class="sw" style="background:var(--l2)"></span>Burn-in / sockets</span>
+    <span><span class="sw" style="background:var(--l1)"></span>SLT / final + buyers</span>
+  </div>
+  <div class="svgwide">
+    <svg viewBox="-12 -2 1124 486" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="aT6" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5a6377"/></marker>
+        <marker id="aR6" markerWidth="9" markerHeight="9" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e0686a"/></marker>
+      </defs>
+
+      <text x="22" y="20" font-size="11" fill="#697283" font-weight="600">UPSTREAM</text>
+      <line x1="110" y1="16" x2="980" y2="16" stroke="#2a3040" stroke-width="1"/>
+      <polygon points="982,16 974,12 974,20" fill="#2a3040"/>
+      <text x="1078" y="20" font-size="11" fill="#697283" font-weight="600" text-anchor="end">DOWNSTREAM</text>
+
+      <!-- flow connectors: thin/red into & out of chokepoint (stage 3), thick/grey elsewhere -->
+      <line x1="180" y1="180" x2="200" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
+      <line x1="360" y1="180" x2="380" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR6)"/>
+      <line x1="540" y1="180" x2="560" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR6)"/>
+      <line x1="720" y1="180" x2="740" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
+      <line x1="900" y1="180" x2="920" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
+
+      <!-- C1 Devices under test -->
+      <rect x="20" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="20" y="40" width="5" height="262" rx="2" fill="#5b81c4"/>
+      <text x="36" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Devices under test</text>
+      <text x="36" y="74" font-size="9" fill="#8aa7df" font-weight="600">UPSTREAM</text>
+      <g font-size="9">
+        <rect x="32" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="98" fill="#fff" font-weight="600">GPU / XPU die</text><text x="40" y="110" fill="#9aa3b5">NVIDIA · AMD · ASICs</text>
+        <rect x="32" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="136" fill="#fff" font-weight="600">HBM stacks</text><text x="40" y="148" fill="#9aa3b5">SK Hynix · Micron · Samsung</text>
+        <rect x="32" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="174" fill="#fff" font-weight="600">CoWoS / SoIC</text><text x="40" y="186" fill="#9aa3b5">Runs #2 / #8 covered here</text>
+      </g>
+      <text x="36" y="214" font-size="9" fill="#eda3a4">more dies → more test</text>
+      <text x="36" y="228" font-size="8.5" fill="#697283">the demand FOR test</text>
+
+      <!-- C2 Probe card interface -->
+      <rect x="200" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="200" y="40" width="5" height="262" rx="2" fill="#8b84cf"/>
+      <text x="216" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Probe-card interface</text>
+      <text x="216" y="74" font-size="9" fill="#aaa3e6" font-weight="600">2nd RENT POOL</text>
+      <g font-size="9">
+        <rect x="212" y="84" width="136" height="32" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="220" y="98" fill="#fff" font-weight="700">FormFactor ★</text><text x="220" y="110" fill="#bcb3e6">DRAM/HBM + logic probe</text>
+        <rect x="212" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="220" y="136" fill="#fff" font-weight="600">Technoprobe</text><text x="220" y="148" fill="#9aa3b5">adv. SoC / vertical MEMS</text>
+        <rect x="212" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="220" y="174" fill="#fff" font-weight="600">Micronics (MJC)</text><text x="220" y="186" fill="#9aa3b5">top-3 ≈ 60% share</text>
+      </g>
+      <text x="216" y="214" font-size="9" fill="#aaa3e6">consumable razor</text>
+      <text x="216" y="228" font-size="8.5" fill="#697283">custom per chip, recurring</text>
+
+      <!-- C3 CHOKEPOINT ATE gate -->
+      <rect x="380" y="40" width="160" height="262" rx="10" fill="#1c1518" stroke="#5a3236" stroke-width="1.5"/>
+      <rect x="380" y="40" width="5" height="262" rx="2" fill="#e0686a"/>
+      <rect x="386" y="26" width="148" height="20" rx="5" fill="#e0686a"/><text x="460" y="40" font-size="9.5" fill="#1c1518" font-weight="700" text-anchor="middle">CHOKEPOINT · ATE GATE</text>
+      <text x="396" y="62" font-size="12" fill="#e8eaf0" font-weight="600">ATE test platform</text>
+      <text x="396" y="76" font-size="9" fill="#eda3a4" font-weight="600">SoC + memory test</text>
+      <g font-size="9">
+        <rect x="392" y="86" width="136" height="32" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="400" y="100" fill="#fff" font-weight="700">Advantest ★</text><text x="400" y="112" fill="#eda3a4">~58% ATE · &gt;60% HBM</text>
+        <rect x="392" y="124" width="136" height="32" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="400" y="138" fill="#fff" font-weight="600">Teradyne</text><text x="400" y="150" fill="#eda3a4">the other ~half of duopoly</text>
+        <rect x="392" y="162" width="136" height="32" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="400" y="176" fill="#fff" font-weight="600">+ probe / socket</text><text x="400" y="188" fill="#bcb3e6">the interface it needs</text>
+      </g>
+      <text x="396" y="216" font-size="9" fill="#eda3a4">Advantest + Teradyne ≈ 80%</text>
+      <text x="396" y="230" font-size="8.5" fill="#697283">lead-times tight; ramps to 2028</text>
+
+      <!-- C4 Burn-in / sockets -->
+      <rect x="560" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="560" y="40" width="5" height="262" rx="2" fill="#d2a24a"/>
+      <text x="576" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Burn-in / sockets</text>
+      <text x="576" y="74" font-size="9" fill="#e3bd76" font-weight="600">RELIABILITY SCREEN</text>
+      <g font-size="9">
+        <rect x="572" y="84" width="136" height="32" rx="6" fill="#33302a" stroke="#d2a24a"/><text x="580" y="98" fill="#fff" font-weight="700">Aehr ★</text><text x="580" y="110" fill="#e3bd76">WLBI + PLBI burn-in</text>
+        <rect x="572" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="136" fill="#fff" font-weight="600">test sockets</text><text x="580" y="148" fill="#9aa3b5">ISC · Leeno · Yamaichi</text>
+        <rect x="572" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="174" fill="#fff" font-weight="600">handlers</text><text x="580" y="186" fill="#9aa3b5">Cohu</text>
+      </g>
+      <text x="576" y="214" font-size="9" fill="#e3bd76">moving "left" for AI/HBM</text>
+      <text x="576" y="228" font-size="8.5" fill="#697283">fast-growing, small base</text>
+
+      <!-- C5 SLT / final + buyers -->
+      <rect x="740" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="740" y="40" width="5" height="262" rx="2" fill="#4faf8e"/>
+      <text x="756" y="60" font-size="12" fill="#e8eaf0" font-weight="600">SLT / final test</text>
+      <text x="756" y="74" font-size="9" fill="#7cc9ad" font-weight="600">CAN GO IN-HOUSE</text>
+      <g font-size="9">
+        <rect x="752" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="98" fill="#fff" font-weight="600">SLT cells</text><text x="760" y="110" fill="#9aa3b5">Cohu · Advantest</text>
+        <rect x="752" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="136" fill="#fff" font-weight="600">in-house SLT</text><text x="760" y="148" fill="#9aa3b5">SK Hynix · TSMC</text>
+        <rect x="752" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="174" fill="#fff" font-weight="600">OSAT final</text><text x="760" y="186" fill="#9aa3b5">ASE · Amkor</text>
+      </g>
+      <text x="756" y="214" font-size="9" fill="#7cc9ad">disintermediation watch</text>
+      <text x="756" y="228" font-size="8.5" fill="#697283">buyers can self-supply here</text>
+
+      <!-- C6 End buyers -->
+      <rect x="920" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="920" y="40" width="5" height="262" rx="2" fill="#4faf8e"/>
+      <text x="936" y="60" font-size="12" fill="#e8eaf0" font-weight="600">End buyers</text>
+      <text x="936" y="74" font-size="9" fill="#7cc9ad" font-weight="600">DEMAND</text>
+      <g font-size="9">
+        <rect x="932" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="98" fill="#fff" font-weight="600">NVIDIA / AMD</text><text x="940" y="110" fill="#9aa3b5">accelerator makers</text>
+        <rect x="932" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="136" fill="#fff" font-weight="600">Memory makers</text><text x="940" y="148" fill="#9aa3b5">SK Hynix · Micron</text>
+        <rect x="932" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="174" fill="#fff" font-weight="600">Hyperscalers</text><text x="940" y="186" fill="#9aa3b5">+ OSATs</text>
+      </g>
+      <text x="936" y="214" font-size="9" fill="#7cc9ad">test demand = visible</text>
+      <text x="936" y="228" font-size="8.5" fill="#697283">scales with AI capex</text>
+
+      <!-- scarcity premium bars (discrete; tallest at chokepoint stage 3) -->
+      <line x1="40" y1="432" x2="1080" y2="432" stroke="#2a3040" stroke-width="1"/>
+      <text x="40" y="326" font-size="9" fill="#697283">value capture / scarcity premium (est.)</text>
+      <g>
+        <rect x="80" y="414" width="40" height="18" rx="2" fill="#2dd4bf" opacity="0.3"/>
+        <rect x="260" y="378" width="40" height="54" rx="2" fill="#8b84cf" opacity="0.85"/>
+        <rect x="440" y="338" width="40" height="94" rx="2" fill="#e0686a"/>
+        <rect x="620" y="392" width="40" height="40" rx="2" fill="#d2a24a" opacity="0.8"/>
+        <rect x="800" y="406" width="40" height="26" rx="2" fill="#5fc98a" opacity="0.7"/>
+        <rect x="980" y="416" width="40" height="16" rx="2" fill="#2dd4bf" opacity="0.3"/>
+      </g>
+      <text x="460" y="330" font-size="9" fill="#eda3a4" text-anchor="middle" font-weight="600">rent peaks at the ATE gate</text>
+      <text x="280" y="370" font-size="8.5" fill="#aaa3e6" text-anchor="middle">2nd pool: probe-card razor</text>
+      <text x="640" y="384" font-size="8.5" fill="#e3bd76" text-anchor="middle">burn-in (small base)</text>
+      <g font-size="8.5" fill="#697283" text-anchor="middle">
+        <text x="100" y="446">devices</text><text x="280" y="446">probe card</text><text x="460" y="446">ATE gate</text><text x="640" y="446">burn-in</text><text x="820" y="446">SLT/final</text><text x="1000" y="446">buyers</text>
+      </g>
+      <text x="550" y="468" font-size="9" fill="#697283" text-anchor="middle">Red arrows = the constriction — nothing ships until it clears the ATE gate. The honest catch: the gate (Advantest) is the link that <tspan fill="#eda3a4">ran the LEAST</tspan>, while the smaller bars (probe, burn-in) re-rated 2–9×.</text>
+    </svg>
+  </div>
+  <p class="cap">A chip can't ship until it passes the ATE gate — so scarcity rent peaks there (Advantest + Teradyne ≈ 80%). The probe-card razor (FormFactor) is the durable secondary pool; burn-in (Aehr) is fast-growing off a small base. The market bid up the small pools and left the gate cheapest.</p>
+</section>
+
+<!-- 7. TIMELINE -->
+<section id="s7">
+  <div class="sh"><span class="n">07</span><h2>Multi-year evolution — by test segment</h2><span class="cn">多年發展時間軸</span></div>
+  <p class="lead">How each test segment evolves 2025→2028. <b style="color:#eda3a4">Tinted</b> cells mark capacity-stress / catalyst windows. The hinge is <b>2026–27</b>, when HBM4, 3D stacking and the burn-in shift-left all intensify test per chip — while Advantest's own capacity ramp begins to relieve the gate.</p>
+  <div class="tlgrid">
+    <div class="tlhead"><div>Segment ↓ / Year →</div><div>2025</div><div>2026</div><div>2027</div><div>2028</div></div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--choke)"></span>SoC ATE</div>
+      <div class="cell"><b>$6.9B mkt</b>AI accelerators lengthen test time</div>
+      <div class="cell hot"><b>$8.7–9.5B</b>units ramp 3k→5k; lead-times tight</div>
+      <div class="cell hot"><b>SLT spreads</b>complex AI parts need system test</div>
+      <div class="cell"><b>10k capacity</b>Advantest fully ramped — relief</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--dup)"></span>Memory test</div>
+      <div class="cell"><b>$2.1B</b>HBM3E test demand strong</div>
+      <div class="cell hot"><b>$2.2–2.7B · HBM4</b>2048-bit IF; KGD on every die</div>
+      <div class="cell hot"><b>HBM4E</b>taller stacks; SK Hynix SLT in-house</div>
+      <div class="cell"><b>HBM5 path</b>test intensity steps up again</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--l3)"></span>Probe cards</div>
+      <div class="cell"><b>rising</b>DRAM/HBM probe demand climbs</div>
+      <div class="cell hot"><b>record DRAM</b>FORM Q1 +32%; AVGT/FORM/TPRO partner</div>
+      <div class="cell hot"><b>Foundry/Logic</b>GPU/XPU probe share contest</div>
+      <div class="cell"><b>mainstream</b>fastest-CAGR test segment</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--l2)"></span>Burn-in / SLT</div>
+      <div class="cell"><b>SiC legacy</b>Aehr pivoting off EV-SiC</div>
+      <div class="cell hot"><b>AI pivot</b>hyperscaler PLBI orders; WLBI evals</div>
+      <div class="cell hot"><b>shift-left</b>HBM burn-in + AI-processor ramps</div>
+      <div class="cell hot"><b>standard?</b>burn-in/SLT a normal AI test step</div>
+    </div>
+  </div>
+  <p class="cap">Reading down a column shows what's live that year; across a row shows one segment's arc. Test intensity peaks 2026–27 (HBM4 + 3D + burn-in shift-left); Advantest's 10k-system capacity by 2028 is the main relief valve (the "choke-breaker," like Coherent's fab in Run #13).</p>
+</section>
+
+<!-- 8. CHOKEPOINT + SEVERITY + VARIANT -->
+<section id="s8">
+  <div class="sh"><span class="n">08</span><h2>The chokepoint &amp; the variant view</h2><span class="cn">卡點與變異認知</span></div>
+  <div class="choke">
+    <div class="ttl">
+      <svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 2 L22 20 H2 Z" fill="none" stroke="#e0686a" stroke-width="2" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="14" stroke="#e0686a" stroke-width="2"/><circle cx="12" cy="17" r="1.2" fill="#e0686a"/></svg>
+      <h3>The high-parallelism ATE test gate (+ its consumable interface)</h3>
+    </div>
+    <p>Nothing ships until it's proven good. Every AI GPU and every HBM stack passes through an <b>ATE tester</b>, and the high-end SoC + memory ATE that AI parts require is a <b>duopoly</b> — Advantest (~58% of ATE, &gt;60% of HBM test) plus Teradyne ≈ 80% combined. The moat is decades of test-program software, parallelism and customer co-development; lead-times are tight enough that Advantest is ramping capacity from <b>3,000 → 5,000 systems in 2026 and toward 10,000 by 2028</b>. The decisive twist for an investor: the gate is real but the market already bid the <i>whole</i> test complex up — and, strangely, the <b>gate itself (Advantest, +55–66% YTD) ran the LEAST</b> while the smaller, more cyclical links (burn-in +474%, handlers +200%, probe +174–210%) re-rated far more. Tightness is acute; the buyable edge is the inversion, not the theme.</p>
+    <div class="stats">
+      <div><b class="num">~58%</b><span>Advantest ATE share (2024, est.)</span></div>
+      <div><b class="num">~80%</b><span>Advantest + Teradyne combined ATE</span></div>
+      <div><b class="num">&gt;60%</b><span>Advantest share of HBM test</span></div>
+      <div><b class="num">2 → 7+</b><span>test insertions, simple → 3D part</span></div>
+      <div><b class="num">3k→10k</b><span>Advantest systems/yr to 2028 (relief)</span></div>
+    </div>
+  </div>
+
+  <!-- severity scorecard -->
+  <div class="panel" style="margin-top:14px">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
+      <h4 style="font-size:13px;font-weight:600">Chokepoint-severity scorecard <span style="color:var(--dim);font-weight:400;font-size:11px">· for the AI test &amp; burn-in tollgate · 1 = mild, 5 = acute · per-name links scored in §12</span></h4>
+      <div style="text-align:right"><span class="num" style="font-size:26px;font-weight:600;color:var(--choke)">18</span><span class="num" style="font-size:13px;color:var(--dim)">/20</span><div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em">abstract gate · per-name 13–17 §12</div></div>
+    </div>
+    <div style="display:grid;gap:11px">
+      <div style="display:grid;grid-template-columns:175px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Supply concentration</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">5</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">ATE is an Advantest/Teradyne duopoly (~80%); Advantest &gt;60% of HBM test; probe-card top-3 ≈ 60%</div>
+      </div>
+      <div style="display:grid;grid-template-columns:175px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Lead time to add capacity</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:#3a3040"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">4</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">Tester build + test-program development is slow; but capacity IS being added aggressively (3k→10k by 2028), so not permanently locked</div>
+      </div>
+      <div style="display:grid;grid-template-columns:175px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Low substitutability</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:#3a3040"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">4</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">You cannot skip test; but DFT/on-die BIST + in-house SLT (SK Hynix/TSMC) can reduce external test intensity over time</div>
+      </div>
+      <div style="display:grid;grid-template-columns:175px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Demand-growth pressure</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">5</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">Test scales with COMPLEXITY: HBM4/3D/chiplets multiply insertions per chip — the second-derivative the market underweights</div>
+      </div>
+    </div>
+    <p class="cap" style="margin-top:12px">Severity 18/20 for the tollgate — acute. But pair it with the <b style="color:var(--accent)">remaining-asymmetry gauge of ~6/20</b>: the whole complex ran +50–470% YTD, capacity is being added fast (Advantest 3k→10k), and DFT/in-house SLT loom. <b>Tightness ≠ a good buy.</b></p>
+  </div>
+
+  <!-- variant / disaggregation -->
+  <div class="panel" style="margin-top:14px;border-color:#2c5a40;background:rgba(95,201,138,.04)">
+    <h4 style="font-size:13px;margin-bottom:6px;font-weight:600;color:var(--dacr)">The variant perception — a two-part disaggregation <span class="cn" style="font-weight:400;color:var(--dim)">變異認知</span></h4>
+    <p style="font-size:12.5px;color:var(--mut);line-height:1.55">Consensus: <i>"AI = buy GPUs and HBM"</i> (and lately, <i>"buy the test names too"</i>). The variant has two layers, and the schematic shows the first — why test grows even in a flat-unit year:</p>
+    <div class="svgwide" style="margin:12px 0;background:var(--panel2)">
+      <svg viewBox="0 0 1040 220" width="100%" xmlns="http://www.w3.org/2000/svg">
+        <!-- left: units world -->
+        <text x="30" y="26" font-size="12" fill="#e3bd76" font-weight="600">Consensus model · test ∝ chip units</text>
+        <rect x="30" y="40" width="440" height="150" rx="10" fill="#1a160e" stroke="#5a4624"/>
+        <rect x="60" y="120" width="26" height="50" rx="2" fill="#d2a24a"/>
+        <rect x="96" y="120" width="26" height="50" rx="2" fill="#d2a24a"/>
+        <rect x="132" y="120" width="26" height="50" rx="2" fill="#d2a24a"/>
+        <text x="120" y="150" text-anchor="middle" font-size="9" fill="#1a160e" font-weight="700">units</text>
+        <text x="250" y="96" text-anchor="middle" font-size="11" fill="#e3bd76" font-weight="600">flat units</text>
+        <text x="250" y="113" text-anchor="middle" font-size="11" fill="#e3bd76" font-weight="600">→ flat test</text>
+        <text x="250" y="136" text-anchor="middle" font-size="9" fill="#9aa3b5">(cyclical equipment line)</text>
+        <text x="250" y="170" text-anchor="middle" font-size="8.5" fill="#697283">how the Street prices ATE</text>
+
+        <!-- arrow -->
+        <line x1="486" y1="115" x2="556" y2="115" stroke="#5a6377" stroke-width="2"/>
+        <polygon points="558,115 550,111 550,119" fill="#5a6377"/>
+        <text x="521" y="106" text-anchor="middle" font-size="9" fill="#697283">vs</text>
+
+        <!-- right: complexity world -->
+        <text x="572" y="26" font-size="12" fill="#5fc98a" font-weight="600">Variant · test ∝ complexity (insertions)</text>
+        <rect x="572" y="40" width="440" height="150" rx="10" fill="#0e1a14" stroke="#24533c"/>
+        <rect x="600" y="150" width="22" height="20" rx="2" fill="#5fc98a"/>
+        <rect x="632" y="128" width="22" height="42" rx="2" fill="#5fc98a"/>
+        <rect x="664" y="98" width="22" height="72" rx="2" fill="#5fc98a"/>
+        <rect x="696" y="70" width="22" height="100" rx="2" fill="#5fc98a"/>
+        <text x="660" y="186" text-anchor="middle" font-size="8.5" fill="#7cc9ad">HBM3E → HBM4 → 3D → chiplet</text>
+        <text x="880" y="92" text-anchor="middle" font-size="10.5" fill="#7cc9ad" font-weight="600">same units,</text>
+        <text x="880" y="109" text-anchor="middle" font-size="10.5" fill="#7cc9ad" font-weight="600">more test</text>
+        <text x="880" y="131" text-anchor="middle" font-size="9" fill="#9aa3b5">insertions multiply per chip</text>
+        <text x="880" y="150" text-anchor="middle" font-size="9" fill="#9aa3b5">= structural tollgate</text>
+      </svg>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="mtc"><div class="h">① Second-derivative (the structural part)</div><p style="font-size:11.5px;color:var(--mut)">The Street models test as a cyclical equipment line tied to wafer-fab spending and chip <b>units</b>. The variant: test scales with <b>complexity</b> — every HBM die, every 3D bond, every chiplet partition adds an <b>insertion</b>, so test $/chip rises each generation. That makes the test gate a <b>structurally-compounding tollgate</b>, not just a cyclical capex play. Bullish the aggregate test layer. <i>(Honest caveat: this is now broadly accepted directionally — the genuinely off-consensus piece is the inversion in ②.)</i></p></div>
+      <div class="mtc"><div class="h">② The inversion (the real edge)</div><p style="font-size:11.5px;color:var(--mut)">Within the run-up complex, the scarcest, highest-margin, rent-capturing link — the <b>ATE gate (Advantest, +55–66%)</b> — ran the LEAST, while smaller/cyclical links (burn-in AEHR +474%, handlers COHU +200%, probe TPRO +210% / FORM +174%) ran 2–9×. So "buy the test theme" via the hot small-caps is buying the most-priced, least-moated links. <b>How it's wrong:</b> if DFT / on-die BIST / in-house SLT (SK Hynix; TSMC base-die collaboration) compress external test intensity, or a capex pause hits the cycle, the whole layer de-rates — and Advantest's "cheapness" may be a slower memory-mix + Japan/FX discount, not hidden value. <b>The honest counter-tell:</b> Teradyne — the <i>other half</i> of the same ATE duopoly — ran <b>+127%</b>, more than 2× Advantest, so the lag is specific to Advantest (Japan/FX + heavier memory-test cyclicality + a US-listing premium on TER), not proof the <i>gate</i> as a category is cheap.</p></div>
+    </div>
+    <p class="cap" style="margin-top:8px">Rent-capture test (margins settle it): ATE gate (<b>Advantest</b>, record ~47% op margin = rent captured) → probe-card razor (<b>FormFactor</b>, GM ~49%, recurring/custom) → burn-in (<b>Aehr</b>, only just back to non-GAAP profit, lumpy — rent unproven) → handlers/contactors (<b>Cohu</b>, commodity-ish, cyclical). <b style="color:var(--mut)">Confirming tell:</b> the link with the deepest moat and the best margins is also the one that ran least — the market is paying up for the cyclical edges and under-paying the gate.</p>
+  </div>
+</section>
+
+<!-- 9. AWARENESS CURVE -->
+<section id="s9">
+  <div class="sh"><span class="n">09</span><h2>Are we early? The awareness curve</h2><span class="cn">現在是早期嗎</span></div>
+  <p class="lead">The whole game is owning a chokepoint <b>before</b> the crowd prices it — the way the 2018 MLCC and 2021 CPU/substrate shortages showed in lead-times <b>before</b> the stocks moved. The hard truth here: the test complex has <i>already</i> been discovered in 2026 (AEHR +474%, TPRO +210%, COHU +200%, FORM +174%, TER +127%). The one exception is the gate itself (Advantest +55–66%). This section stages the top-3 honestly and points to where the <i>next</i> entry hides.</p>
+
+  <div class="svgwide" style="margin-bottom:14px">
+    <svg viewBox="0 0 1060 320" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="alphaz9" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5fc98a" stop-opacity="0.22"/><stop offset="1" stop-color="#5fc98a" stop-opacity="0"/></linearGradient></defs>
+      <rect x="40" y="40" width="190" height="230" fill="#11141c"/>
+      <rect x="230" y="40" width="200" height="230" fill="url(#alphaz9)" stroke="#2c5a40" stroke-dasharray="3 4"/>
+      <rect x="630" y="40" width="200" height="230" fill="#1a1216" opacity="0.5"/>
+      <text x="135" y="32" text-anchor="middle" class="axis-zone" fill="#697283">LATENT</text>
+      <text x="330" y="32" text-anchor="middle" class="axis-zone" fill="#5fc98a" font-weight="600">EARLY SIGNAL · ALPHA</text>
+      <text x="530" y="32" text-anchor="middle" class="axis-zone" fill="#d2a24a">RECOGNITION</text>
+      <text x="730" y="32" text-anchor="middle" class="axis-zone" fill="#e0686a">EUPHORIA</text>
+      <text x="930" y="32" text-anchor="middle" class="axis-zone" fill="#697283">FULLY PRICED</text>
+      <path d="M40,258 C 260,250 280,205 430,150 C 560,104 640,72 760,62 C 880,56 980,58 1020,58" fill="none" stroke="#4a5570" stroke-width="2.5"/>
+      <text x="48" y="288" font-size="10" fill="#697283">time · market awareness  →</text>
+      <text x="20" y="160" font-size="10" fill="#697283" transform="rotate(-90 20 160)">price / crowding →</text>
+
+      <!-- ADVANTEST recognition (relative value) -->
+      <circle cx="560" cy="120" r="7" fill="#d2a24a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="560" y="108" text-anchor="middle" font-size="11" fill="#e3bd76" font-weight="700">6857/ATEYY</text>
+      <text x="560" y="146" text-anchor="middle" font-size="9" fill="#9aa3b5" class="m">+55–66% YTD · ~60× P/E</text>
+      <!-- TER faint recognition context -->
+      <circle cx="640" cy="92" r="5" fill="#d2a24a" opacity="0.5" stroke="#0b0d12" stroke-width="1.5"/>
+      <text x="652" y="86" text-anchor="start" font-size="8.5" fill="#9aa3b5">TER +127%</text>
+      <!-- FORM recognition->euphoria -->
+      <circle cx="720" cy="78" r="7" fill="#e0a458" stroke="#0b0d12" stroke-width="2"/>
+      <text x="720" y="66" text-anchor="middle" font-size="11" fill="#e3bd76" font-weight="700">FORM</text>
+      <text x="720" y="98" text-anchor="middle" font-size="9" fill="#9aa3b5" class="m">+174% YTD · ~157× P/E</text>
+      <!-- AEHR euphoria -->
+      <circle cx="800" cy="62" r="7" fill="#e0686a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="800" y="50" text-anchor="middle" font-size="11" fill="#eda3a4" font-weight="700">AEHR</text>
+      <text x="812" y="74" text-anchor="start" font-size="9" fill="#9aa3b5" class="m">+474% · ~70× sales</text>
+      <!-- COHU / TPRO euphoria context -->
+      <circle cx="858" cy="52" r="5" fill="#e0686a" opacity="0.5" stroke="#0b0d12" stroke-width="1.5"/>
+      <text x="868" y="48" text-anchor="start" font-size="8.5" fill="#9aa3b5">COHU/TPRO +200%</text>
+
+      <!-- latent marker -->
+      <circle cx="295" cy="208" r="6" fill="none" stroke="#5fc98a" stroke-width="2" stroke-dasharray="2 2"/>
+      <text x="300" y="230" text-anchor="middle" font-size="9" fill="#7cd6a0">where the NEXT entry hides ↙</text>
+      <text x="330" y="262" text-anchor="middle" font-size="9.5" fill="#5fc98a">↑ you want to enter here</text>
+      <text x="800" y="252" text-anchor="middle" font-size="9.5" fill="#eda3a4">most retail buys here — too late</text>
+    </svg>
+  </div>
+  <p class="cap" style="margin-top:-4px;margin-bottom:14px">Horizontal position = awareness stage (qualitative), not a linear return scale. Dot height = how much of each story is already in the price (~19 Jun 2026). Note the oddity: the <b>highest-moat link (Advantest) sits leftmost</b> of the run names — the relative-value lean — while none of the top-3 is genuinely <i>early</i>. The early dollar is in the latent watchlist below.</p>
+
+  <div class="panel" style="margin-bottom:14px;border-color:#2c5a40;background:rgba(95,201,138,.05)">
+    <h4 style="font-size:13px;margin-bottom:6px;font-weight:600;color:var(--dacr)">Still-latent watchlist — where the NEXT early entry hides <span class="cn" style="font-weight:400;color:var(--dim)">尚未被發現的早期標的</span></h4>
+    <p style="font-size:12px;color:var(--mut);line-height:1.55">The visible test names have all moved. To buy <i>before</i> the crowd — the early-LITE/AXTI setup — watch the links still unpriced and under-covered today. Each below could become the next breakout (or fail — most latent bets do):</p>
+    <table class="tbl" style="margin-top:8px">
+      <tr><th>Latent candidate (link)</th><th>Why it could be next</th><th>Trigger that wakes it · where to track it</th></tr>
+      <tr><td><b>Test sockets / contactors</b> — ISC (095340 KS), Leeno (058470 KS), Yamaichi, Smiths Interconnect</td><td>HBM4 sockets need high-GHz-class signal integrity (&gt;24GHz target, est.) / &gt;95°C; consumable, scales with insertions, still priced like a commodity — the un-bid layer below the ATE box</td><td>Korean test-socket monthly sales; HBM4 socket design-wins · KRX disclosures, OSAT calls, OCP notes</td></tr>
+      <tr><td><b>KGD / probe-card consumables &amp; MEMS pins</b> — the recurring razor blades under FORM/Technoprobe</td><td>Wears out, re-ordered every device; grows with die count + insertions; priced as commodity input, not as the chokepoint it gates</td><td>Probe-card consumable mix on FORM/TPRO calls; HBM die-count roadmap · earnings transcripts, SemiAnalysis</td></tr>
+      <tr><td><b>inTEST (INTT)</b> — small US test-cell / thermal name; or Cohu (already ran)</td><td>A more-accessible US small-cap with AI/test exposure that hasn't re-rated like AEHR; thermal subsystems for hot AI-part test</td><td>AI/semi test bookings inflection; book-to-bill · 10-Q segment lines, earnings calls</td></tr>
+    </table>
+    <p class="cap" style="margin-top:6px"><b style="color:var(--mut)">Access note:</b> the genuinely-early links a US amateur can most easily reach are <b>INTT</b> (thin, do your own work) and the still-cheaper <b>Advantest ADR (ATEYY)</b> as the relative-value gate; the deepest picks-and-shovels (Korean socket names ISC/Leeno, private MEMS-pin makers) are KR/private and hard to buy. Watch-only ideas, not recommendations — most latent bets fail. The discipline: keep scanning <i>here</i> while the crowd buys what has already run.</p>
+  </div>
+
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:4px;font-weight:600">Leading indicators — the early-signal dashboard</h4>
+      <p style="font-size:11px;color:var(--dim);margin-bottom:10px">These move BEFORE reported revenue. Watch them to catch the next leg early.</p>
+      <table class="liw">
+        <tr><th>Signal · trigger</th><th>Where an amateur can actually read it</th></tr>
+        <tr><td><b>Advantest ATE lead-times / book-to-bill</b><br><span class="dotR" style="font-size:11px">&gt;1.2 b-t-b or "allocated" = tight</span></td><td>Advantest IR slides + earnings-call Q&amp;A; digitimes / TrendForce notes</td></tr>
+        <tr><td><b>HBM die-count &amp; HBM4 ramp</b><br><span class="dotG" style="font-size:11px">12→16-Hi = more KGD/test</span></td><td>SK Hynix / Micron / Samsung calls; TrendForce HBM roadmap</td></tr>
+        <tr><td><b>FormFactor DRAM/probe revenue mix</b><br><span class="dotA" style="font-size:11px">record DRAM = HBM probe demand</span></td><td>FORM 8-K / 10-Q segment lines; earnings call</td></tr>
+        <tr><td><b>Aehr bookings / book-to-bill</b><br><span class="dotA" style="font-size:11px">&gt;3× b-t-b · hyperscaler follow-on</span></td><td>Aehr press releases + earnings calls (the burn-in tell)</td></tr>
+        <tr><td><b>Test capacity additions (relief)</b><br><span class="dotR" style="font-size:11px">3k→5k→10k systems = choke easing</span></td><td>Advantest capex/capacity guidance; Teradyne calls</td></tr>
+        <tr><td><b>In-house SLT / DFT progress</b><br><span class="dotA" style="font-size:11px">SK Hynix/TSMC SLT = demand risk</span></td><td>TrendForce, SemiEngineering; SK Hynix / TSMC briefings</td></tr>
+        <tr><td><b>AI-capex tone (the cycle)</b><br><span class="dotR" style="font-size:11px">hyperscaler capex cut = test digestion</span></td><td>MSFT/GOOGL/META/AMZN capex guides; NVDA demand commentary</td></tr>
+      </table>
+      <p style="font-size:10px;color:var(--dim);margin-top:8px">Thresholds are illustrative starting points — calibrate to your own risk. Every signal is readable from <b>free public sources</b> weeks before it shows up in reported revenue.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">How to be early next time <span class="cn" style="font-weight:400;color:var(--dim)">如何提前布局</span></h4>
+      <div class="mtc" style="margin-bottom:9px"><div class="h">1 · Watch the architecture shift, not the headline</div><p>Test intensity per chip was visible in HBM4/3D roadmaps <b>18–24 months before</b> the test stocks moved. The next leg (sockets, SLT) is visible the same way today.</p></div>
+      <div class="mtc" style="margin-bottom:9px"><div class="h">2 · Go one layer below the equipment name</div><p>When AEHR and FORM ran, the <b>sockets, contactors and MEMS pins</b> they consume stayed cheap. That's the un-bid razor-blade layer.</p></div>
+      <div class="mtc" style="margin-bottom:9px"><div class="h">3 · Distrust the small-cap after a 3–5× move</div><p>AEHR at ~70× sales on ~$48M revenue is a momentum/binary trade, not an early entry. Own the gate (Advantest) for compounding, not the re-rating.</p></div>
+      <div class="mtc"><div class="h">4 · The inversion is the signal</div><p>When the <i>best</i> business (the gate) lags the cyclical edges, that lag is the relative-value tell — buy moat that the crowd skipped, not momentum it already paid for.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. TOP-3 MULTI-TAB -->
+<section id="s10">
+  <div class="sh"><span class="n">10</span><h2>Top-3 chokepoint plays</h2><span class="cn">三大卡點標的 · 分頁</span></div>
+  <p class="lead">Three companies, three <i>different</i> links, spread across the awareness curve — <b>not</b> a quality ranking. Tabs are ordered by how investable each is today (own-it → quality-but-rich → optionality); here, unusually, <b>remaining asymmetry</b> runs the <i>same</i> way (<span class="num">Advantest &gt; FORM &gt; AEHR</span>), because the least-run name is also the best business. Use arrow keys to move between tabs.</p>
+
+  <div role="tablist" aria-label="Top-3 plays" style="display:flex;gap:6px;margin-bottom:-1px;flex-wrap:wrap">
+    <button class="tabbtn on" role="tab" id="tab1" aria-controls="t1" aria-selected="true" tabindex="0">① Advantest · 6857/ATEYY<small>The ATE gate · recognition</small></button>
+    <button class="tabbtn" role="tab" id="tab2" aria-controls="t2" aria-selected="false" tabindex="-1">② FormFactor · FORM<small>Probe-card razor · recognition→euphoria</small></button>
+    <button class="tabbtn" role="tab" id="tab3" aria-controls="t3" aria-selected="false" tabindex="-1">③ Aehr · AEHR<small>Burn-in pure-play · euphoria</small></button>
+  </div>
+
+  <!-- TAB 1 ADVANTEST -->
+  <div class="tabpane" id="t1" role="tabpanel" aria-labelledby="tab1" style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">Advantest <span style="color:var(--dim);font-weight:400">TSE: 6857 · ADR: ATEYY</span></h3>
+      <span class="stagebadge sg-recog">RECOGNITION · relative-value lean (on a pullback)</span>
+      <span style="font-size:12px;color:var(--mut)">Chokepoint: <b style="color:var(--txt)">the high-parallelism ATE test gate (SoC + HBM)</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The "ASML of test" — ~58% of all ATE, &gt;60% of HBM test, with a software/parallelism moat decades deep. Margins are real and at records (~47% op margin = rent captured), and it is the gate every AI chip passes. The oddity: it ran the LEAST of the test complex (+55–66% YTD vs +127–474% for the others), so it is the relative-value lean — though at ~60× trailing P/E it is not <i>cheap</i>, and it is also the one adding capacity that relieves the choke.</p>
+    <div class="mini">
+      <div><div class="v">¥32,489</div><div class="l">Last (ADR ~$195)</div></div>
+      <div><div class="v" style="color:var(--dup)">+55–66%</div><div class="l">YTD (ADR/Tokyo)</div></div>
+      <div><div class="v">~$143B</div><div class="l">Market cap est. (19 Jun)</div></div>
+      <div><div class="v" style="color:var(--choke)">~60×</div><div class="l">P/E trailing est.*</div></div>
+      <div><div class="v" style="color:var(--dacr)">~47%</div><div class="l">Q1 op margin (rec.)</div></div>
+    </div>
+    <div class="gap"><div class="h">ASYMMETRIC INFO GAP · 變異認知</div><p>Partly open. Consensus owns Advantest as a cyclical AI-test winner. The variant: it is the structurally-compounding <b>tollgate</b> whose demand scales with <b>complexity</b> (insertions), not just units — and it is the <i>least-run</i> link in a complex that re-rated 2–9×. Residual edge = whether the market keeps under-paying the gate relative to the cyclical edges. Quality high; asymmetry only <b>medium even at ~60×</b> on a thin ~+5% base-case EV — a relative-value re-rating with entry discipline, <b>not</b> a "tight = buy" call.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢 Business model</div><p>Sells ATE (the testers) for SoC/logic and memory, plus test-cell peripherals and services. High-margin systems + recurring software/service tail.</p></div>
+      <div class="mtc"><div class="h">② 營收結構 Segments</div><p>Semiconductor &amp; component test (SoC + memory ATE) is the engine; mechatronics/handlers and services round it out. AI/HPC drives the SoC line.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源 Growth drivers</div><p>AI accelerator test time; HBM4/3D KGD intensity; SLT adoption; capacity ramp 3k→5k (2026) → 10k (2028) to meet demand.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場 End market</div><p>AI/HPC logic test (primary growth), HBM/DRAM memory test, plus auto/industrial/mobile SoC test tail.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶 Customers</div><p>Leading-edge foundries/fabless (AI accelerators), HBM/DRAM makers (SK Hynix, Micron, Samsung), OSATs.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河 Moat</div><p>Decades of test-program IP + parallelism + customer co-development; duopoly with Teradyne (~80% of ATE); &gt;60% of HBM test.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望 Guidance</div><p>Record quarter; conservative FY guide (flat margins — peak mix "unsustainable"); aggressive multi-year capacity build signals demand confidence.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點 Why chokepoint</div><p>No AI chip or HBM stack ships without passing high-end ATE, and only two firms make it — Advantest is the larger half and dominates HBM test.</p></div>
+    </div>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--dacr)">BULL</b>Test-intensity compounding (HBM4/3D/chiplets) lifts EPS; the gate re-rates toward the cyclical edges it lagged; capacity ramp fills → relative-value gap closes.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>AI-capex digestion + memory-test cyclicality + flat-margin guide compress ~60× P/E; DFT/in-house SLT slowly erode external test intensity.</div>
+    </div>
+  </div>
+
+  <!-- TAB 2 FORM -->
+  <div class="tabpane" id="t2" role="tabpanel" aria-labelledby="tab2" hidden style="display:none;border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">FormFactor <span style="color:var(--dim);font-weight:400">NASDAQ: FORM</span></h3>
+      <span class="stagebadge sg-recog">RECOGNITION→EUPHORIA · quality, rich</span>
+      <span style="font-size:12px;color:var(--mut)">Chokepoint: <b style="color:var(--txt)">the probe-card consumable interface (DRAM/HBM + logic)</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The consumable razor of test — the custom MEMS needle-array that touches every die at wafer sort, re-designed per chip and re-ordered as it wears. The hegemon in advanced logic/MEMS and now record in DRAM/HBM probe (the AI-memory tailwind). High quality, recurring revenue, GM ~49%. The catch: it has run +174% YTD to ~157× P/E with <b>SK Hynix at 29.5% of sales</b> — quality is priced; growth must execute.</p>
+    <div class="mini">
+      <div><div class="v">$153.00</div><div class="l">Last close</div></div>
+      <div><div class="v" style="color:var(--dup)">+174%</div><div class="l">YTD return</div></div>
+      <div><div class="v">~$11.8B</div><div class="l">Market cap est.</div></div>
+      <div><div class="v" style="color:var(--choke)">~157×</div><div class="l">P/E est.*</div></div>
+      <div><div class="v" style="color:var(--dacr)">49%</div><div class="l">Non-GAAP GM</div></div>
+    </div>
+    <div class="gap" style="border-left-color:var(--dup);background:rgba(210,162,74,.06)"><div class="h" style="color:var(--dup)">ASYMMETRIC INFO GAP · 變異認知</div><p>Mostly open. The market fully owns FORM as the AI/HBM probe-card leader. The remaining variant is narrower: does probe-card content per wafer keep rising with HBM die-count + Foundry/Logic GPU/XPU wins fast enough to grow into ~157× — and can it diversify away from SK Hynix concentration? At this multiple it's a quality-compounder bet, not a mispricing. Own on weakness, not at the high.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢 Business model</div><p>Designs/builds probe cards (consumable) + engineering systems. Razor-and-blade: custom card per device, recurring re-orders as cards wear.</p></div>
+      <div class="mtc"><div class="h">② 營收結構 Segments</div><p>Probe Cards (the bulk — DRAM/HBM, Foundry &amp; Logic, SoC) + Systems. Q1 2026 record rev $226.1M (+32% YoY); GM 49%.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源 Growth drivers</div><p>HBM/DRAM die-count growth; Foundry &amp; Logic GPU/XPU probe wins; rising insertions per wafer. Q2 guide $240M ±5M.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場 End market</div><p>Memory (HBM/DRAM) + Foundry/Logic (AI GPU/XPU, client/server), with a systems/lab tail.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶 Customers</div><p>SK Hynix (~29.5% of sales — concentration risk), NVIDIA, leading memory + logic makers.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河 Moat</div><p>Advanced-MEMS probe IP, qualification lock-in (custom per device), scale; top-3 (FORM/Technoprobe/MJC) ≈ 60% share.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望 Guidance</div><p>Record Q1; upbeat Q2; AI-driven probe-card demand across memory + networking; expanding Foundry/Logic position.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點 Why chokepoint</div><p>Every wafer must be probed to find KGD; the probe card is custom, consumable and spec-locked per device — the recurring interface the ATE gate needs.</p></div>
+    </div>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--dacr)">BULL</b>HBM die-count + Foundry/Logic wins keep probe content compounding; FORM grows into ~157× and diversifies customer mix.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>SK Hynix concentration shock / probe pricing pressure / memory-test air-pocket; ~157× compresses hard from the high.</div>
+    </div>
+  </div>
+
+  <!-- TAB 3 AEHR -->
+  <div class="tabpane" id="t3" role="tabpanel" aria-labelledby="tab3" hidden style="display:none;border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">Aehr Test Systems <span style="color:var(--dim);font-weight:400">NASDAQ: AEHR</span></h3>
+      <span class="stagebadge sg-eu">EUPHORIA · binary optionality</span>
+      <span style="font-size:12px;color:var(--mut)">Chokepoint: <b style="color:var(--txt)">wafer/package-level burn-in (the reliability screen)</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The purest burn-in play — wafer-level (FOX-XP) and package-level (Sonoma) systems that stress AI parts hot under voltage to weed out early failures. The thesis: burn-in is <b>shifting left</b> for AI/HBM and Aehr just pivoted from a stalled SiC-EV base to AI processors, data-center silicon and photonics (book-to-bill &gt;3.5×, $50.9M backlog). The catch: it's a <b>tiny, lumpy</b> business (~$45–50M FY26 rev) that ran <b>+474% YTD</b> to ~70× sales — the alpha is in the rear-view; this is now a binary momentum trade.</p>
+    <div class="mini">
+      <div><div class="v">$115.82</div><div class="l">Last close</div></div>
+      <div><div class="v" style="color:var(--choke)">+474%</div><div class="l">YTD return</div></div>
+      <div><div class="v">~$3.5B</div><div class="l">Market cap est.</div></div>
+      <div><div class="v" style="color:var(--choke)">~70×</div><div class="l">FY26 P/S est.*</div></div>
+      <div><div class="v" style="color:var(--dacr)">&gt;3.5×</div><div class="l">Book-to-bill</div></div>
+    </div>
+    <div class="gap" style="border-left-color:var(--choke);background:rgba(224,104,106,.06)"><div class="h" style="color:var(--choke)">ASYMMETRIC INFO GAP · 變異認知</div><p>Now mostly <b>closed</b>. The market is fully awake to the AI-burn-in pivot. The remaining variant is binary: does the <b>expected hyperscaler follow-on PLBI order</b> + the 300mm WLBI eval convert into a durable multi-year ramp (FY27 ~$82M and beyond), or is this a lumpy, single-customer story at ~70× sales? At this valuation and size, it's a momentum/optionality trade — size small, use stops.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢 Business model</div><p>Sells burn-in/test systems (FOX-XP wafer-level, Sonoma package-level) + consumables (WaferPak/DiePak). System sale + recurring consumable tail.</p></div>
+      <div class="mtc"><div class="h">② 營收結構 Segments</div><p>Single segment (test/burn-in). FY26 rev guide ~$45–50M; mix shifting from SiC-EV to AI processor / data-center / photonics burn-in.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源 Growth drivers</div><p>AI-processor PLBI (lead hyperscaler), 300mm WLBI eval (top-tier AI supplier), HBM/HBM4E burn-in roadmap, silicon-photonics burn-in.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場 End market</div><p>AI processors + data-center silicon (the new engine), HBM/memory (roadmap), silicon photonics; legacy SiC/EV tail.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶 Customers</div><p>A lead hyperscale customer (PLBI), a top-tier AI-processor supplier (WLBI eval) — high customer concentration is the near-term risk.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河 Moat</div><p>Wafer-level burn-in know-how + WaferPak contactor IP; first-mover in scaled WLBI. Unproven at AI-scale volume vs in-house alternatives.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望 Guidance</div><p>FY26 rev high side of $45–50M; return to non-GAAP profit in Q4; significant follow-on PLBI order expected; FY27 est ~$82M (may prove conservative).</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點 Why chokepoint</div><p>If burn-in becomes a mandatory AI/HBM step (shift-left), scaled wafer-level burn-in is scarce — but burn-in can be skipped or done in-house, so the "must-pass" is weaker than the ATE gate.</p></div>
+    </div>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--dacr)">BULL</b>Hyperscaler follow-on + WLBI eval convert; burn-in goes mandatory for AI/HBM; revenue multi-bags toward/above $82M FY27; becomes "the next AEHR re-rate."</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>Orders slip / stay single-customer / burn-in stays optional; ~70× sales on ~$48M unwinds; small-cap illiquidity → −50–70% from euphoric levels.</div>
+    </div>
+  </div>
+  <p class="cap" style="margin-top:12px">*Valuation multiples are estimates from live price, latest reported revenue/EPS run-rate and approximate share counts; verify on a data terminal before sizing. Advantest cap/PE per third-party aggregators (May-2026); AEHR shown FY26 P/S (small, lumpy earnings). Advantest YTD shown as a range: Tokyo 6857 +65.7% vs ADR ATEYY +54.6% (FX/ADR effects).</p>
+</section>
+
+<!-- 11. BENEFICIARY MAP + RISKS -->
+<section id="s11">
+  <div class="sh"><span class="n">11</span><h2>Beneficiary map &amp; key risks</h2><span class="cn">受惠族群與風險</span></div>
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Who benefits — by link</h4>
+      <table class="tbl">
+        <tr><th>Company</th><th>Link</th><th>Angle · YTD</th></tr>
+        <tr><td><b>Advantest</b> · 6857/ATEYY</td><td><span class="lyr ly3">ATE</span></td><td>The test gate, &gt;60% HBM test · +55–66%</td></tr>
+        <tr><td><b>Teradyne</b> · TER</td><td><span class="lyr ly3">ATE</span></td><td>Other half of the ATE duopoly (+robotics) · +127%</td></tr>
+        <tr><td><b>FormFactor</b> · FORM</td><td><span class="lyr lyp">PROBE</span></td><td>Probe-card razor, record DRAM/HBM · +174%</td></tr>
+        <tr><td><b>Technoprobe</b> · TPRO</td><td><span class="lyr lyp">PROBE</span></td><td>Adv. SoC / vertical-MEMS probe leader · +210%</td></tr>
+        <tr><td><b>Aehr</b> · AEHR</td><td><span class="lyr ly2">BURN-IN</span></td><td>WLBI/PLBI pure-play, AI pivot · +474%</td></tr>
+        <tr><td><b>Cohu</b> · COHU</td><td><span class="lyr ly2">HANDLER</span></td><td>Handlers + contactors + SLT, turnaround · +200%</td></tr>
+        <tr><td><b>ISC / Leeno</b> (KR)</td><td><span class="lyr lyu">SOCKET</span></td><td>Test sockets/contactors (latent) · KR-listed</td></tr>
+        <tr><td><b>SK Hynix / TSMC</b></td><td><span class="lyr ly1">SLT</span></td><td>In-house SLT — both demand &amp; disintermediation</td></tr>
+      </table>
+      <p class="cap" style="margin-top:10px">Layer key — <span class="lyr ly3">ATE</span> tester gate · <span class="lyr lyp">PROBE</span> probe card · <span class="lyr ly2">BURN-IN</span>/handler · <span class="lyr lyu">SOCKET</span> contactor (latent) · <span class="lyr ly1">SLT</span> system-level/in-house.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Risks to the thesis</h4>
+      <table class="tbl">
+        <tr><th>Risk</th><th>Watch</th></tr>
+        <tr><td><b>Mislocated chokepoint</b></td><td>Real tightness may be in sockets/MEMS pins, not the ATE box</td></tr>
+        <tr><td><b>Disintermediation (DFT/BIST/SLT)</b></td><td>SK Hynix/TSMC in-house SLT + on-die test cut external intensity</td></tr>
+        <tr><td><b>Choke-breaker capacity</b></td><td>Advantest 3k→10k systems by 2028 relieves the gate</td></tr>
+        <tr><td><b>Cyclicality</b></td><td>Test is WFE-linked; AI-capex pause hits every name</td></tr>
+        <tr><td><b>Customer concentration</b></td><td>FORM SK Hynix 29.5%; AEHR single lead hyperscaler</td></tr>
+        <tr><td><b>Valuation</b></td><td>Whole complex +50–474% YTD; AEHR ~70× sales, FORM ~157× P/E</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 12. DECISION -->
+<section id="s12">
+  <div class="sh"><span class="n">12</span><h2>The decision — one table</h2><span class="cn">投資決策總表</span></div>
+  <p class="lead">Everything above reconciled. Rows follow the awareness curve (recognition → recognition/euphoria → euphoria), and each name's <b>remaining asymmetry</b> is shown explicitly — here it runs <span class="num">Advantest &gt; FORM &gt; AEHR</span>, the <i>same</i> direction as the row order, because the least-run name is also the best business. The one-row read: the best <i>business</i> exposure (Advantest) is also the <i>least-priced</i> of the complex (the relative-value gate); the quality razor (FORM) is rich; the pure-play (AEHR) is euphoric and binary — and the only genuinely <i>early</i> dollar is outside the top-3, in the latent socket/MEMS-pin watchlist.</p>
+
+  <!-- scenario table for the actionable lead pick -->
+  <div class="panel" style="margin-bottom:14px">
+    <h4 style="font-size:13px;margin-bottom:4px;font-weight:600">Scenario table — Advantest (the actionable lead), ~12–18m <span style="color:var(--dim);font-weight:400;font-size:11px">· illustrative, probabilities are the author's</span></h4>
+    <table class="scn" style="margin-top:8px">
+      <tr><th>Case</th><th>Prob.</th><th>What happens</th><th>~12–18m return</th></tr>
+      <tr class="bull"><td><b>Bull</b></td><td class="num">30%</td><td>Test-intensity compounding lifts EPS; the gate re-rates toward the cyclical edges it lagged; capacity ramp fills</td><td class="num" style="color:var(--dacr)">+35%</td></tr>
+      <tr class="base"><td><b>Base</b></td><td class="num">45%</td><td>Solid AI-test growth but ~60× already rich; memory-test cyclicality caps the re-rating</td><td class="num" style="color:var(--dup)">+8%</td></tr>
+      <tr class="bear"><td><b>Bear</b></td><td class="num">25%</td><td>AI-capex digestion + flat-margin guide + DFT/in-house SLT fears compress ~60× P/E</td><td class="num" style="color:var(--choke)">−35%</td></tr>
+    </table>
+    <p class="cap" style="margin-top:8px">Probability-weighted EV ≈ 0.30(+35%) + 0.45(+8%) + 0.25(−35%) ≈ <b style="color:var(--txt)">+5.4%</b> — a thin EV that argues for <b>entry discipline</b>, not chasing. Entry-discipline band (est.): start ADR ~$165–180 (~10–15% pullback / &lt;55× fwd), add lower, trim conviction if it goes parabolic. <b>Dated falsifier:</b> if the next 1–2 prints show book-to-bill &lt;1 AND a test-units guidance cut (capacity digestion) while margins normalise, the structural-tollgate thesis weakens — reduce. FORM falsifier: an SK-Hynix-concentration shock or probe pricing pressure in the next 1–2 prints. AEHR falsifier: the expected hyperscaler follow-on PLBI order slips, or FY27 fails to ramp toward ~$82M. <b style="color:var(--txt)">FORM</b> (~12–18m): bull ~+25% if probe content compounds and customer mix broadens / bear −40–50% on concentration or memory air-pocket at ~157× — quality but skew negative from the high. <b style="color:var(--txt)">AEHR</b> (binary): bull a multi-bag on a durable hyperscaler ramp / bear −50–70% on a slip at ~70× sales — size as a small option, not a position.</p>
+  </div>
+
+  <div style="overflow-x:auto">
+  <table class="tbl" style="min-width:920px">
+    <tr><th>Row</th><th>Ticker</th><th>Chokepoint (link)</th><th>Severity</th><th>Awareness stage</th><th>Valuation</th><th>Remaining asymmetry</th><th>Framework lean</th><th>Key trigger to watch</th></tr>
+    <tr>
+      <td class="num">1</td><td><b>6857/ATEYY</b> · Advantest</td><td><span class="lyr ly3">ATE</span> the test gate (SoC+HBM)</td>
+      <td class="num">17/20</td><td><span class="stagebadge sg-recog">RECOGNITION</span></td><td class="num">~60× · +55–66% YTD</td>
+      <td class="dotA">Medium</td><td><b>Relative-value lean — on a pullback</b></td><td>Book-to-bill; test-units guide; the relative-value gap closing</td>
+    </tr>
+    <tr>
+      <td class="num">2</td><td><b>FORM</b> · FormFactor</td><td><span class="lyr lyp">PROBE</span> probe-card razor</td>
+      <td class="num">15/20</td><td><span class="stagebadge sg-recog">RECOG→EUPHORIA</span></td><td class="num">~157× P/E · +174% YTD</td>
+      <td class="dotA">Low</td><td><b>Quality — own on weakness</b></td><td>DRAM/probe mix; SK Hynix concentration; Foundry/Logic wins</td>
+    </tr>
+    <tr>
+      <td class="num">3</td><td><b>AEHR</b> · Aehr</td><td><span class="lyr ly2">BURN-IN</span> WLBI/PLBI pure-play</td>
+      <td class="num">13/20</td><td><span class="stagebadge sg-eu">EUPHORIA</span></td><td class="num">~70× sales · +474% YTD</td>
+      <td class="dotR">Negative (binary)</td><td><b>Small optionality only</b></td><td>Hyperscaler follow-on PLBI; FY27 ramp toward ~$82M</td>
+    </tr>
+  </table>
+  </div>
+  <p class="cap"><b>How each severity is derived</b> (same 0–20 rubric, four factors each 0–5: supply concentration · lead-time · low substitutability · demand): <b>Advantest = 17</b> (5+4+4+4 — the tightest <i>gate</i>, but it is also the choke-reliever adding capacity). <b>FORM = 15</b> (4+3+4+4 — consumable razor, custom per device, but capacity addable). <b>AEHR = 13</b> (4+3+3+3 — burn-in can be skipped / done in-house, demand from a small base). The composite tollgate scores 18 abstractly (5+4+4+5); per-name links sit below it. Same scarcity logic ranks the links, and here it happens to align with the entry view — but it's coincidence, not a 1-2-3 buy ranking. "Framework lean" is analysis, not advice.</p>
+
+  <div class="panel" style="margin-top:14px;border-color:#2c5a40;background:rgba(95,201,138,.05)">
+    <div style="font-size:11px;font-weight:700;color:var(--dacr);letter-spacing:.04em;margin-bottom:6px">IF YOU CAN ONLY DO ONE THING · 一件事</div>
+    <p style="font-size:12.5px;color:var(--mut);line-height:1.55">Don't chase the small-cap after a 3–5× move. The disciplined read of this layer: test is a real, structurally-compounding tollgate, but the market already bid the whole complex up — and bizarrely bid the <b>cyclical edges (burn-in, handlers) more than the gate</b>. So the relative-value "own-it" is the <b>gate (Advantest)</b> — for compounding plus a re-rating-of-the-laggard, with entry discipline (wait for a pullback; ~60× trailing is not cheap). Keep the genuinely-early names on a <b>small-size watchlist</b> (test sockets ISC/Leeno, probe-card consumables/MEMS pins, INTT), and treat FORM as quality-to-buy-on-weakness and AEHR as a small option, not a position. (Even the "own-it" is a thin ~+5% base-case EV at ~60× — a pullback bet, not a chase.)</p>
+  </div>
+
+  <!-- open questions / self-critique -->
+  <div class="panel" style="margin-top:14px">
+    <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">Open questions &amp; honest holes <span class="cn" style="font-weight:400;color:var(--dim)">未解之處（非自我表揚）</span></h4>
+    <ul style="font-size:12px;color:var(--mut);line-height:1.7;margin-left:16px">
+      <li>Several share figures (Advantest ~58% ATE, ~80% duopoly, &gt;60% HBM test; probe-card top-3 ≈ 60%) are <b>third-party estimates</b>, not audited disclosures — marked est.; magnitudes are well-corroborated but exact points vary by source.</li>
+      <li><b>The "insertions multiply" second-derivative is directional, not quantified here</b> — I assert test grows faster than units (multiple sources agree on direction) but do not put a clean elasticity on it; that's the load-bearing claim and it's qualitative.</li>
+      <li><b>Advantest's "ran least" could be a value trap, not value</b> — it may reflect Japan/FX, a heavier memory-test cyclical mix, and the flat-margin guide, rather than a mispriced moat. The relative-value lean is a judgement call.</li>
+      <li><b>AEHR is the weakest part of the trade</b> — ~70× sales on a ~$48M, lumpy, customer-concentrated revenue base after +474%; a retail buyer here is buying euphoria, and this report says so.</li>
+      <li>Multiples (Advantest ~60× trailing P/E / ~$143B cap at the 19-Jun close — a May-26 aggregator read was ~$119B; FORM ~157×; AEHR ~70× sales / ~$3.5B) are <b>estimates</b> from run-rate and approximate share counts — verify before sizing.</li>
+      <li>Retail-access friction: the genuinely-early links (Korean sockets ISC/Leeno, private MEMS-pin makers) are hard for a US amateur to buy; the accessible names are mostly the ones that already ran.</li>
+    </ul>
+  </div>
+</section>
+
+<div class="disc"><b>Not investment advice.</b> Automated personal research for a private knowledge base — idea generation only, not a recommendation or solicitation. Figures from public reporting, company filings, and third-party estimates as of 22 Jun 2026 (prices = last close ~19 Jun 2026); several are single-source and marked (est.); may contain errors or become stale. Prices via IBKR read-only (never traded). Verify against primary filings and do your own due diligence.</div>
+
+<footer>
+  <p><b>Sources:</b> Advantest IR (FY25/26 results slides, technical briefings — record ~47% op margin, SoC tester $8.7–9.5B / memory $2.2–2.7B CY26, capacity 3k→5k→10k) · digitimes 2026-01-16 (ATE lead-times tight, HBM 2026) · tspasemiconductor / rcrwireless / ainvest (Advantest "ASML of test", ~58% share, &gt;60% HBM test) · companiesmarketcap / Simply Wall St (TSE:6857 — ~$143B cap at 19-Jun close / ~60× trailing P/E; May-26 aggregator read ~$119B) · SEC FORM 8-K/10-Q FY2026 + stocktitan (FormFactor Q1 2026 $226.1M, +32% YoY, GM 49%, EPS $0.56, Q2 guide $240M; SK Hynix 29.5%) · matrixbcg / portersfiveforce (FORM/Technoprobe/MJC ≈ 60%, Advantest+Teradyne ≈ 80%) · aehr.com Q1/Q2/Q3 FY2026 releases + investing.com transcript + 247wallst (FY26 rev $45–50M, bookings $37.2M, b-t-b &gt;3.5×, backlog $50.9M, FY27 ~$82M) · semiengineering "HBM Shifts Testing Left" + formfactor.com HBM-test blog + trendforce 2026-02-25 (SK Hynix HBM4 SLT + TSMC) · Fortune/Mordor/360iResearch/QYResearch (test-equipment market size 2026; probe fastest-CAGR; burn-in fastest-growing) · IBKR read-only (live last-close quotes 6857/ATEYY, FORM, AEHR, TER, COHU, TPRO).</p>
+  <p style="margin-top:10px">Automated AI-Infra workflow · <b>Run #14 · v5</b> · Compute Fabric, deeper/refresh (Loop 3) — goes one layer past Run #2 (CoWoS) and Run #8 (hybrid bonding) to the back-end test &amp; burn-in tollgate · cross-reviewed by independent reviewer subagents (objective-fit + fact-check) · recurs every 2 days. Iteration log: v5-r1 draft → 2 independent reviewers (objective-fit <b>26/30</b> "fits the objective: YES"; domain fact-check <b>0 P0 errors</b>, "SOUND-with-fixes") → punch-list applied: "own-it" softened to <i>relative-value lean</i> + thin ~+5% EV surfaced next to the call; Advantest cap reconciled to ~$143B (19-Jun close, vs stale May ~$119B) &amp; P/E to ~60× trailing; Teradyne +127% counter-tell added to the inversion; variant-① flagged as now near-consensus (only ② genuinely off-consensus); SK Hynix HBM4-SLT phrasing tightened (its own tester, amid TSMC base-die collaboration); HBM4 socket &gt;24GHz marked est.; composite-18 vs per-name 13–17 severity signposted; SVG fonts via CSS rule; tabs keyboard-accessible + @media print.</p>
+</footer>
+
+</div>
+<script>
+(function(){
+  var tabs=[].slice.call(document.querySelectorAll('[role=tab]'));
+  function sel(t){
+    tabs.forEach(function(b){
+      var on=(b===t);
+      b.classList.toggle('on',on);
+      b.setAttribute('aria-selected',on?'true':'false');
+      b.tabIndex=on?0:-1;
+      var p=document.getElementById(b.getAttribute('aria-controls'));
+      if(p){ if(on){p.hidden=false;p.style.display='block';} else {p.hidden=true;p.style.display='none';} }
+    });
+  }
+  tabs.forEach(function(t,i){
+    t.addEventListener('click',function(){sel(t);t.focus();});
+    t.addEventListener('keydown',function(e){
+      var n=null;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown') n=tabs[(i+1)%tabs.length];
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp') n=tabs[(i-1+tabs.length)%tabs.length];
+      else if(e.key==='Home') n=tabs[0];
+      else if(e.key==='End') n=tabs[tabs.length-1];
+      if(n){e.preventDefault();sel(n);n.focus();}
+    });
+  });
+})();
+</script>
+</body>
+</html>

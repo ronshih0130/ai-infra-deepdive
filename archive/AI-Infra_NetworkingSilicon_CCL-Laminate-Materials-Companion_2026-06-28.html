@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Infra Run #17 v5 — Networking / Copper Interconnect (CCL + Connector) Chokepoint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#13161e; --panel2:#1a1e28; --panel3:#212634; --line:#2a3040; --line2:#363d4f;
+    --txt:#e8eaf0; --mut:#9aa3b5; --dim:#697283;
+    --accent:#2dd4bf; --choke:#e0686a;
+    --up:#5b81c4; --l3:#8b84cf; --pkg:#c47a9e; --l2:#d2a24a; --l1:#4faf8e;
+    --dup:#e0a458; --dout:#5aa9e0; --dacr:#5fc98a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px;-webkit-font-smoothing:antialiased}
+  .num{font-family:"JetBrains Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  header{border-bottom:1px solid var(--line);padding:38px 0 30px;margin-bottom:8px;background:
+     radial-gradient(900px 320px at 12% -40%,rgba(45,212,191,.10),transparent 60%),
+     radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
+  .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.6px;line-height:1.12;max-width:940px}
+  .sub{font-size:15px;font-weight:400;color:var(--mut);margin-top:12px;max-width:860px}
+  .meta{margin-top:20px;display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+  .meta div{padding-right:26px;margin-right:26px;border-right:1px solid var(--line)}
+  .meta div:last-child{border:0}
+  .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+  .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
+  section{padding:34px 0 2px}
+  .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+  .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.05em}
+  .sh h2{font-size:21px;font-weight:600;letter-spacing:-.3px}
+  .sh .cn{font-size:13px;color:var(--dim);font-weight:400;margin-left:auto}
+  .lead{color:var(--mut);font-size:13.5px;max-width:900px;margin-bottom:18px}
+  .lead b{color:var(--txt);font-weight:600}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
+  .kpi{padding:18px 20px;border-right:1px solid var(--line)}
+  .kpi:last-child{border-right:0}
+  .kpi .v{font-size:25px;font-weight:600;letter-spacing:-.5px}
+  .kpi .l{font-size:11.5px;color:var(--mut);margin-top:4px}
+  .kpi .d{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.4}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}
+  .simple{background:linear-gradient(135deg,rgba(45,212,191,.07),transparent 60%),var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+  .simple h3{font-size:13px;font-weight:600;color:var(--accent);margin-bottom:8px;letter-spacing:.02em}
+  .simple p{font-size:13px;color:var(--mut);margin-bottom:8px}.simple p:last-child{margin-bottom:0}.simple b{color:var(--txt)}
+  .keys{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+  @media(max-width:780px){.keys{grid-template-columns:1fr 1fr}}
+  .keyc{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+  .keyc .t{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);font-family:"JetBrains Mono",monospace}
+  .keyc .d{font-size:11.5px;color:var(--mut);margin-top:4px;line-height:1.4}.keyc .d b{color:var(--txt)}
+  .gloss{columns:2;column-gap:24px;font-size:12px;color:var(--mut);margin-top:6px}
+  @media(max-width:640px){.gloss{columns:1}}
+  .gloss div{break-inside:avoid;padding:6px 0;border-bottom:1px dashed var(--line2)}
+  .gloss b{color:var(--txt);font-weight:600}
+  .matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .matrix th{background:var(--panel2);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);font-weight:600;padding:12px 14px;text-align:left;border-bottom:1px solid var(--line)}
+  .matrix td{padding:14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
+  .matrix tr:last-child td{border-bottom:0}
+  .matrix .dom{font-weight:600;font-size:13.5px;color:var(--txt);display:flex;align-items:center;gap:9px}
+  .matrix .dom .sw{width:10px;height:10px;border-radius:3px;flex:none}
+  .matrix .dom small{display:block;font-weight:400;font-size:10.5px;color:var(--dim);margin-top:2px}
+  .matrix td b{color:var(--txt);font-weight:600}
+  .chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--panel3);color:var(--mut);margin:2px 4px 2px 0;border:1px solid var(--line2)}
+  .chip.hot{background:rgba(224,104,106,.12);border-color:#5a3236;color:#efa0a1}
+  .gal{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:900px){.gal{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.gal{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column}
+  .card .svgbox{background:linear-gradient(180deg,#0e1117,#161a24);padding:14px;border-bottom:1px solid var(--line)}
+  .card .body{padding:14px 16px 16px}
+  .card h4{font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .card .role{font-size:12px;color:var(--mut);margin-top:6px;line-height:1.45}
+  .card .who{font-size:11px;color:var(--dim);margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px}
+  .card .who b{color:var(--l3)}
+  .badge{font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:5px;letter-spacing:.03em;flex:none}
+  .b-hot{background:rgba(224,104,106,.14);color:#eda3a4}
+  .b-now{background:rgba(45,212,191,.13);color:var(--accent)}
+  .b-next{background:rgba(90,169,224,.14);color:var(--dout)}
+  .b-emrg{background:rgba(210,162,74,.14);color:var(--dup)}
+  .svgwide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
+  .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
+  .flow{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+  @media(max-width:900px){.flow{grid-template-columns:1fr 1fr 1fr}}
+  @media(max-width:560px){.flow{grid-template-columns:1fr 1fr}}
+  .st{border:1px solid var(--line);border-radius:11px;padding:12px 11px;background:var(--panel2)}
+  .st.ck{border-color:#5a3236;background:linear-gradient(160deg,rgba(224,104,106,.10),transparent),var(--panel2)}
+  .st h5{font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px;display:flex;align-items:center;gap:6px;color:var(--mut)}
+  .st h5 .sw{width:8px;height:8px;border-radius:50%;flex:none}
+  .st ul{list-style:none;font-size:11.5px}
+  .st li{padding:4px 0;color:var(--mut);border-bottom:1px dashed var(--line2);line-height:1.3}
+  .st li:last-child{border:0}.st li b{color:var(--txt);font-weight:600}
+  .st li .x{color:var(--choke);font-weight:600}
+  .tlgrid{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .tlhead{display:grid;grid-template-columns:128px repeat(4,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
+  .tlhead div{padding:11px 12px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);border-right:1px solid var(--line)}
+  .tlhead div:first-child{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-family:"Space Grotesk",sans-serif;display:flex;align-items:center}
+  .tlrow{display:grid;grid-template-columns:128px repeat(4,1fr);border-bottom:1px solid var(--line)}
+  .tlrow:last-child{border-bottom:0}
+  .tlrow .lab{padding:13px 12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;border-right:1px solid var(--line);background:var(--panel2)}
+  .tlrow .lab .sw{width:9px;height:9px;border-radius:3px;flex:none}
+  .tlrow .cell{padding:11px 12px;border-right:1px solid var(--line);font-size:11.5px;color:var(--mut);line-height:1.4}
+  .tlrow .cell:last-child{border-right:0}
+  .tlrow .cell b{color:var(--txt);font-weight:600;display:block;margin-bottom:2px;font-size:11.5px}
+  .tlrow .cell.hot{background:rgba(224,104,106,.06)}
+  @media(max-width:780px){.tlhead,.tlrow{grid-template-columns:84px repeat(4,1fr);font-size:10px}.tlrow .cell{font-size:10px}}
+  .choke{border:1px solid #5a3236;border-radius:14px;padding:22px 24px;background:
+    linear-gradient(135deg,rgba(224,104,106,.10),transparent 55%),var(--panel)}
+  .choke .ttl{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+  .choke .ttl svg{flex:none}
+  .choke .ttl h3{font-size:17px;font-weight:600;color:var(--choke)}
+  .choke p{font-size:13.5px;color:#d9c4c6;max-width:920px}.choke p b{color:#fff}
+  .choke .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:18px;border-top:1px solid #4a2c2f;padding-top:16px}
+  @media(max-width:780px){.choke .stats{grid-template-columns:1fr 1fr}}
+  .choke .stats div{padding-right:18px}
+  .choke .stats b{display:block;font-size:21px;color:var(--choke);font-weight:600}
+  .choke .stats span{font-size:10.5px;color:var(--dim)}
+  .var{background:linear-gradient(135deg,rgba(90,169,224,.07),transparent 60%),var(--panel);border:1px solid var(--line);border-left:3px solid var(--dout);border-radius:12px;padding:18px 20px;margin-top:16px}
+  .var h3{font-size:13px;font-weight:600;color:var(--dout);margin-bottom:8px}
+  .var p{font-size:12.5px;color:var(--mut);margin-bottom:8px}.var p:last-child{margin-bottom:0}.var b{color:var(--txt)}
+  .td{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:780px){.td{grid-template-columns:1fr}}
+  .tdc{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 17px}
+  .tdc.key{border-color:#5a3236;background:linear-gradient(135deg,rgba(224,104,106,.07),transparent),var(--panel)}
+  .tdc .h{font-size:12.5px;font-weight:600;color:var(--accent);margin-bottom:7px;display:flex;align-items:baseline;gap:8px}
+  .tdc.key .h{color:var(--choke)}
+  .tdc .h .cn{color:var(--dim);font-size:10.5px;font-weight:400}
+  .tdc p{font-size:12.5px;color:var(--mut);line-height:1.5}.tdc p b{color:var(--txt)}
+  .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  .tbl th{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .tbl td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--mut)}
+  .tbl td b{color:var(--txt)}
+  .lyr{font-family:"JetBrains Mono",monospace;font-size:10.5px;padding:1px 7px;border-radius:5px;font-weight:600}
+  .ly3{background:rgba(139,132,207,.15);color:#aaa3e6}
+  .ly2{background:rgba(210,162,74,.15);color:#e3bd76}
+  .ly1{background:rgba(79,175,142,.15);color:#7cc9ad}
+  .lyu{background:rgba(91,129,196,.15);color:#8aa7df}
+  .lyp{background:rgba(196,122,158,.15);color:#dba0bf}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .two{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+  @media(max-width:780px){.two{grid-template-columns:1fr}}
+  .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:2px 0 16px}
+  .leg span{display:flex;align-items:center;gap:7px}
+  .leg .sw{width:11px;height:11px;border-radius:3px}
+  .stagebadge{font-family:"JetBrains Mono",monospace;font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:5px;letter-spacing:.03em}
+  .sg-lat{background:rgba(105,114,131,.18);color:#9aa3b5}
+  .sg-er{background:rgba(45,212,191,.14);color:var(--accent)}
+  .sg-re{background:rgba(90,169,224,.14);color:var(--dout)}
+  .sg-eu{background:rgba(224,104,106,.14);color:#eda3a4}
+  .dotR{color:var(--choke);font-weight:600}.dotG{color:var(--dacr);font-weight:600}.dotA{color:var(--dup);font-weight:600}
+  .dash{display:flex;flex-direction:column;gap:0;border:1px solid var(--line);border-radius:13px;overflow:hidden}
+  .dashrow{display:grid;grid-template-columns:1.1fr 1fr 1.3fr;gap:0;border-bottom:1px solid var(--line);font-size:12px}
+  .dashrow:last-child{border-bottom:0}
+  .dashrow.hh{background:var(--panel2);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);font-weight:600}
+  .dashrow > div{padding:11px 13px;border-right:1px solid var(--line)}
+  .dashrow > div:last-child{border-right:0}
+  .dashrow .sig{color:var(--txt);font-weight:600}
+  .dashrow .src b{color:var(--accent);font-weight:600}
+  .dashrow .src{color:var(--mut)}
+  @media(max-width:780px){.dashrow{grid-template-columns:1fr}.dashrow > div{border-right:0;border-bottom:1px dashed var(--line2)}}
+  .tabbtns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .tabbtn{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:11px 15px;cursor:pointer;color:var(--mut);font-family:inherit;font-size:12.5px;text-align:left;transition:.12s}
+  .tabbtn .tk{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--dim);display:block;margin-bottom:2px}
+  .tabbtn.on{border-color:var(--accent);background:linear-gradient(135deg,rgba(45,212,191,.1),transparent),var(--panel);color:var(--txt)}
+  .tabbtn.on .tk{color:var(--accent)}
+  .tabbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .tabpane{display:none}
+  .tabpane.on{display:block}
+  .eight{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+  @media(max-width:780px){.eight{grid-template-columns:1fr}}
+  .ec{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .ec.k{border-color:#5a3236;background:linear-gradient(135deg,rgba(224,104,106,.07),transparent),var(--panel2)}
+  .ec .l{font-size:11px;font-weight:600;color:var(--accent);margin-bottom:5px}
+  .ec.k .l{color:var(--choke)}
+  .ec p{font-size:11.5px;color:var(--mut);line-height:1.45}.ec p b{color:var(--txt)}
+  .valstrip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:12px 0}
+  @media(max-width:560px){.valstrip{grid-template-columns:1fr 1fr}}
+  .valstrip div{padding:11px 13px;border-right:1px solid var(--line)}
+  .valstrip div:last-child{border-right:0}
+  .valstrip .v{font-size:16px;font-weight:600}
+  .valstrip .l{font-size:10px;color:var(--dim);margin-top:3px;text-transform:uppercase;letter-spacing:.05em}
+  .bb{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  @media(max-width:560px){.bb{grid-template-columns:1fr}}
+  .bull,.bear{border-radius:10px;padding:12px 14px;font-size:11.5px;line-height:1.5}
+  .bull{background:rgba(79,175,142,.07);border:1px solid #234a3a}.bull b{color:#7cc9ad}
+  .bear{background:rgba(224,104,106,.07);border:1px solid #5a3236}.bear b{color:#eda3a4}
+  .infogap{background:rgba(90,169,224,.06);border:1px solid #25415a;border-radius:10px;padding:12px 14px;margin-top:10px;font-size:11.5px;color:#a9c8e0}
+  .infogap b{color:#cfe2f2}
+  .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
+  footer{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}
+  footer b{color:var(--mut)}
+  .svglabel{font-family:"JetBrains Mono",monospace;font-size:9px;fill:var(--dim)}
+  svg text{font-family:"Space Grotesk",sans-serif;fill:var(--mut)}
+  svg text.m{font-family:"JetBrains Mono",monospace;fill:var(--dim)}
+  svg text.t{fill:var(--txt);font-weight:600}
+  svg text.r{fill:var(--choke);font-weight:600}
+  @media print{
+    body{background:#fff;color:#000}
+    .tabpane{display:block!important;break-inside:avoid}
+    .svgwide,.card,.panel{break-inside:avoid}
+    header{background:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #17 · v5</div>
+    <h1>The copper that holds the GPUs together — and who owns the laminate &amp; connectors beneath the SerDes</h1>
+    <p class="sub">Runs #5 and #11 found the networking <b style="color:#fff">silicon</b> (224G SerDes, retimers, IP). This run goes one layer <b style="color:#fff">below the chip</b> — to the passive <b style="color:#fff">copper channel</b> the SerDes drives: NVIDIA's NVLink "copper spine," the ultra-low-loss laminate (CCL) and high-speed connectors that let 224 Gb/s survive over wire. The scarce link is a boring materials oligopoly — and most of it has already run.</p>
+    <div class="meta">
+      <div><div class="k">As of</div><div class="vv num">28 Jun 2026 · quotes 26 Jun close</div></div>
+      <div><div class="k">Stack path</div><div class="vv">glass cloth → CCL laminate → PCB/backplane → connector/cable → SerDes → rack</div></div>
+      <div><div class="k">Universe</div><div class="vv">Global · US / TW / JP / KR</div></div>
+      <div><div class="k">Top-3</div><div class="vv">APH · TEL · 2383.TW</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ============ 1. EXEC SNAPSHOT ============ -->
+<section id="snapshot">
+  <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">copper interconnect · CCL + connector</span></div>
+
+  <div class="simple">
+    <h3>Explain it simply · 白話版</h3>
+    <p>A GPU "supercomputer" like NVIDIA's <b>NVL72</b> is really 72 chips that must talk to each other as if they were one. Inside one rack they talk over <b>copper wire</b>, not fibre — because copper needs no laser, burns ~<b>20 kW less power</b> per rack, and costs about <b>1/6</b> of optics. NVL72 alone packs <b>5,184 copper cables, &gt;2 miles</b> of wire.</p>
+    <p>But at today's speed (<b>224 Gb/s</b> per lane) copper signal dies after <b>under 2 metres</b>. To squeeze the signal through, the industry needs two ultra-hard, ultra-pure things: a special low-loss <b>circuit-board material (CCL)</b> and precision <b>connectors/cables</b>. Both are made by a handful of mostly-Asian firms. That handful is the chokepoint — the "picks-and-shovels beneath the picks-and-shovels."</p>
+    <p><b>The catch (the honest part):</b> the obvious names already exploded. The purest material play, <b>Elite Material (2383.TW), is +219% YTD / +496% in a year</b>; <b>Amphenol</b> sits near its all-time high. The one un-bid relative-value name is <b>TE Connectivity (−12% YTD)</b>, and the genuinely-early dollar is one layer deeper still (the glass cloth) — or in the optics that <i>replaces</i> copper after 2027.</p>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="v red">16<span style="font-size:15px;color:var(--dim)">/20</span></div><div class="l">Chokepoint severity (composite)</div><div class="d">CCL laminate link = 17 · connector = 15. Capped because copper is on an optical clock.</div></div>
+    <div class="kpi"><div class="v">&lt;2<span style="font-size:14px;color:var(--dim)"> m</span></div><div class="l">224G passive-copper reach</div><div class="d">Why the laminate &amp; connector must be near-perfect — and why optics wins past ~2 m.</div></div>
+    <div class="kpi"><div class="v amb">~6<span style="font-size:15px;color:var(--dim)">/20</span></div><div class="l">Remaining asymmetry</div><div class="d">Low. Elite +219% YTD, APH near high. Only TE is un-bid.</div></div>
+    <div class="kpi"><div class="v teal">+74.5%</div><div class="l">CCL price spike (Korea import, YoY)</div><div class="d">M8/M9 laminate is allocation-only, 20+ wk; the tightness is real.</div></div>
+  </div>
+
+  <div class="keys">
+    <div class="keyc"><div class="t">L1 — the rack</div><div class="d"><b>NVL72 / Rubin</b>: 72+ GPUs wired as one "scale-up" domain. The buyer of all the copper.</div></div>
+    <div class="keyc"><div class="t">L2 — connector + cable</div><div class="d">The <b>NVLink spine</b>, backplane connectors &amp; cartridges. <b>Amphenol / TE / Molex</b>.</div></div>
+    <div class="keyc"><div class="t">L3 — CCL laminate</div><div class="d">The ultra-low-loss <b>board material</b> the copper traces ride on. <b>Panasonic / Elite / TUC</b>. ← chokepoint</div></div>
+    <div class="keyc"><div class="t">Upstream — glass cloth</div><div class="d">The <b>woven glass + resin</b> inside the laminate. <b>Nittobo ~90% T-glass</b>. The deepest monopoly.</div></div>
+  </div>
+
+  <div class="panel" style="margin-top:16px">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:10px">Glossary — 6 terms a non-expert stalls on</div>
+    <div class="gloss">
+      <div><b>SerDes</b> — the chip circuit that serialises/recovers a 224 Gb/s signal. The link <i>above</i> this report (Runs #5/#11); here we study the wire it drives.</div>
+      <div><b>PAM4</b> — a signalling scheme cramming 2 bits per symbol so a lane hits 224 Gb/s. Doubles speed but halves noise margin → punishes any lossy material.</div>
+      <div><b>CCL (copper-clad laminate)</b> — the raw sheet (resin + woven glass + copper foil) a PCB is etched from. "Ultra-low-loss" grades (M8/M9) lose the least signal.</div>
+      <div><b>Df (dissipation factor)</b> — how much signal a material bleeds as heat. Lower = better. Megtron-8 ≈ <span class="num">0.0015</span>; ordinary FR-4 is ~10× worse.</div>
+      <div><b>NVLink spine</b> — the copper "backbone" cartridge wiring every GPU to every NVSwitch in a rack. Amphenol builds the GB200 version.</div>
+      <div><b>Scale-up vs scale-out</b> — scale-up = GPUs inside one rack acting as one chip (copper). Scale-out = rack-to-rack (optics). Copper owns scale-up… for now.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. FRAMEWORK MATRIX ============ -->
+<section id="framework">
+  <div class="sh"><span class="n">02</span><h2>Framework — where copper runs × what carries it</h2><span class="cn">two orthogonal axes</span></div>
+  <p class="lead">Rows = the <b>interconnect domain</b> (how far the signal travels); columns = what's used, the binding constraint, and who wins. The chokepoint sits at one cell: <b>scale-up, copper-media layer</b> — the laminate + connector that carry 224G over the &lt;2 m inside a rack.</p>
+  <table class="matrix">
+    <tr><th style="width:20%">Domain (reach)</th><th>What carries it</th><th>Binding constraint</th><th>Who wins the rent</th></tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--dup)"></span>Scale-up<small>GPU↔GPU, &lt;2 m, in-rack</small></div></td>
+      <td><b>Passive copper</b> — NVLink spine, DAC, backplane. Cheapest, no power for O-E conversion.</td>
+      <td class="red"><b>224G copper dies &lt;2 m</b> → needs ultra-low-loss CCL + precision connectors. ← <b>THIS REPORT</b></td>
+      <td><b>CCL oligopoly</b> (Panasonic/Elite/TUC) + connector (Amphenol/TE). Materials &gt; assembly.</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--dacr)"></span>Scale-up (mid)<small>tray↔tray, 2–6 m</small></div></td>
+      <td><b>AEC / ACC</b> — active electrical cable with a retimer chip to re-drive the signal.</td>
+      <td>Retimer silicon + cable. Copper's "extension cord" before optics takes over.</td>
+      <td>Retimer pure-plays (<b>Credo</b>, MaxLinear, Astera) + cable ODMs (BizLink, Luxshare).</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--dout)"></span>Scale-out<small>rack↔rack, &gt;10 m</small></div></td>
+      <td><b>Optics</b> — pluggable transceivers, soon co-packaged (CPO). Copper can't reach.</td>
+      <td>InP laser / SiPh engine supply (Runs #1/#7/#13).</td>
+      <td>Optics complex (Coherent, Lumentum) — <i>the terminal winner as copper fails</i>.</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--l3)"></span>Scale-across<small>cluster↔cluster</small></div></td>
+      <td>Coherent / long-reach optics, DCI.</td>
+      <td>Coherent DSP + amplification.</td>
+      <td>Marvell (Inphi), Ciena, Coherent.</td>
+    </tr>
+  </table>
+  <p class="cap">The whole rotation has mapped this grid: silicon (Runs #5/#11), optics (Runs #1/#7/#13), and now the <b>copper media</b>. The copper-media cell is the last un-studied scale-up link — and the one consensus least associates with "AI networking," because the owners look like boring board-material and connector companies.</p>
+</section>
+
+<!-- ============ 3. L3 DEEP-DIVE GALLERY ============ -->
+<section id="components">
+  <div class="sh"><span class="n">03</span><h2>Component deep-dive — the four links beneath the chip</h2><span class="cn">draw it, don't list it</span></div>
+  <div class="leg">
+    <span><span class="sw" style="background:var(--choke)"></span>Chokepoint link</span>
+    <span><span class="sw" style="background:var(--l2)"></span>Materials gate</span>
+    <span><span class="sw" style="background:var(--l3)"></span>Assembly gate</span>
+    <span><span class="sw" style="background:var(--up)"></span>Deepest / upstream</span>
+  </div>
+  <div class="gal">
+
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 220 120" width="100%" height="120" role="img" aria-label="Woven glass cloth diagram">
+          <rect x="14" y="20" width="192" height="80" rx="4" fill="#0e1117" stroke="#2a3040"/>
+          <g stroke="#5b81c4" stroke-width="3" opacity="0.85">
+            <line x1="30" y1="30" x2="30" y2="90"/><line x1="50" y1="30" x2="50" y2="90"/>
+            <line x1="70" y1="30" x2="70" y2="90"/><line x1="90" y1="30" x2="90" y2="90"/>
+            <line x1="110" y1="30" x2="110" y2="90"/><line x1="130" y1="30" x2="130" y2="90"/>
+            <line x1="150" y1="30" x2="150" y2="90"/><line x1="170" y1="30" x2="170" y2="90"/><line x1="190" y1="30" x2="190" y2="90"/>
+          </g>
+          <g stroke="#8aa7df" stroke-width="3" opacity="0.6">
+            <line x1="24" y1="40" x2="196" y2="40"/><line x1="24" y1="58" x2="196" y2="58"/>
+            <line x1="24" y1="76" x2="196" y2="76"/>
+          </g>
+          <text x="110" y="113" text-anchor="middle" class="m" font-size="8.5">T-glass / low-Dk woven cloth + resin</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Glass cloth <span class="badge b-emrg">DEEPEST</span></h4>
+        <p class="role">Woven low-Dk glass fibre, impregnated with resin, is the skeleton of the laminate. The flatter and lower-loss the weave, the cleaner the 224G signal.</p>
+        <p class="who">Who: <b>Nittobo ~90% T-glass</b>, AGC, Nan Ya; resin from Shin-Etsu/DIC. <i>Sold out to mid-2027.</i></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 220 120" width="100%" height="120" role="img" aria-label="Copper-clad laminate stack diagram">
+          <rect x="30" y="34" width="160" height="10" fill="#c47a3a"/><text x="196" y="42" class="m" font-size="7">Cu foil</text>
+          <rect x="30" y="44" width="160" height="22" fill="#d2a24a" opacity="0.55"/><text x="196" y="58" class="m" font-size="7">resin+glass</text>
+          <rect x="30" y="66" width="160" height="10" fill="#c47a3a"/>
+          <g stroke="#e0686a" stroke-width="1.6" fill="none">
+            <path d="M40 55 q10 -9 20 0 q10 9 20 0 q10 -9 20 0 q10 9 20 0 q10 -9 20 0 q10 9 20 0"/>
+          </g>
+          <text x="110" y="92" text-anchor="middle" class="r" font-size="8.5">low Df → signal survives</text>
+          <text x="110" y="106" text-anchor="middle" class="m" font-size="8">Megtron-8 Df ≈ 0.0015</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>CCL laminate <span class="badge b-hot">CHOKEPOINT</span></h4>
+        <p class="role">Copper-clad laminate: the sheet the board is etched from. Ultra-low-loss M8/M9 grades barely bleed the 224G signal — a hard materials-science moat.</p>
+        <p class="who">Who: <b>Panasonic (Megtron-8), Elite Material (EM-892K2), TUC, Iteq, Doosan</b>.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 220 120" width="100%" height="120" role="img" aria-label="Backplane connector diagram">
+          <rect x="26" y="40" width="20" height="60" rx="2" fill="#1a1e28" stroke="#8b84cf"/>
+          <g fill="#8b84cf"><rect x="46" y="48" width="26" height="3"/><rect x="46" y="56" width="26" height="3"/><rect x="46" y="64" width="26" height="3"/><rect x="46" y="72" width="26" height="3"/><rect x="46" y="80" width="26" height="3"/></g>
+          <rect x="72" y="44" width="22" height="56" rx="2" fill="#212634" stroke="#aaa3e6"/>
+          <path d="M94 60 H150" stroke="#e0686a" stroke-width="2"/><path d="M94 72 H150" stroke="#e0686a" stroke-width="2"/>
+          <rect x="150" y="50" width="44" height="34" rx="3" fill="#1a1e28" stroke="#8b84cf"/>
+          <text x="172" y="70" text-anchor="middle" class="m" font-size="7">GPU</text>
+          <text x="110" y="112" text-anchor="middle" class="m" font-size="8">Ultrapass Paladin · 72 pairs · 224G</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Connector + cable <span class="badge b-hot">CHOKEPOINT</span></h4>
+        <p class="role">The blind-mate, high-density connector and cable cartridge that physically join GPU↔NVSwitch. Each junction must hold 224G with near-zero reflection.</p>
+        <p class="who">Who: <b>Amphenol (NVLink spine), TE, Molex, FIT</b>. Top-5 ≈ 52–62% (vendor est.).</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 220 120" width="100%" height="120" role="img" aria-label="NVLink copper spine diagram">
+          <rect x="20" y="26" width="14" height="68" rx="2" fill="#1a1e28" stroke="#4faf8e"/>
+          <rect x="186" y="26" width="14" height="68" rx="2" fill="#1a1e28" stroke="#4faf8e"/>
+          <g stroke="#e0a458" stroke-width="1.4" opacity="0.8" fill="none">
+            <path d="M34 34 C100 30 120 30 186 34"/><path d="M34 44 C100 42 120 42 186 44"/>
+            <path d="M34 54 C100 56 120 56 186 54"/><path d="M34 64 C100 60 120 60 186 64"/>
+            <path d="M34 74 C100 78 120 78 186 74"/><path d="M34 84 C100 82 120 82 186 84"/>
+          </g>
+          <text x="110" y="110" text-anchor="middle" class="m" font-size="8">5,184 cables · &gt;2 miles · 900 GB/s/GPU</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>NVLink copper spine <span class="badge b-now">SYSTEM</span></h4>
+        <p class="role">The assembled backbone: thousands of cables wiring every GPU to every switch as one coherent memory domain — the thing all the materials &amp; connectors add up to.</p>
+        <p class="who">Who: integrated by <b>Amphenol</b> for GB200; shifts to PCB-backplane at Rubin.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ 4. ASSEMBLY L3->L2->L1 ============ -->
+<section id="assembly">
+  <div class="sh"><span class="n">04</span><h2>How it builds up — glass cloth → laminate → board → spine → rack</h2><span class="cn">L3 → L2 → L1</span></div>
+  <div class="svgwide">
+    <svg viewBox="0 0 1140 230" width="100%" height="230" role="img" aria-label="Assembly build-up from glass cloth to rack">
+      <!-- nodes -->
+      <g>
+        <rect x="20" y="80" width="150" height="70" rx="9" fill="#13161e" stroke="#5b81c4"/>
+        <text x="95" y="106" text-anchor="middle" class="t" font-size="12">Glass cloth + resin</text>
+        <text x="95" y="124" text-anchor="middle" class="m" font-size="9">Nittobo ~90% T-glass</text>
+        <text x="95" y="138" text-anchor="middle" class="m" font-size="8.5">sold out → mid-2027</text>
+      </g>
+      <g>
+        <rect x="230" y="72" width="160" height="86" rx="9" fill="#13161e" stroke="#e0686a" stroke-width="1.6"/>
+        <text x="310" y="98" text-anchor="middle" class="r" font-size="12">CCL laminate</text>
+        <text x="310" y="116" text-anchor="middle" class="m" font-size="9">Panasonic · Elite · TUC</text>
+        <text x="310" y="130" text-anchor="middle" class="m" font-size="8.5">M8/M9 · Df 0.0015</text>
+        <text x="310" y="148" text-anchor="middle" class="r" font-size="8.5">← materials chokepoint</text>
+      </g>
+      <g>
+        <rect x="450" y="80" width="150" height="70" rx="9" fill="#13161e" stroke="#363d4f"/>
+        <text x="525" y="106" text-anchor="middle" class="t" font-size="12">PCB / backplane</text>
+        <text x="525" y="124" text-anchor="middle" class="m" font-size="9">drill · plate · press</text>
+        <text x="525" y="138" text-anchor="middle" class="m" font-size="8.5">20–40 layers</text>
+      </g>
+      <g>
+        <rect x="660" y="72" width="160" height="86" rx="9" fill="#13161e" stroke="#e0686a" stroke-width="1.6"/>
+        <text x="740" y="98" text-anchor="middle" class="r" font-size="12">Connector + cable</text>
+        <text x="740" y="116" text-anchor="middle" class="m" font-size="9">Amphenol · TE · Molex</text>
+        <text x="740" y="130" text-anchor="middle" class="m" font-size="8.5">spine cartridge</text>
+        <text x="740" y="148" text-anchor="middle" class="r" font-size="8.5">← assembly chokepoint</text>
+      </g>
+      <g>
+        <rect x="880" y="80" width="150" height="70" rx="9" fill="#13161e" stroke="#4faf8e"/>
+        <text x="955" y="102" text-anchor="middle" class="t" font-size="12">NVLink spine</text>
+        <text x="955" y="120" text-anchor="middle" class="m" font-size="9">+ SerDes (Run #5/11)</text>
+        <text x="955" y="134" text-anchor="middle" class="m" font-size="8.5">5,184 cables</text>
+      </g>
+      <g>
+        <rect x="1042" y="86" width="78" height="58" rx="9" fill="#13161e" stroke="#2dd4bf"/>
+        <text x="1081" y="110" text-anchor="middle" class="t" font-size="11">Rack</text>
+        <text x="1081" y="126" text-anchor="middle" class="m" font-size="8.5">NVL72→Rubin</text>
+      </g>
+      <!-- arrows: thin/red into & out of chokepoints -->
+      <defs>
+        <marker id="ah" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#697283"/></marker>
+        <marker id="ahr" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#e0686a"/></marker>
+      </defs>
+      <line x1="170" y1="115" x2="226" y2="115" stroke="#e0686a" stroke-width="1.4" marker-end="url(#ahr)"/>
+      <line x1="390" y1="115" x2="446" y2="115" stroke="#e0686a" stroke-width="1.4" marker-end="url(#ahr)"/>
+      <line x1="600" y1="115" x2="656" y2="115" stroke="#e0686a" stroke-width="1.4" marker-end="url(#ahr)"/>
+      <line x1="820" y1="115" x2="876" y2="115" stroke="#697283" stroke-width="5" marker-end="url(#ah)"/>
+      <line x1="1030" y1="115" x2="1038" y2="115" stroke="#697283" stroke-width="5" marker-end="url(#ah)"/>
+      <text x="280" y="208" text-anchor="middle" class="m" font-size="8.5">thin red arrows = the constriction passes through two materials/assembly gates before it ever reaches the chip</text>
+    </svg>
+  </div>
+  <p class="cap">At every step value is <b>added</b> but the scarcity is <b>set upstream</b>: a board fab can buy more presses, but it cannot conjure M8 laminate that is on allocation, nor glass cloth whose only big maker is sold out to 2027. The rent therefore pools in the two red boxes — and, deepest of all, in the glass cloth that feeds them (the same Nittobo monopoly found beneath Run #6's package substrate).</p>
+</section>
+
+<!-- ============ 5. DEPLOYMENT MAPPING ============ -->
+<section id="deploy">
+  <div class="sh"><span class="n">05</span><h2>Where each medium serves — the reach ladder</h2><span class="cn">copper owns the short inch</span></div>
+  <div class="svgwide">
+    <svg viewBox="0 0 1140 250" width="100%" height="250" role="img" aria-label="Reach ladder copper vs AEC vs optics">
+      <!-- axis -->
+      <line x1="70" y1="200" x2="1090" y2="200" stroke="#363d4f" stroke-width="1"/>
+      <text x="70" y="222" class="m" font-size="9">0 m</text>
+      <text x="300" y="222" text-anchor="middle" class="m" font-size="9">2 m</text>
+      <text x="560" y="222" text-anchor="middle" class="m" font-size="9">6 m</text>
+      <text x="900" y="222" text-anchor="middle" class="m" font-size="9">&gt;10 m</text>
+      <text x="580" y="244" text-anchor="middle" class="m" font-size="8.5">reach (log-ish) →</text>
+      <!-- bands -->
+      <rect x="70" y="60" width="230" height="34" rx="6" fill="rgba(224,104,106,.16)" stroke="#e0686a"/>
+      <text x="185" y="82" text-anchor="middle" class="t" font-size="11">Passive copper · &lt;2 m</text>
+      <text x="185" y="46" text-anchor="middle" class="r" font-size="9">CCL + connector chokepoint</text>
+      <rect x="300" y="104" width="320" height="34" rx="6" fill="rgba(224,164,88,.14)" stroke="#d2a24a"/>
+      <text x="460" y="126" text-anchor="middle" class="t" font-size="11">AEC (active copper) · 2–6 m</text>
+      <text x="460" y="156" text-anchor="middle" class="m" font-size="8.5">retimer re-drives the signal (Credo / MaxLinear)</text>
+      <rect x="620" y="60" width="470" height="34" rx="6" fill="rgba(90,169,224,.14)" stroke="#5aa9e0"/>
+      <text x="855" y="82" text-anchor="middle" class="t" font-size="11">Optics — pluggable → CPO · &gt;6 m</text>
+      <text x="855" y="46" text-anchor="middle" class="m" font-size="9">terminal winner as copper fails (Runs #1/#7/#13)</text>
+      <!-- the clock arrow -->
+      <line x1="185" y1="94" x2="640" y2="104" stroke="#697283" stroke-width="1" stroke-dasharray="4 4"/>
+      <text x="430" y="186" text-anchor="middle" class="m" font-size="9">As lane speed rises (224G→448G) the &lt;2 m copper band shrinks → the whole ladder slides toward optics, 2027–2028.</text>
+    </svg>
+  </div>
+  <p class="cap">The chokepoint we own (copper media) is also a <b>countdown clock</b>: it binds hardest in 2026–27, then optics eats the top of the ladder. That is exactly why severity is capped at 16, not 19, and why the durable terminal rent migrates to the optics complex.</p>
+</section>
+
+<!-- ============ 6. SUPPLY-CHAIN MAP (CENTERPIECE) ============ -->
+<section id="supplychain">
+  <div class="sh"><span class="n">06</span><h2>End-to-end supply chain — and where the rent pools</h2><span class="cn">the centerpiece</span></div>
+  <div class="leg">
+    <span><span class="sw" style="background:#697283"></span>Thick grey flow = ample / competitive</span>
+    <span><span class="sw" style="background:var(--choke)"></span>Thin red flow = constriction</span>
+    <span><span class="sw" style="background:var(--l2)"></span>Materials rent</span>
+    <span><span class="sw" style="background:var(--l3)"></span>Assembly rent</span>
+  </div>
+  <div class="flow">
+    <div class="st">
+      <h5><span class="sw" style="background:var(--up)"></span>1 · Glass + resin</h5>
+      <ul>
+        <li><b>Nittobo</b> <span class="x">~90% T-glass</span></li>
+        <li>AGC · Nan Ya · NEG</li>
+        <li>Shin-Etsu / DIC resin</li>
+        <li>low-profile Cu foil</li>
+        <li class="x">sold out → mid-2027</li>
+      </ul>
+    </div>
+    <div class="st ck">
+      <h5><span class="sw" style="background:var(--l2)"></span>2 · CCL laminate</h5>
+      <ul>
+        <li><b>Panasonic</b> Megtron-8</li>
+        <li><b>Elite Material</b> EM-892</li>
+        <li>TUC · Iteq · Doosan</li>
+        <li class="x">M8/M9 allocation 20+ wk</li>
+        <li class="x">+20–40% price hikes</li>
+      </ul>
+    </div>
+    <div class="st">
+      <h5><span class="sw" style="background:var(--l1)"></span>3 · PCB / backplane</h5>
+      <ul>
+        <li>GCE · Unimicron</li>
+        <li>TTM · Ibiden (HDI)</li>
+        <li>Tripod · WUS</li>
+        <li>20–40 layer build-up</li>
+        <li>more buyers → less rent</li>
+      </ul>
+    </div>
+    <div class="st ck">
+      <h5><span class="sw" style="background:var(--l3)"></span>4 · Connector + cable</h5>
+      <ul>
+        <li><b>Amphenol</b> NVLink spine</li>
+        <li><b>TE</b> · Molex · FIT</li>
+        <li>BizLink / Luxshare cable</li>
+        <li class="x">spine cartridge premium</li>
+        <li>2–3 sourced → volume rent</li>
+      </ul>
+    </div>
+    <div class="st">
+      <h5><span class="sw" style="background:var(--dacr)"></span>5 · SerDes / retimer</h5>
+      <ul>
+        <li>Broadcom · Marvell</li>
+        <li>Credo · Astera</li>
+        <li>(Runs #5 / #11)</li>
+        <li>drives the copper</li>
+        <li>already re-rated</li>
+      </ul>
+    </div>
+    <div class="st">
+      <h5><span class="sw" style="background:var(--accent)"></span>6 · Rack / buyer</h5>
+      <ul>
+        <li><b>NVIDIA</b> NVL72→Rubin</li>
+        <li>hyperscalers · neoclouds</li>
+        <li>copper content rising</li>
+        <li>then optics (Feynman)</li>
+        <li>sets the demand</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- BAR CHART: scarcity premium, tallest at chokepoint -->
+  <div class="svgwide" style="margin-top:14px">
+    <svg viewBox="0 0 1140 300" width="100%" height="300" role="img" aria-label="Per-stage scarcity premium bar chart, tallest at the chokepoint">
+      <text x="20" y="26" class="t" font-size="12">Scarcity premium / value-capture by stage — discrete bars, tallest at the chokepoint</text>
+      <line x1="60" y1="250" x2="1100" y2="250" stroke="#363d4f"/>
+      <!-- gridlines -->
+      <g stroke="#1f2430" stroke-width="1">
+        <line x1="60" y1="210" x2="1100" y2="210"/><line x1="60" y1="170" x2="1100" y2="170"/>
+        <line x1="60" y1="130" x2="1100" y2="130"/><line x1="60" y1="90" x2="1100" y2="90"/>
+      </g>
+      <text x="52" y="254" text-anchor="end" class="m" font-size="8">lo</text>
+      <text x="52" y="94" text-anchor="end" class="m" font-size="8">hi</text>
+      <!-- bars: glass cloth(up), CCL(chokept tallest), PCB, connector(secondary), serdes, rack -->
+      <!-- glass cloth -->
+      <rect x="95" y="120" width="120" height="130" rx="3" fill="#5b81c4" opacity="0.85"/>
+      <text x="155" y="240" text-anchor="middle" class="t" font-size="10" fill="#fff">19</text>
+      <text x="155" y="270" text-anchor="middle" class="m" font-size="9">Glass cloth</text>
+      <text x="155" y="283" text-anchor="middle" class="m" font-size="8">deepest · ~uninvestable</text>
+      <!-- CCL -->
+      <rect x="255" y="100" width="120" height="150" rx="3" fill="#e0686a"/>
+      <text x="315" y="240" text-anchor="middle" class="t" font-size="10" fill="#fff">17</text>
+      <text x="315" y="270" text-anchor="middle" class="r" font-size="9">CCL laminate</text>
+      <text x="315" y="283" text-anchor="middle" class="m" font-size="8">← chokepoint (investable)</text>
+      <!-- PCB -->
+      <rect x="415" y="186" width="120" height="64" rx="3" fill="#4faf8e" opacity="0.7"/>
+      <text x="475" y="240" text-anchor="middle" class="t" font-size="10" fill="#fff">11</text>
+      <text x="475" y="270" text-anchor="middle" class="m" font-size="9">PCB fab</text>
+      <!-- connector -->
+      <rect x="575" y="128" width="120" height="122" rx="3" fill="#e0686a" opacity="0.78"/>
+      <text x="635" y="240" text-anchor="middle" class="t" font-size="10" fill="#fff">15</text>
+      <text x="635" y="270" text-anchor="middle" class="r" font-size="9">Connector/cable</text>
+      <text x="635" y="283" text-anchor="middle" class="m" font-size="8">secondary rent pool</text>
+      <!-- serdes -->
+      <rect x="735" y="150" width="120" height="100" rx="3" fill="#5fc98a" opacity="0.6"/>
+      <text x="795" y="240" text-anchor="middle" class="t" font-size="10" fill="#fff">16*</text>
+      <text x="795" y="270" text-anchor="middle" class="m" font-size="9">SerDes</text>
+      <text x="795" y="283" text-anchor="middle" class="m" font-size="8">*Run #11 · already bid</text>
+      <!-- rack -->
+      <rect x="895" y="196" width="120" height="54" rx="3" fill="#2dd4bf" opacity="0.5"/>
+      <text x="955" y="240" text-anchor="middle" class="t" font-size="10" fill="#fff">9</text>
+      <text x="955" y="270" text-anchor="middle" class="m" font-size="9">Rack OEM</text>
+    </svg>
+  </div>
+  <p class="cap">Per-stage premium is the four-factor severity of that <i>link</i> (next section). The <b>SerDes</b> bar (16*) is taller than the connector but is greyed: it is out-of-scope here and already re-rated (Run #11). The tallest <i>investable</i> bar in <i>this</i> report sits at the <b>CCL laminate</b>; the connector is the secondary pool. The single tallest bar — the <b>glass cloth</b> — is also the least investable (a diluted Japanese near-monopoly), which is precisely why the easy money has flowed into the laminate and connector names instead, and bid them up.</p>
+</section>
+
+<!-- ============ 7. TIMELINE ============ -->
+<section id="timeline">
+  <div class="sh"><span class="n">07</span><h2>Multi-year roadmap — the rent migrates cable → laminate → optics</h2><span class="cn">2026 → 2029</span></div>
+  <div class="tlgrid">
+    <div class="tlhead"><div>Link</div><div>2026</div><div>2027</div><div>2028</div><div>2029+</div></div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--l3)"></span>Connector/cable</div>
+      <div class="cell hot"><b>Peak</b>NVL72/GB300 copper spine; Amphenol content peaks</div>
+      <div class="cell"><b>Mix shift</b>Rubin moves to PCB-backplane → fewer discrete cables</div>
+      <div class="cell"><b>Plateau</b>copper retreats to in-rack only</div>
+      <div class="cell"><b>Erodes</b>CPO removes the spine</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--l2)"></span>CCL laminate</div>
+      <div class="cell hot"><b>Tight</b>M8 allocation; +20–40% price</div>
+      <div class="cell hot"><b>Tighter</b>M9/M10 for Rubin; backplane content rises</div>
+      <div class="cell"><b>Durable</b>more layers offset unit decline</div>
+      <div class="cell"><b>Shared</b>also feeds optical boards</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--up)"></span>Glass cloth</div>
+      <div class="cell hot"><b>Sold out</b>Nittobo at capacity</div>
+      <div class="cell hot"><b>Still tight</b>new capacity only mid-2027</div>
+      <div class="cell"><b>Eases</b>capacity catches up</div>
+      <div class="cell"><b>Structural</b>floor under all PCB</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--dout)"></span>Optics (CPO)</div>
+      <div class="cell"><b>Scale-out only</b>copper still owns scale-up</div>
+      <div class="cell"><b>Enters scale-up</b>Rubin Ultra rack-to-rack CPO</div>
+      <div class="cell hot"><b>Inflection</b>Feynman: NVLink fully optical, 1,152 GPU</div>
+      <div class="cell hot"><b>Wins</b>terminal scale-up medium</div>
+    </div>
+  </div>
+  <p class="cap">Read it diagonally: the hot cells walk down-right. "Buy the NVL72 cable winner" is a 2026 trade; the materials gate (laminate→glass) is the more <i>durable</i> copper bet; and the asymmetric early dollar for a multi-year holder is the optics that inherits scale-up after 2027.</p>
+</section>
+
+<!-- ============ 8. CHOKEPOINT + SEVERITY + VARIANT ============ -->
+<section id="chokepoint">
+  <div class="sh"><span class="n">08</span><h2>The chokepoint &amp; severity</h2><span class="cn">4-factor /20</span></div>
+  <div class="choke">
+    <div class="ttl">
+      <svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 2 L20 18 H2 Z" fill="none" stroke="#e0686a" stroke-width="1.6"/><line x1="11" y1="8" x2="11" y2="13" stroke="#e0686a" stroke-width="1.6"/><circle cx="11" cy="15.6" r="0.9" fill="#e0686a"/></svg>
+      <h3>The passive copper channel — CCL laminate (materials gate) + connector/cable system (assembly gate)</h3>
+    </div>
+    <p>Every 224G scale-up link inside an AI rack must pass through two hard-to-replicate, concentrated links: an <b>ultra-low-loss laminate</b> made by ~5 firms (and a glass cloth made essentially by one), and a <b>precision connector/cable</b> made by a top-5 that holds ~half the market. Neither can be "ordered into existence" — laminate is on 20+ week allocation and glass cloth is sold out to 2027. <b>Composite severity 16/20</b>, capped only because copper itself is on an optical clock.</p>
+    <div class="stats">
+      <div><b>4</b><span>Supply concentration — ~5 CCL makers, top-5 connectors ≈52–62% (vendor est.)</span></div>
+      <div><b>4</b><span>Lead-time — M8/M9 allocation 20+ wk; glass to mid-2027</span></div>
+      <div><b>3</b><span>Low substitutability — materials moat, BUT copper→optics + 2–3 sourced connectors</span></div>
+      <div><b>5</b><span>Demand — copper content rising every GPU generation</span></div>
+      <div><b>16</b><span>Composite /20 · CCL link 17 · connector 15</span></div>
+    </div>
+  </div>
+
+  <div class="var">
+    <h3>Variant perception &amp; disaggregation — four ways this isn't the obvious trade</h3>
+    <p><b>1 · The rent is beneath the chip, not in it.</b> Consensus buys the SerDes silicon and the optics (Runs #5/#11/#13). The un-shrinkable rent is the passive copper channel — but the obvious expressions <b>already ran</b> (Elite +219% YTD, Amphenol near its high), so the <i>insight</i> is right while the easy <i>entry</i> is gone.</p>
+    <p><b>2 · The rent migrates within copper: cable → laminate → optics.</b> NVL72's copper-<i>cable</i> spine (Amphenol's win) does not cleanly repeat — Rubin/Kyber shift to a <b>PCB-board backplane</b> (more laminate, fewer discrete cables), and Feynman goes optical. So "buy the spine-cartridge winner" mis-times the content shift; the <b>materials gate (CCL→glass cloth) is the more durable copper bet</b>.</p>
+    <p><b>3 · Copper is on a clock — bullish now, bearish-terminal.</b> 224G passive copper dies under 2 m; 448G is worse. Past ~2 m and past 2027 the rent migrates to optics/CPO. That clock is exactly why severity is <b>16, not 19</b>.</p>
+    <p><b>4 · The deepest monopoly is the least investable — and it's the same one as Run #6.</b> <b>Nittobo (~90% T-glass)</b> sits beneath both the package substrate (Run #6) and the board laminate (this run). It is the tightest link of the whole AI-hardware stack (severity 19) yet there is no clean listed pure-play — the recurring "scarcest link, no investable handle" finding (cf. nanocrystalline cores, SerDes IP, QD couplings).</p>
+  </div>
+
+  <div class="td" style="margin-top:14px">
+    <div class="tdc key">
+      <div class="h">Rent-capture test <span class="cn">who keeps the scarcity rent?</span></div>
+      <p><b>Glass cloth (Nittobo)</b> &gt; <b>CCL laminate (Elite/Panasonic — +20-40% price hikes = genuine pricing power)</b> &gt; <b>connector/cable system (Amphenol — 2-3 sourced, so volume rent not a toll)</b> &gt; <b>#2 connector (TE — smaller AI mix)</b>. The scarcest link keeps the most margin but is least investable; the best-priced <i>investable</i> rent (CCL) has already been bid to ~110× earnings.</p>
+    </div>
+    <div class="tdc">
+      <div class="h">How it could be wrong</div>
+      <p><b>Copper extends further than feared</b> (better AEC retimers, MaxLinear/Credo) → the optical clock slips right and the copper-media names compound longer. <b>Or the opposite:</b> Rubin's PCB-backplane + early CPO compresses discrete-cable content faster than expected, hurting Amphenol's spine franchise specifically. And the "shortage" is partly <b>cyclical pricing</b>: the deepest monopoly is itself adding capacity — <b>Nittobo is reportedly ~tripling T-glass capacity</b> (¥50B+, 2026–27) and Panasonic is expanding Megtron lines — which softens the "structural scarcity to 2027+" durability the whole materials thesis leans on, and could de-rate the +40% price story.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 9. AWARENESS + DASHBOARD + WATCHLIST ============ -->
+<section id="awareness">
+  <div class="sh"><span class="n">09</span><h2>Awareness curve, leading indicators &amp; the still-latent watchlist</h2><span class="cn">early vs priced</span></div>
+  <div class="svgwide">
+    <svg viewBox="0 0 1140 330" width="100%" height="330" role="img" aria-label="Awareness curve staging the plays">
+      <path d="M40 280 C300 275 360 250 470 200 C560 158 640 80 760 60 C880 42 1000 40 1100 40" fill="none" stroke="#2a3040" stroke-width="2"/>
+      <!-- stage labels -->
+      <text x="90" y="305" class="m" font-size="9">LATENT</text>
+      <text x="330" y="305" class="m" font-size="9">EARLY</text>
+      <text x="560" y="305" class="m" font-size="9">RECOGNITION</text>
+      <text x="820" y="305" class="m" font-size="9">EUPHORIA</text>
+      <text x="1040" y="305" class="m" font-size="9">PRICED</text>
+      <!-- where next entry hides -->
+      <line x1="150" y1="70" x2="150" y2="285" stroke="#5fc98a" stroke-width="1.2" stroke-dasharray="5 4"/>
+      <text x="150" y="60" text-anchor="middle" class="m" font-size="8.5" fill="#5fc98a">where the next</text>
+      <text x="150" y="50" text-anchor="middle" class="m" font-size="8.5" fill="#5fc98a">entry hides →</text>
+      <text x="150" y="100" text-anchor="middle" class="m" font-size="8">glass cloth ·</text>
+      <text x="150" y="112" text-anchor="middle" class="m" font-size="8">M10 race · CPO</text>
+      <!-- TE -->
+      <circle cx="430" cy="212" r="7" fill="#2dd4bf"/>
+      <text x="430" y="192" text-anchor="middle" class="t" font-size="11">TE Connectivity</text>
+      <text x="430" y="178" text-anchor="middle" class="m" font-size="8.5">−12% YTD · the laggard</text>
+      <!-- Amphenol -->
+      <circle cx="650" cy="120" r="7" fill="#5aa9e0"/>
+      <text x="650" y="100" text-anchor="middle" class="t" font-size="11">Amphenol</text>
+      <text x="650" y="86" text-anchor="middle" class="m" font-size="8.5">+22% YTD · near high</text>
+      <!-- BizLink -->
+      <circle cx="820" cy="70" r="6" fill="#e0a458"/>
+      <text x="820" y="52" text-anchor="middle" class="m" font-size="9">BizLink (cable ODM)</text>
+      <text x="838" y="92" text-anchor="middle" class="m" font-size="8">+121% 1Y · off high</text>
+      <!-- Elite -->
+      <circle cx="985" cy="52" r="7" fill="#e0686a"/>
+      <text x="985" y="78" text-anchor="middle" class="r" font-size="11">Elite Material</text>
+      <text x="985" y="92" text-anchor="middle" class="m" font-size="8.5">+219% YTD · ~110×/47× P/E</text>
+    </svg>
+  </div>
+  <p class="cap">Staged by YTD move × valuation. The only name still left of "recognition" is <b>TE</b> (a relative-value laggard, not a true latent secret); the purest chokepoint (Elite) sits deepest in euphoria. The genuinely-early dollar is left of the green dashed line — upstream glass cloth, the M9/M10 qualification race, and the optics that inherits scale-up.</p>
+
+  <div class="two" style="margin-top:18px">
+    <div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:10px">Leading-indicator dashboard — signals an amateur can actually read</div>
+      <div class="dash">
+        <div class="dashrow hh"><div>Signal</div><div>Trigger threshold</div><div>Where to read it (free)</div></div>
+        <div class="dashrow"><div class="sig">CCL price / allocation</div><div>High-end CCL spot &gt; +10% QoQ; lead-time &gt; 16 wk</div><div class="src"><b>TrendForce / AtlasPCB</b> notes; Korea customs import-price releases</div></div>
+        <div class="dashrow"><div class="sig">Amphenol IT-datacom mix</div><div>IT-datacom &gt; 40% of sales &amp; book-to-bill &gt; 1.1</div><div class="src"><b>APH 10-Q / earnings call</b> (free on investors.amphenol.com)</div></div>
+        <div class="dashrow"><div class="sig">TE "DDN" AI revenue</div><div>AI revenue run-rate &gt; $3B &amp; raised again</div><div class="src"><b>TEL earnings call</b> transcript; FY-guide slides</div></div>
+        <div class="dashrow"><div class="sig">Rubin backplane spec</div><div>PCB-backplane vs copper-cable cartridge confirmed</div><div class="src"><b>SemiAnalysis</b>, GTC keynotes, OCP contributions</div></div>
+        <div class="dashrow"><div class="sig">M10 / CPO timing</div><div>NVIDIA qualifies M10 CCL; CPO enters scale-up</div><div class="src"><b>OFC</b> papers; NVIDIA newsroom; ODM teardown notes</div></div>
+        <div class="dashrow"><div class="sig">Nittobo glass capacity</div><div>New T-glass capacity announced / online</div><div class="src"><b>Nittobo IR</b>; TrendForce glass-cloth notes</div></div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:10px">Still-latent watchlist — left of the earliest play</div>
+      <div class="panel" style="padding:14px 16px">
+        <p style="font-size:12px;color:var(--mut);line-height:1.5">
+          <b style="color:var(--up)">1 · Glass cloth / resin (the deepest monopoly).</b> <b>Nittobo</b> (3110.T, ~90% T-glass, sold out to mid-2027), AGC, NEG; resin from Shin-Etsu/DIC. The tightest link of all — but Japanese, diluted, hard to reach. <i>Wakes on:</i> a capacity announcement or a named AI design-win.<br><br>
+          <b style="color:var(--l2)">2 · The M9/M10 CCL qualification race.</b> Whoever certifies first on Rubin (<b>TUC</b>, Iteq, Shengyi) earns the next content step. <i>Wakes on:</i> an NVIDIA M10 qualification headline.<br><br>
+          <b style="color:var(--l3)">3 · The copper "extension cord."</b> AEC retimers (<b>Credo</b>, MaxLinear Annapurna) + cable ODMs (<b>BizLink</b>, Luxshare) that stretch copper to 6 m before optics. <i>Wakes on:</i> 224G AEC volume ramp.<br><br>
+          <b style="color:var(--dout)">4 · The optics that inherits scale-up.</b> CPO / external-laser complex (Coherent, Lumentum — Run #13). <i>Wakes on:</i> NVLink-optical confirmation for Feynman.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10. TOP-3 MULTI-TAB ============ -->
+<section id="top3">
+  <div class="sh"><span class="n">10</span><h2>Top-3 plays — three different links</h2><span class="cn">8-point teardown · 中文標籤</span></div>
+  <p class="lead">Each sits at a <b>different</b> link of the copper channel and a <b>different</b> point on the awareness curve. None is a clean "early" pick — this is a refresh that confirms the copper-media chokepoint is real but largely <b>priced</b>; the lean is relative-value &amp; patience, not a chase.</p>
+
+  <div class="tabbtns" role="tablist" aria-label="Top-3 companies">
+    <button class="tabbtn on" role="tab" id="tab-aph" aria-controls="pane-aph" aria-selected="true" tabindex="0" onclick="showTab('aph',this)"><span class="tk">APH · NYSE · own-the-gate</span>Amphenol — connector + spine</button>
+    <button class="tabbtn" role="tab" id="tab-tel" aria-controls="pane-tel" aria-selected="false" tabindex="-1" onclick="showTab('tel',this)"><span class="tk">TEL · NYSE · relative-value lean</span>TE Connectivity — #2 connector</button>
+    <button class="tabbtn" role="tab" id="tab-emc" aria-controls="pane-emc" aria-selected="false" tabindex="-1" onclick="showTab('emc',this)"><span class="tk">2383.TW · purest · priced</span>Elite Material — CCL laminate</button>
+  </div>
+
+  <!-- APH -->
+  <div class="tabpane on" id="pane-aph" role="tabpanel" aria-labelledby="tab-aph">
+    <div class="valstrip">
+      <div><div class="v">$163.7</div><div class="l">26-Jun close</div></div>
+      <div><div class="v amb">+22% <span style="font-size:10px">YTD</span></div><div class="l">+66% 1Y · near 52wk high</div></div>
+      <div><div class="v">~$201B</div><div class="l">market cap · ~40× fwd (est.)</div></div>
+      <div><div class="v teal">1.24×</div><div class="l">Q1'26 book-to-bill</div></div>
+    </div>
+    <div class="eight">
+      <div class="ec"><div class="l">① 怎麼賺錢 — how it makes money</div><p>Broadest interconnect maker on earth: connectors, cable, antennas across IT-datacom, auto, mobile, defence, industrial. The AI engine is the <b>IT-datacom</b> segment.</p></div>
+      <div class="ec"><div class="l">② 營收結構 — revenue mix</div><p>Q1'26 rev <b>$7.6B (+58% USD)</b>; <b>IT-datacom = 41%</b> of sales (+99% USD/+81% organic), ~all sequential growth AI. CommScope CCS deal added inorganic lift.</p></div>
+      <div class="ec"><div class="l">③ 成長來源 — growth drivers</div><p>AI rack copper content (NVLink spine, backplane connectors, DensiLink/OverPass cable) + a serial M&amp;A machine.</p></div>
+      <div class="ec"><div class="l">④ 終端市場 — end markets</div><p>Hyperscale AI now the swing factor; diversified base (auto/defence/mobile) cushions cyclicality.</p></div>
+      <div class="ec"><div class="l">⑤ 主要客戶 — key customers</div><p>NVIDIA (GB200 spine), the ODMs (Foxconn/Quanta), hyperscalers. Designed the NVL72 spine cartridge + Ultrapass Paladin connector.</p></div>
+      <div class="ec"><div class="l">⑥ 護城河 — moat</div><p>Scale + breadth + acquisition cadence + design-in stickiness. Best-in-class operator (mid-20s% op margin). But connectors are 2–3 sourced → volume, not monopoly.</p></div>
+      <div class="ec"><div class="l">⑦ 管理層展望 — guidance</div><p>Record orders ($9.4B), book-to-bill 1.24, raised outlook; calls AI demand durable and broadening beyond the spine.</p></div>
+      <div class="ec k"><div class="l">⑧ 為何是卡點 — why a chokepoint</div><p>Owns the hardest assembly gate — the 224G blind-mate spine connector — but it is the <b>system integrator</b> of the chokepoint, capturing volume rent. <b>Per-link severity 15/20.</b></p></div>
+    </div>
+    <div class="infogap"><b>Asymmetric-info gap:</b> the market models APH as a diversified industrial compounder, so its AI-content torque is real but <b>diluted</b> inside a ~$26B-TTM (~$32B forward run-rate) revenue base — and its specific NVL72 cable-cartridge win may not repeat as Rubin shifts to a PCB-backplane. You are buying quality + breadth, not a pure copper-spine bet.</div>
+    <div class="bb">
+      <div class="bull"><b>Bull:</b> AI-datacom compounds &gt;40% of sales, content broadens (power, optics-adjacent), M&amp;A keeps adding; a quality compounder at a non-silly ~40× with a 1.24 book-to-bill.</div>
+      <div class="bear"><b>Bear:</b> near 52wk high already prices a lot; spine-cartridge content erodes at Rubin/CPO; a hyperscaler capex pause hits the whole complex. Lowest-<i>risk</i>, but lowest <i>remaining asymmetry</i>.</div>
+    </div>
+  </div>
+
+  <!-- TEL -->
+  <div class="tabpane" id="pane-tel" role="tabpanel" aria-labelledby="tab-tel" hidden>
+    <div class="valstrip">
+      <div><div class="v">$197.7</div><div class="l">26-Jun close</div></div>
+      <div><div class="v red">−12% <span style="font-size:10px">YTD</span></div><div class="l">~21% off $252 high · below MAs</div></div>
+      <div><div class="v">~$58B</div><div class="l">market cap · ~17–19× fwd (est.)</div></div>
+      <div><div class="v teal">~$2.4B</div><div class="l">FY26 AI rev (raised +$150M)</div></div>
+    </div>
+    <div class="eight">
+      <div class="ec"><div class="l">① 怎麼賺錢 — how it makes money</div><p>#2 global connector/sensor maker. Two-thirds auto + industrial; the AI growth lives in the <b>Digital Data Networks (DDN)</b> datacenter business.</p></div>
+      <div class="ec"><div class="l">② 營收結構 — revenue mix</div><p>~$16B total; <b>AI ~$2.4B and rising</b> but masked by a large, slower auto/industrial base — which is exactly why the stock lagged.</p></div>
+      <div class="ec"><div class="l">③ 成長來源 — growth drivers</div><p>DDN high-speed connectors, backplane, cable for AI servers; capex raised to ~6% of rev to ramp named AI programs.</p></div>
+      <div class="ec"><div class="l">④ 終端市場 — end markets</div><p>Auto (cyclical headwind), industrial, and the fast-growing datacenter slice — a barbell the market currently prices on the slow end.</p></div>
+      <div class="ec"><div class="l">⑤ 主要客戶 — key customers</div><p>Autos/EV OEMs + hyperscalers/ODMs. The qualified <b>#2 source behind Amphenol</b> on several NVIDIA interfaces.</p></div>
+      <div class="ec"><div class="l">⑥ 護城河 — moat</div><p>Roughly <b>#1 in total connectors by sales</b> (&gt;12% share) but the <b>#2 source in the high-speed/AI-datacom cut</b> behind Amphenol; deep auto design-ins, engineering scale. Less AI-levered than APH — both the bear case and the relative-value case.</p></div>
+      <div class="ec"><div class="l">⑦ 管理層展望 — guidance</div><p>Q2 FY26 +15% sales/+20% EPS above guide; raised FY26 AI by $150M; "well over $2B of growth." Screens cheap on the numbers.</p></div>
+      <div class="ec k"><div class="l">⑧ 為何是卡點 — why a chokepoint</div><p>Same 224G connector gate as APH, one rung less concentrated. <b>Per-link severity 13/20</b> — but the only top-3 name with real remaining valuation asymmetry.</p></div>
+    </div>
+    <div class="infogap"><b>Asymmetric-info gap:</b> the market prices TE on its auto/industrial cyclicality and has ignored the AI mix as immaterial. The disaggregation bet is that DDN compounds from ~$2.4B toward a number that <i>does</i> move a $16B base — re-rating a stock that is down 12% YTD while peers are up triple digits. The risk: AI stays too small to matter and auto stays soft → it remains dead money.</div>
+    <div class="bb">
+      <div class="bull"><b>Bull:</b> cheapest top-3 name (~17–19× fwd), −12% YTD vs Elite +219%; an AI-mix inflection + auto recovery re-rates it. Classic un-bid relative-value laggard.</div>
+      <div class="bear"><b>Bear:</b> AI is &lt;15% of revenue and may never dominate the mix; auto/industrial cyclicality dictates the stock; the "value" is a value-trap if DDN doesn't scale. A show-me.</div>
+    </div>
+  </div>
+
+  <!-- EMC -->
+  <div class="tabpane" id="pane-emc" role="tabpanel" aria-labelledby="tab-emc" hidden>
+    <div class="valstrip">
+      <div><div class="v">NT$5,255</div><div class="l">26-Jun close</div></div>
+      <div><div class="v red">+219% <span style="font-size:10px">YTD</span></div><div class="l">+496% 1Y · euphoria</div></div>
+      <div><div class="v">~NT$1.88T</div><div class="l">~110× trailing / ~47× fwd P/E</div></div>
+      <div><div class="v teal">+44–51%</div><div class="l">recent rev growth YoY</div></div>
+    </div>
+    <div class="eight">
+      <div class="ec"><div class="l">① 怎麼賺錢 — how it makes money</div><p>Taiwan's leading maker of <b>copper-clad laminate (CCL)</b>, prepreg and bonding sheets — the raw material every AI server PCB is etched from.</p></div>
+      <div class="ec"><div class="l">② 營收結構 — revenue mix</div><p>~NT$25B/qtr, growing +44–51% YoY; the dominant supplier of <b>halogen-free high-speed (M8-grade EM-892K2) CCL</b> for AI servers.</p></div>
+      <div class="ec"><div class="l">③ 成長來源 — growth drivers</div><p>Ultra-low-loss laminate content per AI board (more layers, higher grade) + +20–40% price hikes on allocation-tight M8/M9.</p></div>
+      <div class="ec"><div class="l">④ 終端市場 — end markets</div><p>AI servers/switches (the growth), plus networking, automotive, consumer PCB.</p></div>
+      <div class="ec"><div class="l">⑤ 主要客戶 — key customers</div><p>The PCB fabs (GCE, Unimicron, TTM) that build NVIDIA/hyperscaler boards; effectively levered to NVIDIA/Google/AWS allocation.</p></div>
+      <div class="ec"><div class="l">⑥ 護城河 — moat</div><p>Materials-science + qualification moat — getting Df ≈ 0.0015 reliably at volume is hard, and re-qualifying a laminate is slow. The genuine "Ajinomoto-style" hidden materials gate.</p></div>
+      <div class="ec"><div class="l">⑦ 管理層展望 — guidance</div><p>High-end CCL 26–40% CAGR; sold-out high grades; multiple H1'26 price increases. Demand visibility strong.</p></div>
+      <div class="ec k"><div class="l">⑧ 為何是卡點 — why a chokepoint</div><p>The tightest <b>investable</b> link — allocation-gated, pricing power, materials moat. <b>Per-link severity 17/20.</b> But the stock already reflects it (110× trailing).</p></div>
+    </div>
+    <div class="infogap"><b>Asymmetric-info gap:</b> there is little gap left — this <i>was</i> the hidden "board-material" alpha and the market found it (+496% in a year). The residual asymmetry is one layer deeper (the Nittobo glass cloth it depends on) or in the M10 transition. For a US amateur there is also <b>access friction</b> (TWSE-listed, no clean ADR) and a high-multiple, high-beta entry.</div>
+    <div class="bb">
+      <div class="bull"><b>Bull:</b> purest chokepoint, real pricing power, content + price both rising into Rubin's M9/M10; structural multi-year CCL super-cycle.</div>
+      <div class="bear"><b>Bear:</b> +219% YTD at ~110× trailing prices perfection; CCL pricing is partly cyclical (capacity adds ease it); TWSE access + FX friction; a high-beta name to chase into euphoria.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 11. DECISION TABLE ============ -->
+<section id="decision">
+  <div class="sh"><span class="n">11</span><h2>Decision table</h2><span class="cn">severity · stage · valuation · lean</span></div>
+  <div class="svgwide" style="padding:0">
+  <table class="tbl">
+    <tr><th>#</th><th>Ticker</th><th>Link</th><th>Per-link sev</th><th>Stage</th><th>Valuation</th><th>Remaining asym.</th><th>Framework lean</th><th>Dated falsifier / trigger</th></tr>
+    <tr>
+      <td class="num">1</td><td><b>APH</b> · Amphenol</td><td><span class="lyr ly3">L2</span> connector + spine</td>
+      <td class="num">15/20</td><td><span class="stagebadge sg-re">RECOGNITION</span></td><td class="num">~40× fwd · +22% YTD</td>
+      <td class="dotA">Low–mod</td><td><b>Quality own-the-gate; buy pullbacks</b></td><td>IT-datacom &lt;40% or B:B &lt;1.0 on a print</td>
+    </tr>
+    <tr>
+      <td class="num">2</td><td><b>TEL</b> · TE Connectivity</td><td><span class="lyr ly3">L2</span> #2 HS connector</td>
+      <td class="num">13/20</td><td><span class="stagebadge sg-er">EARLY/LAGGARD</span></td><td class="num">~17–19× fwd · −12% YTD</td>
+      <td class="dotG">Highest (of 3)</td><td><b>Relative-value contrarian lean</b></td><td>AI rev fails to clear $3B / stays &lt;15% mix</td>
+    </tr>
+    <tr>
+      <td class="num">3</td><td><b>2383</b> · Elite Material</td><td><span class="lyr ly2">L3</span> CCL laminate</td>
+      <td class="num">17/20</td><td><span class="stagebadge sg-eu">EUPHORIA</span></td><td class="num">~110× P/E · +219% YTD</td>
+      <td class="dotR">Negative</td><td><b>Purest link, but priced — avoid chasing</b></td><td>High-end CCL price rolls / capacity floods</td>
+    </tr>
+    <tr style="opacity:.75">
+      <td class="num">—</td><td>Nittobo (3110.T)</td><td><span class="lyr lyu">UP</span> glass cloth</td>
+      <td class="num">19/20</td><td><span class="stagebadge sg-lat">LATENT</span></td><td class="num">diluted JP · n/a</td>
+      <td class="dotG">Structural</td><td><b>Watchlist — deepest, least investable</b></td><td>new T-glass capacity announced</td>
+    </tr>
+  </table>
+  </div>
+  <p class="cap"><b>How each severity is derived</b> (0–20, four factors each 0–5: supply concentration · lead-time · low substitutability · demand): <b>Elite/CCL = 17</b> (4+4+4+5 — ~5 makers, 20+wk allocation, materials moat, rising content). <b>Amphenol/connector = 15</b> (4+3+3+5 — top-5 ≈52%, faster to add capacity, 2–3 sourced). <b>TE = 13</b> (3+3+3+4 — same gate, less concentrated, smaller AI demand pull). <b>Nittobo/glass = 19</b> (5+5+4+5 — ~90% share, sold out to 2027). Same rubric ranks the <i>links</i>; tightness ≠ a good buy. "Lean" is analysis, not advice.</p>
+
+  <div class="panel" style="margin-top:16px;border-color:#2a4a44;background:linear-gradient(135deg,rgba(45,212,191,.06),transparent),var(--panel)">
+    <div style="font-size:12px;color:var(--accent);font-weight:600;margin-bottom:6px">If you can only do one thing</div>
+    <p style="font-size:13px;color:var(--mut)">This is a <b>refresh that confirms the copper-media chokepoint is real but largely priced</b>. The disciplined action is <b>not</b> to chase Elite Material at 110× into euphoria, nor to assume Amphenol's spine win repeats at Rubin. It is to <b>watch two things free of charge</b> — (a) whether <b>TE's</b> DDN AI revenue inflects past ~$3B (the only un-bid relative-value handle), and (b) whether NVIDIA's Rubin moves to a <b>PCB-backplane</b> and qualifies <b>M10</b> (which shifts rent from cable to laminate, and eventually to optics). Size any copper-media exposure small and treat the optics complex as the multi-year inheritor.</p>
+  </div>
+</section>
+
+<!-- ============ 12. RISKS ============ -->
+<section id="risks">
+  <div class="sh"><span class="n">12</span><h2>Open questions &amp; unresolved holes</h2><span class="cn">self-critique</span></div>
+  <div class="td">
+    <div class="tdc"><div class="h">Unresolved — honest gaps</div><p>① Exact Amphenol $-content of the NVL72 spine is triangulated, not disclosed (segment-level only). ② TE's AI revenue ($2.4B) is company-stated; the <i>connector-specific</i> slice within DDN isn't broken out. ③ CCL "shortage" mixes genuine scarcity with cyclical pricing — hard to separate in real time. ④ The Rubin copper-cable-vs-PCB-backplane split is reported, not yet fully confirmed in volume.</p></div>
+    <div class="tdc"><div class="h">What would change the call</div><p>If <b>TE</b> prints an AI inflection (relative-value lean strengthens). If <b>Rubin</b> confirms a PCB-backplane + early scale-up CPO (cuts Amphenol's spine, lifts CCL, accelerates the optics clock). If <b>Nittobo</b> or M10 gets an investable handle (a true latent entry appears). Quotes are 26-Jun close; a fresh print resets the awareness staging.</p></div>
+  </div>
+</section>
+
+<div class="disc"><b>Not investment advice.</b> Automated personal research synthesis for idea generation only. Figures drawn from public reporting, company disclosures and third-party estimates; quotes as of 26-Jun-2026 close (IBKR read-only + FMP cross-check). Estimates marked (est.); may contain errors or become stale. Verify against primary filings and do your own due diligence. No buy/sell recommendation implied. IBKR is read-only — no trade was placed.</div>
+
+<footer>
+  <p><b>Sources:</b> DiskMFR / NVIDIA OCP contribution blog / SemiAnalysis "Optical Boogeyman" + "Vera Rubin – Extreme Co-Design" (NVL72 copper spine: 5,184 cables, &gt;2 miles, ~$220k/cabinet, ~20kW saving; roadmap) · Signal Integrity Journal / Octopart (224G PAM4 &lt;2 m copper reach) · IntuitionLabs GB200 supply-chain + globaltechresearch (Amphenol NVLink spine, Ultrapass Paladin, 2–3 vendor qualification) · GMInsights / openpr (connector market: top-5 ≈52%, TE &gt;12%) · tspasemiconductor / queenems / nextpcb (CCL grades, Megtron-8 Df, EM-892K2) · AtlasPCB / TrendForce (CCL allocation +74.5% YoY, 20+ wk; Nittobo ~90% T-glass, capacity to mid-2027) · Amphenol Q1'26 release + earnings (IT-datacom 41%, B:B 1.24) · TE Connectivity FY26 release/call (AI rev ~$2.4B) · Elite Material results + stockanalysis/SimplyWallSt (rev, P/E ~110×/~47×) · IBKR read-only price snapshots (APH cid 4493, TEL cid 731466408) + FMP quotes (as-of 26-Jun-2026 close).</p>
+  <p style="margin-top:10px">Automated AI-Infra workflow · Run #17 v5 · Networking silicon, deeper/refresh (Loop 3) · supersedes Runs #5/#11 for the <i>copper-media</i> cut · recurs every 2 days.</p>
+</footer>
+
+</div>
+<script>
+(function(){
+  var tabs=Array.prototype.slice.call(document.querySelectorAll('.tabbtn'));
+  window.showTab=function(id,btn){
+    document.querySelectorAll('.tabpane').forEach(function(p){p.classList.remove('on');p.setAttribute('hidden','');});
+    var el=document.getElementById('pane-'+id); if(el){el.classList.add('on');el.removeAttribute('hidden');}
+    tabs.forEach(function(b){b.classList.remove('on');b.setAttribute('aria-selected','false');b.tabIndex=-1;});
+    if(btn){btn.classList.add('on');btn.setAttribute('aria-selected','true');btn.tabIndex=0;}
+  };
+  tabs.forEach(function(btn,i){
+    btn.addEventListener('keydown',function(e){
+      var dir=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0;
+      if(!dir)return; e.preventDefault();
+      var n=(i+dir+tabs.length)%tabs.length; var t=tabs[n];
+      var id=t.getAttribute('aria-controls').replace('pane-','');
+      window.showTab(id,t); t.focus();
+    });
+  });
+})();
+</script>
+</body>
+</html>

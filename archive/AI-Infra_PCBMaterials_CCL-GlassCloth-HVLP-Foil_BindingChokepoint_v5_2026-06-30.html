@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Infra Run #18 v5 — High-Speed CCL Material Stack: The Binding Chokepoint (Glass Cloth vs HVLP Foil)</title>
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#13161e; --panel2:#1a1e28; --panel3:#212634; --line:#2a3040; --line2:#363d4f;
+    --txt:#e8eaf0; --mut:#9aa3b5; --dim:#697283;
+    --accent:#2dd4bf; --choke:#e0686a; --warn:#d2a24a; --pos:#4faf8e; --neg:#e0686a;
+    --resin:#8b84cf; --glass:#e0686a; --foil:#d2a24a; --ccl:#5b81c4; --board:#4faf8e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 80px;-webkit-font-smoothing:antialiased}
+  .num,.m{font-family:"JetBrains Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  a{color:var(--accent);text-decoration:none}
+  header{border-bottom:1px solid var(--line);padding:38px 0 30px;margin-bottom:8px;background:
+     radial-gradient(900px 320px at 12% -40%,rgba(45,212,191,.10),transparent 60%),
+     radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.11),transparent 60%)}
+  .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
+  h1{font-size:31px;font-weight:700;letter-spacing:-.6px;line-height:1.14;max-width:980px}
+  .sub{font-size:15px;font-weight:400;color:var(--mut);margin-top:12px;max-width:880px}
+  .meta{margin-top:20px;display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+  .meta div{padding-right:22px;margin-right:22px;border-right:1px solid var(--line);margin-bottom:6px}
+  .meta div:last-child{border:0}
+  .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+  .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
+  .stale{margin-top:14px;font-size:11.5px;color:var(--warn);background:rgba(210,162,74,.08);border:1px solid rgba(210,162,74,.25);border-radius:8px;padding:8px 12px;display:inline-block}
+  .gauges{display:flex;gap:14px;margin-top:18px;flex-wrap:wrap}
+  .gauge{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 16px;min-width:188px}
+  .gauge .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--dim)}
+  .gauge .val{font-size:23px;font-weight:700;margin-top:3px}
+  .gauge .bar{height:5px;border-radius:3px;background:var(--panel3);margin-top:8px;overflow:hidden}
+  .gauge .bar i{display:block;height:100%;border-radius:3px}
+  nav.toc{position:sticky;top:0;z-index:50;background:rgba(11,13,18,.93);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:9px 0;margin-bottom:6px}
+  nav.toc .wrap{display:flex;gap:5px;flex-wrap:wrap;font-size:11px}
+  nav.toc a{color:var(--mut);padding:4px 9px;border:1px solid var(--line);border-radius:20px}
+  nav.toc a:hover{color:var(--accent);border-color:var(--accent)}
+  section{padding:34px 0 2px}
+  .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+  .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.05em}
+  .sh h2{font-size:21px;font-weight:600;letter-spacing:-.3px}
+  .sh .cn{font-size:13px;color:var(--dim);font-weight:400;margin-left:auto}
+  .lead{color:var(--mut);font-size:13.5px;max-width:920px;margin-bottom:18px}
+  .lead b{color:var(--txt);font-weight:600}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
+  .kpi{padding:18px 20px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .kpi:nth-child(4n){border-right:0}
+  .kpi .v{font-size:24px;font-weight:600;letter-spacing:-.5px}
+  .kpi .l{font-size:11.5px;color:var(--mut);margin-top:4px}
+  .kpi .d{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.4}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--warn)}.grn{color:var(--pos)}.vio{color:var(--resin)}.blu{color:var(--ccl)}
+  .simple{background:linear-gradient(135deg,rgba(45,212,191,.07),transparent 60%),var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;padding:18px 20px;margin:16px 0}
+  .simple h3{font-size:13px;font-weight:600;color:var(--accent);margin-bottom:8px;letter-spacing:.02em}
+  .simple p{font-size:13px;color:var(--mut);margin-bottom:8px}.simple p:last-child{margin-bottom:0}.simple b{color:var(--txt)}
+  .keys{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+  @media(max-width:780px){.keys{grid-template-columns:1fr 1fr}}
+  .keyc{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+  .keyc .t{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);font-family:"JetBrains Mono",monospace}
+  .keyc .d{font-size:11.5px;color:var(--mut);margin-top:4px;line-height:1.4}.keyc .d b{color:var(--txt)}
+  .gloss{columns:2;column-gap:24px;font-size:12px;color:var(--mut);margin-top:6px}
+  @media(max-width:640px){.gloss{columns:1}}
+  .gloss div{break-inside:avoid;padding:6px 0;border-bottom:1px dashed var(--line2)}
+  .gloss b{color:var(--txt);font-weight:600}
+  table.t{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:6px}
+  table.t th{background:var(--panel2);color:var(--mut);font-weight:600;text-align:left;padding:10px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--line)}
+  table.t td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--txt);vertical-align:top}
+  table.t tr:last-child td{border-bottom:0}
+  table.t tr:nth-child(even) td{background:rgba(255,255,255,.014)}
+  .chokerow td{background:rgba(224,104,106,.09)!important}
+  .vbox{background:linear-gradient(135deg,rgba(224,104,106,.09),transparent 55%),var(--panel);border:1px solid rgba(224,104,106,.3);border-left:3px solid var(--choke);border-radius:12px;padding:16px 20px;margin:16px 0}
+  .vbox h3{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--choke);margin-bottom:7px}
+  .vbox p{font-size:13px;color:var(--mut);margin-bottom:7px}.vbox p:last-child{margin-bottom:0}.vbox b{color:var(--txt)}
+  .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .pill{font-size:11px;padding:4px 11px;border-radius:18px;border:1px solid var(--line);color:var(--mut)}
+  .pill.g{border-color:rgba(79,175,142,.4);color:var(--pos)}.pill.a{border-color:rgba(210,162,74,.4);color:var(--warn)}.pill.r{border-color:rgba(224,104,106,.4);color:var(--choke)}
+  .svgscroll{overflow-x:auto;margin:8px 0 4px}
+  svg{display:block}
+  svg text{font-family:"Space Grotesk",sans-serif}
+  svg text.m{font-family:"JetBrains Mono",monospace}
+  .cap{font-size:11.5px;color:var(--dim);margin-top:6px;max-width:960px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+  @media(max-width:820px){.grid2{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card h4{font-size:13px;margin-bottom:8px;color:var(--txt)}
+  .card p,.card li{font-size:12.5px;color:var(--mut);line-height:1.5}
+  .card ul{margin-left:16px;margin-top:6px}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 14px}
+  .tab{font-size:12.5px;padding:8px 15px;border-radius:9px;border:1px solid var(--line);background:var(--panel);color:var(--mut);cursor:pointer}
+  .tab[aria-selected=true]{background:var(--panel3);color:var(--txt);border-color:var(--accent)}
+  .tabpanel{border:1px solid var(--line);border-radius:12px;padding:18px 20px;background:var(--panel)}
+  .eight{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:10px 0}
+  @media(max-width:680px){.eight{grid-template-columns:1fr}}
+  .eight .it{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:9px 12px}
+  .eight .it .q{font-size:10.5px;color:var(--accent);font-weight:600;margin-bottom:3px}
+  .eight .it .a{font-size:12px;color:var(--mut);line-height:1.45}.eight .it .a b{color:var(--txt)}
+  .vstrip{display:flex;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:10px 0}
+  .vstrip div{flex:1;padding:10px 12px;border-right:1px solid var(--line)}.vstrip div:last-child{border:0}
+  .vstrip .vk{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim)}
+  .vstrip .vv{font-size:15px;font-weight:600;margin-top:3px}
+  .infogap{background:rgba(139,132,207,.08);border:1px solid rgba(139,132,207,.3);border-radius:9px;padding:11px 14px;margin:10px 0;font-size:12px;color:var(--mut)}
+  .infogap b{color:var(--resin)}
+  .bb{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+  @media(max-width:680px){.bb{grid-template-columns:1fr}}
+  .bb .bull{background:rgba(79,175,142,.07);border:1px solid rgba(79,175,142,.25);border-radius:9px;padding:11px 13px}
+  .bb .bear{background:rgba(224,104,106,.07);border:1px solid rgba(224,104,106,.25);border-radius:9px;padding:11px 13px}
+  .bb h5{font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+  .bb .bull h5{color:var(--pos)}.bb .bear h5{color:var(--choke)}
+  .bb p{font-size:12px;color:var(--mut)}
+  .foot{margin-top:40px;border-top:1px solid var(--line);padding-top:20px;font-size:11.5px;color:var(--dim);line-height:1.6}
+  .foot a{color:var(--mut)}
+  .srcwrap{font-size:11px;color:var(--dim);columns:2;column-gap:26px;margin-top:8px}
+  @media(max-width:640px){.srcwrap{columns:1}}
+  .srcwrap div{break-inside:avoid;padding:4px 0}
+  .disc{font-size:11px;color:var(--dim);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-top:16px}
+  @media print{nav.toc{display:none}.tabpanel[hidden]{display:block!important}.tab{display:none}svg text{fill:#111}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kick"><span class="ln"></span>AI Infra · Recurring Deep-Dive · Run #18 · v5</div>
+    <h1>Inside the laminate: the AI-server CCL material stack, and which of its four links is the <span class="red">binding</span> chokepoint</h1>
+    <p class="sub">Run #17 mapped the copper channel and called the whole CCL one node. This run goes <b>inside</b> the copper-clad laminate — decomposing it into resin · low-Dk glass cloth · HVLP copper foil · CCL formulation — to settle which link is actually scarce. Verdict: the rent and the monopoly sit <b>upstream of the laminator</b>, at the <span class="red">low-Dk glass cloth (Nittobo)</span> with <span class="amb">HVLP copper foil (Mitsui)</span> co-binding — but both have already re-rated violently.</p>
+    <div class="gauges">
+      <div class="gauge"><div class="lbl">Chokepoint severity (glass / foil)</div><div class="val red">19<span style="font-size:14px;color:var(--mut)"> · 18/20</span></div><div class="bar"><i style="width:95%;background:var(--choke)"></i></div></div>
+      <div class="gauge"><div class="lbl">Remaining asymmetry (obvious names)</div><div class="val amb">5<span style="font-size:14px;color:var(--mut)">/20</span></div><div class="bar"><i style="width:25%;background:var(--warn)"></i></div></div>
+      <div class="gauge"><div class="lbl">Where alpha hides</div><div class="val grn">2nd-source qual race</div><div class="bar"><i style="width:55%;background:var(--pos)"></i></div></div>
+    </div>
+    <div class="meta">
+      <div><div class="k">As of</div><div class="vv num">2026-06-30</div></div>
+      <div><div class="k">Sector</div><div class="vv">AI-Infra · PCB Materials / CCL</div></div>
+      <div><div class="k">Stack path</div><div class="vv">resin · glass · foil → CCL → PCB → rack</div></div>
+      <div><div class="k">Universe</div><div class="vv">Global · JP / TW / KR / CN / SA</div></div>
+      <div><div class="k">Quotes</div><div class="vv">IBKR read-only + aggregators</div></div>
+    </div>
+    <div class="stale">Prices/multiples decay fast — figures stamped 2026-06-30; load-bearing numbers carry ≥2 cited sources, single-source flagged [SS], estimates (est.). Personal research — NOT investment advice.</div>
+  </div>
+</header>
+
+<nav class="toc"><div class="wrap">
+  <a href="#call">01 Call</a>
+  <a href="#sizing">02 Sizing &amp; rent</a>
+  <a href="#mece">03 Framework</a>
+  <a href="#ladder">04 Material ladder</a>
+  <a href="#deep">05 4-link deep-dive</a>
+  <a href="#build">06 How it builds up</a>
+  <a href="#chain">07 Supply-chain map</a>
+  <a href="#timeline">08 Roadmap</a>
+  <a href="#severity">09 Severity</a>
+  <a href="#variant">10 Variant / disaggregation</a>
+  <a href="#awareness">11 Awareness</a>
+  <a href="#signals">12 Signals + latent</a>
+  <a href="#plays">13 Plays</a>
+  <a href="#decision">14 Decision</a>
+  <a href="#critique">15 Self-critique</a>
+  <a href="#method">16 Method</a>
+</div></nav>
+
+<div class="wrap">
+
+<!-- 01 EXECUTIVE CALL -->
+<section id="call">
+  <div class="sh"><span class="n">01</span><h2>Executive call</h2><span class="cn">the binding link · 卡點在哪一層</span></div>
+
+  <div class="simple">
+    <h3>Explain it simply · 白話版</h3>
+    <p>An AI accelerator board is etched out of a raw sheet called <b>copper-clad laminate (CCL)</b>. That sheet is three stacked materials pressed together: a <b>resin</b> glue, a woven <b>glass cloth</b> skeleton, and a thin sheet of <b>copper foil</b>. At today's signalling speed (224 Gb/s per lane, soon 448G), the signal bleeds away as heat unless all three materials are near-perfect — ultra-low "loss" resin, ultra-flat low-dielectric glass, and ultra-smooth copper.</p>
+    <p>The question this report answers: <b>of those three materials plus the company that blends them, which one is the real bottleneck?</b> Answer: the two upstream <b>materials</b> — the special <span class="red">low-Dk glass cloth</span> (made essentially by one Japanese firm, Nittobo) and the <span class="amb">HVLP copper foil</span> (led by one Japanese firm, Mitsui, where each grade upgrade roughly halves the available supply). The companies that <i>blend</i> the CCL (Elite, TUC, Shengyi, Doosan) are an oligopoly being actively multi-sourced by NVIDIA — so the durable scarcity rent lives one layer below them.</p>
+    <p><b>The catch (the honest part):</b> the insight is right but the obvious expressions already exploded. Nittobo is <span class="red">~+465% over a year</span> and near an all-time high; Mitsui <span class="amb">+147% YTD</span>; Elite, TUC and Shengyi are all <b>+100% to +800%</b> off their lows. The genuinely-early dollar is no longer the monopolist — it's the <span class="grn">second-source qualification race</span> (Co-Tech in HVLP4 foil; Asahi Kasei / AGC / Taiwan Glass / Nan Ya in low-Dk glass; Doosan in M9 CCL).</p>
+  </div>
+
+  <div class="keys">
+    <div class="keyc"><div class="t">Resin (L-upstream)</div><div class="d"><b>SABIC PPE / SA9000.</b> ~70% from one Jubail plant (est.). Acute but event-driven; rent migrates downstream.</div></div>
+    <div class="keyc"><div class="t">Glass cloth (BINDING)</div><div class="d"><b>Nittobo ~90% T-glass.</b> Sold out to mid-2027. Hardest to replicate (melt+yarn+weave). The primary choke.</div></div>
+    <div class="keyc"><div class="t">HVLP foil (CO-BINDING)</div><div class="d"><b>Mitsui ~60% HVLP2+, ~80% HVLP5.</b> Each grade halves capacity. 28-39% structural shortfall.</div></div>
+    <div class="keyc"><div class="t">CCL formulation</div><div class="d"><b>Elite #1, TUC #3, Doosan rising.</b> Owns the qualified recipe + 12-18mo NVIDIA co-qual — but multi-sourced.</div></div>
+  </div>
+
+  <div class="gloss">
+    <div><b>Dk (dielectric constant)</b> — how much a material slows/bends a signal. Lower = faster, cleaner. E-glass ~6.7; low-Dk glass ~4.4; Q-glass ~3.9.</div>
+    <div><b>Df (dissipation factor)</b> — how much signal bleeds away as heat. Lower = better. Megtron-6 ~0.003; M8 ~0.0015; M9 ≤0.0007. FR-4 is ~10× worse than M8.</div>
+    <div><b>HVLP foil</b> — Hyper-Very-Low-Profile copper foil; ultra-smooth (Rz &lt;1µm) so the high-frequency current doesn't scatter on a rough surface (skin effect).</div>
+    <div><b>M6/M7/M8/M9</b> — NVIDIA's private "loss-class" ladder for CCL, keyed to Df. M8 = 224G, M9 = quartz-class for 448G/Rubin.</div>
+    <div><b>T-glass / Q-glass</b> — low-CTE / low-Dk specialty glasses. T-glass for chip substrates; Q-glass (quartz) for the lowest-loss boards.</div>
+    <div><b>Co-qualification</b> — the 12-18 month process by which NVIDIA/ODMs certify one specific material recipe on one specific board. Once won, locked for a platform generation.</div>
+  </div>
+
+  <div class="vbox">
+    <h3>Variant perception — where the consensus trade is mis-located (a refinement, not a contradiction)</h3>
+    <p><b>Consensus (correct, now priced):</b> "AI CCL is a tight oligopoly — buy Elite / TUC / Shengyi." That trade has run +100-800%.</p>
+    <p><b>Our variant (the disaggregation):</b> the scarcity rent does <b>not</b> peak at the CCL maker — it peaks <b>one layer below</b>, in the low-Dk glass cloth and HVLP foil, because the CCL maker is a price-taking <i>converter</i> (its own bill of materials is <span class="red">42% copper foil / 26% resin / 19% glass / 13% other</span> — so ~87% of its cost is passed-through scarce input) whom NVIDIA is actively multi-sourcing. The monopoly is upstream; the laminator is the squeezed middle.</p>
+    <p><b>Falsification — if we're wrong, it's most likely because:</b> the second-source wave (Asahi Kasei/AGC glass, Co-Tech foil, multiple M10 CCL qualifiers) arrives faster than the multi-quarter qualification cycle implies, collapsing the upstream rent into 2027 before the obvious incumbents de-rate — OR the whole AI-board build-rate air-pockets, in which case the most-loved (Elite/TUC) fall hardest.</p>
+    <div class="pills">
+      <span class="pill r">Glass cloth — primary choke, priced</span>
+      <span class="pill a">HVLP foil — co-binding, escalating, priced</span>
+      <span class="pill g">Co-Tech / 2nd-source — remaining asymmetry</span>
+      <span class="pill">Personal opinion · not a recommendation</span>
+    </div>
+  </div>
+</section>
+
+<!-- 02 SIZING & RENT -->
+<section id="sizing">
+  <div class="sh"><span class="n">02</span><h2>Size the prize &amp; who captures the rent</h2><span class="cn">illustrative · margins settle it</span></div>
+  <p class="lead">High-speed CCL is a real, fast-growing pool — but the decisive question is whether the scarcity rent accrues to the laminator or stays upstream. The cost-structure and margin evidence say <b>the laminator is a converter and the rent pools in the glass + foil it must buy.</b></p>
+
+  <div class="kpis">
+    <div class="kpi"><div class="v num">$18.7B</div><div class="l">Rigid-CCL market 2025 (+24.4% YoY)</div><div class="d">Prismark primary, Jun-2026. Elite #1 at $3.03B / 16.2%.</div></div>
+    <div class="kpi"><div class="v num">$275M→$2.0B</div><div class="l">Rubin-specific CCL TAM 2026→27 (~7×)</div><div class="d">Goldman via Lighthouse Canton. [SS]/est.</div></div>
+    <div class="kpi"><div class="v num red">+233%</div><div class="l">PCB $/rack GB300→Vera Rubin</div><div class="d">~$35,100 → ~$116,700 (Morgan Stanley BOM). [SS]-MS note.</div></div>
+    <div class="kpi"><div class="v num amb">+74.5%</div><div class="l">Korea CCL import price YoY (Mar-26)</div><div class="d">$20,728/ton — first ever &gt;$20K/ton. Korea Customs.</div></div>
+  </div>
+
+  <p class="lead" style="margin-top:18px"><b>The rent-capture test — CCL bill of materials.</b> A CCL maker's own cost is dominated by the two scarce upstream inputs, so it can only mark up the conversion step. The fat margin lives where the input is single-sourced.</p>
+
+  <div class="svgscroll">
+  <svg viewBox="0 0 900 150" width="900" height="150" role="img" aria-label="CCL bill-of-materials cost split">
+    <text x="0" y="18" class="m" font-size="12" fill="#9aa3b5">CCL cost structure — where the input scarcity sits (TrendForce / DigiTimes)</text>
+    <!-- stacked bar -->
+    <rect x="0" y="38" width="378" height="40" fill="#d2a24a"/>
+    <rect x="378" y="38" width="234" height="40" fill="#8b84cf"/>
+    <rect x="612" y="38" width="171" height="40" fill="#e0686a"/>
+    <rect x="783" y="38" width="117" height="40" fill="#2a3040"/>
+    <text x="189" y="63" text-anchor="middle" class="m" font-size="13" fill="#0b0d12" font-weight="700">Copper foil 42%</text>
+    <text x="495" y="63" text-anchor="middle" class="m" font-size="13" fill="#0b0d12" font-weight="700">Resin 26%</text>
+    <text x="697" y="63" text-anchor="middle" class="m" font-size="12" fill="#0b0d12" font-weight="700">Glass 19%</text>
+    <text x="841" y="63" text-anchor="middle" class="m" font-size="11" fill="#9aa3b5">Other 13%</text>
+    <!-- annotations -->
+    <text x="189" y="100" text-anchor="middle" font-size="11" fill="#d2a24a">Mitsui near-monopoly (HVLP)</text>
+    <text x="495" y="100" text-anchor="middle" font-size="11" fill="#8b84cf">SABIC PPE (~70% est.)</text>
+    <text x="697" y="100" text-anchor="middle" font-size="11" fill="#e0686a">Nittobo (~90%)</text>
+    <text x="0" y="132" font-size="11.5" fill="#9aa3b5">~<tspan class="m" fill="#e8eaf0">87%</tspan> of a CCL maker's cost is passed-through scarce input → the laminator is a converter; the monopoly rent is upstream.</text>
+  </svg>
+  </div>
+
+  <table class="t" style="margin-top:14px">
+    <tr><th>Link</th><th>Who holds it</th><th>Gross-margin / pricing signal</th><th>Rent verdict</th></tr>
+    <tr class="chokerow"><td><b>Low-Dk glass cloth</b></td><td>Nittobo ~90% T-glass</td><td>+20% (Aug-25), +20-30% slated (Apr-26); sold out to mid-2027</td><td class="red">Scarcest · keeps most rent · least investable (diluted)</td></tr>
+    <tr><td><b>HVLP copper foil</b></td><td>Mitsui ~60% HVLP2+</td><td>HVLP GM 40-60% vs HTE 0-10%; price &gt;2× HTE</td><td class="amb">Co-binding · escalating tightness · diluted conglomerate</td></tr>
+    <tr><td>Low-loss resin</td><td>SABIC SA9000 ~70% (est.)</td><td>Apr-26 outage → +40% PCB price cascade; expanding 2H26</td><td class="vio">Acute but event-driven · rent migrates downstream</td></tr>
+    <tr><td>CCL formulation</td><td>Elite #1 / TUC #3 / Doosan</td><td>Elite GM 27.9%→29.8%; TUC →25.2%; Shengyi →28.1% (+14pp)</td><td class="blu">Real pricing power BUT multi-sourced; converter rent</td></tr>
+  </table>
+  <p class="cap">Margins are genuinely expanding at the laminators (the chokepoint <i>is</i> monetizing) — but the structural single-source monopoly, and therefore the most defensible rent, sits in the glass cloth and HVLP foil. Sources: Prismark (Jun-2026); TrendForce (CCL BOM + glass shortage); futunn (Shengyi GM); stockanalysis/quartr (Elite); Fugle/Vocus (TUC). Sizing labelled illustrative.</p>
+</section>
+
+<!-- 03 MECE FRAMEWORK -->
+<section id="mece">
+  <div class="sh"><span class="n">03</span><h2>Framework — speed tier × material link</h2><span class="cn">two orthogonal axes</span></div>
+  <p class="lead">Rows = the SerDes <b>speed tier</b> that pulls the spec; columns = the four <b>material links</b> that must each clear it. The chokepoint sits where, at the highest speed tier, the supplier count collapses to ~1 — the <span class="red">low-Dk glass</span> and <span class="amb">HVLP foil</span> cells in the 224G/448G rows.</p>
+  <table class="t">
+    <tr><th>Speed tier ↓ / Link →</th><th>Low-loss resin</th><th>Low-Dk glass cloth</th><th>HVLP copper foil</th><th>CCL grade (who)</th></tr>
+    <tr><td><b>112G PAM4</b> (~28 GHz)</td><td>m-PPE / epoxy — available</td><td>NE-glass — multi-sourced</td><td>VLP / HVLP — available</td><td>M6 (Megtron 6, many)</td></tr>
+    <tr><td><b>224G PAM4</b> (~56 GHz)</td><td>PPO (SABIC SA9000) — tight</td><td class="red">NER / Low-Dk2 — Nittobo ~60-70%</td><td class="amb">HVLP3/4 — Mitsui-led, tight</td><td>M8 (Elite, TUC, Panasonic)</td></tr>
+    <tr class="chokerow"><td><b>448G / Rubin</b> (~112 GHz)</td><td>PPO + custom hardeners</td><td class="red">Q-glass / T-glass — Nittobo ~90% ◄ choke</td><td class="amb">HVLP4/5 — Mitsui ~80%, Co-Tech 2nd ◄ choke</td><td>M9 (Doosan lead; EMC reportedly failed GB300 [SS])</td></tr>
+    <tr><td><b>448G+ (Feynman)</b> dev</td><td>hydrocarbon / PPO</td><td>quartz — Nittobo</td><td>&gt;HVLP5 — emerging</td><td>M10 (multi-vendor by design)</td></tr>
+  </table>
+  <p class="cap">The chokepoint is the (448G × glass) and (448G × foil) cells: as speed rises the qualified-supplier count <i>falls</i> toward one. Resin tightens but stays 2-3 deep; CCL formulation is 4-6 deep and deliberately broadened at M10. Df ladder: M6 ~0.003 → M8 ~0.0015 → M9 ≤0.0007 @10GHz (frequency-dependent — approximate).</p>
+</section>
+
+<!-- 04 MATERIAL LADDER -->
+<section id="ladder">
+  <div class="sh"><span class="n">04</span><h2>The material-grade ladder for AI speed tiers</h2><span class="cn">grade → Df/Dk → glass → foil → board</span></div>
+  <p class="lead">Each SerDes step demands a lower-loss CCL grade, which simultaneously pulls a lower-Dk <b>glass</b>, a smoother <b>foil</b>, and a tighter <b>resin</b>. This is why the bottleneck compounds: one speed step tightens all four links at once, and the upstream two have the fewest suppliers.</p>
+
+  <div class="svgscroll">
+  <svg viewBox="0 0 940 320" width="940" height="320" role="img" aria-label="Material grade ladder">
+    <!-- axes -->
+    <text x="0" y="16" class="m" font-size="12" fill="#9aa3b5">Loss (Df @10GHz) falls as you climb the grade ladder — and the supplier count collapses</text>
+    <!-- columns headers -->
+    <g font-size="11" fill="#697283">
+      <text x="120" y="48" text-anchor="middle">Grade</text>
+      <text x="300" y="48" text-anchor="middle">Df / Dk</text>
+      <text x="470" y="48" text-anchor="middle">Glass</text>
+      <text x="630" y="48" text-anchor="middle">Foil</text>
+      <text x="810" y="48" text-anchor="middle">SerDes / board</text>
+    </g>
+    <!-- rows -->
+    <g font-size="12">
+      <!-- M6 -->
+      <rect x="20" y="58" width="900" height="42" rx="7" fill="#13161e" stroke="#2a3040"/>
+      <text x="40" y="84" class="m" fill="#e8eaf0">M6</text>
+      <text x="245" y="84" class="m" fill="#9aa3b5">0.003 / 3.5</text>
+      <text x="415" y="84" fill="#9aa3b5">NE-glass</text>
+      <text x="585" y="84" fill="#9aa3b5">VLP/HVLP</text>
+      <text x="720" y="84" fill="#9aa3b5">112G · GPU baseboard</text>
+      <!-- M7 -->
+      <rect x="20" y="106" width="900" height="42" rx="7" fill="#13161e" stroke="#2a3040"/>
+      <text x="40" y="132" class="m" fill="#e8eaf0">M7</text>
+      <text x="245" y="132" class="m" fill="#9aa3b5">0.0018 / 3.3</text>
+      <text x="415" y="132" fill="#9aa3b5">NE / low-Dk</text>
+      <text x="585" y="132" fill="#9aa3b5">HVLP2/3</text>
+      <text x="720" y="132" fill="#9aa3b5">112G long · Bianca baseboard</text>
+      <!-- M8 -->
+      <rect x="20" y="154" width="900" height="42" rx="7" fill="#1a1e28" stroke="#363d4f"/>
+      <text x="40" y="180" class="m" fill="#e8eaf0">M8</text>
+      <text x="245" y="180" class="m" fill="#d2a24a">0.0015 / 3.1</text>
+      <text x="415" y="180" fill="#d2a24a">NER / Low-Dk2</text>
+      <text x="585" y="180" fill="#d2a24a">HVLP3/4</text>
+      <text x="720" y="180" fill="#9aa3b5">224G · NVSwitch · UBB</text>
+      <!-- M9 -->
+      <rect x="20" y="202" width="900" height="42" rx="7" fill="rgba(224,104,106,.13)" stroke="#e0686a"/>
+      <text x="40" y="228" class="m" fill="#e8eaf0">M9</text>
+      <text x="245" y="228" class="m" fill="#e0686a">≤0.0007 / &lt;3.0</text>
+      <text x="415" y="228" fill="#e0686a">Q-glass / T-glass</text>
+      <text x="585" y="228" fill="#e0686a">HVLP4/5</text>
+      <text x="720" y="228" fill="#e8eaf0">224G long / 448G · Rubin midplane</text>
+      <!-- M10 -->
+      <rect x="20" y="250" width="900" height="42" rx="7" fill="#13161e" stroke="#2a3040" stroke-dasharray="4 3"/>
+      <text x="40" y="276" class="m" fill="#9aa3b5">M10</text>
+      <text x="245" y="276" class="m" fill="#9aa3b5">&lt;0.0005 / TBD</text>
+      <text x="415" y="276" fill="#9aa3b5">quartz</text>
+      <text x="585" y="276" fill="#9aa3b5">&gt;HVLP5</text>
+      <text x="720" y="276" fill="#9aa3b5">448G · Feynman (multi-vendor)</text>
+    </g>
+    <text x="20" y="308" font-size="11" fill="#697283">Cost ladder vs FR-4 (est.): M6 ~3-5× · M7 ~6-9× · M8 ~10-15× · M9 ~15-20×. Qualification cycle 12-18 months per grade/board.</text>
+  </svg>
+  </div>
+  <p class="cap">Sources: queenems M9 guide; nextpcb / PCBSync Megtron; Megtron 8 datasheet (Df 0.0012 @10GHz; press ~0.0015); SemiAnalysis Vera Rubin (boards/layers); datahorizzon (qual cycle, cost ladder). Df values are frequency-dependent — treat single-decimal precision as approximate.</p>
+</section>
+
+<!-- 05 4-LINK DEEP DIVE -->
+<section id="deep">
+  <div class="sh"><span class="n">05</span><h2>The four links beneath the chip — drawn, not listed</h2><span class="cn">resin · glass · foil · CCL</span></div>
+  <div class="svgscroll">
+  <svg viewBox="0 0 940 240" width="940" height="240" role="img" aria-label="Four material links schematic">
+    <!-- CCL cross-section schematic -->
+    <text x="0" y="16" class="m" font-size="12" fill="#9aa3b5">A CCL cross-section — three pressed materials, one qualified product</text>
+    <!-- foil top -->
+    <rect x="40" y="40" width="380" height="22" fill="#d2a24a"/>
+    <text x="230" y="56" text-anchor="middle" font-size="11" fill="#0b0d12" font-weight="700">HVLP copper foil (Rz &lt;1µm)</text>
+    <!-- resin+glass core -->
+    <rect x="40" y="62" width="380" height="70" fill="#8b84cf" opacity="0.85"/>
+    <text x="230" y="92" text-anchor="middle" font-size="11" fill="#0b0d12" font-weight="700">PPE/PPO resin matrix</text>
+    <!-- glass weave lines -->
+    <g stroke="#e0686a" stroke-width="3" opacity="0.9">
+      <line x1="60" y1="80" x2="400" y2="80"/><line x1="60" y1="97" x2="400" y2="97"/><line x1="60" y1="114" x2="400" y2="114"/>
+    </g>
+    <text x="230" y="128" text-anchor="middle" font-size="10.5" fill="#0b0d12" font-weight="700">low-Dk glass cloth (woven, spread flat)</text>
+    <!-- foil bottom -->
+    <rect x="40" y="132" width="380" height="22" fill="#d2a24a"/>
+    <text x="230" y="148" text-anchor="middle" font-size="11" fill="#0b0d12" font-weight="700">HVLP copper foil</text>
+    <text x="40" y="178" font-size="11" fill="#697283">Pressed + cured → one CCL sheet → etched + stacked into a 22-78 layer board.</text>
+
+    <!-- right: severity-by-link mini bars -->
+    <text x="560" y="16" class="m" font-size="12" fill="#9aa3b5">Supplier-count at the top grade (fewer = tighter)</text>
+    <g font-size="11">
+      <text x="560" y="52" fill="#e0686a">Glass cloth</text>
+      <rect x="660" y="42" width="240" height="14" rx="3" fill="#212634"/><rect x="660" y="42" width="24" height="14" rx="3" fill="#e0686a"/>
+      <text x="905" y="52" text-anchor="end" class="m" fill="#e0686a">~1</text>
+
+      <text x="560" y="84" fill="#d2a24a">HVLP foil</text>
+      <rect x="660" y="74" width="240" height="14" rx="3" fill="#212634"/><rect x="660" y="74" width="48" height="14" rx="3" fill="#d2a24a"/>
+      <text x="905" y="84" text-anchor="end" class="m" fill="#d2a24a">~1-2</text>
+
+      <text x="560" y="116" fill="#8b84cf">Resin (PPE)</text>
+      <rect x="660" y="106" width="240" height="14" rx="3" fill="#212634"/><rect x="660" y="106" width="96" height="14" rx="3" fill="#8b84cf"/>
+      <text x="905" y="116" text-anchor="end" class="m" fill="#8b84cf">~2-3</text>
+
+      <text x="560" y="148" fill="#5b81c4">CCL maker</text>
+      <rect x="660" y="138" width="240" height="14" rx="3" fill="#212634"/><rect x="660" y="138" width="170" height="14" rx="3" fill="#5b81c4"/>
+      <text x="905" y="148" text-anchor="end" class="m" fill="#5b81c4">~4-6</text>
+    </g>
+    <text x="540" y="182" font-size="10.5" fill="#697283">At M9/448G, glass collapses to one qualified maker, foil to ~two.</text>
+    <text x="540" y="200" font-size="10.5" fill="#697283">That collapse is the chokepoint; CCL makers are kept ~4-6 deep.</text>
+  </svg>
+  </div>
+
+  <div class="grid2">
+    <div class="card"><h4 class="vio">① Low-loss resin — SABIC PPE / SA9000</h4><p>The PPE/PPO oligomer that gives the laminate its low Df. ~70% of high-purity PPE comes from a single SABIC Jubail facility (est.); an April-2026 outage cascaded a ~40% PCB price spike. But changing resin forces a full CCL re-qualification, and the <b>durable rent migrates to the CCL formulator</b>, not the molecule. No clean listed pure-play (MGC 4182.T diluted, Resonac 4004.T also a CCL maker).</p></div>
+    <div class="card"><h4 class="red">② Low-Dk glass cloth — Nittobo (BINDING)</h4><p>Woven low-Dk / T-glass / Q-glass, spread flat to remove "weave skew." <b>Nittobo ~90% T-glass, &gt;80% low-Dk, ~60-70% NER.</b> Sold out to mid-2027; reportedly courted directly by NVIDIA/MS/Google/Amazon/Apple (reported). The hard, IP-guarded step is the melt-chemistry + ultra-fine yarn drawing — Nittobo outsources only the <i>weaving</i> (to Nan Ya, 20% by 2027). The deepest moat in the stack.</p></div>
+    <div class="card"><h4 class="amb">③ HVLP copper foil — Mitsui (CO-BINDING)</h4><p>Ultra-smooth electrodeposited foil (Rz &lt;1µm) so high-frequency current doesn't scatter (skin effect). <b>Mitsui ~60% HVLP2+, ~80% HVLP5.</b> The killer mechanism: <b>each grade upgrade roughly halves available capacity</b>, so tightness escalates with every speed step. Goldman models a 28-39% structural shortfall 2026-28; NVIDIA is intervening directly to secure HVLP4. Co-Tech (8358.TWO) is the one certified second source.</p></div>
+    <div class="card"><h4 class="blu">④ CCL formulation — Elite / TUC / Doosan</h4><p>Blends resin + glass + foil into a qualified sheet and wins the 12-18mo NVIDIA co-qual. <b>Elite #1 (~22%), TUC #3 (~16%) in high-speed CCL; Panasonic displaced; Doosan won the M9/GB300 slot EMC reportedly failed [SS].</b> <b>The co-qualification IS a genuine, durable moat</b> — like a foundry that passes through wafers but still earns rent on the qualified step, the laminator's expanding margins (Elite GM 27.9%→29.8%) prove it captures real <i>qualification rent</i>. The honest read is the rent is <b>shared</b>: upstream owns the scarcity rent, the laminator owns the qualification rent. We tilt to upstream because (a) the single-source monopoly is there and (b) NVIDIA broadened M10 to multiple vendors to dilute the laminators specifically — but this is a refinement of consensus, not a claim the CCL maker earns nothing.</p></div>
+  </div>
+</section>
+
+<!-- 06 BUILD UP -->
+<section id="build">
+  <div class="sh"><span class="n">06</span><h2>How it builds up — material → CCL → board → rack</h2><span class="cn">L-upstream → L3 → L2 → L1</span></div>
+  <div class="svgscroll">
+  <svg viewBox="0 0 940 200" width="940" height="200" role="img" aria-label="Build-up flow">
+    <defs><marker id="arrU" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#697283"/></marker></defs>
+    <g font-size="11.5">
+      <!-- nodes -->
+      <rect x="10" y="60" width="150" height="68" rx="9" fill="#13161e" stroke="#8b84cf"/>
+      <text x="85" y="86" text-anchor="middle" fill="#8b84cf" font-weight="700">Resin + yarn</text>
+      <text x="85" y="104" text-anchor="middle" fill="#9aa3b5" font-size="10.5">SABIC · Nittobo melt</text>
+      <text x="85" y="118" text-anchor="middle" fill="#9aa3b5" font-size="10.5">Mitsui plating</text>
+
+      <rect x="200" y="60" width="150" height="68" rx="9" fill="rgba(224,104,106,.10)" stroke="#e0686a"/>
+      <text x="275" y="82" text-anchor="middle" fill="#e0686a" font-weight="700">Glass cloth + foil</text>
+      <text x="275" y="100" text-anchor="middle" fill="#9aa3b5" font-size="10.5">woven, spread flat;</text>
+      <text x="275" y="114" text-anchor="middle" fill="#e0686a" font-size="10.5">◄ scarcity set HERE</text>
+
+      <rect x="390" y="60" width="150" height="68" rx="9" fill="#13161e" stroke="#5b81c4"/>
+      <text x="465" y="86" text-anchor="middle" fill="#5b81c4" font-weight="700">CCL sheet</text>
+      <text x="465" y="104" text-anchor="middle" fill="#9aa3b5" font-size="10.5">Elite · TUC · Doosan</text>
+      <text x="465" y="118" text-anchor="middle" fill="#9aa3b5" font-size="10.5">press + cure (M8/M9)</text>
+
+      <rect x="580" y="60" width="150" height="68" rx="9" fill="#13161e" stroke="#4faf8e"/>
+      <text x="655" y="86" text-anchor="middle" fill="#4faf8e" font-weight="700">PCB / board</text>
+      <text x="655" y="104" text-anchor="middle" fill="#9aa3b5" font-size="10.5">22-78 layers</text>
+      <text x="655" y="118" text-anchor="middle" fill="#9aa3b5" font-size="10.5">GCE · Unimicron · TTM</text>
+
+      <rect x="770" y="60" width="160" height="68" rx="9" fill="#13161e" stroke="#2dd4bf"/>
+      <text x="850" y="86" text-anchor="middle" fill="#2dd4bf" font-weight="700">NVL72 / Rubin rack</text>
+      <text x="850" y="104" text-anchor="middle" fill="#9aa3b5" font-size="10.5">$116.7K PCB/rack</text>
+      <text x="850" y="118" text-anchor="middle" fill="#9aa3b5" font-size="10.5">NVIDIA · ODMs</text>
+
+      <!-- arrows -->
+      <line x1="160" y1="94" x2="198" y2="94" stroke="#697283" stroke-width="1.5" marker-end="url(#arrU)"/>
+      <line x1="350" y1="94" x2="388" y2="94" stroke="#e0686a" stroke-width="1.5" marker-end="url(#arrU)"/>
+      <line x1="540" y1="94" x2="578" y2="94" stroke="#697283" stroke-width="1.5" marker-end="url(#arrU)"/>
+      <line x1="730" y1="94" x2="768" y2="94" stroke="#697283" stroke-width="1.5" marker-end="url(#arrU)"/>
+    </g>
+    <text x="10" y="160" font-size="11.5" fill="#9aa3b5">Value is added at every step, but the <tspan fill="#e0686a">scarcity is set upstream</tspan>: a board fab can buy more presses, a CCL maker can add lines —</text>
+    <text x="10" y="178" font-size="11.5" fill="#9aa3b5">neither can conjure low-Dk glass that is sold out to mid-2027, nor HVLP4 foil whose only maker is at capacity. The rent pools in the red box.</text>
+  </svg>
+  </div>
+</section>
+
+<!-- 07 SUPPLY CHAIN MAP -->
+<section id="chain">
+  <div class="sh"><span class="n">07</span><h2>End-to-end supply chain — where the rent pools</h2><span class="cn">the centerpiece</span></div>
+  <div class="svgscroll">
+  <svg viewBox="0 0 980 430" width="980" height="430" role="img" aria-label="Supply chain map with chokepoint">
+    <defs>
+      <marker id="thk" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#4a5266"/></marker>
+      <marker id="thin" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#e0686a"/></marker>
+    </defs>
+    <!-- legend -->
+    <g font-size="11">
+      <line x1="0" y1="14" x2="34" y2="14" stroke="#4a5266" stroke-width="6"/><text x="42" y="18" fill="#9aa3b5">ample / competitive flow</text>
+      <line x1="220" y1="14" x2="254" y2="14" stroke="#e0686a" stroke-width="2.5"/><text x="262" y="18" fill="#e0686a">constriction (chokepoint)</text>
+      <rect x="470" y="8" width="13" height="13" fill="rgba(224,104,106,.18)" stroke="#e0686a"/><text x="490" y="18" fill="#9aa3b5">materials rent pool</text>
+    </g>
+
+    <!-- 6 stage cards -->
+    <!-- 1 raw -->
+    <rect x="0" y="44" width="150" height="150" rx="10" fill="#13161e" stroke="#2a3040"/>
+    <text x="12" y="64" class="m" font-size="11" fill="#697283">1 · raw inputs</text>
+    <text x="12" y="86" font-size="11" fill="#8b84cf">SABIC PPE/SA9000</text>
+    <text x="12" y="104" font-size="11" fill="#9aa3b5">Asahi Kasei m-PPE</text>
+    <text x="12" y="122" font-size="11" fill="#9aa3b5">MGC active ester</text>
+    <text x="12" y="140" font-size="11" fill="#9aa3b5">aluminoborosilicate</text>
+    <text x="12" y="158" font-size="11" fill="#9aa3b5">copper anode</text>
+    <text x="12" y="180" font-size="10" fill="#697283">~70% PPE 1 plant (est.)</text>
+
+    <!-- 2 GLASS+FOIL choke -->
+    <rect x="180" y="44" width="170" height="150" rx="10" fill="rgba(224,104,106,.11)" stroke="#e0686a" stroke-width="1.6"/>
+    <text x="192" y="64" class="m" font-size="11" fill="#e0686a">2 · glass + foil ◄ CHOKE</text>
+    <text x="192" y="86" font-size="11.5" fill="#e0686a" font-weight="700">Nittobo low-Dk glass</text>
+    <text x="192" y="103" font-size="10.5" fill="#9aa3b5">~90% T-glass · sold out '27</text>
+    <text x="192" y="124" font-size="11.5" fill="#d2a24a" font-weight="700">Mitsui HVLP foil</text>
+    <text x="192" y="141" font-size="10.5" fill="#9aa3b5">~60% HVLP2+ · halves/grade</text>
+    <text x="192" y="162" font-size="10.5" fill="#9aa3b5">2nd: Co-Tech · AGC · Asahi</text>
+    <text x="192" y="182" font-size="10" fill="#e0686a">+20-40% price · 6-8mo lead</text>
+
+    <!-- 3 CCL -->
+    <rect x="380" y="44" width="150" height="150" rx="10" fill="#13161e" stroke="#5b81c4"/>
+    <text x="392" y="64" class="m" font-size="11" fill="#697283">3 · CCL laminate</text>
+    <text x="392" y="86" font-size="11" fill="#5b81c4" font-weight="700">Elite (M8) #1</text>
+    <text x="392" y="104" font-size="11" fill="#9aa3b5">TUC #3 · Shengyi</text>
+    <text x="392" y="122" font-size="11" fill="#9aa3b5">Doosan (M9) · ITEQ</text>
+    <text x="392" y="140" font-size="11" fill="#9aa3b5">Panasonic (Megtron)</text>
+    <text x="392" y="166" font-size="10" fill="#697283">converter · BOM 87%</text>
+    <text x="392" y="182" font-size="10" fill="#697283">passthrough · multi-sourced</text>
+
+    <!-- 4 PCB -->
+    <rect x="560" y="44" width="150" height="150" rx="10" fill="#13161e" stroke="#2a3040"/>
+    <text x="572" y="64" class="m" font-size="11" fill="#697283">4 · PCB / board</text>
+    <text x="572" y="86" font-size="11" fill="#9aa3b5">GCE · Unimicron</text>
+    <text x="572" y="104" font-size="11" fill="#9aa3b5">TTM · WUS · Tripod</text>
+    <text x="572" y="122" font-size="11" fill="#9aa3b5">22-78 layer build</text>
+    <text x="572" y="140" font-size="11" fill="#9aa3b5">midplane · backplane</text>
+    <text x="572" y="166" font-size="10" fill="#697283">more buyers →</text>
+    <text x="572" y="182" font-size="10" fill="#697283">less rent</text>
+
+    <!-- 5 system -->
+    <rect x="740" y="44" width="110" height="150" rx="10" fill="#13161e" stroke="#2a3040"/>
+    <text x="752" y="64" class="m" font-size="11" fill="#697283">5 · system</text>
+    <text x="752" y="86" font-size="11" fill="#9aa3b5">Foxconn</text>
+    <text x="752" y="104" font-size="11" fill="#9aa3b5">Quanta</text>
+    <text x="752" y="122" font-size="11" fill="#9aa3b5">Wistron</text>
+    <text x="752" y="140" font-size="11" fill="#9aa3b5">tray + rack</text>
+
+    <!-- 6 buyer -->
+    <rect x="860" y="44" width="118" height="150" rx="10" fill="#13161e" stroke="#2dd4bf"/>
+    <text x="872" y="64" class="m" font-size="11" fill="#2dd4bf">6 · buyer</text>
+    <text x="872" y="86" font-size="11" fill="#9aa3b5">NVIDIA</text>
+    <text x="872" y="104" font-size="11" fill="#9aa3b5">NVL72→Rubin</text>
+    <text x="872" y="122" font-size="11" fill="#9aa3b5">hyperscalers</text>
+    <text x="872" y="144" font-size="10" fill="#2dd4bf">$116.7K</text>
+    <text x="872" y="160" font-size="10" fill="#9aa3b5">PCB/rack</text>
+
+    <!-- flows: thin/red into & out of choke, thick elsewhere -->
+    <line x1="150" y1="119" x2="178" y2="119" stroke="#e0686a" stroke-width="2.5" marker-end="url(#thin)"/>
+    <line x1="350" y1="119" x2="378" y2="119" stroke="#e0686a" stroke-width="2.5" marker-end="url(#thin)"/>
+    <line x1="530" y1="119" x2="558" y2="119" stroke="#4a5266" stroke-width="6" marker-end="url(#thk)"/>
+    <line x1="710" y1="119" x2="738" y2="119" stroke="#4a5266" stroke-width="6" marker-end="url(#thk)"/>
+    <line x1="850" y1="119" x2="858" y2="119" stroke="#4a5266" stroke-width="6" marker-end="url(#thk)"/>
+
+    <!-- per-stage scarcity-premium bars -->
+    <text x="0" y="232" class="m" font-size="12" fill="#9aa3b5">Per-stage scarcity premium (= that link's 4-factor severity)</text>
+    <g>
+      <rect x="0" y="250" width="150" height="150" rx="8" fill="#0f1218"/>
+      <rect x="180" y="250" width="170" height="150" rx="8" fill="#0f1218"/>
+      <rect x="380" y="250" width="150" height="150" rx="8" fill="#0f1218"/>
+      <rect x="560" y="250" width="150" height="150" rx="8" fill="#0f1218"/>
+      <rect x="740" y="250" width="110" height="150" rx="8" fill="#0f1218"/>
+      <rect x="860" y="250" width="118" height="150" rx="8" fill="#0f1218"/>
+      <!-- bars: glass tallest, foil second -->
+      <rect x="40" y="318" width="70" height="70" fill="#8b84cf"/><text x="75" y="310" text-anchor="middle" class="m" font-size="11" fill="#8b84cf">14</text>
+      <rect x="230" y="258" width="70" height="130" fill="#e0686a"/><text x="265" y="250" text-anchor="middle" class="m" font-size="11" fill="#e0686a">19</text>
+      <rect x="420" y="323" width="70" height="65" fill="#5b81c4"/><text x="455" y="315" text-anchor="middle" class="m" font-size="11" fill="#5b81c4">13</text>
+      <rect x="600" y="352" width="70" height="36" fill="#4faf8e"/><text x="635" y="344" text-anchor="middle" class="m" font-size="11" fill="#4faf8e">7</text>
+      <rect x="772" y="364" width="46" height="24" fill="#4a5266"/><text x="795" y="356" text-anchor="middle" class="m" font-size="11" fill="#697283">5</text>
+      <rect x="895" y="370" width="48" height="18" fill="#2dd4bf"/><text x="919" y="362" text-anchor="middle" class="m" font-size="11" fill="#2dd4bf">4</text>
+    </g>
+    <text x="0" y="416" font-size="11" fill="#697283">Tallest bar = the glass+foil materials stage (glass 19 / foil 18). CCL (13) is the secondary pool. Resin (14) is real but event-driven; downstream PCB/system/buyer fall away.</text>
+  </svg>
+  </div>
+  <p class="cap">The constriction (thin red arrows) is into AND out of stage 2 (glass + foil): everything downstream must pass through a link supplied by ~1-2 firms at the top grade. Approximate competitive positions; shares marked est. where not disclosed.</p>
+</section>
+
+<!-- 08 TIMELINE -->
+<section id="timeline">
+  <div class="sh"><span class="n">08</span><h2>Multi-year roadmap — the rent stays upstream, then second-sources arrive</h2><span class="cn">2026 → 2029</span></div>
+  <div class="svgscroll">
+  <svg viewBox="0 0 960 290" width="960" height="290" role="img" aria-label="Multi-year roadmap grid">
+    <!-- year columns -->
+    <g font-size="12" fill="#9aa3b5" class="m">
+      <text x="250" y="20">2026</text><text x="430" y="20">2027</text><text x="610" y="20">2028</text><text x="790" y="20">2029+</text>
+    </g>
+    <g stroke="#2a3040" stroke-width="1"><line x1="180" y1="28" x2="180" y2="270"/><line x1="360" y1="28" x2="360" y2="270"/><line x1="540" y1="28" x2="540" y2="270"/><line x1="720" y1="28" x2="720" y2="270"/></g>
+    <!-- rows -->
+    <g font-size="11">
+      <!-- glass -->
+      <text x="0" y="58" fill="#e0686a" font-weight="700">Glass cloth</text>
+      <rect x="184" y="44" width="172" height="26" rx="5" fill="rgba(224,104,106,.20)"/><text x="190" y="61" fill="#e8eaf0" font-size="10">Sold out · +20-30% price</text>
+      <rect x="364" y="44" width="172" height="26" rx="5" fill="rgba(224,104,106,.14)"/><text x="370" y="61" fill="#9aa3b5" font-size="10">Nittobo 3× online mid-yr</text>
+      <rect x="544" y="44" width="172" height="26" rx="5" fill="rgba(210,162,74,.12)"/><text x="550" y="61" fill="#9aa3b5" font-size="10">2nd-sources ramp · eases</text>
+      <rect x="724" y="44" width="172" height="26" rx="5" fill="#13161e" stroke="#2a3040"/><text x="730" y="61" fill="#697283" font-size="10">structural floor</text>
+      <!-- foil -->
+      <text x="0" y="98" fill="#d2a24a" font-weight="700">HVLP foil</text>
+      <rect x="184" y="84" width="172" height="26" rx="5" fill="rgba(210,162,74,.22)"/><text x="190" y="101" fill="#e8eaf0" font-size="10">28% shortfall · NVIDIA secures</text>
+      <rect x="364" y="84" width="172" height="26" rx="5" fill="rgba(210,162,74,.20)"/><text x="370" y="101" fill="#e8eaf0" font-size="10">39% shortfall (tightest)</text>
+      <rect x="544" y="84" width="172" height="26" rx="5" fill="rgba(210,162,74,.14)"/><text x="550" y="101" fill="#9aa3b5" font-size="10">Co-Tech 5→53% [SS] · eases</text>
+      <rect x="724" y="84" width="172" height="26" rx="5" fill="#13161e" stroke="#2a3040"/><text x="730" y="101" fill="#697283" font-size="10">multi-source (M10)</text>
+      <!-- CCL -->
+      <text x="0" y="138" fill="#5b81c4" font-weight="700">CCL maker</text>
+      <rect x="184" y="124" width="172" height="26" rx="5" fill="rgba(91,129,196,.18)"/><text x="190" y="141" fill="#e8eaf0" font-size="10">M8 allocation · margins up</text>
+      <rect x="364" y="124" width="172" height="26" rx="5" fill="rgba(91,129,196,.16)"/><text x="370" y="141" fill="#9aa3b5" font-size="10">M9 (Doosan) · Rubin ramp</text>
+      <rect x="544" y="124" width="172" height="26" rx="5" fill="rgba(91,129,196,.12)"/><text x="550" y="141" fill="#9aa3b5" font-size="10">M10 multi-vendor · rent caps</text>
+      <rect x="724" y="124" width="172" height="26" rx="5" fill="#13161e" stroke="#2a3040"/><text x="730" y="141" fill="#697283" font-size="10">more layers offset ASP</text>
+      <!-- AI content -->
+      <text x="0" y="178" fill="#2dd4bf" font-weight="700">PCB $/rack</text>
+      <rect x="184" y="164" width="172" height="26" rx="5" fill="rgba(45,212,191,.14)"/><text x="190" y="181" fill="#9aa3b5" font-size="10">GB300 ~$35K</text>
+      <rect x="364" y="164" width="172" height="26" rx="5" fill="rgba(45,212,191,.20)"/><text x="370" y="181" fill="#e8eaf0" font-size="10">Vera Rubin ~$117K (+233%)</text>
+      <rect x="544" y="164" width="172" height="26" rx="5" fill="rgba(45,212,191,.16)"/><text x="550" y="181" fill="#9aa3b5" font-size="10">Rubin Ultra 78L backplane</text>
+      <rect x="724" y="164" width="172" height="26" rx="5" fill="#13161e" stroke="#2a3040"/><text x="730" y="181" fill="#697283" font-size="10">Feynman</text>
+      <!-- optics clock -->
+      <text x="0" y="218" fill="#9aa3b5" font-weight="700">CPO / optics</text>
+      <rect x="184" y="204" width="172" height="26" rx="5" fill="#13161e" stroke="#2a3040"/><text x="190" y="221" fill="#697283" font-size="10">scale-out only</text>
+      <rect x="364" y="204" width="172" height="26" rx="5" fill="#13161e" stroke="#2a3040"/><text x="370" y="221" fill="#697283" font-size="10">copper owns scale-up</text>
+      <rect x="544" y="204" width="172" height="26" rx="5" fill="rgba(210,162,74,.12)"/><text x="550" y="221" fill="#9aa3b5" font-size="10">CPO enters scale-up</text>
+      <rect x="724" y="204" width="172" height="26" rx="5" fill="rgba(210,162,74,.16)"/><text x="730" y="221" fill="#e8eaf0" font-size="10">switch-CCL erodes (not compute)</text>
+    </g>
+    <text x="0" y="258" font-size="11" fill="#697283">Hinge year = <tspan class="m" fill="#e0686a">2027</tspan>: capacity additions (Nittobo 3×, Co-Tech, TUC/Elite) all land then, against demand still growing ~100%/yr.</text>
+    <text x="0" y="276" font-size="11" fill="#697283">Read diagonally: the materials gate is tightest 2026-27; the durable question is whether 2027 supply digests the shortage and de-rates the price story.</text>
+  </svg>
+  </div>
+</section>
+
+<!-- 09 SEVERITY -->
+<section id="severity">
+  <div class="sh"><span class="n">09</span><h2>Chokepoint severity — 4-factor /20</h2><span class="cn">derived, per-link</span></div>
+  <p class="lead">Same rubric every run: supply concentration · lead-time to add capacity · low substitutability · demand-growth pressure, each 0-5. <b>Tightness ≠ a good buy</b> — pair with the remaining-asymmetry gauge in the masthead.</p>
+
+  <div class="svgscroll">
+  <svg viewBox="0 0 940 240" width="940" height="240" role="img" aria-label="Severity scorecard for the binding link">
+    <text x="0" y="16" class="m" font-size="12" fill="#9aa3b5">Binding link = low-Dk glass cloth (Nittobo) — primary, 19/20; HVLP foil (Mitsui) co-binding, 18/20</text>
+    <g font-size="12">
+      <text x="0" y="52" fill="#e8eaf0">Supply concentration</text>
+      <rect x="280" y="40" width="500" height="16" rx="4" fill="#212634"/><rect x="280" y="40" width="500" height="16" rx="4" fill="#e0686a"/>
+      <text x="792" y="53" class="m" fill="#e0686a">5</text>
+      <text x="0" y="71" fill="#697283" font-size="10.5">~1 glass + ~1-2 foil makers qualified at the top grade</text>
+
+      <text x="0" y="105" fill="#e8eaf0">Lead-time to add capacity</text>
+      <rect x="280" y="93" width="500" height="16" rx="4" fill="#212634"/><rect x="280" y="93" width="500" height="16" rx="4" fill="#e0686a"/>
+      <text x="792" y="106" class="m" fill="#e0686a">5</text>
+      <text x="0" y="124" fill="#697283" font-size="10.5">glass mid-2027 + ~6mo ramp; foil booked to 2027; equipment lead 24mo</text>
+
+      <text x="0" y="158" fill="#e8eaf0">Low substitutability</text>
+      <rect x="280" y="146" width="500" height="16" rx="4" fill="#212634"/><rect x="280" y="146" width="400" height="16" rx="4" fill="#e0686a"/>
+      <text x="792" y="159" class="m" fill="#e0686a">4</text>
+      <text x="0" y="177" fill="#697283" font-size="10.5">melt+yarn+weave moat — BUT 2nd-sources now funded; customer qualifying alts</text>
+
+      <text x="0" y="211" fill="#e8eaf0">Demand-growth pressure</text>
+      <rect x="280" y="199" width="500" height="16" rx="4" fill="#212634"/><rect x="280" y="199" width="500" height="16" rx="4" fill="#e0686a"/>
+      <text x="792" y="212" class="m" fill="#e0686a">5</text>
+      <text x="0" y="230" fill="#697283" font-size="10.5">PCB $/rack +233% GB300→Rubin [SS-MS]; every speed step tightens all four links</text>
+    </g>
+    <text x="850" y="125" class="m" font-size="26" fill="#e0686a" font-weight="700">19</text>
+    <text x="850" y="145" font-size="11" fill="#697283">/20</text>
+  </svg>
+  </div>
+  <table class="t" style="margin-top:6px">
+    <tr><th>Factor (0-5)</th><th>Glass cloth</th><th>HVLP foil</th><th>Resin</th><th>CCL maker</th></tr>
+    <tr><td>Supply concentration</td><td class="red">5</td><td class="amb">5</td><td class="vio">4</td><td class="blu">3</td></tr>
+    <tr><td>Lead-time to add capacity</td><td class="red">5</td><td class="amb">5</td><td class="vio">3</td><td class="blu">3</td></tr>
+    <tr><td>Low substitutability</td><td class="red">4</td><td class="amb">3</td><td class="vio">3</td><td class="blu">2</td></tr>
+    <tr><td>Demand-growth pressure</td><td class="red">5</td><td class="amb">5</td><td class="vio">4</td><td class="blu">5</td></tr>
+    <tr><td><b>Composite /20</b></td><td class="red"><b>19</b></td><td class="amb"><b>18</b></td><td class="vio"><b>14</b></td><td class="blu"><b>13</b></td></tr>
+  </table>
+  <p class="cap"><b>Scope &amp; co-bottlenecks:</b> the 18-19 score is the upstream materials pair. It is capped below 20 by (a) substitutability — second-sources are now funded and the customer is actively qualifying them — and (b) the diluted, already-re-rated equities being the only access. Co-binding chokepoints elsewhere in the AI stack: HBM/CoWoS (Run #6), nanocrystalline cores (power), CW-DFB laser (optics, Run #1/#13). Don't over-narrow: glass and foil bind together, not glass alone.</p>
+</section>
+
+<!-- 10 VARIANT / DISAGGREGATION -->
+<section id="variant">
+  <div class="sh"><span class="n">10</span><h2>The central counter-argument — three disaggregations</h2><span class="cn">how the obvious trade misreads it</span></div>
+
+  <div class="svgscroll">
+  <svg viewBox="0 0 940 220" width="940" height="220" role="img" aria-label="Rent location: consensus vs variant">
+    <text x="0" y="16" class="m" font-size="12" fill="#9aa3b5">Where does the scarcity rent actually peak?</text>
+    <!-- consensus view -->
+    <text x="0" y="44" font-size="12" fill="#9aa3b5">Consensus says: peak at the CCL maker</text>
+    <g>
+      <rect x="0" y="54" width="120" height="20" fill="#212634"/><rect x="0" y="54" width="40" height="20" fill="#8b84cf"/><text x="60" y="69" text-anchor="middle" font-size="10" fill="#0b0d12">resin</text>
+      <rect x="130" y="54" width="120" height="20" fill="#212634"/><rect x="130" y="54" width="55" height="20" fill="#e0686a"/><text x="190" y="69" text-anchor="middle" font-size="10" fill="#0b0d12">glass+foil</text>
+      <rect x="260" y="44" width="160" height="40" fill="#5b81c4"/><text x="340" y="69" text-anchor="middle" font-size="11" fill="#0b0d12" font-weight="700">CCL maker ← rent</text>
+      <rect x="430" y="54" width="120" height="20" fill="#212634"/><rect x="430" y="54" width="30" height="20" fill="#4faf8e"/><text x="490" y="69" text-anchor="middle" font-size="10" fill="#0b0d12">board</text>
+    </g>
+    <!-- variant view -->
+    <text x="0" y="124" font-size="12" fill="#e0686a">Our variant: peak one layer below — at the glass+foil materials</text>
+    <g>
+      <rect x="0" y="134" width="120" height="20" fill="#212634"/><rect x="0" y="134" width="48" height="20" fill="#8b84cf"/><text x="60" y="149" text-anchor="middle" font-size="10" fill="#0b0d12">resin</text>
+      <rect x="130" y="124" width="160" height="40" fill="#e0686a"/><text x="210" y="149" text-anchor="middle" font-size="11" fill="#0b0d12" font-weight="700">glass+foil ← rent</text>
+      <rect x="300" y="134" width="120" height="20" fill="#212634"/><rect x="300" y="134" width="70" height="20" fill="#5b81c4"/><text x="360" y="149" text-anchor="middle" font-size="10" fill="#0b0d12">CCL (converter)</text>
+      <rect x="430" y="134" width="120" height="20" fill="#212634"/><rect x="430" y="134" width="28" height="20" fill="#4faf8e"/><text x="490" y="149" text-anchor="middle" font-size="10" fill="#0b0d12">board</text>
+    </g>
+    <text x="0" y="194" font-size="11.5" fill="#9aa3b5">Why: the CCL maker's BOM is 87% scarce input (foil+resin+glass) and NVIDIA multi-sources it 4-6 deep — so it can mark up only the conversion.</text>
+    <text x="0" y="212" font-size="11.5" fill="#9aa3b5">The single-source monopoly — and the most defensible margin — is the glass cloth and (escalating) HVLP foil it must buy.</text>
+  </svg>
+  </div>
+
+  <div class="grid2" style="margin-top:14px">
+    <div class="card"><h4>① The rent is below the laminator, not at it</h4><p>The whole Street is long Elite/TUC/Shengyi. But their cost is 42% foil / 26% resin / 19% glass — a converter's economics. The defensible monopoly is Nittobo glass and Mitsui foil. The laminators have real (expanding) margins, but they are the squeezed middle, not the toll-keeper.</p></div>
+    <div class="card"><h4>② The customer is breaking the CCL monopoly</h4><p><b>The single most important bear fact:</b> EMC reportedly failed NVIDIA's GB300 M9 cert → Doosan took an exclusive slot; for M10 NVIDIA broadened qualification to multiple (1 TW + 2 CN) suppliers to "break single-source dependency" (Kuo, [SS]). So the CCL-maker pricing premium is being actively diluted — another reason the durable rent is upstream of them.</p></div>
+    <div class="card"><h4>③ The copper-clock cuts cables, not boards</h4><p>When 448G scale-up eventually goes optical (Feynman, 2028+), the loser is the active-copper-cable vendor (Amphenol-type), <b>not</b> CCL: optical engines still need more, denser, higher-layer boards. Don't conflate the CCL thesis with the copper-cable thesis. CPO is a 2028-2029 switch-CCL risk, not a near-term compute-tray risk (SemiAnalysis Jun-2026).</p></div>
+    <div class="card"><h4>How it could be wrong</h4><p>Second-sources arrive faster than the 12-18mo qual cycle implies (Asahi Kasei/AGC glass, Co-Tech foil, M10 multi-vendor CCL), collapsing the upstream rent into 2027 before the priced incumbents de-rate. <b>The sharpest version is China domestic substitution:</b> Shengyi/SYTECH in CCL, Chinese OPE resin (Shengquan/Dongcai), CN copper-foil and glass entrants, and NVIDIA's own M10 design (reportedly 1 TW + 2 CN qualifiers [SS]) imply a China supply wave that has historically broken Japanese material monopolies fast once qualified — the top risk to a JP-monopoly thesis. Or the AI-board build-rate air-pockets — the most-loved (Elite/TUC, +100-800%) fall hardest. And the "shortage" is partly cyclical pricing the monopolists are themselves expanding into (Nittobo 3×, ¥120B capex).</p></div>
+  </div>
+</section>
+
+<!-- 11 AWARENESS -->
+<section id="awareness">
+  <div class="sh"><span class="n">11</span><h2>Awareness curve — early vs priced</h2><span class="cn">YTD move × valuation</span></div>
+  <div class="svgscroll">
+  <svg viewBox="0 0 960 300" width="960" height="300" role="img" aria-label="Awareness curve">
+    <defs><linearGradient id="scurve" x1="0" x2="1"><stop offset="0" stop-color="#4faf8e"/><stop offset="1" stop-color="#e0686a"/></linearGradient></defs>
+    <!-- axes -->
+    <line x1="60" y1="250" x2="920" y2="250" stroke="#2a3040"/>
+    <line x1="60" y1="40" x2="60" y2="250" stroke="#2a3040"/>
+    <text x="60" y="278" font-size="11" fill="#697283">Latent</text>
+    <text x="250" y="278" font-size="11" fill="#697283">Early (alpha)</text>
+    <text x="470" y="278" font-size="11" fill="#697283">Recognition</text>
+    <text x="690" y="278" font-size="11" fill="#697283">Euphoria</text>
+    <text x="860" y="278" font-size="11" fill="#697283">Priced</text>
+    <text x="14" y="150" font-size="11" fill="#697283" transform="rotate(-90 14 150)">awareness / price</text>
+    <!-- S curve -->
+    <path d="M60,238 C300,232 360,150 500,120 C640,90 720,55 920,48" fill="none" stroke="url(#scurve)" stroke-width="3"/>
+    <!-- entry zone -->
+    <rect x="180" y="40" width="150" height="210" fill="rgba(79,175,142,.08)"/>
+    <line x1="200" y1="40" x2="200" y2="250" stroke="#4faf8e" stroke-width="1.4" stroke-dasharray="5 4"/>
+    <text x="206" y="58" font-size="10.5" fill="#4faf8e">where the next entry hides</text>
+    <!-- nodes -->
+    <g font-size="11">
+      <circle cx="235" cy="190" r="5" fill="#4faf8e"/><text x="245" y="186" fill="#e8eaf0">Co-Tech 8358 (HVLP4 2nd-src)</text>
+      <circle cx="300" cy="160" r="5" fill="#4faf8e"/><text x="310" y="156" fill="#e8eaf0">Asahi Kasei / Taiwan Glass (glass 2nd)</text>
+      <circle cx="430" cy="128" r="5" fill="#d2a24a"/><text x="440" y="124" fill="#e8eaf0">Doosan (M9 CCL)</text>
+      <circle cx="600" cy="100" r="5" fill="#d2a24a"/><text x="610" y="104" fill="#e8eaf0">Mitsui 5706 (+147% YTD)</text>
+      <circle cx="720" cy="74" r="5" fill="#e0686a"/><text x="635" y="78" fill="#e8eaf0" text-anchor="end">TUC 6274 (+817% 1y)</text>
+      <circle cx="800" cy="60" r="5" fill="#e0686a"/><text x="795" y="48" fill="#e8eaf0" text-anchor="end">Elite 2383</text>
+      <circle cx="858" cy="52" r="6" fill="#e0686a"/><text x="850" y="68" fill="#e8eaf0" text-anchor="end">Nittobo 3110 (+465%)</text>
+    </g>
+  </svg>
+  </div>
+  <p class="cap">Staged by YTD move × valuation, as-of 2026-06-30. The obvious monopolists (Nittobo, Mitsui) and laminators (Elite, TUC) sit in recognition→euphoria. The only names left of the green dashed line are the <b>second-source qualifiers</b> — and even those (Co-Tech ~NT$615 near ATH) are not truly latent, just earlier on the same wave.</p>
+</section>
+
+<!-- 12 SIGNALS + LATENT -->
+<section id="signals">
+  <div class="sh"><span class="n">12</span><h2>Leading-indicator dashboard + still-latent watchlist</h2><span class="cn">signals an amateur can read</span></div>
+  <table class="t">
+    <tr><th>Signal</th><th>Quantitative trigger</th><th>Where to read it (free)</th></tr>
+    <tr><td>Low-Dk glass allocation</td><td>Nittobo new capacity slips past mid-2027; another +20% price</td><td>TrendForce / DigiTimes glass notes; Nittobo IR</td></tr>
+    <tr><td>HVLP4 shortfall</td><td>Mitsui HVLP3+ shortfall stays &gt;30%; NVIDIA secures allocation again</td><td>Goldman notes via BigGo/Bitget; DigiTimes; Mitsui IR</td></tr>
+    <tr><td>Co-Tech share ramp</td><td>Co-Tech 8358 monthly rev makes new high; share toward Goldman's 53%</td><td>TPEX monthly revenue (公開資訊觀測站); Co-Tech IR</td></tr>
+    <tr><td>CCL price / Korea import</td><td>Korea CCL import &gt;$20K/ton holds; high-end +10% QoQ</td><td>Korea Customs releases; AtlasPCB; TrendForce</td></tr>
+    <tr><td>Laminator margin pass-through</td><td>Elite/TUC/Shengyi GM up another QoQ step</td><td>Quarterly results (stockanalysis, futunn, Fugle)</td></tr>
+    <tr><td>M9/M10 qualification</td><td>NVIDIA qualifies a new M9 CCL maker; M10 multi-vendor confirmed</td><td>DigiTimes; SemiAnalysis; GTC/OCP; ODM teardowns</td></tr>
+    <tr><td>CPO scale-up timing</td><td>NVLink-optical confirmed for Feynman; CPO yields cross ~90%</td><td>SemiAnalysis; OFC papers; NVIDIA newsroom</td></tr>
+  </table>
+
+  <div class="grid2" style="margin-top:14px">
+    <div class="card"><h4 class="grn">Still-latent watchlist — left of the earliest play</h4>
+      <ul>
+        <li><b>HVLP4 second-source — Co-Tech (8358.TWO).</b> Only customer-certified 2nd HVLP4 source; Goldman BUY, TP NT$900, share 5%→53% by 2028. Wakes on: each monthly-revenue print + a named AI design-win.</li>
+        <li><b>Low-Dk glass second-sources — Asahi Kasei (3407.T), AGC (5201.T), NEG (5214.T), Taiwan Glass (1802.TW), Nan Ya (1303.TW).</b> All entering/qualifying H1-2026, all diluted today. Wakes on: a certified AI low-Dk design-win headline.</li>
+        <li><b>M9 CCL winner — Doosan (000150.KS).</b> Took the GB300 slot EMC reportedly failed; Rubin M9 lead. Wakes on: Rubin volume ramp / Doosan materials-revenue disclosure.</li>
+        <li><b>Resin pure-ish proxy — MGC (4182.T).</b> Purest listed PPE/active-ester exposure but diluted. Wakes on: a durable PPE supply squeeze beyond the April-2026 shock.</li>
+      </ul>
+    </div>
+    <div class="card"><h4>Why these are the "be-early" set</h4><p>The monopolists (Nittobo, Mitsui) and laminators (Elite, TUC, Shengyi) have already run +100-800%; their remaining asymmetry is execution-on-expansion, not discovery. The earlier dollar sits in the <b>qualification race</b> — the names that win a second-source slot capture the next content step at a fraction of the incumbents' valuation. The risk is symmetric: a failed qualification or a faster-than-expected supply digestion. None is a clean undiscovered secret — they are earlier on the <i>same</i> wave, which is the honest state of a theme already in recognition.</p></div>
+  </div>
+</section>
+
+<!-- 13 PLAYS -->
+<section id="plays">
+  <div class="sh"><span class="n">13</span><h2>The plays — four different links</h2><span class="cn">8-point teardown · 中文標籤</span></div>
+  <p class="lead">Each tab is a different link of the CCL stack at a different awareness stage. None is a clean "early" pick — this report confirms the materials chokepoint is real but largely <b>priced</b>; the lean is upstream-quality + the second-source optionality, not a chase of the most-loved laminator.</p>
+
+  <div class="tabs" role="tablist" aria-label="plays">
+    <button class="tab" role="tab" aria-selected="true" id="t1" aria-controls="p1" tabindex="0">Nittobo 3110 · glass (binding)</button>
+    <button class="tab" role="tab" aria-selected="false" id="t2" aria-controls="p2" tabindex="-1">Mitsui 5706 · HVLP foil</button>
+    <button class="tab" role="tab" aria-selected="false" id="t3" aria-controls="p3" tabindex="-1">Co-Tech 8358 · 2nd-source</button>
+    <button class="tab" role="tab" aria-selected="false" id="t4" aria-controls="p4" tabindex="-1">Elite 2383 · CCL (priced)</button>
+  </div>
+
+  <div class="tabpanel" id="p1" role="tabpanel" aria-labelledby="t1">
+    <div class="vstrip">
+      <div><div class="vk">Price (≈)</div><div class="vv num">¥19,500-20,600</div></div>
+      <div><div class="vk">1-yr move</div><div class="vv num red">~+465%</div></div>
+      <div><div class="vk">P/E (est.)</div><div class="vv num">~18×</div></div>
+      <div><div class="vk">Stage</div><div class="vv red">Euphoria</div></div>
+    </div>
+    <div class="eight">
+      <div class="it"><div class="q">① 怎麼賺錢</div><div class="a">Makes glass fiber/cloth, plus medical, composites, insulation. The AI engine is <b>Electronic Materials (~40% of sales)</b> — low-Dk / T-glass cloth.</div></div>
+      <div class="it"><div class="q">② 營收結構</div><div class="a">Six segments; Electronic Materials ~39.9% of Q1-FY26 sales. FY25 net sales ¥118.2B (+8.4%), op profit ¥20.8B (+26.6%).</div></div>
+      <div class="it"><div class="q">③ 成長來源</div><div class="a">AI low-Dk + T-glass demand; tripling T-glass capacity by 2027; Nan Ya weaving deal frees yarn capacity.</div></div>
+      <div class="it"><div class="q">④ 終端市場</div><div class="a">AI server boards + IC substrates (CoWoS/ABF/BT); also 5G, autos, insulation.</div></div>
+      <div class="it"><div class="q">⑤ 主要客戶</div><div class="a">CCL makers (Elite/TUC/Panasonic) + substrate makers; reportedly courted directly by NVIDIA/MS/Google/Amazon/Apple (reported).</div></div>
+      <div class="it"><div class="q">⑥ 護城河</div><div class="a"><b>The deepest moat in the stack:</b> melt chemistry + ultra-fine low-Dk yarn drawing + spread-weave yield. Outsources only weaving, keeps yarn in-house.</div></div>
+      <div class="it"><div class="q">⑦ 管理層展望</div><div class="a">¥120B mid-term capex; new capacity not online before mid-2027. Pricing +20% (2025), +20-30% (2026).</div></div>
+      <div class="it"><div class="q">⑧ 為何是卡點</div><div class="a">~90% T-glass, &gt;80% low-Dk: a one-company market for the grades Rubin needs. Per-link severity <b>19/20</b>.</div></div>
+    </div>
+    <div class="infogap"><b>Asymmetric-info gap:</b> the market now KNOWS Nittobo is the monopoly (mainstream Tom's Hardware coverage, +465% 1yr) — so the edge is no longer discovery. It is (a) whether second-sources (Asahi Kasei/AGC) erode the &gt;80% low-Dk share faster than the multi-quarter qual cycle implies, and (b) execution on the 3× expansion. You are buying a diluted conglomerate late on the curve for the cleanest listed glass exposure.</div>
+    <div class="bb"><div class="bull"><h5>Bull</h5><p>Single-source the whole AI stack must pass through; sold out to 2027; pricing power proven; the substrate (Run #6) AND board both feed off it.</p></div><div class="bear"><h5>Bear</h5><p>+465% already; mainstream-covered; second-source wave concrete in H1-2026; own a melt/insulation conglomerate, not a pure-play; expanding into its own shortage.</p></div></div>
+  </div>
+
+  <div class="tabpanel" id="p2" role="tabpanel" aria-labelledby="t2" hidden>
+    <div class="vstrip">
+      <div><div class="vk">Price (≈)</div><div class="vv num">¥43,300-46,400</div></div>
+      <div><div class="vk">YTD</div><div class="vv num amb">+147%</div></div>
+      <div><div class="vk">Broker TP</div><div class="vv num">¥34,500 (raised)</div></div>
+      <div><div class="vk">Stage</div><div class="vv amb">Euphoria</div></div>
+    </div>
+    <div class="eight">
+      <div class="it"><div class="q">① 怎麼賺錢</div><div class="a">Two segments: Metals (zinc/copper smelting, cyclical) + <b>Functional Materials</b> — copper foil + ultra-thin carrier foil. Foil is the profit swing.</div></div>
+      <div class="it"><div class="q">② 營收結構</div><div class="a">FY26 9-mo rev ¥542.3B (+3.1%), op profit ¥71.7B (+27.6%) — copper foil drives the op-profit beat; not separately broken out (est.).</div></div>
+      <div class="it"><div class="q">③ 成長來源</div><div class="a">HVLP3/4/5 ramp for 224G/448G; ~98% of ultra-thin carrier foil for substrates (adjacent ABF tailwind).</div></div>
+      <div class="it"><div class="q">④ 終端市場</div><div class="a">AI compute/switch boards; IC substrates; 5G. AI is the distinct fast-growing pool.</div></div>
+      <div class="it"><div class="q">⑤ 主要客戶</div><div class="a">CCL makers (orders from Mitsui first); NVIDIA intervening directly to secure HVLP4 allocation.</div></div>
+      <div class="it"><div class="q">⑥ 護城河</div><div class="a"><b>Each grade halves capacity</b> + surface-treatment chemistry IP + the foil re-roughens in fab so it must start far smoother than spec. ~60% HVLP2+, ~80% HVLP5.</div></div>
+      <div class="it"><div class="q">⑦ 管理層展望</div><div class="a">Raised FY profit + dividend on copper-foil strength; Ageo plant +20%+ HVLP output; broker TP ¥19K→¥34.5K.</div></div>
+      <div class="it"><div class="q">⑧ 為何是卡點</div><div class="a">Near-monopoly at the top grade with escalating tightness (28-39% shortfall). Per-link severity <b>18/20</b>.</div></div>
+    </div>
+    <div class="infogap"><b>Asymmetric-info gap:</b> the foil share figures (~60% HVLP2+, tonnages, shortfall %) all trace to one Goldman channel-check — directionally robust but methodologically single-origin. <b>Note the price already trades ~25-35% ABOVE the cited raised broker TP of ¥34,500</b> — by that one target it is past fair value, so you are paying for an upgrade cycle the sell-side hasn't yet caught up to. You also own a zinc/copper smelter, so the AI-foil torque is diluted inside a cyclical metals base. The cleanest <i>structural</i> read is the "each grade halves capacity" mechanism (est.): tightness mechanically rises into 448G regardless of the exact share.</div>
+    <div class="bb"><div class="bull"><h5>Bull</h5><p>Near-monopoly whose constraint <i>escalates</i> with every speed step; HVLP GM 40-60%; carrier-foil substrate tailwind compounds; most-liquid way to own the foil leader.</p></div><div class="bear"><h5>Bear</h5><p>+147% YTD; metals-cyclical dilution; Co-Tech 2nd-source + M10 multi-vendor erode the monopoly; estimates single-origin.</p></div></div>
+  </div>
+
+  <div class="tabpanel" id="p3" role="tabpanel" aria-labelledby="t3" hidden>
+    <div class="vstrip">
+      <div><div class="vk">Price (≈)</div><div class="vv num">NT$615</div></div>
+      <div><div class="vk">ATH</div><div class="vv num">NT$687 (Jun-2)</div></div>
+      <div><div class="vk">Goldman TP</div><div class="vv num grn">NT$900 · BUY</div></div>
+      <div><div class="vk">Stage</div><div class="vv grn">Early→Recognition</div></div>
+    </div>
+    <div class="eight">
+      <div class="it"><div class="q">① 怎麼賺錢</div><div class="a">Taiwanese electrodeposited copper-foil maker — the closest thing to an HVLP <b>pure-play</b> and the certified second source of HVLP4.</div></div>
+      <div class="it"><div class="q">② 營收結構</div><div class="a">Jan-Nov 2025 rev NT$7.13B already &gt; full-year 2024; Nov-2025 rev NT$716M (4-yr high). Mix shifting to high-end foil.</div></div>
+      <div class="it"><div class="q">③ 成長來源</div><div class="a">HVLP4 second-source ramp; Goldman models share 5% (2025)→53% (2028); doubling to ~400 t/mo by end-2026.</div></div>
+      <div class="it"><div class="q">④ 終端市場</div><div class="a">AI compute/switch boards via CCL makers seeking a Mitsui alternative.</div></div>
+      <div class="it"><div class="q">⑤ 主要客戶</div><div class="a">CCL makers qualifying a second HVLP4 source (the customer-driven de-monopolization of foil).</div></div>
+      <div class="it"><div class="q">⑥ 護城河</div><div class="a">Thinner than Mitsui's — it IS the second source, so its edge is being the FIRST qualified alternative, not an unassailable moat.</div></div>
+      <div class="it"><div class="q">⑦ 管理層展望</div><div class="a">Capacity doubling; Goldman initiated BUY with ~110% upside at the time.</div></div>
+      <div class="it"><div class="q">⑧ 為何是卡點</div><div class="a">Sits at the binding foil link with the most share-gain runway. Per-link severity (as a play) lower, but remaining asymmetry highest.</div></div>
+    </div>
+    <div class="infogap"><b>Asymmetric-info gap:</b> this is the genuine "be-early" candidate — but it is a small-cap, already near an all-time high, and the entire thesis (5%→53%) rests on a single Goldman initiation. The asymmetry is real (it's the only name left of recognition) but so is the fragility: a qualification slip or a Mitsui capacity surprise hits it hardest.</div>
+    <div class="bb"><div class="bull"><h5>Bull</h5><p>Purest HVLP exposure; the one certified 2nd source into a 28-39% shortfall; biggest share-gain runway; Goldman BUY.</p></div><div class="bear"><h5>Bear</h5><p>Small-cap, near ATH, single-analyst thesis; second-source by definition has a thinner moat; high-beta to any AI-board air-pocket.</p></div></div>
+  </div>
+
+  <div class="tabpanel" id="p4" role="tabpanel" aria-labelledby="t4" hidden>
+    <div class="vstrip">
+      <div><div class="vk">Price (≈)</div><div class="vv num">TWD ~5,400-6,000</div></div>
+      <div><div class="vk">1-yr move</div><div class="vv num red">~+5-6×</div></div>
+      <div><div class="vk">FY25 GM</div><div class="vv num">29.8%</div></div>
+      <div><div class="vk">Stage</div><div class="vv red">Euphoria</div></div>
+    </div>
+    <div class="eight">
+      <div class="it"><div class="q">① 怎麼賺錢</div><div class="a">#1 high-speed CCL maker (EM-892/M8-grade) — blends resin+glass+foil into qualified laminate.</div></div>
+      <div class="it"><div class="q">② 營收結構</div><div class="a">FY25 rev +46% to NT$94.3B; high-speed CCL ~22% segment share (#1). GM 27.9%→29.8%.</div></div>
+      <div class="it"><div class="q">③ 成長來源</div><div class="a">M8 allocation pricing; capacity 5.5M→7.6M sheets/mo end-2026 (est.); M9 race (but reportedly failed GB300).</div></div>
+      <div class="it"><div class="q">④ 終端市場</div><div class="a">AI GPU/switch boards via ODMs; the swing factor is NVIDIA platform content.</div></div>
+      <div class="it"><div class="q">⑤ 主要客戶</div><div class="a">PCB fabs / ODMs building NVL72→Rubin boards.</div></div>
+      <div class="it"><div class="q">⑥ 護城河</div><div class="a">The qualified recipe + 12-18mo NVIDIA co-qual. Real but: a converter (87% passthrough BOM) being multi-sourced.</div></div>
+      <div class="it"><div class="q">⑦ 管理層展望</div><div class="a">Record results, capacity expansion, high-end mix. But M9/Rubin slot reportedly went to Doosan.</div></div>
+      <div class="it"><div class="q">⑧ 為何是卡點</div><div class="a">Owns the formulation gate, captures real (expanding) margin — but the rent is upstream. Per-link severity <b>13/20</b>.</div></div>
+    </div>
+    <div class="infogap"><b>Asymmetric-info gap:</b> the market models Elite as THE AI-CCL winner and has paid an estimated ~110× trailing (euphoric) for it. The variant is that it is a converter whose scarce inputs (glass/foil) keep more of the rent, and that the M9/Rubin content step may go to Doosan — so its content leadership is not guaranteed to repeat. Highest quality operator, lowest remaining asymmetry.</div>
+    <div class="bb"><div class="bull"><h5>Bull</h5><p>#1 share, expanding margins, record growth, the cleanest large-cap AI-CCL operator.</p></div><div class="bear"><h5>Bear</h5><p>Euphoric valuation; converter economics; reportedly failed GB300 M9; multi-sourced by the customer; first to fall on a build-rate air-pocket.</p></div></div>
+  </div>
+</section>
+
+<!-- 14 DECISION + SCENARIO -->
+<section id="decision">
+  <div class="sh"><span class="n">14</span><h2>Scenario &amp; decision table</h2><span class="cn">severity · stage · asymmetry · lean</span></div>
+
+  <table class="t">
+    <tr><th>Scenario (12-18m)</th><th>Prob</th><th>What happens</th><th>Rough return (upstream basket)</th></tr>
+    <tr><td class="grn">Bull</td><td class="num">30%</td><td>Shortage persists through 2027; second-sources slip; Rubin content +233% lands; pricing power holds</td><td class="num grn">+30 to +60%</td></tr>
+    <tr><td>Base</td><td class="num">45%</td><td>Tight 2026-H1'27 then 2027 capacity digests; rent migrates to 2nd-sources; incumbents flatten</td><td class="num">−5 to +15%</td></tr>
+    <tr><td class="red">Bear</td><td class="num">25%</td><td>AI build-rate air-pocket OR faster supply digestion; the +100-800% names de-rate hard</td><td class="num red">−30 to −50%</td></tr>
+  </table>
+  <p class="cap">Probability-weighted EV is thin-to-modestly-positive on the already-run incumbents — which is the finding: <b>the chokepoint is real but largely priced, so entry discipline matters more than the thesis.</b> The fatter risk-adjusted skew is the second-source basket (Co-Tech), which is earlier but higher-variance. Returns are illustrative, not forecasts.</p>
+
+  <table class="t" style="margin-top:14px">
+    <tr><th>Name</th><th>Link / role</th><th>Severity</th><th>Stage</th><th>Valuation (est.)</th><th>Remaining asymmetry</th><th>Author lean (opinion)</th></tr>
+    <tr class="chokerow"><td>Nittobo 3110.T</td><td>Glass cloth (binding)</td><td class="red">19</td><td>Euphoria</td><td>~18× P/E</td><td class="amb">Low–mid (execution)</td><td>Quality monopoly, late — watch, don't chase</td></tr>
+    <tr><td>Mitsui 5706.T</td><td>HVLP foil (co-binding)</td><td class="amb">18</td><td>Euphoria</td><td>re-rated</td><td class="amb">Low–mid (escalating tightness)</td><td>Cleanest structural mechanism; diluted</td></tr>
+    <tr><td>Co-Tech 8358.TWO</td><td>Foil 2nd-source</td><td class="amb">—</td><td>Early→Recog</td><td>Goldman TP NT$900 [SS]</td><td class="grn">Highest (5→53% [SS])</td><td>The genuine early dollar; high-variance</td></tr>
+    <tr><td>Doosan 000150.KS</td><td>M9 CCL winner</td><td class="blu">13</td><td>Early→Recog</td><td>diluted holdco</td><td class="grn">Mid (Rubin M9)</td><td>Optionality on the GB300/Rubin slot</td></tr>
+    <tr><td>Elite 2383.TW</td><td>CCL #1</td><td class="blu">13</td><td>Euphoria</td><td>~euphoric</td><td class="red">Lowest</td><td>Best operator, fully priced, converter</td></tr>
+  </table>
+  <p class="lead" style="margin-top:14px"><b>If you can only do one thing:</b> track the upstream materials (Nittobo glass allocation, Mitsui HVLP4 shortfall) as the <i>thesis confirmer</i>, and watch the <b>second-source qualification race</b> (Co-Tech monthly revenue, Asahi Kasei/AGC glass design-wins, Doosan M9) as the place the remaining asymmetry actually lives. The incumbents are the right businesses at the wrong point on the curve.</p>
+  <div class="vbox"><h3>Dated falsifier</h3><p>The thesis breaks if, by the next 1-2 prints: (a) Nittobo/Mitsui guide that the shortage <b>eases meaningfully before 2027</b> (capacity ahead of plan), OR (b) a Korea CCL import price <b>roll-over below ~$18K/ton</b> + laminator GM compression signals the pricing leg is over, OR (c) NVIDIA's AI-board build-rate is cut. Any of these → the upstream rent is being digested and the priced incumbents have no cushion.</p></div>
+</section>
+
+<!-- 15 SELF-CRITIQUE -->
+<section id="critique">
+  <div class="sh"><span class="n">15</span><h2>Open questions &amp; self-critique</h2><span class="cn">unresolved holes · retail steelman</span></div>
+  <div class="grid2">
+    <div class="card"><h4>Unresolved holes (not a victory lap)</h4><ul>
+      <li><b>Single-origin load-bearing numbers:</b> Mitsui ~60% HVLP2+, the 28-39% shortfall tonnages, and Co-Tech 5%→53% all trace to one Goldman note. The "EMC failed GB300 / Doosan exclusive" and the M10 China-supplier names are DigiTimes/Kuo-only and unconfirmed by EMC.</li>
+      <li><b>Fab-vs-laminate value split is a genuine data gap</b> — no clean ≥2-source figure for how the high-layer-PCB dollar splits between board fab and CCL material.</li>
+      <li><b>Per-rack PCB $ (+233%)</b> inherits from one Morgan Stanley note re-reported widely — treat the absolute $35K→$117K as directional.</li>
+      <li><b>Nittobo's exact NER share (60-70%)</b> is a single TrendForce primary; the ~90% T-glass is better-corroborated.</li>
+      <li><b>IBKR price feed for Nittobo (3110.T) was broken</b> (¥4,410 vs real ~¥19,500) — used aggregators; a reminder that broker snapshots for some JP/TW lines need cross-checking (cf. IBKR weekly-bar gotcha).</li>
+    </ul></div>
+    <div class="card"><h4>Retail-investor steelman of the bear</h4><p>"Everything in this report is already up 100-800%. The monopoly is on the front page of Tom's Hardware. The monopolists are <i>expanding into</i> their own shortage (Nittobo 3×, ¥120B; Mitsui +20%+; SABIC PPE; Panasonic Megtron). Capacity is booked to 2028 against a demand peak that <i>could</i> be 2027 — that is the classic setup for a 2H-2027 oversupply de-rate. And the one 'early' name (Co-Tech) is a small-cap near its ATH on a single analyst's call. A retail investor chasing this now is buying recognition-stage euphoria, not latent alpha — the time to own the glass/foil monopoly was 2024-25, and the honest read is that this is a WATCH list with entry discipline, not a buy."</p></div>
+  </div>
+</section>
+
+<!-- 16 METHOD / SOURCES -->
+<section id="method">
+  <div class="sh"><span class="n">16</span><h2>Method · sources · disclaimer</h2><span class="cn">provenance</span></div>
+  <p class="lead">Method: chokepoint-deep-dive v5 — scope → MECE frame (speed × link) → upstream-downstream map → 4-factor severity per link → variant/disaggregation → sizing &amp; rent-capture test → awareness staging → plays → decision → self-critique + cross-review. Five parallel research streams (resin · glass · foil · CCL/ladder · AI-content/pricing/bear), each cross-checking load-bearing numbers against ≥2 independent sources. Live quotes IBKR read-only (never traded) + aggregators where the IBKR feed was unreliable.</p>
+  <div class="srcwrap">
+    <div><b>Glass:</b> TrendForce glass-cloth shortage primer + T-glass deep-dive (2025-11-24) + Nan Ya 20% (2025-11-28); DigiTimes tripling (2025-09) + Asahi Kasei entry (2026-04-02); Nikkei AGC/Asahi retool; Tom's Hardware glass shortage; globaltechresearch Nittobo.</div>
+    <div><b>Foil:</b> Goldman deep-dive via BigGo + Bitget; Taiwan News (2025-12-15, Co-Tech); DigiTimes HVLP4 (2026-06-11); Mitsui IR/VSP; madpcb/circuitinsight (Rz/skin-effect); TPEX 8358 quote.</div>
+    <div><b>Resin:</b> SABIC SA9000 PR + capacity expansion; AtlasPCB PPE shortage (2026-05); Tom's Hardware Jubail; HiL Electronic; Lighthouse Canton; QueenEMS; UGPCB.</div>
+    <div><b>CCL / ladder:</b> Prismark rigid-CCL update (2025-10 + 2026-06); queenems M9 guide; nextpcb/PCBSync Megtron + Megtron 8 datasheet; DigiTimes Doosan/EMC (2025-11-21); datahorizzon (qual cycle); SemiAnalysis Vera Rubin + GB200 BOM.</div>
+    <div><b>AI content / pricing:</b> Morgan Stanley BOM (PCB $/rack) via hilelectronic + bitget; Prismark TAM; AtlasPCB Korea import +74.5%; TrendForce CCL BOM split; futunn/quartr/Fugle (margins); SemiAnalysis CPO (2026-06-09); EDN/Semiwiki/Marvell (448G).</div>
+    <div><b>Quotes (2026-06-30):</b> IBKR read-only (Elite 2383, Mitsui 5706, ITEQ 6213, Nittobo 3110*) + Investing.com/Yahoo/stockanalysis/FMP cross-checks. *Nittobo IBKR absolute price unreliable — aggregator used.</div>
+  </div>
+  <div class="disc"><b>Disclaimer.</b> Personal research for a private knowledge base — NOT investment advice, NOT a recommendation or solicitation. Every estimate/forecast is attributed or hedged; approximations marked (est.); single-source claims flagged [SS]. A supply pre-pay, an equity stake, and a price-hike are different things and are not conflated. Prices/multiples decay fast — as-of 2026-06-30. IBKR is read-only; no trade was or will be placed. Author leans are personal opinion.</div>
+  <p class="foot">AI-Infra Deep-Dive · Run #18 · v5 · 2026-06-30 · CCL material stack (resin · glass cloth · HVLP foil · CCL formulation) · binding chokepoint = upstream low-Dk glass (Nittobo) + HVLP foil (Mitsui).<br>
+  <b>Iteration log:</b> v5.0 (2026-06-30) initial build — 5-stream parallel research, ≥2-source verification, decomposed the Run #17 "L3 CCL" node into its 4 sub-links; pending viz-QA + analyst/compliance cross-review pass.</p>
+</section>
+
+</div>
+
+<script>
+(function(){
+  var tabs=[].slice.call(document.querySelectorAll('[role=tab]'));
+  function sel(i){
+    tabs.forEach(function(t,j){
+      var on=j===i;
+      t.setAttribute('aria-selected',on?'true':'false');
+      t.tabIndex=on?0:-1;
+      var p=document.getElementById(t.getAttribute('aria-controls'));
+      if(p) p.hidden=!on;
+    });
+    tabs[i].focus();
+  }
+  tabs.forEach(function(t,i){
+    t.addEventListener('click',function(){sel(i);});
+    t.addEventListener('keydown',function(e){
+      var n=tabs.length;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();sel((i+1)%n);}
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();sel((i-1+n)%n);}
+      else if(e.key==='Home'){e.preventDefault();sel(0);}
+      else if(e.key==='End'){e.preventDefault();sel(n-1);}
+    });
+  });
+})();
+</script>
+</body>
+</html>

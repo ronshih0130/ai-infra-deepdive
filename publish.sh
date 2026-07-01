@@ -50,7 +50,10 @@ sync_slug 'AI-Infra_LeadingDataMap_*.html' leading-data-map.html
 # --- sync the BOM Alpha Scan (live free-data BOM x leading-data scan, weekly) ---
 sync_slug 'AI-Infra_BOM_AlphaScan_*.html' bom-alpha-scan.html
 
-# --- sync the Leading-Indicators Command Center (flagship MECE dashboard, weekly) ---
+# --- sync the AF-1 Alpha Funnel (top-down flagship: regime -> binding -> rotation -> recommendations -> scorecard) ---
+sync_slug 'AI-Infra_AlphaFunnel_*.html' alpha-funnel.html
+
+# --- sync the Leading-Indicators Command Center (engine room: full multi-signal data layer, weekly) ---
 sync_slug 'AI-Infra_LeadingIndicators_*.html' leading-indicators.html
 
 # --- sync single-name reverse-model teardowns (on-demand) ---

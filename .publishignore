@@ -11,3 +11,4 @@
 #   *_DRAFT_*.html
 #
 # Lines starting with # and blank lines are ignored. Nothing is excluded by default.
+portfolio_snapshot*.json

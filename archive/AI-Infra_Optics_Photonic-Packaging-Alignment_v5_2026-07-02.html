@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Infra Run #19 v5 — Optics / Photonic Packaging &amp; Optical-Alignment Chokepoint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#13161e; --panel2:#1a1e28; --panel3:#212634; --line:#2a3040; --line2:#363d4f;
+    --txt:#e8eaf0; --mut:#9aa3b5; --dim:#697283;
+    --accent:#2dd4bf;        /* single brand accent (desaturated teal) */
+    --choke:#e0686a;         /* desaturated red */
+    --pos:#4faf8e; --neg:#e0686a; --warn:#d2a24a;
+    /* categorical: supply layers */
+    --up:#5b81c4; --l3:#8b84cf; --pkg:#c47a9e; --l2:#d2a24a; --l1:#4faf8e;
+    /* categorical: use-case domains */
+    --dup:#e0a458; --dout:#5aa9e0; --dacr:#5fc98a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px;-webkit-font-smoothing:antialiased}
+  .num{font-family:"JetBrains Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  a{color:var(--accent);text-decoration:none}
+  /* ---- header ---- */
+  header{border-bottom:1px solid var(--line);padding:38px 0 26px;margin-bottom:8px;background:
+     radial-gradient(900px 320px at 12% -40%,rgba(45,212,191,.10),transparent 60%),
+     radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
+  .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.6px;line-height:1.12;max-width:940px}
+  .sub{font-size:15px;font-weight:400;color:var(--mut);margin-top:12px;max-width:860px}
+  .sub b{color:#fff;font-weight:600}
+  .hgauges{display:flex;gap:14px;flex-wrap:wrap;margin-top:22px}
+  .gauge{border:1px solid var(--line);border-radius:12px;padding:13px 16px;background:var(--panel);min-width:230px}
+  .gauge .gl{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--dim);margin-bottom:7px}
+  .gauge .gv{font-size:15px;font-weight:600;margin-top:6px}
+  .meta{margin-top:22px;display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+  .meta div{padding-right:24px;margin-right:24px;border-right:1px solid var(--line);margin-bottom:6px}
+  .meta div:last-child{border:0}
+  .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+  .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
+  .asof{margin-top:16px;background:rgba(210,162,74,.07);border:1px solid #3a3015;border-radius:9px;padding:9px 14px;font-size:11.5px;color:#c9b075}
+  /* ---- sticky toc ---- */
+  .toc{position:sticky;top:0;z-index:40;background:rgba(11,13,18,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin-bottom:4px}
+  .toc .wrap{display:flex;gap:5px;flex-wrap:wrap;padding-top:9px;padding-bottom:9px}
+  .toc a{font-size:11px;color:var(--mut);padding:4px 9px;border-radius:6px;border:1px solid transparent}
+  .toc a:hover{background:var(--panel2);border-color:var(--line);color:var(--txt)}
+  /* ---- section ---- */
+  section{padding:34px 0 2px}
+  .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+  .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.05em}
+  .sh h2{font-size:21px;font-weight:600;letter-spacing:-.3px}
+  .sh .cn{font-size:13px;color:var(--dim);font-weight:400;margin-left:auto}
+  .lead{color:var(--mut);font-size:13.5px;max-width:900px;margin-bottom:18px}
+  .lead b{color:var(--txt);font-weight:600}
+  /* ---- plain-english box ---- */
+  .eli{border:1px solid #2a4a46;border-radius:14px;padding:18px 22px;background:linear-gradient(135deg,rgba(45,212,191,.08),transparent 60%),var(--panel);margin-bottom:8px}
+  .eli h3{font-size:14px;color:var(--accent);margin-bottom:9px;display:flex;gap:9px;align-items:center}
+  .eli p{font-size:13.5px;color:var(--txt);max-width:940px;margin-bottom:9px;line-height:1.6}
+  .eli p:last-child{margin-bottom:0}
+  .eli b{color:#fff}
+  /* ---- KPI strip ---- */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
+  .kpi{padding:18px 20px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .kpi .v{font-size:24px;font-weight:600;letter-spacing:-.5px}
+  .kpi .l{font-size:11.5px;color:var(--mut);margin-top:4px}
+  .kpi .d{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.4}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}.blu{color:var(--dout)}
+  /* ---- key/glossary ---- */
+  .kl{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:6px}
+  @media(max-width:780px){.kl{grid-template-columns:1fr}}
+  .klc{border:1px solid var(--line);border-radius:11px;padding:12px 15px;background:var(--panel2);font-size:12.5px;color:var(--mut)}
+  .klc b{color:var(--txt)}
+  .gloss{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:14px}
+  .gloss .g{display:grid;grid-template-columns:180px 1fr;border-bottom:1px solid var(--line);font-size:12.5px}
+  .gloss .g:last-child{border-bottom:0}
+  .gloss .t{padding:10px 14px;background:var(--panel2);color:var(--txt);font-weight:600;border-right:1px solid var(--line)}
+  .gloss .d{padding:10px 14px;color:var(--mut)}
+  @media(max-width:640px){.gloss .g{grid-template-columns:1fr}.gloss .t{border-right:0;border-bottom:1px solid var(--line)}}
+  /* ---- matrix ---- */
+  .matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .matrix th{background:var(--panel2);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);font-weight:600;padding:12px 14px;text-align:left;border-bottom:1px solid var(--line)}
+  .matrix td{padding:13px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
+  .matrix tr:last-child td{border-bottom:0}
+  .matrix .dom{font-weight:600;font-size:13.5px;color:var(--txt);display:flex;align-items:flex-start;gap:9px}
+  .matrix .dom .sw{width:10px;height:10px;border-radius:3px;flex:none;margin-top:4px}
+  .matrix .dom small{display:block;font-weight:400;font-size:10.5px;color:var(--dim);margin-top:2px}
+  .matrix td b{color:var(--txt);font-weight:600}
+  .matrix td.hot{background:rgba(224,104,106,.09)}
+  .chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--panel3);color:var(--mut);margin:2px 4px 2px 0;border:1px solid var(--line2)}
+  .chip.hot{background:rgba(224,104,106,.12);border-color:#5a3236;color:#efa0a1}
+  /* ---- SVG gallery cards ---- */
+  .gal{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:900px){.gal{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.gal{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column}
+  .card .svgbox{background:linear-gradient(180deg,#0e1117,#161a24);padding:12px;border-bottom:1px solid var(--line)}
+  .card .body{padding:13px 15px 15px}
+  .card h4{font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .card .role{font-size:12px;color:var(--mut);margin-top:6px;line-height:1.45}
+  .card .who{font-size:11px;color:var(--dim);margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px}
+  .card .who b{color:var(--l3)}
+  .badge{font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:5px;letter-spacing:.03em;flex:none}
+  .b-hot{background:rgba(224,104,106,.14);color:#eda3a4}
+  .b-now{background:rgba(45,212,191,.13);color:var(--accent)}
+  .b-next{background:rgba(90,169,224,.14);color:var(--dout)}
+  .b-emrg{background:rgba(210,162,74,.14);color:var(--dup)}
+  /* ---- full-width svg ---- */
+  .svgwide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
+  .svgscroll{overflow-x:auto}
+  .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
+  /* ---- supply flow ---- */
+  .flow{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+  @media(max-width:900px){.flow{grid-template-columns:1fr 1fr 1fr}}
+  @media(max-width:560px){.flow{grid-template-columns:1fr 1fr}}
+  .st{border:1px solid var(--line);border-radius:11px;padding:12px 11px;background:var(--panel2)}
+  .st.choked{border-color:#5a3236;background:linear-gradient(135deg,rgba(224,104,106,.10),transparent),var(--panel2)}
+  .st h5{font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:9px;display:flex;align-items:center;gap:6px;color:var(--mut)}
+  .st h5 .sw{width:8px;height:8px;border-radius:50%;flex:none}
+  .st ul{list-style:none;font-size:11.5px}
+  .st li{padding:4px 0;color:var(--mut);border-bottom:1px dashed var(--line2);line-height:1.3}
+  .st li:last-child{border:0}.st li b{color:var(--txt);font-weight:600}
+  .st li .x{color:var(--choke);font-weight:600}
+  /* ---- timeline ---- */
+  .tlgrid{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .tlhead{display:grid;grid-template-columns:130px repeat(4,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
+  .tlhead div{padding:11px 12px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);border-right:1px solid var(--line)}
+  .tlhead div:first-child{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-family:"Space Grotesk",sans-serif;display:flex;align-items:center}
+  .tlrow{display:grid;grid-template-columns:130px repeat(4,1fr);border-bottom:1px solid var(--line)}
+  .tlrow:last-child{border-bottom:0}
+  .tlrow .lab{padding:13px 12px;font-size:11.5px;font-weight:600;display:flex;align-items:center;gap:8px;border-right:1px solid var(--line);background:var(--panel2)}
+  .tlrow .lab .sw{width:9px;height:9px;border-radius:3px;flex:none}
+  .tlrow .cell{padding:11px 12px;border-right:1px solid var(--line);font-size:11px;color:var(--mut);line-height:1.4}
+  .tlrow .cell:last-child{border-right:0}
+  .tlrow .cell b{color:var(--txt);font-weight:600;display:block;margin-bottom:2px;font-size:11px}
+  .tlrow .cell.hot{background:rgba(224,104,106,.07)}
+  .tlrow .cell.go{background:rgba(79,175,142,.06)}
+  @media(max-width:780px){.tlhead,.tlrow{grid-template-columns:82px repeat(4,1fr);font-size:10px}.tlrow .cell{font-size:9.5px}}
+  /* ---- chokepoint ---- */
+  .choke{border:1px solid #5a3236;border-radius:14px;padding:22px 24px;background:
+    linear-gradient(135deg,rgba(224,104,106,.10),transparent 55%),var(--panel)}
+  .choke .ttl{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+  .choke .ttl h3{font-size:17px;font-weight:600;color:var(--choke)}
+  .choke p{font-size:13.5px;color:#d9c4c6;max-width:940px}.choke p b{color:#fff}
+  .choke .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:18px;border-top:1px solid #4a2c2f;padding-top:16px}
+  @media(max-width:780px){.choke .stats{grid-template-columns:1fr 1fr}}
+  .choke .stats div{padding-right:18px;margin-bottom:8px}
+  .choke .stats b{display:block;font-size:20px;color:var(--choke);font-weight:600}
+  .choke .stats span{font-size:10.5px;color:var(--dim)}
+  /* ---- scorecard ---- */
+  .score{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center}
+  @media(max-width:780px){.score{grid-template-columns:1fr}}
+  .bar{margin-bottom:13px}
+  .bar .bl{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;color:var(--mut)}
+  .bar .bl b{color:var(--txt)}
+  .track{height:9px;background:var(--panel3);border-radius:6px;overflow:hidden}
+  .fill{height:100%;border-radius:6px}
+  /* ---- variant box ---- */
+  .variant{border:1px solid #4a3a5a;border-radius:14px;padding:20px 22px;background:linear-gradient(135deg,rgba(139,132,207,.09),transparent 60%),var(--panel)}
+  .variant h3{font-size:14px;color:#b3a9e8;margin-bottom:10px}
+  .variant .vg{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
+  @media(max-width:780px){.variant .vg{grid-template-columns:1fr}}
+  .variant .vb{font-size:12.5px;color:var(--mut);line-height:1.5}
+  .variant .vb .t{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin-bottom:5px}
+  .variant .vb b{color:var(--txt)}
+  .variant .vb.cons{border-left:2px solid var(--dim);padding-left:12px}
+  .variant .vb.ours{border-left:2px solid var(--accent);padding-left:12px}
+  /* ---- teardown / tabs ---- */
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .tab{font-size:12.5px;padding:9px 15px;border-radius:9px;border:1px solid var(--line);background:var(--panel);color:var(--mut);cursor:pointer;font-weight:600;font-family:inherit}
+  .tab[aria-selected="true"]{background:var(--panel3);color:var(--txt);border-color:var(--line2)}
+  .tab .yt{font-family:"JetBrains Mono",monospace;font-size:10.5px;font-weight:500;margin-left:6px}
+  .tabpanel{animation:fade .2s}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .pv{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:16px}
+  @media(max-width:780px){.pv{grid-template-columns:1fr 1fr}}
+  .pv div{padding:13px 15px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .pv .v{font-size:18px;font-weight:600}
+  .pv .l{font-size:10.5px;color:var(--dim);margin-top:3px}
+  .td{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:780px){.td{grid-template-columns:1fr}}
+  .tdc{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .tdc.key{border-color:#5a3236;background:linear-gradient(135deg,rgba(224,104,106,.07),transparent),var(--panel)}
+  .tdc .h{font-size:12px;font-weight:600;color:var(--accent);margin-bottom:7px;display:flex;align-items:baseline;gap:8px}
+  .tdc.key .h{color:var(--choke)}
+  .tdc .h .cn{color:var(--dim);font-size:10.5px;font-weight:400}
+  .tdc p{font-size:12px;color:var(--mut);line-height:1.5}.tdc p b{color:var(--txt)}
+  .bb{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+  @media(max-width:640px){.bb{grid-template-columns:1fr}}
+  .bbc{border-radius:11px;padding:13px 15px;font-size:12px;line-height:1.5}
+  .bbc.bull{border:1px solid #2f5045;background:rgba(79,175,142,.07)}
+  .bbc.bear{border:1px solid #5a3236;background:rgba(224,104,106,.07)}
+  .bbc .t{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;font-weight:600}
+  .bbc.bull .t{color:var(--pos)}.bbc.bear .t{color:var(--neg)}
+  .bbc b{color:var(--txt)}
+  .infogap{border:1px dashed var(--line2);border-radius:11px;padding:13px 16px;margin-top:12px;font-size:12px;color:var(--mut);background:var(--panel2)}
+  .infogap b{color:var(--accent)}
+  /* ---- tables ---- */
+  .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  .tbl th{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .tbl td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+  .tbl td b{color:var(--txt)}
+  .tbl tr:last-child td{border-bottom:0}
+  .dash{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .pill{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap}
+  .p-early{background:rgba(95,201,138,.15);color:#7ed3a4}
+  .p-recog{background:rgba(90,169,224,.15);color:#83c2ee}
+  .p-eup{background:rgba(224,104,106,.15);color:#eda3a4}
+  .p-lat{background:rgba(210,162,74,.15);color:#e3bd76}
+  .lean{font-weight:600}
+  .lean.buy{color:var(--pos)}.lean.avoid{color:var(--neg)}.lean.watch{color:var(--warn)}.lean.spec{color:var(--dout)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:2px 0 16px}
+  .leg span{display:flex;align-items:center;gap:7px}
+  .leg .sw{width:11px;height:11px;border-radius:3px}
+  .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
+  .selfc{border:1px solid var(--line2);border-radius:12px;padding:16px 19px;background:var(--panel);font-size:12.5px;color:var(--mut);line-height:1.55}
+  .selfc li{margin:0 0 9px 18px}.selfc b{color:var(--txt)}
+  footer{margin-top:20px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}
+  footer b{color:var(--mut)}
+  /* SVG font rules (never use font-family="var(") */
+  svg text{font-family:"Space Grotesk",sans-serif}
+  svg text.m{font-family:"JetBrains Mono",monospace}
+  .svglabel{font-size:9px;fill:var(--dim)}
+  @media print{
+    .toc{display:none}.tab{display:none}
+    .tabpanel[hidden]{display:block!important}
+    body{background:#fff;color:#111}
+    svg text{fill:#111}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #19 · Optics Loop 4 · v5</div>
+    <h1>The optical-packaging chokepoint — the "last millimeter" where light meets fiber</h1>
+    <p class="sub">Prior optics runs found the scarce link at the <b>laser</b> (EML, Run #1), its <b>epitaxy tool</b> (MOCVD, Run #7) and the <b>CPO light source</b> (CW-DFB, Run #13). Loop 4 goes one cut sideways — to the step every transceiver and co-packaged engine must survive: <b>sub-micron optical alignment + fiber-attach + optical test</b>, ~70–80% of a photonic device's cost and still largely done by hand. The twist: the tightest link is <b>not</b> where the money is.</p>
+    <div class="hgauges">
+      <div class="gauge">
+        <div class="gl">Chokepoint severity</div>
+        <svg viewBox="0 0 210 16" width="210" height="16" role="img" aria-label="Severity 15 of 20">
+          <rect x="0" y="4" width="210" height="8" rx="4" fill="#212634"></rect>
+          <rect x="0" y="4" width="157.5" height="8" rx="4" fill="#e0686a"></rect>
+          <line x1="157.5" y1="1" x2="157.5" y2="15" stroke="#fff" stroke-width="1.5"></line>
+        </svg>
+        <div class="gv"><span class="num red">15</span> <span style="color:var(--dim);font-size:12px">/ 20 · structurally short thru 2027</span></div>
+      </div>
+      <div class="gauge">
+        <div class="gl">Remaining asymmetry</div>
+        <svg viewBox="0 0 210 16" width="210" height="16" role="img" aria-label="Asymmetry 9 of 20">
+          <rect x="0" y="4" width="210" height="8" rx="4" fill="#212634"></rect>
+          <rect x="0" y="4" width="94.5" height="8" rx="4" fill="#2dd4bf"></rect>
+          <line x1="94.5" y1="1" x2="94.5" y2="15" stroke="#fff" stroke-width="1.5"></line>
+        </svg>
+        <div class="gv"><span class="num teal">9</span> <span style="color:var(--dim);font-size:12px">/ 20 · one laggard left (FN)</span></div>
+      </div>
+    </div>
+    <div class="meta">
+      <div><div class="k">As of</div><div class="vv num">2 Jul 2026</div></div>
+      <div><div class="k">Stack path</div><div class="vv">PIC · laser · fiber → <b style="color:#e0686a">align + attach + test</b> → module / CPO engine → switch</div></div>
+      <div><div class="k">Universe</div><div class="vv">Global · US-listed focus</div></div>
+      <div><div class="k">Top-3 (different links)</div><div class="vv">FN · KLIC · POET</div></div>
+    </div>
+    <div class="asof">Prices &amp; YTD via <b>IBKR read-only</b>, intraday 2 Jul 2026 — they decay fast. Personal research for a private knowledge base — <b>not investment advice</b>, not a recommendation or solicitation. Estimates marked (est.); load-bearing numbers cross-checked ≥2 sources.</div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#s1">01 Snapshot</a>
+    <a href="#s2">02 Framework</a>
+    <a href="#s3">03 Component gallery</a>
+    <a href="#s4">04 L3→L1 assembly</a>
+    <a href="#s5">05 Use-case map</a>
+    <a href="#s6">06 Supply chain</a>
+    <a href="#s7">07 Severity + variant</a>
+    <a href="#s8">08 Timeline</a>
+    <a href="#s9">09 Awareness + watchlist</a>
+    <a href="#s10">10 The plays</a>
+    <a href="#s11">11 Decision</a>
+    <a href="#s12">12 Risks + self-critique</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<!-- 1. SNAPSHOT -->
+<section id="s1">
+  <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">為什麼是現在</span></div>
+  <p class="lead">The AI-optics boom has re-priced almost everything that emits light — lasers, PICs, DSPs, modules ran <b>+100% to +1,700%</b>. What the crowd has under-owned is the <b>unglamorous assembly step</b>: coupling light between a laser, a chip and a hair-thin fiber to a tolerance finer than a wavelength, then testing it. It is the single biggest slice of a photonic device's cost, it is still <b>manual</b>, and capacity is running <b>40–60% behind demand</b>. Yet — the honest catch — the firm you can actually buy to own that step (Fabrinet) earns a ~12% gross margin <b>even while turning demand away</b>. Tightness is real; the rent is captured somewhere else.</p>
+  <div class="kpis">
+    <div class="kpi"><div class="v num amb">70–80%</div><div class="l">of a photonic device's cost is packaging, assembly &amp; test</div><div class="d">vs ~20% for electronic ICs (PIXAPP / EPIC / Latkowski). Test alone up to 29%.</div></div>
+    <div class="kpi"><div class="v num red">40–60%</div><div class="l">800G production below demand through 2027</div><div class="d">McKinsey — "structural manufacturing constraint, not a cyclical correction." Optical alignment named as the limiter.</div></div>
+    <div class="kpi"><div class="v num teal">$4.5→14.4B</div><div class="l">photonics-packaging TAM, 2025→2031 (est.)</div><div class="d">Yole ~21.5% CAGR (MarketsandMarkets ~17%). Packaging = ~25% of a pluggable's value, ~50% of CPO's.</div></div>
+    <div class="kpi"><div class="v num grn">20–50 nm</div><div class="l">alignment accuracy a silicon-photonic coupling needs</div><div class="d">A ~1 µm slip ≈ 1 dB loss; fiber-attach spans 6 degrees of freedom. This is why it's hard to automate.</div></div>
+  </div>
+
+  <div class="eli" style="margin-top:20px">
+    <h3>◆ Explain it simply · 白話版</h3>
+    <p>Think of an optical transceiver as a tiny lighthouse. Making the light (the laser chip) is hard — earlier reports covered that. But once you have the light, you still have to <b>aim it perfectly down a glass fiber thinner than a hair</b>, glue everything in place so it never moves, and test that the beam actually arrives. Aim it wrong by <b>a millionth of a metre</b> and the signal is lost. That aiming-and-gluing step is called <b>optical packaging / alignment / fiber-attach</b>. It's slow, still mostly done by machines-with-humans, and it eats <b>70–80% of the cost</b> of the whole device.</p>
+    <p>As AI needs tens of millions more of these per year — and as the industry moves to <b>co-packaged optics (CPO)</b>, where the optics sit right next to the switch chip and packaging gets ~2× harder — this aiming step becomes the traffic jam. Classic chokepoint: everything downstream must pass through it.</p>
+    <p><b>The catch (and the whole point of this report):</b> being the traffic jam doesn't mean you collect the toll. The company you can buy to do the assembly (<b>Fabrinet</b>) makes razor-thin margins even while sold out — it earns <b>volume, not pricing power</b>. The real profit either moves <b>up to the foundry</b> (TSMC's COUPE, ~62% margins) for CPO, or gets <b>deleted</b> by a new "passive alignment" trick (POET) that skips the aiming altogether. So this is a report about a genuine chokepoint where you have to think carefully about <b>who keeps the money</b>.</p>
+  </div>
+
+  <div class="kl" style="margin-top:16px">
+    <div class="klc"><b>L3 — components:</b> the parts that go in — the PIC (silicon-photonics chip), the laser die, the fiber, micro-lenses, the fiber-array unit (FAU).</div>
+    <div class="klc"><b>L2 — sub-assembly (the chokepoint):</b> aligning + attaching those parts to sub-micron precision, then optical test. The "last millimeter."</div>
+    <div class="klc"><b>L1 — finished product:</b> the sealed pluggable transceiver (800G/1.6T) or the co-packaged optical engine bolted next to a switch ASIC.</div>
+    <div class="klc"><b>Upstream / tools:</b> the alignment machines, die-bonders and optical testers (ficonTEC, PI, Aerotech, K&amp;S, MKS/Newport) that gate how fast L2 can run.</div>
+  </div>
+
+  <div class="gloss">
+    <div class="g"><div class="t">Active alignment</div><div class="d">Aligning fiber-to-chip with live optical-power feedback — highest precision, but slow &amp; serial (one device at a time). The status-quo bottleneck.</div></div>
+    <div class="g"><div class="t">Passive alignment</div><div class="d">Using pre-etched features/fixtures so parts snap into place — cheaper &amp; faster, historically less precise. What POET's interposer and photonic-wire-bonding chase.</div></div>
+    <div class="g"><div class="t">CPO</div><div class="d">Co-packaged optics — the optical engine moves onto the same package as the switch/GPU chip. Deletes pluggable content but makes packaging ~2× harder (thousands of fibers, no hot-swap).</div></div>
+    <div class="g"><div class="t">Fiber-attach / FAU</div><div class="d">Bonding the optical fiber (often via a fiber-array unit) to the photonic chip's edge or surface — the physically hardest, lowest-yield step, over 6 degrees of freedom.</div></div>
+    <div class="g"><div class="t">OSAT / COUPE</div><div class="d">OSAT = outsourced assembly &amp; test house (ASE, Amkor). COUPE = TSMC's silicon-photonics packaging platform that pulls CPO assembly into the foundry — and its margins.</div></div>
+    <div class="g"><div class="t">Rent capture</div><div class="d">Who actually keeps the scarcity profit. A link can be tight (a chokepoint) yet capture little rent if the buyer or a neighbouring link holds the pricing power. Margins settle it.</div></div>
+  </div>
+</section>

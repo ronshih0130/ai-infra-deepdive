@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Infra Run #19 v5 — Neocloud / Power + Offtake Chokepoint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#13161e; --panel2:#1a1e28; --panel3:#212634; --line:#2a3040; --line2:#363d4f;
+    --txt:#e8eaf0; --mut:#9aa3b5; --dim:#697283;
+    --accent:#2dd4bf;        /* single brand accent (desaturated teal) */
+    --choke:#e0686a;         /* desaturated red */
+    /* categorical: chain stages */
+    --up:#5b81c4; --l3:#8b84cf; --pkg:#c47a9e; --l2:#d2a24a; --l1:#4faf8e;
+    /* categorical: archetypes */
+    --dup:#e0a458; --dout:#5aa9e0; --dacr:#5fc98a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px;-webkit-font-smoothing:antialiased}
+  .num{font-family:"JetBrains Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  header{border-bottom:1px solid var(--line);padding:38px 0 30px;margin-bottom:8px;background:
+     radial-gradient(900px 320px at 12% -40%,rgba(45,212,191,.10),transparent 60%),
+     radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
+  .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.6px;line-height:1.12;max-width:920px}
+  .sub{font-size:15px;font-weight:400;color:var(--mut);margin-top:12px;max-width:860px}
+  .meta{margin-top:20px;display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+  .meta div{padding-right:26px;margin-right:26px;border-right:1px solid var(--line)}
+  .meta div:last-child{border:0}
+  .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+  .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
+  section{padding:34px 0 2px}
+  .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+  .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.05em}
+  .sh h2{font-size:21px;font-weight:600;letter-spacing:-.3px}
+  .sh .cn{font-size:13px;color:var(--dim);font-weight:400;margin-left:auto}
+  .lead{color:var(--mut);font-size:13.5px;max-width:900px;margin-bottom:18px}
+  .lead b{color:var(--txt);font-weight:600}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
+  .kpi{padding:18px 20px;border-right:1px solid var(--line)}
+  .kpi:last-child{border-right:0}
+  .kpi .v{font-size:24px;font-weight:600;letter-spacing:-.5px}
+  .kpi .l{font-size:11.5px;color:var(--mut);margin-top:4px}
+  .kpi .d{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.4}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}
+  .matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .matrix th{background:var(--panel2);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);font-weight:600;padding:12px 14px;text-align:left;border-bottom:1px solid var(--line)}
+  .matrix td{padding:14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
+  .matrix tr:last-child td{border-bottom:0}
+  .matrix .dom{font-weight:600;font-size:14px;color:var(--txt);display:flex;align-items:center;gap:9px}
+  .matrix .dom .sw{width:10px;height:10px;border-radius:3px;flex:none}
+  .matrix .dom small{display:block;font-weight:400;font-size:10.5px;color:var(--dim);margin-top:2px}
+  .matrix td b{color:var(--txt);font-weight:600}
+  .chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--panel3);color:var(--mut);margin:2px 4px 2px 0;border:1px solid var(--line2)}
+  .chip.hot{background:rgba(224,104,106,.12);border-color:#5a3236;color:#efa0a1}
+  .gal{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:900px){.gal{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.gal{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column}
+  .card .svgbox{background:linear-gradient(180deg,#0e1117,#161a24);padding:14px;border-bottom:1px solid var(--line)}
+  .card .body{padding:14px 16px 16px}
+  .card h4{font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .card .role{font-size:12px;color:var(--mut);margin-top:6px;line-height:1.45}
+  .card .who{font-size:11px;color:var(--dim);margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px}
+  .card .who b{color:var(--l3)}
+  .badge{font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:5px;letter-spacing:.03em;flex:none}
+  .b-hot{background:rgba(224,104,106,.14);color:#eda3a4}
+  .b-now{background:rgba(45,212,191,.13);color:var(--accent)}
+  .b-next{background:rgba(90,169,224,.14);color:var(--dout)}
+  .b-emrg{background:rgba(210,162,74,.14);color:var(--dup)}
+  .svgwide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
+  .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
+  .st h5{font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px;display:flex;align-items:center;gap:6px;color:var(--mut)}
+  .tlgrid{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .tlhead{display:grid;grid-template-columns:150px repeat(4,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
+  .tlhead div{padding:11px 12px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);border-right:1px solid var(--line)}
+  .tlhead div:first-child{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-family:"Space Grotesk",sans-serif;display:flex;align-items:center}
+  .tlrow{display:grid;grid-template-columns:150px repeat(4,1fr);border-bottom:1px solid var(--line)}
+  .tlrow:last-child{border-bottom:0}
+  .tlrow .lab{padding:13px 12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;border-right:1px solid var(--line);background:var(--panel2)}
+  .tlrow .lab .sw{width:9px;height:9px;border-radius:3px;flex:none}
+  .tlrow .cell{padding:11px 12px;border-right:1px solid var(--line);font-size:11.5px;color:var(--mut);line-height:1.4}
+  .tlrow .cell:last-child{border-right:0}
+  .tlrow .cell b{color:var(--txt);font-weight:600;display:block;margin-bottom:2px;font-size:11.5px}
+  .tlrow .cell.hot{background:rgba(224,104,106,.06)}
+  @media(max-width:780px){.tlhead,.tlrow{grid-template-columns:90px repeat(4,1fr);font-size:10px}.tlrow .cell{font-size:10px}}
+  .choke{border:1px solid #5a3236;border-radius:14px;padding:22px 24px;background:
+    linear-gradient(135deg,rgba(224,104,106,.10),transparent 55%),var(--panel)}
+  .choke .ttl{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+  .choke .ttl svg{flex:none}
+  .choke .ttl h3{font-size:17px;font-weight:600;color:var(--choke)}
+  .choke p{font-size:13.5px;color:#d9c4c6;max-width:940px}.choke p b{color:#fff}
+  .choke .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:18px;border-top:1px solid #4a2c2f;padding-top:16px}
+  @media(max-width:780px){.choke .stats{grid-template-columns:1fr 1fr}}
+  .choke .stats div{padding-right:18px}
+  .choke .stats b{display:block;font-size:20px;color:var(--choke);font-weight:600}
+  .choke .stats span{font-size:10.5px;color:var(--dim)}
+  .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  .tbl th{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .tbl td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--mut)}
+  .tbl td b{color:var(--txt)}
+  .lyr{font-family:"JetBrains Mono",monospace;font-size:10.5px;padding:1px 7px;border-radius:5px;font-weight:600}
+  .ly3{background:rgba(139,132,207,.15);color:#aaa3e6}
+  .ly2{background:rgba(210,162,74,.15);color:#e3bd76}
+  .ly1{background:rgba(79,175,142,.15);color:#7cc9ad}
+  .lyu{background:rgba(91,129,196,.15);color:#8aa7df}
+  .lyp{background:rgba(196,122,158,.15);color:#dba0bf}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .two{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+  @media(max-width:780px){.two{grid-template-columns:1fr}}
+  .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:2px 0 16px}
+  .leg span{display:flex;align-items:center;gap:7px}
+  .leg .sw{width:11px;height:11px;border-radius:3px}
+  .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
+  footer{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}
+  footer b{color:var(--mut)}
+  .svglabel{font-family:"JetBrains Mono",monospace;font-size:9px;fill:var(--dim)}
+  svg text{font-family:"Space Grotesk",sans-serif}
+  svg text.m{font-family:"JetBrains Mono",monospace}
+  .axis-zone{font-size:9px;font-family:"JetBrains Mono",monospace;letter-spacing:.04em}
+  .liw{width:100%;border-collapse:collapse;font-size:12px}
+  .liw th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .liw td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+  .liw td b{color:var(--txt)}
+  .dotR{color:var(--choke);font-weight:600}.dotA{color:var(--dup);font-weight:600}.dotG{color:var(--dacr);font-weight:600}
+  .tabbtn{font-family:"Space Grotesk",sans-serif;background:var(--panel2);border:1px solid var(--line);color:var(--mut);padding:11px 16px;border-radius:10px 10px 0 0;font-size:13px;font-weight:600;cursor:pointer;border-bottom:none;display:flex;flex-direction:column;gap:2px;min-width:170px;text-align:left}
+  .tabbtn small{font-size:10px;font-weight:400;color:var(--dim)}
+  .tabbtn.on{background:var(--panel);color:var(--txt);border-color:var(--line2)}
+  .tabbtn.on small{color:var(--accent)}
+  .tabbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .stagebadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.04em}
+  .sg-early{background:rgba(95,201,138,.16);color:var(--dacr)}
+  .sg-recog{background:rgba(210,162,74,.16);color:var(--dup)}
+  .sg-eu{background:rgba(224,104,106,.16);color:var(--choke)}
+  .mini{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+  .mini div{padding:11px 13px;border-right:1px solid var(--line)}
+  .mini div:last-child{border-right:0}
+  .mini .v{font-family:"JetBrains Mono",monospace;font-size:16px;font-weight:600}
+  .mini .l{font-size:10px;color:var(--mut);margin-top:2px}
+  @media(max-width:780px){.mini{grid-template-columns:1fr 1fr 1fr}}
+  .gap{border-left:3px solid var(--accent);background:rgba(45,212,191,.06);border-radius:8px;padding:12px 15px;margin:14px 0}
+  .gap .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:5px}
+  .gap p{font-size:12.5px;color:var(--mut);line-height:1.5}.gap p b{color:var(--txt)}
+  .mtd{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
+  @media(max-width:780px){.mtd{grid-template-columns:1fr}.tabbtn{min-width:0;flex:1}}
+  .mtc{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+  .mtc .h{font-size:11.5px;font-weight:600;color:var(--accent);margin-bottom:3px}
+  .mtc p{font-size:11.5px;color:var(--mut);line-height:1.45}.mtc p b{color:var(--txt)}
+  .bbr{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+  .bbr div{border-radius:8px;padding:9px 12px;font-size:11.5px;line-height:1.45;color:var(--mut)}
+  .bbr .bl{border-left:3px solid var(--dacr);background:var(--panel2)}
+  .bbr .be{border-left:3px solid var(--choke);background:var(--panel2)}
+  .bbr b{display:block;font-size:10.5px;margin-bottom:2px}
+  @media print{.tabpane{display:block !important;page-break-inside:avoid;border-radius:10px;margin-bottom:10px}.tabbtn{display:none}.svgwide{overflow:visible}body{padding-bottom:0}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #19 · v5</div>
+    <h1>The Neocloud Chokepoint — renting the AI boom on borrowed power and borrowed money</h1>
+    <p class="sub">The demand layer of the stack: specialist GPU-cloud operators (<b style="color:#fff">neoclouds</b>) that buy NVIDIA GPUs, house them in powered shells, and rent AI compute. Two axes (<b style="color:#fff">what kind</b> of neocloud × <b style="color:#fff">which link</b> of the chain), a visual end-to-end supply chain, and a top-3 at <b style="color:#fff">different</b> chokepoints — staged on the awareness curve. The load-bearing question after the 1–2 Jul sell-off: <b style="color:#fff">who owns the scarce link once the GPU stops being scarce, and is the drawdown your entry or a warning?</b></p>
+    <div class="meta">
+      <div><div class="k">Date</div><div class="vv num">2 Jul 2026</div></div>
+      <div><div class="k">Chain path</div><div class="vv">capital → GPU allocation → power+shell → operator → offtake → debt service</div></div>
+      <div><div class="k">Universe</div><div class="vv">Global · US-listed focus</div></div>
+      <div><div class="k">Top-3</div><div class="vv">NBIS · CRWV · IREN</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- 1. SNAPSHOT -->
+<section>
+  <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">為什麼是現在</span></div>
+  <p class="lead">Hyperscaler + neocloud capex is running at <b>~$635–690B in 2026 (&gt;2× 2024)</b> and the neocloud slice is compounding ~50–58%/yr. But the binding constraint has moved: GPUs are being <i>allocated</i> faster (CoWoS is loosening) and their rental price <b>deflates 60–80% per generation</b>. The scarce links are now <b>secured electrical power + a powered shell</b> (multi-year grid queues) and a <b>financeable, creditworthy take-or-pay contract</b> that a lender will lend against. The neocloud operator sits in the middle, on a depreciating asset funded with debt — increasingly a <b>commoditizing middleman</b>. On 1–2 Jul 2026 the group fell hard (NBIS −17%, CRWV −14% intraday) on the <b>"Meta Compute"</b> report — a customer turning competitor — which is exactly this risk pricing in real time.</p>
+  <div class="kpis">
+    <div class="kpi"><div class="v num teal">$35→250B</div><div class="l">Neocloud / GPUaaS market, 2026E→2030E</div><div class="d">~$35–42B 2026E → ~$180–250B 2030E; ~50–58% CAGR (Mordor/TBRC/Synergy, est.)</div></div>
+    <div class="kpi"><div class="v num red">−70–80%</div><div class="l">H100 rental, peak→trough</div><div class="d">~$8/hr (2023) → ~$1.5–1.7/hr trough (Oct-25); then +40% rebound — the asset deflates</div></div>
+    <div class="kpi"><div class="v num amb">~438 GW</div><div class="l">ERCOT large-load interconnect queue</div><div class="d">only ~1.8% operational; PJM ~195GW; transformers 2.5–5yr — power is the gate</div></div>
+    <div class="kpi"><div class="v num grn">$635–690B</div><div class="l">2026 hyperscaler+neocloud capex</div><div class="d">&gt;2× 2024; OpenAI alone ~$1.4T of forward compute commitments</div></div>
+  </div>
+
+  <div style="border:1px solid var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px;background:var(--panel)">
+    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px">EXPLAIN IT SIMPLY · 白話版</div>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6;max-width:940px">A <b style="color:var(--txt)">neocloud</b> is a company that buys thousands of NVIDIA GPUs, puts them in a building with power and cooling, and rents the computing to AI labs. It looks like the purest way to own the AI boom — but the money is made or lost at the two ends, not the middle. Upstream you need <b style="color:var(--txt)">electricity and a powered building</b>, and there's a multi-year waiting line to connect big new loads to the grid. Downstream you need a <b style="color:var(--txt)">creditworthy customer signing a long "take-or-pay" contract</b>, because the GPUs are bought with <b style="color:var(--txt)">debt secured against the machines</b> — and machines that lose ~70% of their rental value every couple of years. The neocloud in the middle can end up as a <b style="color:var(--txt)">rent-a-box that keeps the least margin</b>. This report asks: which companies actually own the scarce link (power + a bankable contract), which are just levered middlemen, and — after the July sell-off — where is the honest early entry?</p>
+  </div>
+</section>
+
+<!-- 2. TWO-AXIS FRAMEWORK -->
+<section>
+  <div class="sh"><span class="n">02</span><h2>The framework — two orthogonal axes</h2><span class="cn">MECE 框架</span></div>
+  <p class="lead">Every neocloud lives at one <b>(archetype × chain-link)</b> coordinate. The <b>archetype</b> answers <i>what kind</i> of business it is; the <b>link</b> answers <i>which part of the value chain it owns</i>. The chokepoint sits at two specific cells: <b>(power-owner × secured power)</b> upstream and <b>(anyone × bankable offtake)</b> downstream — not at the operator's own box.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+    <div class="panel" style="padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">THE CHAIN · 分層 (read this first)</div>
+      <div style="font-size:12px;color:var(--mut);line-height:1.8">
+        <span class="lyr ly1">L1</span> the <b>AI lab / enterprise</b> that needs compute &nbsp;·&nbsp;
+        <span class="lyr ly2">L2</span> the <b>neocloud operator</b> (runs the fleet, sells the hours) &nbsp;·&nbsp;
+        <span class="lyr ly3">L3</span> the <b>powered shell + GPU fleet</b> (the physical asset) &nbsp;·&nbsp;
+        <span class="lyr lyu">UP</span> upstream of all three: <b>secured power + capital</b>.
+      </div>
+    </div>
+    <div class="panel" style="padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">7-TERM GLOSSARY · 名詞</div>
+      <div style="font-size:11.5px;color:var(--mut);line-height:1.7">
+        <b>Neocloud</b> specialist GPU-rental cloud · <b>GPUaaS</b> GPU-as-a-service · <b>Take-or-pay</b> pay-even-if-unused contract · <b>Backlog/RPO</b> contracted future revenue · <b>DDTL</b> delayed-draw term loan (GPU-collateralized) · <b>ClusterMAX</b> SemiAnalysis cloud-quality rating · <b>Circular financing</b> supplier funds its own customer's purchases
+      </div>
+    </div>
+  </div>
+  <table class="matrix">
+    <tr>
+      <th style="width:200px">Archetype (what kind)</th>
+      <th style="width:150px">Link it owns</th>
+      <th>What's used · binding constraint</th>
+      <th style="width:210px">Who plays here</th>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--up)"></span>Power-owner host<small>owns land + secured grid power</small></div></td>
+      <td><span class="lyr lyu">UP</span> <span class="lyr ly3">L3</span></td>
+      <td><b>Owns the scarcest input.</b> Energized MW + shell, leased or self-operated. <span class="chip hot">the real chokepoint</span></td>
+      <td><b>IREN</b>, APLD, TeraWulf, Crusoe, Galaxy</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--l3)"></span>Full-stack operator<small>owns DCs + software + fleet</small></div></td>
+      <td><span class="lyr ly2">L2</span> <span class="lyr ly3">L3</span></td>
+      <td><b>Vertically integrated.</b> Best cost of capital + own software stack; rents power/land partly. <span class="chip">quality end</span></td>
+      <td><b>Nebius (NBIS)</b>, Crusoe (private)</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--l2)"></span>Contract-anchored pure-play<small>giant take-or-pay backlog</small></div></td>
+      <td><span class="lyr ly2">L2</span></td>
+      <td><b>Backlog-rich, leverage-heavy.</b> Rents most power; bankability = anchor's credit. <span class="chip hot">leverage + concentration</span></td>
+      <td><b>CoreWeave (CRWV)</b>, Lambda, Nscale</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--dacr)"></span>Hyperscaler-captive / marketplace<small>captive or aggregator</small></div></td>
+      <td><span class="lyr ly1">L1</span> <span class="lyr ly2">L2</span></td>
+      <td><b>The disruptors.</b> Hyperscalers backward-integrate (Meta Compute); marketplaces commoditize spot. <span class="chip hot">margin pressure</span></td>
+      <td>Oracle OCI, Microsoft, <b>Meta Compute</b>, Together, Vast.ai</td>
+    </tr>
+  </table>
+  <p class="cap">The scarcity originates upstream (secured power) and is captured downstream (bankable offtake); the operator in the middle earns the thinnest, most contested rent — which is why "buy the neocloud" and "own the chokepoint" are not the same trade.</p>
+</section>
+
+<!-- 3. COMPONENT GALLERY -->
+<section>
+  <div class="sh"><span class="n">03</span><h2>The building blocks, illustrated</h2><span class="cn">關鍵元件</span></div>
+  <p class="lead">A neocloud is assembled from six things. Two of them are genuinely scarce (secured power; a bankable contract), one deflates fast (the GPU fleet), and one is the hidden fragility (GPU-collateralized debt).</p>
+  <div class="gal">
+    <!-- power -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <text x="14" y="22" class="svglabel">secured grid power</text>
+          <line x1="24" y1="40" x2="24" y2="86" stroke="#5b81c4" stroke-width="2"/>
+          <line x1="18" y1="40" x2="30" y2="40" stroke="#5b81c4" stroke-width="2"/>
+          <line x1="20" y1="48" x2="28" y2="48" stroke="#5b81c4" stroke-width="2"/>
+          <path d="M24 52 L60 52" stroke="#e0a458" stroke-width="2"/>
+          <polygon points="60,52 52,48 52,56" fill="#e0a458"/>
+          <rect x="66" y="42" width="34" height="26" rx="3" fill="#1c2030" stroke="#5b81c4"/>
+          <text x="83" y="58" text-anchor="middle" font-size="7.5" fill="#8aa7df">xfmr</text>
+          <path d="M100 55 L134 55" stroke="#e0a458" stroke-width="2"/>
+          <polygon points="134,55 126,51 126,59" fill="#e0a458"/>
+          <rect x="138" y="40" width="48" height="34" rx="4" fill="#11261f" stroke="#3a6b54"/>
+          <text x="162" y="60" text-anchor="middle" font-size="7.5" fill="#7cc9ad">DC load</text>
+          <text x="14" y="100" class="svglabel">queue: 3–7 yr · transformer 2.5–5 yr</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Secured power + shell <span class="badge b-hot">CHOKEPOINT</span></h4>
+        <p class="role">Energized megawatts + a powered building. The single hardest input to conjure: grid interconnection queues run 3–7 years and transformers/turbines are sold out. You cannot buy your way past it quickly.</p>
+        <p class="who">Owners: <b>IREN, APLD, TeraWulf, Crusoe</b>; IPPs / utilities</p>
+      </div>
+    </div>
+    <!-- GPU fleet -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <text x="14" y="22" class="svglabel">GPU fleet (depreciating)</text>
+          <g fill="#2a2540" stroke="#8b84cf">
+            <rect x="20" y="34" width="24" height="16" rx="2"/><rect x="48" y="34" width="24" height="16" rx="2"/><rect x="76" y="34" width="24" height="16" rx="2"/>
+            <rect x="20" y="54" width="24" height="16" rx="2"/><rect x="48" y="54" width="24" height="16" rx="2"/><rect x="76" y="54" width="24" height="16" rx="2"/>
+          </g>
+          <text x="60" y="46" class="svglabel" style="font-size:6px" fill="#cfc9f2" text-anchor="middle"> </text>
+          <path d="M118 40 L182 40" stroke="#e0686a" stroke-width="1.6"/>
+          <path d="M118 40 C 140 44, 160 60, 182 74" fill="none" stroke="#e0686a" stroke-width="2" stroke-dasharray="3 3"/>
+          <text x="150" y="36" text-anchor="middle" font-size="7" fill="#eda3a4">rental $/hr</text>
+          <text x="150" y="88" text-anchor="middle" font-size="7" fill="#eda3a4">−60–80% / generation</text>
+          <text x="14" y="102" class="svglabel">book life 4–6yr · real life 1–3yr (bear)</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>GPU fleet <span class="badge b-emrg">DEFLATING</span></h4>
+        <p class="role">The visible asset — but a wasting one. Each generation's rental rate falls 60–80% within 18–24 months as the next chip lands. Depreciated over 4–6 years on the books; bears argue real economic life is 1–3 years.</p>
+        <p class="who">Supplier + financier: <b>NVIDIA</b> (equity in most neoclouds)</p>
+      </div>
+    </div>
+    <!-- offtake -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <text x="14" y="22" class="svglabel">take-or-pay offtake</text>
+          <rect x="18" y="34" width="46" height="42" rx="4" fill="#1b2030" stroke="#2f3a52"/>
+          <text x="41" y="52" text-anchor="middle" font-size="7.5" fill="#fff">AI lab</text>
+          <text x="41" y="64" text-anchor="middle" font-size="6.5" fill="#9aa3b5">MSFT/OpenAI</text>
+          <path d="M64 55 L112 55" stroke="#d2a24a" stroke-width="2.4"/>
+          <polygon points="112,55 104,51 104,59" fill="#d2a24a"/>
+          <text x="88" y="49" text-anchor="middle" font-size="6.5" fill="#e3bd76">5-yr contract</text>
+          <rect x="116" y="34" width="66" height="42" rx="4" fill="#33302a" stroke="#d2a24a"/>
+          <text x="149" y="52" text-anchor="middle" font-size="7.5" fill="#e3bd76">$ backlog</text>
+          <text x="149" y="65" text-anchor="middle" font-size="6.5" fill="#c9b075">bankable if AAA</text>
+          <text x="14" y="100" class="svglabel">only lendable vs a creditworthy anchor</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Bankable offtake <span class="badge b-hot">2ND CHOKEPOINT</span></h4>
+        <p class="role">A long take-or-pay contract from a creditworthy tenant. This is what makes the GPU debt bankable — the loan is really underwritten on the <i>customer's</i> credit, not the neocloud's.</p>
+        <p class="who">Anchors: <b>Microsoft, OpenAI, Meta</b>; NVIDIA backstops</p>
+      </div>
+    </div>
+    <!-- debt -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <text x="14" y="22" class="svglabel">GPU-collateralized debt</text>
+          <rect x="18" y="36" width="50" height="30" rx="4" fill="#2a2540" stroke="#8b84cf"/>
+          <text x="43" y="54" text-anchor="middle" font-size="7" fill="#cfc9f2">GPUs</text>
+          <path d="M68 51 L104 51" stroke="#5fc98a" stroke-width="2"/>
+          <polygon points="104,51 96,47 96,55" fill="#5fc98a"/>
+          <text x="86" y="45" text-anchor="middle" font-size="6.5" fill="#7cc9ad">pledged</text>
+          <rect x="108" y="36" width="74" height="30" rx="4" fill="#11261f" stroke="#3a6b54"/>
+          <text x="145" y="50" text-anchor="middle" font-size="7" fill="#7cc9ad">DDTL / ABS</text>
+          <text x="145" y="61" text-anchor="middle" font-size="6.5" fill="#9aa3b5">$8.5B IG (A3)</text>
+          <path d="M145 66 C 120 84, 70 84, 43 66" fill="none" stroke="#e0686a" stroke-width="1.6" stroke-dasharray="3 2"/>
+          <text x="98" y="98" text-anchor="middle" font-size="6.5" fill="#eda3a4">risk: collateral falls faster than loan amortizes</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>GPU-backed debt <span class="badge b-hot">FRAGILITY</span></h4>
+        <p class="role">The financing engine: non-recourse loans (DDTL/ABS) secured on the GPUs. CoreWeave's $8.5B DDTL 4.0 is the first investment-grade (A3) GPU-backed facility — but the collateral is a fast-depreciating asset.</p>
+        <p class="who">Structurers: <b>Blackstone, Magnetar, Blue Owl</b></p>
+      </div>
+    </div>
+    <!-- software -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <text x="14" y="22" class="svglabel">orchestration stack</text>
+          <rect x="20" y="32" width="160" height="14" rx="3" fill="#1c3a2d" stroke="#3a6b54"/><text x="100" y="42" text-anchor="middle" font-size="7" fill="#7cc9ad">managed Slurm / K8s</text>
+          <rect x="20" y="50" width="160" height="14" rx="3" fill="#212634" stroke="#363d4f"/><text x="100" y="60" text-anchor="middle" font-size="7" fill="#9aa3b5">networking / storage fabric</text>
+          <rect x="20" y="68" width="160" height="14" rx="3" fill="#2a2540" stroke="#5a4a7a"/><text x="100" y="78" text-anchor="middle" font-size="7" fill="#bcb3e6">reliability / observability</text>
+          <text x="14" y="100" class="svglabel">the only soft moat — thin, replicable</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Software / ops <span class="badge b-now">SOFT MOAT</span></h4>
+        <p class="role">The managed layer (provisioning, reliability, networking) that separates a "Platinum" cloud from a bare GPU landlord. Real but thin — SemiAnalysis's ClusterMAX rates it; it commands a premium but is replicable.</p>
+        <p class="who"><b>CoreWeave</b> (Platinum) · <b>Nebius</b> (Gold)</p>
+      </div>
+    </div>
+    <!-- capital -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <text x="14" y="22" class="svglabel">capital / equity</text>
+          <circle cx="45" cy="56" r="18" fill="none" stroke="#d2a24a" stroke-width="2"/>
+          <text x="45" y="60" text-anchor="middle" font-size="10" fill="#e3bd76" class="m">$</text>
+          <path d="M65 56 L100 56" stroke="#e0a458" stroke-width="2"/>
+          <polygon points="100,56 92,52 92,60" fill="#e0a458"/>
+          <rect x="104" y="40" width="78" height="32" rx="4" fill="#1b2030" stroke="#2f3a52"/>
+          <text x="143" y="54" text-anchor="middle" font-size="7" fill="#fff">buildout</text>
+          <text x="143" y="65" text-anchor="middle" font-size="6.5" fill="#9aa3b5">capex &gt;&gt; cash</text>
+          <text x="14" y="100" class="svglabel">net cash (NBIS) vs ~7x levered (CRWV)</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Capital / cost of funds <span class="badge b-next">DIVIDER</span></h4>
+        <p class="role">Whoever raises the cheapest capital wins the buildout race. This is where the field splits: net-cash balance sheets (Nebius) vs. ~$32B net-debt on depreciating collateral (CoreWeave).</p>
+        <p class="who">Equity backers: <b>NVIDIA, sovereigns, private credit</b></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. ASSEMBLY -->
+<section>
+  <div class="sh"><span class="n">04</span><h2>How a neocloud is built up — and where margin leaks</h2><span class="cn">如何組裝一個 neocloud</span></div>
+  <p class="lead">Capital + power + GPUs + software combine into a rentable AI cluster, sold via a multi-year contract. At each step value is <b>added</b> — but the scarce rent accrues at the two ends (power, contract/financier), while the operator in the middle keeps the thinnest slice.</p>
+  <div class="svgwide">
+    <svg viewBox="0 0 1060 300" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="ar" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#5a6377"/></marker>
+      </defs>
+      <!-- inputs -->
+      <rect x="20" y="40" width="150" height="40" rx="7" fill="#1a160e" stroke="#5a4624"/><text x="95" y="58" text-anchor="middle" font-size="10.5" fill="#e3bd76" font-weight="600">Capital / equity</text><text x="95" y="72" text-anchor="middle" font-size="8.5" fill="#9aa3b5">cost of funds decides winner</text>
+      <rect x="20" y="96" width="150" height="40" rx="7" fill="#141a26" stroke="#3a4a6a"/><text x="95" y="114" text-anchor="middle" font-size="10.5" fill="#8aa7df" font-weight="600">Secured power + shell</text><text x="95" y="128" text-anchor="middle" font-size="8.5" fill="#9aa3b5">scarce · 3–7 yr queue</text>
+      <rect x="20" y="152" width="150" height="40" rx="7" fill="#221c2e" stroke="#5a4a7a"/><text x="95" y="170" text-anchor="middle" font-size="10.5" fill="#cfc9f2" font-weight="600">GPU fleet (NVIDIA)</text><text x="95" y="184" text-anchor="middle" font-size="8.5" fill="#9aa3b5">deflating · debt-funded</text>
+      <rect x="20" y="208" width="150" height="40" rx="7" fill="#11261f" stroke="#3a6b54"/><text x="95" y="226" text-anchor="middle" font-size="10.5" fill="#7cc9ad" font-weight="600">Software / ops</text><text x="95" y="240" text-anchor="middle" font-size="8.5" fill="#9aa3b5">thin soft moat</text>
+
+      <line x1="170" y1="144" x2="214" y2="144" stroke="#5a6377" stroke-width="1.5" marker-end="url(#ar)"/>
+
+      <!-- operator box -->
+      <rect x="216" y="86" width="200" height="116" rx="9" fill="#1a1e28" stroke="#8b84cf"/>
+      <text x="316" y="112" text-anchor="middle" font-size="12" fill="#cfc9f2" font-weight="600">Neocloud operator</text>
+      <text x="316" y="132" text-anchor="middle" font-size="9.5" fill="#9aa3b5">integrates the four inputs into</text>
+      <text x="316" y="146" text-anchor="middle" font-size="9.5" fill="#9aa3b5">a rentable, reliable AI cluster</text>
+      <rect x="240" y="160" width="152" height="28" rx="5" fill="#11141c" stroke="#2a3040"/>
+      <text x="316" y="178" text-anchor="middle" font-size="9" fill="#eda3a4">keeps the THINNEST rent slice</text>
+
+      <line x1="416" y1="144" x2="460" y2="144" stroke="#5a6377" stroke-width="1.5" marker-end="url(#ar)"/>
+
+      <!-- cluster -->
+      <rect x="462" y="96" width="150" height="96" rx="9" fill="#122b22" stroke="#3a6b54"/>
+      <text x="537" y="120" text-anchor="middle" font-size="11" fill="#7cc9ad" font-weight="600">AI cluster</text>
+      <text x="537" y="138" text-anchor="middle" font-size="9" fill="#9aa3b5">GPU-hours, sold by</text>
+      <text x="537" y="152" text-anchor="middle" font-size="9" fill="#9aa3b5">reserved contract or</text>
+      <text x="537" y="166" text-anchor="middle" font-size="9" fill="#9aa3b5">on-demand</text>
+
+      <line x1="612" y1="144" x2="656" y2="144" stroke="#5a6377" stroke-width="1.5" marker-end="url(#ar)"/>
+
+      <!-- offtake -->
+      <rect x="658" y="96" width="150" height="96" rx="9" fill="#33302a" stroke="#d2a24a"/>
+      <text x="733" y="120" text-anchor="middle" font-size="11" fill="#e3bd76" font-weight="600">Take-or-pay offtake</text>
+      <text x="733" y="138" text-anchor="middle" font-size="9" fill="#9aa3b5">AI lab / hyperscaler</text>
+      <text x="733" y="152" text-anchor="middle" font-size="9" fill="#9aa3b5">creditworthy anchor</text>
+      <text x="733" y="170" text-anchor="middle" font-size="9" fill="#e3bd76">makes debt bankable</text>
+
+      <!-- financier loop -->
+      <rect x="840" y="60" width="200" height="80" rx="9" fill="#141822" stroke="#2a3040"/>
+      <text x="940" y="84" text-anchor="middle" font-size="11" fill="#e8eaf0" font-weight="600">Financier / debt</text>
+      <text x="940" y="102" text-anchor="middle" font-size="9" fill="#9aa3b5">lends vs GPUs + contract</text>
+      <text x="940" y="118" text-anchor="middle" font-size="9" fill="#9aa3b5">DDTL / ABS · Blackstone / Blue Owl</text>
+      <text x="940" y="132" text-anchor="middle" font-size="8.5" fill="#eda3a4">2nd rent pool</text>
+      <path d="M808 120 C 850 120, 850 110, 840 100" fill="none" stroke="#5fc98a" stroke-width="1.5" marker-end="url(#ar)"/>
+      <path d="M900 140 C 700 210, 400 210, 170 178" fill="none" stroke="#e0a458" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#ar)"/>
+      <text x="540" y="232" text-anchor="middle" font-size="9" fill="#c9a35a">financier funds the GPU purchase — the money loop the whole model rests on</text>
+
+      <text x="940" y="176" text-anchor="middle" font-size="9" fill="#697283">the circular tell:</text>
+      <text x="940" y="190" text-anchor="middle" font-size="8.5" fill="#697283">NVIDIA also invests in the operator</text>
+    </svg>
+  </div>
+  <p class="cap">Assembly view — the operator is a systems-integrator of scarce inputs. Its economics are strongest when it also owns an end (power, like IREN; or a fortress balance sheet, like NBIS) and weakest when it only rents the middle on borrowed money (the CRWV risk).</p>
+</section>
+
+<!-- 5. DEPLOYMENT / ARCHETYPE MAPPING -->
+<section>
+  <div class="sh"><span class="n">05</span><h2>Where each archetype plays — the map</h2><span class="cn">部署對照</span></div>
+  <p class="lead">The same demand (training, inference, enterprise) is served by five very different business models. Reading left→right, ownership of the scarce link falls and commoditization rises.</p>
+  <div class="svgwide">
+    <svg viewBox="0 0 1060 250" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <!-- power host -->
+      <text x="30" y="26" font-size="11.5" fill="#8aa7df" font-weight="600">POWER-OWNER HOST</text>
+      <text x="30" y="42" font-size="9" fill="#697283">owns MW + shell · IREN/APLD/WULF</text>
+      <rect x="24" y="52" width="188" height="150" rx="10" fill="#0e1420" stroke="#2c3e5a"/>
+      <line x1="48" y1="90" x2="48" y2="150" stroke="#5b81c4" stroke-width="3"/>
+      <rect x="70" y="96" width="120" height="50" rx="5" fill="#11261f" stroke="#3a6b54"/>
+      <text x="130" y="118" text-anchor="middle" font-size="8.5" fill="#7cc9ad">powered shell</text>
+      <text x="130" y="132" text-anchor="middle" font-size="7.5" fill="#697283">lease or self-run GPUs</text>
+      <text x="118" y="176" text-anchor="middle" font-size="8.5" fill="#8aa7df">owns the scarce input</text>
+      <text x="118" y="190" text-anchor="middle" font-size="7.5" fill="#697283">enterprise + colo + own cloud</text>
+
+      <!-- full stack -->
+      <text x="240" y="26" font-size="11.5" fill="#aaa3e6" font-weight="600">FULL-STACK</text>
+      <text x="240" y="42" font-size="9" fill="#697283">DC + software + fleet · NBIS</text>
+      <rect x="234" y="52" width="188" height="150" rx="10" fill="#161226" stroke="#3a3457"/>
+      <rect x="256" y="72" width="144" height="16" rx="3" fill="#1c3a2d" stroke="#3a6b54"/><text x="328" y="83" text-anchor="middle" font-size="7" fill="#7cc9ad">software / AI Studio</text>
+      <rect x="256" y="94" width="144" height="16" rx="3" fill="#2a2540" stroke="#5a4a7a"/><text x="328" y="105" text-anchor="middle" font-size="7" fill="#bcb3e6">own fleet</text>
+      <rect x="256" y="116" width="144" height="16" rx="3" fill="#0e1420" stroke="#2c3e5a"/><text x="328" y="127" text-anchor="middle" font-size="7" fill="#8aa7df">own + leased power</text>
+      <text x="328" y="176" text-anchor="middle" font-size="8.5" fill="#aaa3e6">net cash = cheap capital</text>
+      <text x="328" y="190" text-anchor="middle" font-size="7.5" fill="#697283">training + inference + enterprise</text>
+
+      <!-- contract anchored -->
+      <text x="446" y="26" font-size="11.5" fill="#e3bd76" font-weight="600">CONTRACT-ANCHORED</text>
+      <text x="446" y="42" font-size="9" fill="#697283">giant backlog, levered · CRWV</text>
+      <rect x="440" y="52" width="188" height="150" rx="10" fill="#231f14" stroke="#5a4a24"/>
+      <rect x="462" y="80" width="144" height="40" rx="5" fill="#33302a" stroke="#d2a24a"/>
+      <text x="534" y="98" text-anchor="middle" font-size="8" fill="#e3bd76">$99B backlog</text>
+      <text x="534" y="112" text-anchor="middle" font-size="7.5" fill="#c9b075">OpenAI · Meta · MSFT</text>
+      <path d="M462 140 C 500 156, 568 156, 606 140" fill="none" stroke="#e0686a" stroke-width="1.6" stroke-dasharray="3 2"/>
+      <text x="534" y="164" text-anchor="middle" font-size="8" fill="#eda3a4">~$32B net debt</text>
+      <text x="534" y="190" text-anchor="middle" font-size="7.5" fill="#697283">frontier-lab training</text>
+
+      <!-- hyperscaler captive -->
+      <text x="652" y="26" font-size="11.5" fill="#7cc9ad" font-weight="600">HYPERSCALER-CAPTIVE</text>
+      <text x="652" y="42" font-size="9" fill="#697283">Oracle OCI · Meta Compute</text>
+      <rect x="646" y="52" width="188" height="150" rx="10" fill="#0e1a14" stroke="#24533c"/>
+      <rect x="668" y="86" width="144" height="60" rx="6" fill="#123124" stroke="#5fc98a"/>
+      <text x="740" y="112" text-anchor="middle" font-size="8.5" fill="#7cc9ad">owns GPUs + power</text>
+      <text x="740" y="126" text-anchor="middle" font-size="8" fill="#9aa3b5">+ balance sheet</text>
+      <text x="740" y="176" text-anchor="middle" font-size="8.5" fill="#5fc98a">backward-integrates</text>
+      <text x="740" y="190" text-anchor="middle" font-size="7.5" fill="#eda3a4">the Jul-1 Meta-Compute threat</text>
+
+      <!-- marketplace -->
+      <text x="858" y="26" font-size="11.5" fill="#5aa9e0" font-weight="600">MARKETPLACE</text>
+      <text x="858" y="42" font-size="9" fill="#697283">aggregator · Vast.ai / Together</text>
+      <rect x="852" y="52" width="184" height="150" rx="10" fill="#0e1722" stroke="#244258"/>
+      <g fill="#13283a" stroke="#5aa9e0"><rect x="874" y="82" width="40" height="20" rx="3"/><rect x="924" y="82" width="40" height="20" rx="3"/><rect x="974" y="82" width="40" height="20" rx="3"/></g>
+      <text x="944" y="122" text-anchor="middle" font-size="8" fill="#8ec4ee">resells others' GPUs</text>
+      <text x="944" y="176" text-anchor="middle" font-size="8.5" fill="#5aa9e0">commoditizes spot price</text>
+      <text x="944" y="190" text-anchor="middle" font-size="7.5" fill="#697283">the deflation venue</text>
+    </svg>
+  </div>
+  <p class="cap">Map view — the top-3 of this report deliberately span the first three boxes (power-host IREN · full-stack NBIS · contract-anchored CRWV). The right two boxes are the disruptors that pressure everyone's margin.</p>
+</section>
+
+<!-- 6. SUPPLY CHAIN -->
+<section>
+  <div class="sh"><span class="n">06</span><h2>End-to-end value chain</h2><span class="cn">上下游全鏈</span></div>
+  <div class="leg">
+    <span><span class="sw" style="background:var(--up)"></span>Capital / financing</span>
+    <span><span class="sw" style="background:var(--l3)"></span>GPU allocation</span>
+    <span><span class="sw" style="background:var(--choke)"></span>Chokepoint (power+shell)</span>
+    <span><span class="sw" style="background:var(--pkg)"></span>Operator</span>
+    <span><span class="sw" style="background:var(--l2)"></span>Offtake / customers</span>
+    <span><span class="sw" style="background:var(--l1)"></span>Cash flow / debt</span>
+  </div>
+  <div class="svgwide">
+    <svg viewBox="-12 -2 1124 486" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="aT" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5a6377"/></marker>
+        <marker id="aR" markerWidth="9" markerHeight="9" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e0686a"/></marker>
+      </defs>
+
+      <text x="22" y="20" font-size="11" fill="#697283" font-weight="600">UPSTREAM</text>
+      <line x1="110" y1="16" x2="980" y2="16" stroke="#2a3040" stroke-width="1"/>
+      <polygon points="982,16 974,12 974,20" fill="#2a3040"/>
+      <text x="1078" y="20" font-size="11" fill="#697283" font-weight="600" text-anchor="end">DOWNSTREAM</text>
+
+      <!-- flow connectors -->
+      <line x1="180" y1="180" x2="200" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT)"/>
+      <line x1="360" y1="180" x2="380" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR)"/>
+      <line x1="540" y1="180" x2="560" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR)"/>
+      <line x1="720" y1="180" x2="740" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR)"/>
+      <line x1="900" y1="180" x2="920" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT)"/>
+
+      <!-- C1 Capital -->
+      <rect x="20" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="20" y="40" width="5" height="262" rx="2" fill="#5b81c4"/>
+      <text x="36" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Capital</text>
+      <text x="36" y="74" font-size="9" fill="#8aa7df" font-weight="600">FINANCING</text>
+      <g font-size="9">
+        <rect x="32" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="98" fill="#fff" font-weight="600">Equity</text><text x="40" y="110" fill="#9aa3b5">NVIDIA · sovereigns</text>
+        <rect x="32" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="136" fill="#fff" font-weight="600">Private credit</text><text x="40" y="148" fill="#9aa3b5">Blackstone · Blue Owl</text>
+        <rect x="32" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="174" fill="#fff" font-weight="600">GPU-backed debt</text><text x="40" y="186" fill="#9aa3b5">DDTL · ABS</text>
+      </g>
+      <text x="36" y="216" font-size="9" fill="#8aa7df">cost of funds = who wins</text>
+      <text x="36" y="230" font-size="8.5" fill="#697283">net cash beats ~7x levered</text>
+
+      <!-- C2 GPU allocation -->
+      <rect x="200" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="200" y="40" width="5" height="262" rx="2" fill="#8b84cf"/>
+      <text x="216" y="60" font-size="12" fill="#e8eaf0" font-weight="600">GPU allocation</text>
+      <text x="216" y="74" font-size="9" fill="#aaa3e6" font-weight="600">SUPPLIER</text>
+      <g font-size="9">
+        <rect x="212" y="84" width="136" height="32" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="220" y="98" fill="#fff" font-weight="600">NVIDIA GPUs</text><text x="220" y="110" fill="#bcb3e6">H100/H200/GB200</text>
+        <rect x="212" y="122" width="136" height="32" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="220" y="136" fill="#fff" font-weight="600">Allocation</text><text x="220" y="148" fill="#bcb3e6">loosening (CoWoS up)</text>
+        <rect x="212" y="160" width="136" height="32" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="220" y="174" fill="#fff" font-weight="600">+ equity stake</text><text x="220" y="186" fill="#bcb3e6">circular financing</text>
+      </g>
+      <text x="216" y="216" font-size="9" fill="#eda3a4">rental −60–80% / gen</text>
+      <text x="216" y="230" font-size="8.5" fill="#697283">the asset deflates</text>
+
+      <!-- C3 CHOKEPOINT power -->
+      <rect x="380" y="40" width="160" height="262" rx="10" fill="#1c1518" stroke="#5a3236" stroke-width="1.5"/>
+      <rect x="380" y="40" width="5" height="262" rx="2" fill="#5b81c4"/>
+      <rect x="392" y="26" width="140" height="20" rx="5" fill="#e0686a"/><text x="462" y="40" font-size="9.5" fill="#1c1518" font-weight="700" text-anchor="middle">CHOKEPOINT · POWER</text>
+      <text x="396" y="62" font-size="12" fill="#e8eaf0" font-weight="600">Power + shell</text>
+      <text x="396" y="76" font-size="9" fill="#eda3a4" font-weight="600">PRIMARY RENT</text>
+      <g font-size="9">
+        <rect x="392" y="86" width="136" height="32" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="400" y="100" fill="#fff" font-weight="700">Secured MW  ★</text><text x="400" y="112" fill="#eda3a4">grid queue 3–7 yr</text>
+        <rect x="392" y="124" width="136" height="32" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="400" y="138" fill="#fff" font-weight="600">Transformers</text><text x="400" y="150" fill="#eda3a4">2.5–5 yr lead</text>
+        <rect x="392" y="162" width="136" height="32" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="400" y="176" fill="#fff" font-weight="600">Turbines / IPP</text><text x="400" y="188" fill="#eda3a4">sold out to 2028–29</text>
+      </g>
+      <text x="396" y="216" font-size="9" fill="#eda3a4">the un-buildable input</text>
+      <text x="396" y="230" font-size="8.5" fill="#697283">IREN · APLD · WULF own it</text>
+
+      <!-- C4 Operator -->
+      <rect x="560" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="560" y="40" width="5" height="262" rx="2" fill="#c47a9e"/>
+      <text x="576" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Operator</text>
+      <text x="576" y="74" font-size="9" fill="#dba0bf" font-weight="600">MIDDLEMAN</text>
+      <g font-size="9">
+        <rect x="572" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="98" fill="#fff" font-weight="600">Full-stack</text><text x="580" y="110" fill="#9aa3b5">Nebius</text>
+        <rect x="572" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="136" fill="#fff" font-weight="600">Contract pure-play</text><text x="580" y="148" fill="#9aa3b5">CoreWeave</text>
+        <rect x="572" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="174" fill="#fff" font-weight="600">Software / ops</text><text x="580" y="186" fill="#9aa3b5">ClusterMAX moat</text>
+      </g>
+      <text x="576" y="216" font-size="9" fill="#dba0bf">keeps the thinnest rent</text>
+      <text x="576" y="230" font-size="8.5" fill="#697283">commoditization risk</text>
+
+      <!-- C5 Offtake -->
+      <rect x="740" y="40" width="160" height="262" rx="10" fill="#1c1518" stroke="#5a3236" stroke-width="1.5"/>
+      <rect x="740" y="40" width="5" height="262" rx="2" fill="#d2a24a"/>
+      <rect x="752" y="26" width="140" height="20" rx="5" fill="#d2a24a"/><text x="822" y="40" font-size="9.5" fill="#1c1518" font-weight="700" text-anchor="middle">2ND RENT · OFFTAKE</text>
+      <text x="756" y="62" font-size="12" fill="#e8eaf0" font-weight="600">Offtake / buyers</text>
+      <text x="756" y="76" font-size="9" fill="#e3bd76" font-weight="600">DEMAND</text>
+      <g font-size="9">
+        <rect x="752" y="86" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="100" fill="#fff" font-weight="600">Hyperscalers</text><text x="760" y="112" fill="#9aa3b5">MSFT · Meta</text>
+        <rect x="752" y="124" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="138" fill="#fff" font-weight="600">AI labs</text><text x="760" y="150" fill="#9aa3b5">OpenAI · Anthropic</text>
+        <rect x="752" y="162" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="176" fill="#fff" font-weight="600">take-or-pay</text><text x="760" y="188" fill="#9aa3b5">credit = bankability</text>
+      </g>
+      <text x="756" y="216" font-size="9" fill="#e3bd76">creditworthiness is scarce</text>
+      <text x="756" y="230" font-size="8.5" fill="#697283">Meta now competes too</text>
+
+      <!-- C6 Cash / debt service -->
+      <rect x="920" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="920" y="40" width="5" height="262" rx="2" fill="#4faf8e"/>
+      <text x="936" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Cash / debt</text>
+      <text x="936" y="74" font-size="9" fill="#7cc9ad" font-weight="600">SETTLEMENT</text>
+      <g font-size="9">
+        <rect x="932" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="98" fill="#fff" font-weight="600">Debt service</text><text x="940" y="110" fill="#9aa3b5">interest vs cash flow</text>
+        <rect x="932" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="136" fill="#fff" font-weight="600">Refinancing</text><text x="940" y="148" fill="#9aa3b5">2027 wall</text>
+        <rect x="932" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="174" fill="#fff" font-weight="600">Residual value</text><text x="940" y="186" fill="#9aa3b5">of the pledged GPUs</text>
+      </g>
+      <text x="936" y="216" font-size="9" fill="#7cc9ad">where the model lives or dies</text>
+      <text x="936" y="230" font-size="8.5" fill="#697283">collateral vs amortization</text>
+
+      <!-- scarcity premium bars -->
+      <line x1="40" y1="432" x2="1080" y2="432" stroke="#2a3040" stroke-width="1"/>
+      <text x="40" y="326" font-size="9" fill="#697283">value capture / scarcity premium</text>
+      <g>
+        <rect x="80" y="392" width="40" height="40" rx="2" fill="#2dd4bf" opacity="0.5"/>
+        <rect x="260" y="386" width="40" height="46" rx="2" fill="#2dd4bf" opacity="0.55"/>
+        <rect x="440" y="338" width="40" height="94" rx="2" fill="#e0686a"/>
+        <rect x="620" y="410" width="40" height="22" rx="2" fill="#2dd4bf" opacity="0.3"/>
+        <rect x="800" y="360" width="40" height="72" rx="2" fill="#d2a24a" opacity="0.85"/>
+        <rect x="980" y="398" width="40" height="34" rx="2" fill="#2dd4bf" opacity="0.4"/>
+      </g>
+      <text x="460" y="330" font-size="9" fill="#eda3a4" text-anchor="middle" font-weight="600">rent peaks at secured POWER</text>
+      <text x="820" y="352" font-size="8.5" fill="#e3bd76" text-anchor="middle">2nd pool: bankable offtake</text>
+      <text x="640" y="404" font-size="8.5" fill="#dba0bf" text-anchor="middle">operator: thinnest</text>
+      <g font-size="8.5" fill="#697283" text-anchor="middle">
+        <text x="100" y="446">capital</text><text x="280" y="446">GPU alloc</text><text x="460" y="446">power+shell</text><text x="640" y="446">operator</text><text x="820" y="446">offtake</text><text x="1000" y="446">cash/debt</text>
+      </g>
+      <text x="550" y="468" font-size="9" fill="#697283" text-anchor="middle">Red arrows = constricted throughput into &amp; out of the two rent pools. The operator sits between them and captures the least — the disaggregation the crowd misses.</text>
+    </svg>
+  </div>
+  <p class="cap">Unlike a hardware chokepoint (one scarce chip), the neocloud chokepoint is a <b>two-gate composite in series</b>: you cannot deploy without secured power, and you cannot finance without a creditworthy contract. The listed operator is the visible name — but not where the durable rent sits.</p>
+</section>
+
+<!-- 7. TIMELINE -->
+<section>
+  <div class="sh"><span class="n">07</span><h2>Three-year evolution — by force</h2><span class="cn">多年發展時間軸</span></div>
+  <p class="lead">How the four forces shaping neocloud economics migrate 2025→2028. The <b style="color:#eda3a4">tinted</b> cells mark stress / catalyst windows.</p>
+  <div class="tlgrid">
+    <div class="tlhead"><div>Force ↓ / Year →</div><div>2025</div><div>2026</div><div>2027</div><div>2028</div></div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--up)"></span>Power</div>
+      <div class="cell"><b>Queues lengthen</b>DLC + grid stress emerges</div>
+      <div class="cell hot"><b>"Power not chips"</b>ERCOT ~438GW queue; turbines sold out</div>
+      <div class="cell hot"><b>~49GW US shortfall</b>chips idle waiting for MW</div>
+      <div class="cell"><b>New gen lands</b>gas + nuclear IPP relief begins</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--l3)"></span>GPU economics</div>
+      <div class="cell hot"><b>H100 −75%</b>trough ~$1.7/hr (Oct-25)</div>
+      <div class="cell"><b>U-shape rebound</b>contract +40%; B200 spot spikes</div>
+      <div class="cell hot"><b>H200 deflates</b>as B200/B300 flood; depreciation debate peaks</div>
+      <div class="cell"><b>Rubin ramp</b>next-gen resets the curve again</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--l2)"></span>Financing</div>
+      <div class="cell"><b>DDTL 1.0/2.0</b>~11–15% GPU-backed debt</div>
+      <div class="cell hot"><b>IG-rated debt</b>CRWV DDTL 4.0 $8.5B (A3); Meta $30B SPV</div>
+      <div class="cell hot"><b>Refinancing wall</b>early GPU loans amortize vs falling residuals</div>
+      <div class="cell"><b>Shakeout</b>credit reprices; weakest levered names strained</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--dacr)"></span>Demand / structure</div>
+      <div class="cell"><b>Backlogs explode</b>OpenAI/Meta mega-contracts</div>
+      <div class="cell hot"><b>Meta Compute</b>customers backward-integrate (Jul-1)</div>
+      <div class="cell"><b>ROI scrutiny</b>can the labs actually pay?</div>
+      <div class="cell"><b>Consolidation</b>survivors own power + cheap capital</div>
+    </div>
+  </div>
+  <p class="cap">Reading down a column shows what's live in a given year; reading across a row shows one force's arc. 2026–27 is the pinch: power scarce, GPUs deflating, debt maturing, and customers starting to compete.</p>
+</section>
+
+<!-- 8. CHOKEPOINT -->
+<section>
+  <div class="sh"><span class="n">08</span><h2>The chokepoint — a two-gate composite</h2><span class="cn">卡點</span></div>
+  <div class="choke">
+    <div class="ttl">
+      <svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 2 L22 20 H2 Z" fill="none" stroke="#e0686a" stroke-width="2" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="14" stroke="#e0686a" stroke-width="2"/><circle cx="12" cy="17" r="1.2" fill="#e0686a"/></svg>
+      <h3>Secured power + shell (primary) → financeable creditworthy offtake (secondary)</h3>
+    </div>
+    <p>The neocloud model has two links in series that cannot be conjured on demand. <b>Upstream:</b> energized megawatts and a powered building — gated by 3–7-year grid-interconnection queues, 2.5–5-year transformer lead times, and gas turbines sold out to 2028–29. <b>Downstream:</b> a long take-or-pay contract from a creditworthy anchor, because the GPUs are bought with debt secured against a fast-depreciating asset, and that debt is really underwritten on the <i>customer's</i> credit. The GPU itself is <b>not</b> the chokepoint — allocation is loosening and rental prices deflate 60–80% per generation. The operator in the middle is the visible name but captures the thinnest, most contested rent.</p>
+    <div class="stats">
+      <div><b class="num">~438 GW</b><span>ERCOT large-load queue; ~1.8% operational</span></div>
+      <div><b class="num">3–7 yr</b><span>grid interconnection lead time</span></div>
+      <div><b class="num">2.5–5 yr</b><span>large transformer lead time</span></div>
+      <div><b class="num">~49 GW</b><span>US power shortfall est. by 2028</span></div>
+      <div><b class="num">$8.5B</b><span>first IG-rated GPU-backed loan (CRWV)</span></div>
+    </div>
+  </div>
+
+  <!-- severity scorecard -->
+  <div class="panel" style="margin-top:14px">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
+      <h4 style="font-size:13px;font-weight:600">Chokepoint-severity scorecard <span style="color:var(--dim);font-weight:400;font-size:11px">· composite power+offtake link · 1 = mild, 5 = acute · per-name links scored in §12</span></h4>
+      <div style="text-align:right"><span class="num" style="font-size:26px;font-weight:600;color:var(--choke)">17</span><span class="num" style="font-size:13px;color:var(--dim)">/20</span><div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em">composite · HIGH</div></div>
+    </div>
+    <div style="display:grid;gap:11px">
+      <div style="display:grid;grid-template-columns:200px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Supply concentration</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:#3a3040"></span><span style="flex:1;height:8px;border-radius:2px;background:#3a3040"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">3</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">Power is scarce but many owners (utilities, IPPs, hosts); offtake credit sits with a few AAA anchors</div>
+      </div>
+      <div style="display:grid;grid-template-columns:200px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Lead time to add capacity</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">5</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">3–7-yr grid queues + 2.5–5-yr transformers + turbines sold out — the hardest input to conjure</div>
+      </div>
+      <div style="display:grid;grid-template-columns:200px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Low substitutability</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:#3a3040"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">4</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">No compute without power; bankability needs a creditworthy anchor — but GPUs themselves are substitutable/deflating</div>
+      </div>
+      <div style="display:grid;grid-template-columns:200px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Demand-growth pressure</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">5</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">$635–690B 2026 capex; OpenAI ~$1.4T commitments — demand for power/compute is effectively unbounded</div>
+      </div>
+    </div>
+    <p class="cap" style="margin-top:12px">Composite 17/20 for the power+offtake chokepoint — acute on lead-time and demand, capped on concentration because power has many owners. Crucially, <b>remaining asymmetry is low at the operator level</b> (the crowded trade) and higher one link upstream at power — see §12.</p>
+  </div>
+
+  <div class="gap" style="margin-top:14px;border-left-color:var(--choke);background:rgba(224,104,106,.06)">
+    <div class="h" style="color:var(--choke)">VARIANT / DISAGGREGATION · 變異認知</div>
+    <p><b>Consensus buys "the neocloud"</b> as the pure AI-demand play. The disaggregation: the durable scarcity rent sits <b>one link upstream (secured power / IPPs / turbines / the grid)</b> and <b>one link downstream (the financier / balance-sheet capacity)</b> — not at the operator, who is a levered middleman on a depreciating asset. Two second-order effects sharpen this: (1) the buildout is partly <b>circular-financed</b> — NVIDIA takes equity in its own customers and backstops their unsold capacity, OpenAI's ~$1.4T of commitments dwarf its ~$20B ARR — so headline "demand" is partly manufactured and the whole edifice rests on GPU residual values holding; (2) on 1 Jul 2026 <b>Meta Compute</b> showed customers can backward-integrate (they own GPUs + power + balance sheet without the GPU-collateralized debt) — the operator's terminal risk. Net: <b>bullish the aggregate AI buildout, bearish the specific listed operator's rent capture.</b> The honest neocloud trade is to own the landlord (power) or the fortress balance sheet, not the tenant.</p>
+  </div>
+</section>
+
+<!-- 9. AWARENESS CURVE -->
+<section>
+  <div class="sh"><span class="n">09</span><h2>Are we early? The awareness curve</h2><span class="cn">現在是早期嗎</span></div>
+  <p class="lead">The whole game is owning a chokepoint <b>before</b> the crowd prices it. The hard truth: the neocloud names have <i>already</i> run enormously (NBIS ~20× off its low; CRWV 2× its IPO even after halving) and each carries &gt;15 analysts — so by the financialization test they are <b>recognition-priced, not early</b>. The 1–2 Jul drawdown is a <i>quality-in-correction</i> question, not undiscovered alpha. Genuine early asymmetry has rotated <b>upstream to power</b> (see the Power/Grid deep-dives) and into the private/financier layer.</p>
+
+  <div class="svgwide" style="margin-bottom:14px">
+    <svg viewBox="0 0 1060 320" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="alphaz" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5fc98a" stop-opacity="0.22"/><stop offset="1" stop-color="#5fc98a" stop-opacity="0"/></linearGradient></defs>
+      <rect x="40" y="40" width="190" height="230" fill="#11141c"/>
+      <rect x="230" y="40" width="200" height="230" fill="url(#alphaz)" stroke="#2c5a40" stroke-dasharray="3 4"/>
+      <rect x="630" y="40" width="200" height="230" fill="#1a1216" opacity="0.5"/>
+      <text x="135" y="32" text-anchor="middle" class="axis-zone" fill="#697283">LATENT</text>
+      <text x="330" y="32" text-anchor="middle" class="axis-zone" fill="#5fc98a" font-weight="600">EARLY SIGNAL · ALPHA</text>
+      <text x="530" y="32" text-anchor="middle" class="axis-zone" fill="#d2a24a">RECOGNITION</text>
+      <text x="730" y="32" text-anchor="middle" class="axis-zone" fill="#e0686a">EUPHORIA</text>
+      <text x="930" y="32" text-anchor="middle" class="axis-zone" fill="#697283">FULLY PRICED</text>
+      <path d="M40,258 C 260,250 280,205 430,150 C 560,104 640,70 760,62 C 880,56 980,58 1020,58" fill="none" stroke="#4a5570" stroke-width="2.5"/>
+      <text x="48" y="288" font-size="10" fill="#697283">time · market awareness  &#8594;</text>
+      <text x="20" y="150" font-size="10" fill="#697283" transform="rotate(-90 20 150)">price / crowding &#8594;</text>
+      <!-- IREN (early-recognition, priced as miner) -->
+      <circle cx="440" cy="150" r="7" fill="#5fc98a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="440" y="138" text-anchor="middle" font-size="11" fill="#7cd6a0" font-weight="700">IREN</text>
+      <text x="440" y="176" text-anchor="middle" font-size="9" fill="#9aa3b5" class="m">+12% YTD · priced as miner</text>
+      <!-- NBIS (recognition, drawdown) -->
+      <circle cx="600" cy="92" r="7" fill="#d2a24a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="600" y="80" text-anchor="middle" font-size="11" fill="#e3bd76" font-weight="700">NBIS</text>
+      <text x="600" y="118" text-anchor="middle" font-size="9" fill="#9aa3b5" class="m">+171% YTD · off -24% from high</text>
+      <!-- CRWV (recognition -> de-rating) -->
+      <circle cx="726" cy="72" r="7" fill="#e0686a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="726" y="60" text-anchor="middle" font-size="11" fill="#eda3a4" font-weight="700">CRWV</text>
+      <text x="742" y="86" text-anchor="start" font-size="9" fill="#9aa3b5" class="m">+18% YTD · -49% off high, Kerrisdale short</text>
+      <!-- latent marker -->
+      <circle cx="300" cy="200" r="6" fill="none" stroke="#5fc98a" stroke-width="2" stroke-dasharray="2 2"/>
+      <text x="300" y="188" text-anchor="middle" font-size="9" fill="#7cd6a0">next entry hides upstream: power / financier &#8601;</text>
+      <text x="330" y="262" text-anchor="middle" font-size="9.5" fill="#5fc98a">&#8593; own the landlord, not the tenant</text>
+      <text x="765" y="250" text-anchor="middle" font-size="9.5" fill="#eda3a4">most retail buys the operator here</text>
+    </svg>
+  </div>
+  <p class="cap" style="margin-top:-4px;margin-bottom:14px">Horizontal = awareness stage (qualitative). Dot height = how much of each story is in the price as of 2 Jul 2026. YTD from IBKR read-only. Note: none of the three is genuinely "latent" — the early dollar is left of IREN, in the un-repriced power/financier layer.</p>
+
+  <div class="panel" style="margin-bottom:14px;border-color:#2c5a40;background:rgba(95,201,138,.05)">
+    <h4 style="font-size:13px;margin-bottom:6px;font-weight:600;color:var(--dacr)">Still-latent watchlist — where the NEXT early entry hides <span class="cn" style="font-weight:400;color:var(--dim)">尚未被發現的早期標的</span></h4>
+    <p style="font-size:12px;color:var(--mut);line-height:1.55">The three plays above have all run. To buy <i>before</i> the crowd you have to watch the links still un-repriced or hard to reach — and in neoclouds that means going one gate <b>up</b> (power) or <b>into the financing structure</b>:</p>
+    <table class="tbl" style="margin-top:8px">
+      <tr><th>Latent candidate (link)</th><th>Why it could be next</th><th>Trigger that wakes it up · where to track</th></tr>
+      <tr><td><b>Power-secured hosts pre-AI-lease</b> — TeraWulf (WULF), APLD, Galaxy</td><td>Own energized MW; re-rate from "miner/landlord" multiple to "AI host" on a named IG lease (WULF already Google-backstopped)</td><td>A named hyperscaler take-or-pay lease; power-contract 8-Ks / PRs</td></tr>
+      <tr><td><b>The financier / private-credit lessor</b> — Blue Owl, Brookfield, Blackstone vehicles</td><td>Captures the 2nd rent pool (structuring GPU-backed debt) with recourse to the anchor's credit, not the GPU</td><td>New IG-rated GPU-ABS issuance + spread; deal-flow disclosures</td></tr>
+      <tr><td><b>Power OEMs / IPPs / turbines</b> — see the Power &amp; Grid deep-dives (GEV, turbines, nuclear IPPs)</td><td>The <i>actual</i> upstream chokepoint; same demand, harder moat, no GPU-depreciation or offtake tail</td><td>Turbine/transformer backlog + lead-times; interconnection-queue data (ERCOT/PJM/LBNL)</td></tr>
+    </table>
+    <p style="font-size:12px;color:var(--mut);line-height:1.55;margin-top:8px">Note the private euphoria that confirms the stage: <b>CoreWeave/Nebius peers re-rated hard even off-market</b> — Together AI $8.3B (Jul-1), Crusoe &gt;$10B (45GW power pipeline), Nscale $14.6B, Lambda ~$4–9B, VAST Data $30B. NVIDIA is an investor in essentially all of them. Vast.ai (private marketplace) is where you <i>read</i> spot rental deflation. <b>Access-honesty:</b> the purest early links (private neoclouds, IPPs, financiers) are largely un-buyable as clean US-listed pure-plays — which is itself the finding.</p>
+  </div>
+
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:4px;font-weight:600">Leading indicators — the early-signal dashboard</h4>
+      <p style="font-size:11px;color:var(--dim);margin-bottom:10px">These move BEFORE reported revenue. Watch them to catch the next leg — or the crack — early.</p>
+      <table class="liw">
+        <tr><th>Signal · trigger</th><th>Where an amateur can actually read it</th></tr>
+        <tr><td><b>GPU rental $/hr</b><br><span class="dotR" style="font-size:11px">falling · flag if H200 breaks below H100</span></td><td>SemiAnalysis GPU Pricing Index; Vast.ai / RunPod public spot prices</td></tr>
+        <tr><td><b>Hyperscaler capex guides</b><br><span class="dotG" style="font-size:11px">rising · a CUT = exit signal</span></td><td>MSFT / META / GOOG / AMZN 10-Q capex line + call guidance</td></tr>
+        <tr><td><b>Neocloud backlog / RPO</b><br><span class="dotG" style="font-size:11px">growing · watch quality/concentration</span></td><td>CRWV 10-Q RPO; NBIS 6-K ARR/backlog; earnings PRs</td></tr>
+        <tr><td><b>GPU-backed debt terms</b><br><span class="dotR" style="font-size:11px">spread widening / rating cut = stress</span></td><td>DDTL / ABS press releases; Moody's / S&amp;P rating actions</td></tr>
+        <tr><td><b>NVIDIA equity stakes</b><br><span class="dotA" style="font-size:11px">more = more circular</span></td><td>NVIDIA 13-F; investee 8-Ks / 6-Ks announcing stakes</td></tr>
+        <tr><td><b>Power / interconnection queue</b><br><span class="dotA" style="font-size:11px">longer queue = tighter chokepoint</span></td><td>ERCOT / PJM queue reports; LBNL "Queued Up"; utility filings</td></tr>
+        <tr><td><b>GPU depreciation life (footnote)</b><br><span class="dotR" style="font-size:11px">6yr vs 4yr = earnings-quality tell</span></td><td>10-K/20-F PP&amp;E accounting-policy footnote</td></tr>
+        <tr><td><b>Customer concentration %</b><br><span class="dotR" style="font-size:11px">&gt;50% one name = fragile</span></td><td>10-K "customer concentration" + risk factors</td></tr>
+        <tr><td><b>Short interest</b><br><span class="dotA" style="font-size:11px">NBIS ~24% float · use stops</span></td><td>Exchange short-interest (bi-weekly); Nasdaq / Fintel</td></tr>
+      </table>
+      <p style="font-size:10px;color:var(--dim);margin-top:8px">Thresholds are illustrative — calibrate to your own risk. Every signal is readable from <b>free public sources</b> weeks before it hits reported revenue.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">How to be early / stay honest <span class="cn" style="font-weight:400;color:var(--dim)">如何提前布局</span></h4>
+      <div class="mtc" style="margin-bottom:9px"><div class="h">1 · Own the landlord, not the tenant</div><p>The scarce link is <b>secured power</b>, not the GPU or the operator. In neoclouds, the picks-and-shovels sit one gate upstream — power hosts, IPPs, the grid.</p></div>
+      <div class="mtc" style="margin-bottom:9px"><div class="h">2 · Watch the balance sheet, not the backlog</div><p>A huge backlog against <b>~7× net debt on depreciating GPUs</b> is fragile. Cost of capital and residual value decide who survives — favor net-cash (NBIS) over levered (CRWV).</p></div>
+      <div class="mtc" style="margin-bottom:9px"><div class="h">3 · Respect the financialization test</div><p>&gt;15 analysts = the edge is largely gone. NBIS/CRWV are recognition-priced. Buy weakness in quality for compounding, don't mistake a drawdown for a secret.</p></div>
+      <div class="mtc"><div class="h">4 · Circular demand is real but borrowed</div><p>NVIDIA funding its own customers inflates apparent demand. It works while GPU residuals + AI-lab funding hold — treat a credit-market freeze or a customer (Meta) integrating back as the falsifier.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. TOP-3 MULTI-TAB -->
+<section>
+  <div class="sh"><span class="n">10</span><h2>Top-3 chokepoint plays</h2><span class="cn">三大卡點標的 · 分頁</span></div>
+  <p class="lead">Three companies at three <i>different</i> links, deliberately spread across the awareness curve. Ranked by <b>remaining asymmetry</b>: the power-owner (IREN) sits closest to the real chokepoint and is least-repriced as an AI name; the full-stack operator (NBIS) is the quality compounder in a drawdown; the levered pure-play (CRWV) is the highest-beta bet on GPU residuals.</p>
+
+  <div role="tablist" aria-label="Top-3 plays" style="display:flex;gap:6px;margin-bottom:-1px;flex-wrap:wrap">
+    <button class="tabbtn on" role="tab" aria-selected="true" aria-controls="t1" id="tab1" tabindex="0" onclick="showTab('t1',this)">① IREN &middot; power host<small>secured power · least-repriced</small></button>
+    <button class="tabbtn" role="tab" aria-selected="false" aria-controls="t2" id="tab2" tabindex="-1" onclick="showTab('t2',this)">② Nebius &middot; NBIS<small>full-stack · net cash · in drawdown</small></button>
+    <button class="tabbtn" role="tab" aria-selected="false" aria-controls="t3" id="tab3" tabindex="-1" onclick="showTab('t3',this)">③ CoreWeave &middot; CRWV<small>contract pure-play · levered</small></button>
+  </div>
+
+  <!-- TAB 1: IREN -->
+  <div class="tabpane" id="t1" role="tabpanel" aria-labelledby="tab1" style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">IREN Ltd <span style="color:var(--dim);font-weight:400">NASDAQ: IREN</span></h3>
+      <span class="stagebadge sg-early">EARLY-RECOGNITION · most remaining asymmetry</span>
+      <span style="font-size:12px;color:var(--mut)">Chokepoint: <b style="color:var(--txt)">secured grid power + powered shell</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The <b>power-owner</b>: owns land + secured ERCOT grid capacity (Childress + Sweetwater, TX) and is climbing from bitcoin mining into AI/HPC cloud. The only name in the cohort that is <b>GAAP-profitable and largely self-funding</b> while owning the scarce upstream link. Still trades on a "miner" multiple against an "AI-infra host" asset base.</p>
+    <div class="mini">
+      <div><div class="v">$42.14</div><div class="l">Last price (IBKR)</div></div>
+      <div><div class="v" style="color:var(--dacr)">+12%</div><div class="l">YTD 2026</div></div>
+      <div><div class="v">~$15.5B</div><div class="l">Market cap est.</div></div>
+      <div><div class="v">~6–7x</div><div class="l">EV/Sales fwd est.*</div></div>
+      <div><div class="v" style="color:var(--dacr)">~2x</div><div class="l">Rev growth YoY</div></div>
+    </div>
+    <div class="gap"><div class="h">ASYMMETRIC INFO GAP · 變異認知</div><p>The market still prices IREN as a <b>bitcoin miner</b> (it co-moves with BTC and the miner complex), while its AI-cloud + secured-power business scales toward the majority of value. The gap closes on (a) AI-cloud revenue mix visibly crossing ~50%, and (b) a <b>named investment-grade hyperscaler lease</b>. Until then it holds a miner multiple on the one asset — energized ERCOT capacity — that the neoclouds above it must rent. Caveat: it is off ~45% from its 52-wk high ($76.87), i.e. it bought the whole-complex July sell-off.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① Business model 怎麼賺錢</div><p>Owns land + secured grid interconnects; monetizes power three ways — bitcoin self-mining, AI/HPC <b>cloud</b> (own GPU fleet), and increasingly <b>colocation/lease</b> of powered capacity.</p></div>
+      <div class="mtc"><div class="h">② Segments 營收結構</div><p>Still <b>bitcoin-mining-weighted</b> today; AI-cloud/data-center the fast-growing minority — the pivot IS the thesis. FY-Q3'26 rev $757M (~2× YoY); TTM ~$2.7B.</p></div>
+      <div class="mtc"><div class="h">③ Growth drivers 成長來源</div><p>Bringing secured-but-undeveloped MW online and converting it into higher-value AI-cloud/lease revenue at a large $/MW uplift vs mining.</p></div>
+      <div class="mtc"><div class="h">④ End market 終端市場</div><p>AI training/inference; bitcoin; potential hyperscaler colocation.</p></div>
+      <div class="mtc"><div class="h">⑤ Customers 主要客戶</div><p>Cloud customers currently smaller/diversified; the re-rating catalyst is a <b>named hyperscaler/neocloud anchor lease</b> (rumored, unverified — mark est.).</p></div>
+      <div class="mtc"><div class="h">⑥ Moat 護城河</div><p><b>Secured, energized grid capacity in ERCOT</b> — the genuinely scarce input; multi-year interconnect queues make owning ready power the moat.</p></div>
+      <div class="mtc"><div class="h">⑦ Guidance 管理層展望</div><p>Aggressive MW build-out + AI-cloud scaling into 2026–27. GAAP-profitable (net income $77M FY-Q3, $309M FY-Q2); cash $2.21B, debt $3.96B.</p></div>
+      <div class="mtc"><div class="h">⑧ Why chokepoint 為何卡點</div><p>Neoclouds can buy GPUs but <b>cannot manufacture energized power or interconnects</b>. IREN sits upstream, owning the scarce link the operators must rent.</p></div>
+    </div>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--dacr)">BULL</b>Only cohort name GAAP-profitable + self-funding while owning the scarce input; a single named IG hyperscaler lease re-rates it from "miner" to "AI host"; captures power rent + cloud margin.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>Still bitcoin-cycle exposed (mining funds the pivot); execution/capex risk ($3.96B debt, big build); it also buys GPUs, re-importing the deflation/depreciation risk that made it "different."</div>
+    </div>
+  </div>
+
+  <!-- TAB 2: NBIS -->
+  <div class="tabpane" id="t2" role="tabpanel" aria-labelledby="tab2" style="display:none;border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">Nebius Group <span style="color:var(--dim);font-weight:400">NASDAQ: NBIS</span></h3>
+      <span class="stagebadge sg-recog">RECOGNITION · quality in a drawdown</span>
+      <span style="font-size:12px;color:var(--mut)">Chokepoint: <b style="color:var(--txt)">full-stack operator + net-cash capital edge</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The <b>vertically-integrated</b> operator: owns its DCs + software (AI Studio, managed Slurm/K8s), rated ClusterMAX <b>Gold</b>, with the <b>strongest balance sheet in the group (~net cash)</b>, an NVIDIA equity anchor, and bankable Microsoft + Meta offtake. Fell −17% on 2 Jul on the Meta-Compute report — the best-capitalized name selling off on a fear that hits it least on committed dollars.</p>
+    <div class="mini">
+      <div><div class="v">$226.84</div><div class="l">Last price (IBKR)</div></div>
+      <div><div class="v" style="color:var(--dup)">+171%</div><div class="l">YTD 2026</div></div>
+      <div><div class="v">~$55B</div><div class="l">Market cap</div></div>
+      <div><div class="v" style="color:var(--choke)">~17x</div><div class="l">EV/FY26e rev*</div></div>
+      <div><div class="v" style="color:var(--dacr)">+684%</div><div class="l">Q1 rev growth YoY</div></div>
+    </div>
+    <div class="gap"><div class="h">ASYMMETRIC INFO GAP · 變異認知</div><p>The market is anchoring on "the $27B Meta deal is at risk," but the Nebius–Meta contract is <b>structurally soft</b> — only ~$12B is firm; Meta buys <i>residual</i> capacity. So the July hit is more a sentiment de-rate of the whole neocloud TAM than a hard cancellation. The market under-weights (1) the <b>net-cash balance sheet</b> (lowest financing risk in the group — 4-yr GPU depreciation vs CRWV's 6-yr is also more conservative), and (2) <b>hidden equity stakes</b> (ClickHouse ~$4.2B implied, Avride, Toloka) that partly cover EV. The genuine debate is <b>capex-vs-cash</b>: $20–25B FY26 capex &gt;&gt; $9.3B cash → future raises/dilution are coming.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① Business model 怎麼賺錢</div><p>Sells <b>full-stack AI cloud</b> — designs/operates its own DCs, buys NVIDIA GPUs, rents compute + a managed software layer. Blend of long-term reserved contracts and on-demand.</p></div>
+      <div class="mtc"><div class="h">② Segments 營收結構</div><p>AI cloud ~98% of revenue. Q1'26 group rev $399M (+684% YoY); adj EBITDA 32% group / 45% AI-cloud. (Net income flattered by a one-off $780M ClickHouse revaluation — not operating.)</p></div>
+      <div class="mtc"><div class="h">③ Growth drivers 成長來源</div><p>ARR $1.92B (Q1'26) → guided <b>$7–9B exit-2026</b>; MSFT (up to $19.4B) + Meta (up to $27B) anchors; capex raised to $20–25B; &gt;3.5GW contracted power.</p></div>
+      <div class="mtc"><div class="h">④ End market 終端市場</div><p>Hyperscalers offloading capacity (MSFT, Meta), AI labs / model builders, and enterprises via self-serve cloud.</p></div>
+      <div class="mtc"><div class="h">⑤ Customers 主要客戶</div><p>Microsoft (Vineland NJ anchor) + Meta dominate backlog; broadening self-serve long tail. Contract-level concentration high but softer than CRWV.</p></div>
+      <div class="mtc"><div class="h">⑥ Moat 護城河</div><p><b>Vertically integrated + ClusterMAX Gold</b> (premium pricing at low cost); <b>~net cash</b> = cheapest capital in the group; deep NVIDIA relationship ($2B stake, priority Rubin allocation); portfolio optionality.</p></div>
+      <div class="mtc"><div class="h">⑦ Guidance 管理層展望</div><p>FY26: revenue $3.0–3.4B, ARR $7–9B exit, ~40% group adj-EBITDA margin, capex $20–25B; long-term 5+ GW by 2030.</p></div>
+      <div class="mtc"><div class="h">⑧ Why chokepoint 為何卡點</div><p><b>Partially owns it:</b> has creditworthy offtake + a cost-of-capital edge (rare), but its power is largely <i>rented</i>. A high-quality, well-capitalized operator — better positioned than most, but still exposed to compute commoditization and backward-integrating customers.</p></div>
+    </div>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--dacr)">BULL</b>Best balance sheet in the sector (net cash → lowest dilution risk); vertically-integrated Gold stack + NVIDIA priority allocation; ~5× below FY27e EV/rev (~4.7x) if the ramp lands.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>$20–25B capex vs $9.3B cash → future raises/dilution; compute commoditization + Meta integrating back; ~17× FY26 EV/rev leaves no room for error in a drawdown.</div>
+    </div>
+  </div>
+
+  <!-- TAB 3: CRWV -->
+  <div class="tabpane" id="t3" role="tabpanel" aria-labelledby="tab3" style="display:none;border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">CoreWeave <span style="color:var(--dim);font-weight:400">NASDAQ: CRWV</span></h3>
+      <span class="stagebadge sg-eu">RECOGNITION &#8594; DE-RATING · leverage &amp; concentration</span>
+      <span style="font-size:12px;color:var(--mut)">Chokepoint: <b style="color:var(--txt)">contract-anchored operator (leased power, levered)</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The <b>contract-anchored pure-play</b> and sole ClusterMAX <b>Platinum</b> cloud: a <b>$99.4B backlog</b> with the biggest AI labs, but built on <b>~$32B net debt</b> collateralized by depreciating GPUs, with <b>Microsoft ~67% of 2025 revenue</b>. The highest-quality operator on the most fragile financial structure — down ~49% from its high, and the only name in the cohort with a live activist short (Kerrisdale, fair value $6–13).</p>
+    <div class="mini">
+      <div><div class="v">$84.28</div><div class="l">Last price (IBKR)</div></div>
+      <div><div class="v" style="color:var(--dup)">+18%</div><div class="l">YTD 2026</div></div>
+      <div><div class="v">~$47B</div><div class="l">Market cap</div></div>
+      <div><div class="v" style="color:var(--choke)">~6.3x</div><div class="l">EV/FY26e rev*</div></div>
+      <div><div class="v" style="color:var(--dacr)">+112%</div><div class="l">Q1 rev growth YoY</div></div>
+    </div>
+    <div class="gap" style="border-left-color:var(--choke);background:rgba(224,104,106,.06)"><div class="h" style="color:var(--choke)">ASYMMETRIC INFO GAP · 變異認知</div><p>Bull-consensus fixates on <b>$99.4B backlog &gt;&gt; ~$47B market cap</b> as a free margin of safety. The variant: <b>backlog quality ≠ realized free cash flow.</b> It is concentrated (MSFT/OpenAI/Meta), recognized slowly (~36% within 2 years), and matched against <b>$32B+ net debt on depreciating collateral</b> whose rental rates are falling — plus $536M/quarter interest and Q1 FCF of <b>−$4.7B</b>. The under-priced risk is <b>residual-value / refinancing</b> on GPU-backed debt if a generation deflates faster than the loans amortize. Conversely, bears may under-price the IG rating + take-or-pay contracts that de-risk the <i>near-term</i> cash flows.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① Business model 怎麼賺錢</div><p>Sells specialized GPU cloud for frontier training/inference — bare-metal + virtualized NVIDIA compute + a managed layer ("Mission Control"). Almost entirely large multi-year take-or-pay contracts.</p></div>
+      <div class="mtc"><div class="h">② Segments 營收結構</div><p>Single-segment GPU cloud. Q1'26 rev $2.08B (+112% YoY); adj EBITDA $1.16B (56%) — but operating loss −$144M and net loss −$740M after interest + D&amp;A.</p></div>
+      <div class="mtc"><div class="h">③ Growth drivers 成長來源</div><p><b>Backlog ~$99.4B</b> (OpenAI ~$22.4B, Meta, Anthropic, Jane Street); ~3.5GW contracted power (&gt;1GW active); FY26 guide rev $12–13B, exit ARR $18–19B.</p></div>
+      <div class="mtc"><div class="h">④ End market 終端市場</div><p>Frontier AI labs (OpenAI, Anthropic), hyperscalers (Microsoft), quant/enterprise (Jane Street) — the largest, most GPU-hungry, most concentrated workloads.</p></div>
+      <div class="mtc"><div class="h">⑤ Customers 主要客戶</div><p><b>Microsoft ~67% of 2025 revenue</b> — extreme concentration. Diversifying via backlog, but near-term revenue is still Microsoft-dominated; MSFT declined a ~$12B option (Mar-25) which OpenAI absorbed.</p></div>
+      <div class="mtc"><div class="h">⑥ Moat 護城河</div><p>Sole ClusterMAX <b>Platinum</b> (real ops lead), first-mover scale, priority NVIDIA allocation + $6.3B NVIDIA take-or-pay backstop, first IG-rated GPU-backed debt. But the IG rating rests on the <i>customer's</i> credit, not CoreWeave's.</p></div>
+      <div class="mtc"><div class="h">⑦ Guidance 管理層展望</div><p>FY26: rev $12–13B, capex $31–35B, exit ARR $18–19B; &gt;$30B annualized rev by end-2027. Q1 sold off ~10% on light guide + rising capex.</p></div>
+      <div class="mtc"><div class="h">⑧ Why chokepoint 為何卡點</div><p><b>The commoditizing-middleman risk dressed as a chokepoint:</b> owns the <i>technical</i> scarce link but <i>rents</i> power (lost the Core Scientific ~1.3GW owned-power deal — terminated Oct-25), is ~7× levered on depreciating GPUs, and its biggest customers are building competing clouds. The leverage IS the risk, not a moat.</p></div>
+    </div>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--dacr)">BULL</b>$99.4B backlog (~2× EV) with the four biggest AI labs; sole Platinum + priority NVIDIA allocation + first IG GPU-backed debt; 56% adj-EBITDA margin can self-fund once capex normalizes; Nasdaq-100 inclusion.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>~$32B net debt on depreciating GPUs + $536M/qtr interest + FCF −$4.7B/qtr = refinancing/residual risk; MSFT ~67% + Meta-as-competitor; no owned power; Kerrisdale target $6–13; beta ~7.</div>
+    </div>
+  </div>
+  <p class="cap" style="margin-top:12px">*Valuation multiples are estimates from live IBKR prices, latest reported revenue/guidance and approximate share counts; verify on a data terminal before sizing. IREN/CRWV shown EV/Sales because GAAP earnings are thin/negative; NBIS "net income" excludes a one-off ClickHouse revaluation gain.</p>
+</section>
+
+<!-- 11. BENEFICIARY MAP + RISKS -->
+<section>
+  <div class="sh"><span class="n">11</span><h2>Beneficiary map &amp; key risks</h2><span class="cn">受惠族群與風險</span></div>
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Who benefits — by link</h4>
+      <table class="tbl">
+        <tr><th>Company</th><th>Link</th><th>Angle</th></tr>
+        <tr><td><b>NVIDIA</b> · NVDA</td><td><span class="lyr ly3">SUP</span></td><td>Supplier + financier + backstop of the whole complex</td></tr>
+        <tr><td><b>IREN</b></td><td><span class="lyr lyu">UP</span></td><td>Owns secured ERCOT power + shell; the upstream chokepoint</td></tr>
+        <tr><td><b>APLD · WULF</b></td><td><span class="lyr lyu">UP</span></td><td>Powered-shell landlords (WULF Google-backstopped)</td></tr>
+        <tr><td><b>Blue Owl · Brookfield · Blackstone</b></td><td><span class="lyr ly2">FIN</span></td><td>Structure the GPU-backed / DC debt — 2nd rent pool</td></tr>
+        <tr><td><b>Nebius</b> · NBIS</td><td><span class="lyr ly2">OP</span></td><td>Full-stack operator, net-cash quality</td></tr>
+        <tr><td><b>CoreWeave</b> · CRWV</td><td><span class="lyr ly2">OP</span></td><td>Contract-anchored pure-play, levered</td></tr>
+        <tr><td><b>Oracle · Meta</b></td><td><span class="lyr ly1">CAP</span></td><td>Hyperscaler-captive / backward-integrating (Meta Compute)</td></tr>
+        <tr><td><b>Together · Vast.ai</b></td><td><span class="lyr lyp">MKT</span></td><td>Inference niche / marketplace (deflation venue)</td></tr>
+      </table>
+      <p class="cap" style="margin-top:10px">Link key — <span class="lyr lyu">UP</span> power/upstream · <span class="lyr ly3">SUP</span> GPU supplier · <span class="lyr ly2">OP/FIN</span> operator/financier · <span class="lyr ly1">CAP</span> captive · <span class="lyr lyp">MKT</span> marketplace.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Risks to the thesis</h4>
+      <table class="tbl">
+        <tr><th>Risk</th><th>Watch</th></tr>
+        <tr><td><b>Circular-financing unwind</b></td><td>NVIDIA/OpenAI loop; BIS flags collateral re-pledging</td></tr>
+        <tr><td><b>GPU depreciation</b></td><td>6yr vs real 1–3yr life; Burry $176B claim</td></tr>
+        <tr><td><b>Rental deflation</b></td><td>−60–80%/gen; H200 the next to roll</td></tr>
+        <tr><td><b>Customer-as-competitor</b></td><td>Meta Compute; MSFT own buildout</td></tr>
+        <tr><td><b>2027 refinancing wall</b></td><td>GPU loans amortize vs falling residuals</td></tr>
+        <tr><td><b>Power cost / delay</b></td><td>Interconnection slips; transformer/turbine lead-times</td></tr>
+        <tr><td><b>Rates / liquidity</b></td><td>A credit-market freeze cuts the capex loop</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 12. DECISION TABLE -->
+<section>
+  <div class="sh"><span class="n">12</span><h2>The decision — one table</h2><span class="cn">投資決策總表</span></div>
+  <p class="lead">Everything above reconciled, ranked by <b>remaining asymmetry</b>. The one-row read: the play closest to the real chokepoint (IREN, power) is the least-repriced as an AI name; the best-capitalized operator (NBIS) is a quality compounder in a drawdown; the backlog-richest (CRWV) is the most fragile because its leverage sits on a deflating asset. Tightness ≠ a good buy — and none is genuinely "early" by the &gt;15-analyst test.</p>
+  <div style="overflow-x:auto">
+  <table class="tbl" style="min-width:920px">
+    <tr><th>#</th><th>Ticker</th><th>Link (chokepoint)</th><th>Severity</th><th>Awareness</th><th>Valuation</th><th>Rem. asymmetry</th><th>Framework lean</th><th>Key trigger</th></tr>
+    <tr>
+      <td class="num">1</td><td><b>IREN</b></td><td><span class="lyr lyu">UP</span> secured power + shell</td>
+      <td class="num">15/20</td><td><span class="stagebadge sg-early">EARLY-RECOG</span></td><td class="num">~6–7x EV/S · +12% YTD</td>
+      <td class="dotG">Highest</td><td><b>Relative-value starter</b></td><td>Named IG hyperscaler lease; AI-mix &gt;50%</td>
+    </tr>
+    <tr>
+      <td class="num">2</td><td><b>NBIS</b> · Nebius</td><td><span class="lyr ly2">OP</span> full-stack + net cash</td>
+      <td class="num">13/20</td><td><span class="stagebadge sg-recog">RECOGNITION</span></td><td class="num">~17x EV/rev · +171% YTD</td>
+      <td class="dotA">Low–Med</td><td><b>Own quality on weakness</b></td><td>ARR toward $7–9B; capex-vs-cash / raise terms</td>
+    </tr>
+    <tr>
+      <td class="num">3</td><td><b>CRWV</b> · CoreWeave</td><td><span class="lyr ly2">OP</span> contract pure-play (levered)</td>
+      <td class="num">12/20</td><td><span class="stagebadge sg-eu">DE-RATING</span></td><td class="num">~6.3x EV/rev · +18% YTD</td>
+      <td class="dotR">Low / binary</td><td><b>High-beta · trade/avoid</b></td><td>GPU-debt spreads; MSFT concentration; residual values</td>
+    </tr>
+  </table>
+  </div>
+  <p class="cap"><b>How each severity is derived</b> (0–20, four factors each 0–5: supply concentration · lead-time · low substitutability · demand): <b>IREN = 15</b> (3+5+3+4 — owns the scarce power link but power has many owners and it also carries GPU risk). <b>NBIS = 13</b> (2+4+3+4 — operator link, but net cash + own DCs harden it). <b>CRWV = 12</b> (2+4+2+4 — operator link, leased power, most substitutable/contested, leverage adds fragility not tightness). So the same scarcity logic ranks the <i>links</i>: the power-owner sits tightest, the levered pure-play loosest — even though CRWV has the biggest backlog. <b>If you can only do one thing:</b> treat this as an <i>own-the-landlord</i> layer — the honest early dollar is upstream in power (see the Power/Grid deep-dives), with IREN the most direct listed proxy and NBIS the quality operator to accumulate on weakness. "Framework lean" is analysis, not advice.</p>
+</section>
+
+<div class="disc"><b>Not investment advice.</b> Automated research synthesis for idea generation only. Figures drawn from public reporting, SEC/EDGAR filings, company releases, and third-party estimates as of 2 Jul 2026; live quotes via IBKR read-only. Deal totals often mix committed vs optional tranches; "net income" for hyper-growth names can be distorted by one-off mark-to-market gains. May contain errors or become stale — verify against primary filings and do your own due diligence. No buy/sell recommendation implied. IBKR is read-only; no trade was or will be placed.</div>
+
+<footer>
+  <p><b>Sources:</b> SEC/EDGAR — CoreWeave FY2025 10-K + Q1'26 8-K/10-Q (rev, backlog $99.4B, debt, MSFT 67%, DDTL 4.0), Nebius Q1'26 6-K + PRs (ARR, MSFT/Meta deals, $9.3B cash, capex) · SemiAnalysis (GPU Pricing Index, ClusterMAX, glut rebuttal) · Bloomberg / Reuters / CNBC / The Information / Fortune / DCD (Meta Compute Jul-1; NVIDIA–OpenAI $100B + CRWV $6.3B backstop; circular-financing map) · Kerrisdale Capital (CRWV short, $6–13) · Princeton CITP + Michael Burry (GPU depreciation) · Morgan Stanley / LBNL / ERCOT / PJM (power shortfall, interconnection queues) · Mordor / TBRC / Synergy (GPUaaS market size) · IBKR read-only (live quotes, 2 Jul 2026). Every load-bearing number cross-checked against &#8805;2 independent sources where possible; estimates marked (est.).</p>
+  <p style="margin-top:10px">Automated AI-Infra workflow · Run #19 v5 · Neocloud (CLOUD) layer — queue-jump via Alpha-Funnel asymmetry_flag over the round-robin default · self-critique + independent reviewer cross-review · recurs every 2 days.</p>
+</footer>
+
+</div>
+<script>
+function showTab(id,btn){
+  document.querySelectorAll('.tabpane').forEach(function(p){p.style.display='none';});
+  var el=document.getElementById(id); if(el){el.style.display='block';}
+  document.querySelectorAll('.tabbtn').forEach(function(b){b.classList.remove('on');b.setAttribute('aria-selected','false');b.setAttribute('tabindex','-1');});
+  if(btn){btn.classList.add('on');btn.setAttribute('aria-selected','true');btn.setAttribute('tabindex','0');}
+}
+(function(){
+  var tabs=Array.prototype.slice.call(document.querySelectorAll('.tabbtn'));
+  tabs.forEach(function(t,i){
+    t.addEventListener('keydown',function(e){
+      var n=null;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'){n=(i+1)%tabs.length;}
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){n=(i-1+tabs.length)%tabs.length;}
+      if(n!==null){e.preventDefault();tabs[n].focus();tabs[n].click();}
+    });
+  });
+})();
+</script>
+</body>
+</html>

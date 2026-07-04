@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Infra Run #19 v5 — Optics / Photonic Packaging &amp; Fiber-Attach Chokepoint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#13161e; --panel2:#1a1e28; --panel3:#212634; --line:#2a3040; --line2:#363d4f;
+    --txt:#e8eaf0; --mut:#9aa3b5; --dim:#697283;
+    --accent:#2dd4bf; --choke:#e0686a;
+    --up:#5b81c4; --l3:#8b84cf; --pkg:#c47a9e; --l2:#d2a24a; --l1:#4faf8e;
+    --dup:#e0a458; --dout:#5aa9e0; --dacr:#5fc98a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px;-webkit-font-smoothing:antialiased}
+  .num{font-family:"JetBrains Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  header{border-bottom:1px solid var(--line);padding:38px 0 30px;margin-bottom:8px;background:
+     radial-gradient(900px 320px at 12% -40%,rgba(45,212,191,.10),transparent 60%),
+     radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
+  .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.6px;line-height:1.12;max-width:920px}
+  .sub{font-size:15px;font-weight:400;color:var(--mut);margin-top:12px;max-width:840px}
+  .meta{margin-top:20px;display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+  .meta div{padding-right:26px;margin-right:26px;border-right:1px solid var(--line)}
+  .meta div:last-child{border:0}
+  .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+  .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
+  section{padding:34px 0 2px}
+  .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+  .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.05em}
+  .sh h2{font-size:21px;font-weight:600;letter-spacing:-.3px}
+  .sh .cn{font-size:13px;color:var(--dim);font-weight:400;margin-left:auto}
+  .lead{color:var(--mut);font-size:13.5px;max-width:900px;margin-bottom:18px}
+  .lead b{color:var(--txt);font-weight:600}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
+  .kpi{padding:18px 20px;border-right:1px solid var(--line)}
+  .kpi:last-child{border-right:0}
+  .kpi .v{font-size:24px;font-weight:600;letter-spacing:-.5px}
+  .kpi .l{font-size:11.5px;color:var(--mut);margin-top:4px}
+  .kpi .d{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.4}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}
+  .matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .matrix th{background:var(--panel2);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);font-weight:600;padding:12px 14px;text-align:left;border-bottom:1px solid var(--line)}
+  .matrix td{padding:14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
+  .matrix tr:last-child td{border-bottom:0}
+  .matrix .dom{font-weight:600;font-size:14px;color:var(--txt);display:flex;align-items:center;gap:9px}
+  .matrix .dom .sw{width:10px;height:10px;border-radius:3px;flex:none}
+  .matrix .dom small{display:block;font-weight:400;font-size:10.5px;color:var(--dim);margin-top:2px}
+  .matrix td b{color:var(--txt);font-weight:600}
+  .chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--panel3);color:var(--mut);margin:2px 4px 2px 0;border:1px solid var(--line2)}
+  .chip.hot{background:rgba(224,104,106,.12);border-color:#5a3236;color:#efa0a1}
+  .gal{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:900px){.gal{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.gal{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column}
+  .card .svgbox{background:linear-gradient(180deg,#0e1117,#161a24);padding:14px;border-bottom:1px solid var(--line)}
+  .card .body{padding:14px 16px 16px}
+  .card h4{font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .card .role{font-size:12px;color:var(--mut);margin-top:6px;line-height:1.45}
+  .card .who{font-size:11px;color:var(--dim);margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px}
+  .card .who b{color:var(--l3)}
+  .badge{font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:5px;letter-spacing:.03em;flex:none}
+  .b-hot{background:rgba(224,104,106,.14);color:#eda3a4}
+  .b-now{background:rgba(45,212,191,.13);color:var(--accent)}
+  .b-next{background:rgba(90,169,224,.14);color:var(--dout)}
+  .b-emrg{background:rgba(210,162,74,.14);color:var(--dup)}
+  .svgwide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
+  .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
+  .flow{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+  @media(max-width:900px){.flow{grid-template-columns:1fr 1fr 1fr}}
+  @media(max-width:560px){.flow{grid-template-columns:1fr 1fr}}
+  .st{border:1px solid var(--line);border-radius:11px;padding:12px 11px;background:var(--panel2)}
+  .st.ck{border-color:#5a3236;background:linear-gradient(160deg,rgba(224,104,106,.10),transparent),var(--panel2)}
+  .st h5{font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px;display:flex;align-items:center;gap:6px;color:var(--mut)}
+  .st h5 .sw{width:8px;height:8px;border-radius:50%;flex:none}
+  .st ul{list-style:none;font-size:11.5px}
+  .st li{padding:4px 0;color:var(--mut);border-bottom:1px dashed var(--line2);line-height:1.3}
+  .st li:last-child{border:0}.st li b{color:var(--txt);font-weight:600}
+  .st li .x{color:var(--choke);font-weight:600}
+  .tlgrid{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .tlhead{display:grid;grid-template-columns:130px repeat(4,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
+  .tlhead div{padding:11px 12px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);border-right:1px solid var(--line)}
+  .tlhead div:first-child{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-family:"Space Grotesk",sans-serif;display:flex;align-items:center}
+  .tlrow{display:grid;grid-template-columns:130px repeat(4,1fr);border-bottom:1px solid var(--line)}
+  .tlrow:last-child{border-bottom:0}
+  .tlrow .lab{padding:13px 12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;border-right:1px solid var(--line);background:var(--panel2)}
+  .tlrow .lab .sw{width:9px;height:9px;border-radius:3px;flex:none}
+  .tlrow .cell{padding:11px 12px;border-right:1px solid var(--line);font-size:11.5px;color:var(--mut);line-height:1.4}
+  .tlrow .cell:last-child{border-right:0}
+  .tlrow .cell b{color:var(--txt);font-weight:600;display:block;margin-bottom:2px;font-size:11.5px}
+  .tlrow .cell.hot{background:rgba(224,104,106,.06)}
+  @media(max-width:780px){.tlhead,.tlrow{grid-template-columns:86px repeat(4,1fr);font-size:10px}.tlrow .cell{font-size:10px}}
+  .choke{border:1px solid #5a3236;border-radius:14px;padding:22px 24px;background:
+    linear-gradient(135deg,rgba(224,104,106,.10),transparent 55%),var(--panel)}
+  .choke .ttl{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+  .choke .ttl svg{flex:none}
+  .choke .ttl h3{font-size:17px;font-weight:600;color:var(--choke)}
+  .choke p{font-size:13.5px;color:#d9c4c6;max-width:920px}.choke p b{color:#fff}
+  .choke .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:18px;border-top:1px solid #4a2c2f;padding-top:16px}
+  @media(max-width:780px){.choke .stats{grid-template-columns:1fr 1fr}}
+  .choke .stats div{padding-right:18px}
+  .choke .stats b{display:block;font-size:21px;color:var(--choke);font-weight:600}
+  .choke .stats span{font-size:10.5px;color:var(--dim)}
+  .td{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:780px){.td{grid-template-columns:1fr}}
+  .tdc{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 17px}
+  .tdc.key{border-color:#5a3236;background:linear-gradient(135deg,rgba(224,104,106,.07),transparent),var(--panel)}
+  .tdc .h{font-size:12.5px;font-weight:600;color:var(--accent);margin-bottom:7px;display:flex;align-items:baseline;gap:8px}
+  .tdc.key .h{color:var(--choke)}
+  .tdc .h .cn{color:var(--dim);font-size:10.5px;font-weight:400}
+  .tdc p{font-size:12.5px;color:var(--mut);line-height:1.5}.tdc p b{color:var(--txt)}
+  .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  .tbl th{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .tbl td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--mut)}
+  .tbl td b{color:var(--txt)}
+  .lyr{font-family:"JetBrains Mono",monospace;font-size:10.5px;padding:1px 7px;border-radius:5px;font-weight:600}
+  .ly3{background:rgba(139,132,207,.15);color:#aaa3e6}
+  .ly2{background:rgba(210,162,74,.15);color:#e3bd76}
+  .ly1{background:rgba(79,175,142,.15);color:#7cc9ad}
+  .lyu{background:rgba(91,129,196,.15);color:#8aa7df}
+  .lyp{background:rgba(196,122,158,.15);color:#dba0bf}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .two{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+  @media(max-width:780px){.two{grid-template-columns:1fr}}
+  .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:2px 0 16px}
+  .leg span{display:flex;align-items:center;gap:7px}
+  .leg .sw{width:11px;height:11px;border-radius:3px}
+  .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
+  footer{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}
+  footer b{color:var(--mut)}
+  /* tabs */
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .tab{padding:10px 16px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--mut);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+  .tab[aria-selected="true"]{background:linear-gradient(135deg,rgba(45,212,191,.14),transparent),var(--panel2);border-color:var(--accent);color:var(--txt)}
+  .tab .tk{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--dim);margin-left:6px}
+  .tabpanel{display:none}
+  .tabpanel.on{display:block}
+  .vstrip{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--line);border-radius:11px;overflow:hidden;margin:14px 0}
+  @media(max-width:780px){.vstrip{grid-template-columns:1fr 1fr}}
+  .vstrip div{padding:12px 14px;border-right:1px solid var(--line)}
+  .vstrip div:last-child{border-right:0}
+  .vstrip .vl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim)}
+  .vstrip .vn{font-size:17px;font-weight:600;margin-top:3px}
+  .gap{background:rgba(45,212,191,.05);border:1px solid #1c463f;border-radius:11px;padding:13px 16px;font-size:12.5px;color:#9fd8ce;margin:12px 0}
+  .gap b{color:#d7f5ef}
+  .bb{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+  @media(max-width:640px){.bb{grid-template-columns:1fr}}
+  .bull,.bear{border-radius:11px;padding:13px 15px;font-size:12px;line-height:1.5}
+  .bull{background:rgba(79,175,142,.06);border:1px solid #1f4436}.bull b{color:#8fd4bb}
+  .bear{background:rgba(224,104,106,.06);border:1px solid #4a2c2f}.bear b{color:#eca6a7}
+  .svglabel{font-family:"JetBrains Mono",monospace;font-size:9px;fill:var(--dim)}
+  svg text{font-family:"Space Grotesk",sans-serif}
+  svg text.m{font-family:"JetBrains Mono",monospace}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #19 · Optics loop 4 · v5</div>
+    <h1>The Photonic-Packaging &amp; Fiber-Attach Chokepoint — the assembly wall behind the laser</h1>
+    <p class="sub">Runs #1/#7/#13 drilled the light source (EML, InP epitaxy, CPO laser). This one goes one cut <b style="color:#fff">over</b> the laser: to where the light source, the photonic chip and the fibre get married into a working optical engine <b style="color:#fff">with yield</b>. That marriage — active alignment + fibre-attach — is now openly named by TSMC as the constraint gating co-packaged optics. Who owns the assembly, and are you early or late?</p>
+    <div class="meta">
+      <div><div class="k">Date</div><div class="vv num">04 Jul 2026</div></div>
+      <div><div class="k">Chokepoint</div><div class="vv">Photonic packaging · fibre-attach / active alignment</div></div>
+      <div><div class="k">Severity</div><div class="vv num">16 / 20</div></div>
+      <div><div class="k">Top-3</div><div class="vv">FN · KLIC · POET</div></div>
+      <div><div class="k">Still early?</div><div class="vv">FN relative-value · rest priced/binary</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- 1. SNAPSHOT -->
+<section>
+  <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">為什麼是現在</span></div>
+  <p class="lead">A finished optical link is not just a laser. The laser chip, the silicon-photonics chip and the hair-thin glass fibre have to be <b>glued together to sub-micron precision</b> — and that assembly step is the slow, low-yield, hard-to-automate part. For a plug-in transceiver it is one small module you can throw away if it fails. For <b>co-packaged optics (CPO)</b> — optics built onto the switch chip — it explodes to <b>~1,000+ fibre attaches onto a single, non-repairable multi-chip package</b>. One bad joint scraps a package worth dozens of plug-ins. On 9-Jun-2026 an analyst note arguing CPO would slip on exactly this yield problem knocked the whole optics complex down double digits — and it did so again in the 2-Jul session this report is priced from. That selloff is the setup.</p>
+  <div class="kpis">
+    <div class="kpi"><div class="v num teal">16 → 1,000+</div><div class="l">Fibres attached per assembled unit</div><div class="d">1.6T pluggable (~16, discardable) → CPO switch package/system (~250–1,000+, non-repairable). +1–2 orders of magnitude</div></div>
+    <div class="kpi"><div class="v num red">70–80%</div><div class="l">Packaging share of SiPh <i>module</i> mfg cost</div><div class="d">vs ~20% for electronic ICs (Optica OPN). A low-volume rule-of-thumb — see §8 for the honest caveat</div></div>
+    <div class="kpi"><div class="v num amb">~19%</div><div class="l">SemiAnalysis frozen-yield CPO system estimate</div><div class="d">0.95<sup>32</sup> COUPE engines; illustrative &amp; contested — the number driving the CPO-delay debate</div></div>
+    <div class="kpi"><div class="v num grn">24 → 63M</div><div class="l">800G+ transceiver units, 2025 → 2026</div><div class="d">~2.6× unit step-up; every one needs precision fibre-attach (TrendForce est.)</div></div>
+  </div>
+
+  <div style="border:1px solid var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px;background:var(--panel)">
+    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px">EXPLAIN IT SIMPLY · 白話版</div>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6;max-width:920px">Making the laser is hard (earlier reports covered that). But an even trickier job is <b style="color:var(--txt)">attaching the tiny glass fibre to the chip</b> so almost no light leaks. It has to line up to a fraction of a hair's width, and a machine can only do a few per minute. As datacentres move optics <b style="color:var(--txt)">right next to the switch chip (CPO)</b>, the number of these delicate joints per part jumps from a handful to over a thousand — and if any one is bad, the whole expensive part is scrap. So the new bottleneck isn't the laser, it's <b style="color:var(--txt)">the assembly line that puts everything together</b>. This report asks: who owns that assembly line, and is the shortage already in the share price? The honest answer — <b style="color:var(--txt)">the one name that wins whether CPO speeds up or slows down is Fabrinet</b>, and it's the cheapest of the group.</p>
+  </div>
+</section>
+
+<!-- 2. TWO-AXIS FRAMEWORK -->
+<section>
+  <div class="sh"><span class="n">02</span><h2>The framework — use case × stack layer</h2><span class="cn">MECE 框架</span></div>
+  <p class="lead">Optics lives at a <b>(where it runs × what physical layer it is)</b> coordinate. This report's chokepoint is not a component (L3) or a module (L2) — it is the <b>packaging/assembly step that turns L3 into L2</b>, the cell marked in red below. It binds hardest in <b>scale-out 1.6T pluggables today</b> and <b>scale-up CPO from 2026–2028</b>.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+    <div class="panel" style="padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">THE LAYER STACK · 分層 (read this first)</div>
+      <div style="font-size:12px;color:var(--mut);line-height:1.85">
+        <span class="lyr ly1">L1</span> the <b>switch / GPU</b> that needs to send data &nbsp;·&nbsp;
+        <span class="lyr ly2">L2</span> the <b>optical engine / transceiver</b> (the finished light part) &nbsp;·&nbsp;
+        <span class="lyr ly3">L3</span> the <b>laser + photonic chip + fibre</b> that go inside it &nbsp;·&nbsp;
+        <span class="lyr lyp">PKG</span> the <b>packaging step</b> that aligns &amp; bonds L3 into L2 — <b style="color:var(--choke)">this report</b>.
+      </div>
+    </div>
+    <div class="panel" style="padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">6-TERM GLOSSARY · 名詞</div>
+      <div style="font-size:11.5px;color:var(--mut);line-height:1.75">
+        <b>Fibre-attach</b> gluing fibre to the chip · <b>Active alignment</b> nudging it live until the light peaks · <b>FAU</b> fibre-array unit (a comb of fibres) · <b>PIC</b> photonic (light) chip · <b>CPO</b> optics built onto the switch package · <b>KGD</b> known-good-die (tested-good before assembly)
+      </div>
+    </div>
+  </div>
+  <table class="matrix">
+    <tr>
+      <th style="width:170px">Use case (where)</th>
+      <th style="width:120px">Reach</th>
+      <th>Optics used &amp; where packaging binds</th>
+      <th style="width:230px">Who assembles it</th>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--dup)"></span>Scale-UP<small>GPU↔GPU in a rack/pod</small></div></td>
+      <td>&lt; 1 m – 10 m</td>
+      <td><b>Copper today → CPO next.</b> The hardest packaging: 18 photonic chiplets, ~250–300 fibres per switch package, non-repairable. <span class="chip hot">CPO fibre-attach wall 2026–28</span></td>
+      <td>TSMC (COUPE), Foxconn, <b>Fabrinet (sub-assembly)</b>, SPIL, SENKO/Corning (FAU)</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--dout)"></span>Scale-OUT<small>rack↔rack across the DC</small></div></td>
+      <td>10 m – 2 km</td>
+      <td><b>The volume engine today.</b> 800G / 1.6T pluggables — ~16 fibres/module, discardable. Precision fibre-attach at 63M-unit scale. <span class="chip hot">1.6T ramp 2026</span></td>
+      <td><b>Fabrinet</b>, Innolight, Coherent, Lumentum, Foxconn</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--dacr)"></span>Scale-ACROSS<small>DC↔DC / campus</small></div></td>
+      <td>2 – 80 km+</td>
+      <td>Coherent 800ZR/1.6T DCI — long-reach, fewer units, higher $/unit; same active-alignment step, more exotic optics. <span class="chip">DCI +90% YoY at FN</span></td>
+      <td>Coherent, Ciena, Fabrinet, Marvell (DSP)</td>
+    </tr>
+  </table>
+  <p class="cap">The chokepoint is the <b style="color:var(--choke)">PKG</b> row of the stack, not a domain — it radiates across all three use cases. Packaging binds hardest in scale-up CPO (most fibres, non-repairable), then scale-out pluggables (highest unit count).</p>
+</section>
+
+<!-- 3. COMPONENT DEEP-DIVE GALLERY -->
+<section>
+  <div class="sh"><span class="n">03</span><h2>What's actually inside — the assembly gallery</h2><span class="cn">元件圖解</span></div>
+  <p class="lead">Six steps turn loose parts into a working optical engine. The scarce know-how sits in steps 3–4 (align + attach) and step 5 (test-good). Each little picture is one step; who owns it is underneath.</p>
+  <div class="gal">
+    <div class="card">
+      <div class="svgbox"><svg viewBox="0 0 150 96" width="100%" height="96" role="img" aria-label="laser die on submount">
+        <rect x="18" y="52" width="114" height="16" rx="2" fill="#1c2230" stroke="#3a4358"/>
+        <rect x="42" y="34" width="30" height="18" rx="2" fill="#3a3550" stroke="#8b84cf"/>
+        <text x="57" y="46" text-anchor="middle" font-size="8" fill="#c9c3ef">laser</text>
+        <circle cx="92" cy="43" r="6" fill="#2a3550" stroke="#5aa9e0"/>
+        <text x="92" y="46" text-anchor="middle" font-size="6" fill="#9fc7ea">PD</text>
+        <text x="75" y="80" text-anchor="middle" font-size="8" fill="#9aa3b5">submount + die-attach</text>
+      </svg></div>
+      <div class="body"><h4>1 · Component die <span class="badge b-hot">L3</span></h4>
+        <div class="role">EML/CW laser, photonic IC (PIC), monitor photodiode — the light-makers from Runs #1/#7/#13.</div>
+        <div class="who">Who: <b>Coherent, Lumentum, TSMC (SiPh)</b>, InP epi foundries</div></div>
+    </div>
+    <div class="card">
+      <div class="svgbox"><svg viewBox="0 0 150 96" width="100%" height="96" role="img" aria-label="active alignment six axis">
+        <rect x="20" y="46" width="46" height="24" rx="2" fill="#241f32" stroke="#8b84cf"/>
+        <text x="43" y="61" text-anchor="middle" font-size="7.5" fill="#c9c3ef">PIC</text>
+        <line x1="86" y1="58" x2="128" y2="58" stroke="#e0686a" stroke-width="2"/>
+        <path d="M120 54 l8 4 -8 4" fill="none" stroke="#e0686a" stroke-width="2"/>
+        <circle cx="86" cy="58" r="4" fill="#e0686a"/>
+        <path d="M74 30 l6 6 m0 -6 l-6 6" stroke="#5fc98a" stroke-width="1.6"/>
+        <path d="M74 84 l6 -6 m0 6 l-6 -6" stroke="#5fc98a" stroke-width="1.6"/>
+        <text x="75" y="20" text-anchor="middle" font-size="7" fill="#7fce9f">6-DOF nudge</text>
+        <text x="107" y="76" text-anchor="middle" font-size="7.5" fill="#9aa3b5">fibre</text>
+      </svg></div>
+      <div class="body"><h4>2 · Active alignment <span class="badge b-hot">choke</span></h4>
+        <div class="role">Move the fibre live in 6 axes until light peaks — minutes per package, sub-micron. The throughput wall.</div>
+        <div class="who">Tools: <b>ficonTEC, PI, Aerotech</b> (all private/CN); MKS Newport proxy</div></div>
+    </div>
+    <div class="card">
+      <div class="svgbox"><svg viewBox="0 0 150 96" width="100%" height="96" role="img" aria-label="fibre array unit attach">
+        <rect x="16" y="40" width="40" height="30" rx="2" fill="#241f32" stroke="#8b84cf"/>
+        <text x="36" y="58" text-anchor="middle" font-size="7.5" fill="#c9c3ef">PIC</text>
+        <g stroke="#e0686a" stroke-width="1.5">
+          <line x1="56" y1="46" x2="120" y2="46"/><line x1="56" y1="52" x2="120" y2="52"/>
+          <line x1="56" y1="58" x2="120" y2="58"/><line x1="56" y1="64" x2="120" y2="64"/>
+        </g>
+        <rect x="118" y="42" width="16" height="26" rx="2" fill="#2a2130" stroke="#c47a9e"/>
+        <text x="126" y="82" text-anchor="middle" font-size="7" fill="#dba0bf">FAU</text>
+        <text x="60" y="34" text-anchor="middle" font-size="7" fill="#9aa3b5">glue + cure</text>
+      </svg></div>
+      <div class="body"><h4>3 · Fibre-attach <span class="badge b-hot">choke</span></h4>
+        <div class="role">Epoxy the fibre-array to the chip edge/grating without shifting alignment. 1,000+ of these per CPO system.</div>
+        <div class="who">Who: <b>Fabrinet</b>, TSMC/OSAT, SENKO/US Conec/Corning (connectors)</div></div>
+    </div>
+    <div class="card">
+      <div class="svgbox"><svg viewBox="0 0 150 96" width="100%" height="96" role="img" aria-label="wafer level optical test">
+        <circle cx="52" cy="48" r="26" fill="#161d18" stroke="#4faf8e"/>
+        <g stroke="#3a5a48"><line x1="34" y1="30" x2="70" y2="66"/><line x1="70" y1="30" x2="34" y2="66"/><line x1="52" y1="22" x2="52" y2="74"/><line x1="26" y1="48" x2="78" y2="48"/></g>
+        <path d="M96 34 v28" stroke="#d2a24a" stroke-width="2"/>
+        <path d="M96 34 l-4 6 h8 z" fill="#d2a24a"/>
+        <text x="112" y="42" font-size="7.5" fill="#e3bd76">probe</text>
+        <text x="52" y="90" text-anchor="middle" font-size="7.5" fill="#9aa3b5">optical KGD</text>
+      </svg></div>
+      <div class="body"><h4>4 · Test / known-good <span class="badge b-emrg">co-choke</span></h4>
+        <div class="role">Optical wafer/engine test. Several sources call <i>this</i> the real CPO bottleneck, co-equal with fibre-attach.</div>
+        <div class="who">Who: <b>Advantest, FormFactor, MPI</b>; TSMC in-line</div></div>
+    </div>
+  </div>
+  <div class="gal" style="margin-top:14px">
+    <div class="card">
+      <div class="svgbox"><svg viewBox="0 0 150 96" width="100%" height="96" role="img" aria-label="pluggable module">
+        <rect x="26" y="38" width="98" height="30" rx="4" fill="#20261a" stroke="#4faf8e"/>
+        <rect x="30" y="44" width="18" height="18" rx="2" fill="#2b3a2e" stroke="#5fc98a"/>
+        <text x="39" y="56" text-anchor="middle" font-size="6.5" fill="#8fd4bb">PIC</text>
+        <g stroke="#4faf8e" stroke-width="1.3"><line x1="112" y1="48" x2="140" y2="48"/><line x1="112" y1="54" x2="140" y2="54"/></g>
+        <text x="75" y="82" text-anchor="middle" font-size="7.5" fill="#9aa3b5">1.6T pluggable · ~16 fibres</text>
+      </svg></div>
+      <div class="body"><h4>5 · Optical engine / module <span class="badge b-now">L2</span></h4>
+        <div class="role">The finished light part. Pluggable (discardable) or a CPO engine soldered to the switch.</div>
+        <div class="who">Who: <b>Fabrinet, Innolight, Coherent, Lumentum</b></div></div>
+    </div>
+    <div class="card">
+      <div class="svgbox"><svg viewBox="0 0 150 96" width="100%" height="96" role="img" aria-label="cpo switch package">
+        <rect x="40" y="34" width="70" height="38" rx="3" fill="#161d1b" stroke="#4faf8e"/>
+        <rect x="62" y="46" width="26" height="14" rx="2" fill="#1f3a34" stroke="#2dd4bf"/>
+        <text x="75" y="56" text-anchor="middle" font-size="7" fill="#7fe6d6">ASIC</text>
+        <g fill="#c47a9e"><rect x="44" y="40" width="8" height="8"/><rect x="44" y="58" width="8" height="8"/><rect x="98" y="40" width="8" height="8"/><rect x="98" y="58" width="8" height="8"/></g>
+        <g stroke="#e0686a" stroke-width="1"><line x1="40" y1="44" x2="20" y2="44"/><line x1="40" y1="62" x2="20" y2="62"/><line x1="110" y1="44" x2="130" y2="44"/><line x1="110" y1="62" x2="130" y2="62"/></g>
+        <text x="75" y="86" text-anchor="middle" font-size="7.5" fill="#9aa3b5">CPO package · ~250+ fibres</text>
+      </svg></div>
+      <div class="body"><h4>6 · CPO switch package <span class="badge b-next">L1/L2</span></h4>
+        <div class="role">Optics fused onto the switch. Nvidia Quantum-X / Broadcom Bailly. The extreme end of the assembly problem.</div>
+        <div class="who">Who: <b>TSMC COUPE, Broadcom, Nvidia</b> + partners</div></div>
+    </div>
+    <div class="card" style="grid-column:span 2">
+      <div class="body" style="padding:16px 18px">
+        <h4 style="color:var(--accent)">The one-sentence read of the gallery</h4>
+        <div class="role" style="margin-top:8px">Steps 1, 5 and 6 are where the <b style="color:var(--txt)">stock market looks</b> (lasers, modules, switches). Steps <b style="color:var(--choke)">2–4 are where the cost and the yield actually sit</b> — align, attach, test — and they are owned by outsourced assemblers (Fabrinet), private tool-makers (ficonTEC/PI/Aerotech) and the foundry (TSMC). The rent hides in the step nobody quotes.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. SUB-TECH -> PRODUCT ASSEMBLY -->
+<section>
+  <div class="sh"><span class="n">04</span><h2>How the parts build up into a product</h2><span class="cn">L3 → PKG → L2 → L1</span></div>
+  <div class="svgwide">
+    <svg viewBox="0 0 1120 250" width="100%" height="250" role="img" aria-label="build-up from components through packaging to system">
+      <!-- lanes -->
+      <text x="12" y="24" class="m" font-size="11" fill="#8b84cf">L3 inputs</text>
+      <text x="12" y="104" class="m" font-size="11" fill="#e0686a">PKG (choke)</text>
+      <text x="12" y="176" class="m" font-size="11" fill="#d2a24a">L2 engine</text>
+      <text x="12" y="230" class="m" font-size="11" fill="#4faf8e">L1 system</text>
+      <!-- L3 boxes -->
+      <g>
+        <rect x="120" y="8" width="120" height="30" rx="5" fill="#241f32" stroke="#8b84cf"/><text x="180" y="27" text-anchor="middle" font-size="11" fill="#c9c3ef">Laser / CW die</text>
+        <rect x="260" y="8" width="120" height="30" rx="5" fill="#241f32" stroke="#8b84cf"/><text x="320" y="27" text-anchor="middle" font-size="11" fill="#c9c3ef">Photonic IC</text>
+        <rect x="400" y="8" width="120" height="30" rx="5" fill="#241f32" stroke="#8b84cf"/><text x="460" y="27" text-anchor="middle" font-size="11" fill="#c9c3ef">Fibre / FAU</text>
+        <rect x="540" y="8" width="120" height="30" rx="5" fill="#241f32" stroke="#8b84cf"/><text x="600" y="27" text-anchor="middle" font-size="11" fill="#c9c3ef">Driver / TIA</text>
+      </g>
+      <!-- arrows down into PKG -->
+      <g stroke="#e0686a" stroke-width="1.6" fill="none">
+        <path d="M180 38 C180 60 400 58 400 78"/><path d="M320 38 C320 60 420 58 420 78"/>
+        <path d="M460 38 C460 60 440 58 440 78"/><path d="M600 38 C600 60 460 58 460 78"/>
+      </g>
+      <!-- PKG ribbon -->
+      <rect x="150" y="78" width="620" height="42" rx="7" fill="url(#pg)" stroke="#e0686a" stroke-width="1.5"/>
+      <defs><linearGradient id="pg" x1="0" x2="1"><stop offset="0" stop-color="#3a2226"/><stop offset="1" stop-color="#2a1a1e"/></linearGradient></defs>
+      <text x="460" y="98" text-anchor="middle" font-size="12" fill="#f0b9ba" font-weight="600">PACKAGING &amp; ASSEMBLY</text>
+      <text x="460" y="113" text-anchor="middle" font-size="9.5" fill="#d9a6a8">active-align · fibre-attach · die-bond · optical test  —  70–80% of module mfg cost</text>
+      <!-- arrow to L2 -->
+      <path d="M460 120 L460 148" stroke="#e0686a" stroke-width="2" fill="none"/><path d="M456 142 l4 8 4 -8 z" fill="#e0686a"/>
+      <!-- L2 -->
+      <rect x="330" y="150" width="260" height="34" rx="6" fill="#242a18" stroke="#d2a24a"/><text x="460" y="171" text-anchor="middle" font-size="11" fill="#e3bd76">Optical engine (pluggable OR CPO engine)</text>
+      <!-- split to L1 -->
+      <g stroke="#4faf8e" stroke-width="1.6" fill="none"><path d="M410 184 C410 200 250 200 250 214"/><path d="M510 184 C510 200 720 200 720 214"/></g>
+      <rect x="150" y="214" width="200" height="30" rx="6" fill="#18241e" stroke="#4faf8e"/><text x="250" y="233" text-anchor="middle" font-size="10.5" fill="#8fd4bb">1.6T port on switch (scale-out)</text>
+      <rect x="620" y="214" width="200" height="30" rx="6" fill="#18241e" stroke="#4faf8e"/><text x="720" y="233" text-anchor="middle" font-size="10.5" fill="#8fd4bb">CPO package on ASIC (scale-up)</text>
+      <!-- side note -->
+      <rect x="840" y="70" width="262" height="120" rx="8" fill="#13161e" stroke="#2a3040"/>
+      <text x="856" y="92" font-size="11" fill="#e8eaf0" font-weight="600">What changes at each step</text>
+      <text x="856" y="112" font-size="10" fill="#9aa3b5">value added rises into PKG,</text>
+      <text x="856" y="127" font-size="10" fill="#9aa3b5">then the finished-part $ multiplies</text>
+      <text x="856" y="142" font-size="10" fill="#9aa3b5">at L1 (a scrapped CPO package</text>
+      <text x="856" y="157" font-size="10" fill="#9aa3b5">= dozens of pluggables lost).</text>
+      <text x="856" y="177" font-size="10" fill="#eca6a7">Yield risk concentrates in PKG.</text>
+    </svg>
+  </div>
+  <p class="cap">L3 light-parts converge <b style="color:var(--choke)">into</b> the packaging ribbon (thin red arrows = constriction), which emits a single L2 engine that forks into a scale-out pluggable or a scale-up CPO package. Value and yield-risk both peak in the ribbon.</p>
+</section>
+
+<!-- 5. DEPLOYMENT MAPPING -->
+<section>
+  <div class="sh"><span class="n">05</span><h2>Where each assembly route is used</h2><span class="cn">部署對映</span></div>
+  <div class="two">
+    <div class="svgwide">
+      <svg viewBox="0 0 560 220" width="100%" height="220" role="img" aria-label="pluggable vs CPO assembly economics">
+        <text x="140" y="20" text-anchor="middle" font-size="12" fill="#5aa9e0" font-weight="600">Scale-OUT · pluggable</text>
+        <text x="420" y="20" text-anchor="middle" font-size="12" fill="#e0a458" font-weight="600">Scale-UP · CPO</text>
+        <line x1="280" y1="30" x2="280" y2="210" stroke="#2a3040" stroke-dasharray="3 3"/>
+        <!-- pluggable: many small modules -->
+        <g fill="#20261a" stroke="#4faf8e">
+          <rect x="40" y="44" width="46" height="20" rx="3"/><rect x="96" y="44" width="46" height="20" rx="3"/>
+          <rect x="40" y="72" width="46" height="20" rx="3"/><rect x="96" y="72" width="46" height="20" rx="3"/>
+          <rect x="40" y="100" width="46" height="20" rx="3"/><rect x="96" y="100" width="46" height="20" rx="3"/>
+        </g>
+        <text x="140" y="150" text-anchor="middle" font-size="10.5" fill="#9aa3b5">~16 fibres each · fail = throw</text>
+        <text x="140" y="167" text-anchor="middle" font-size="10.5" fill="#9aa3b5">one module away (cheap)</text>
+        <text x="140" y="190" text-anchor="middle" class="m" font-size="11" fill="#8fd4bb">yield forgiving</text>
+        <!-- CPO: one big non-repairable package -->
+        <rect x="350" y="44" width="140" height="86" rx="6" fill="#161d1b" stroke="#e0686a"/>
+        <rect x="392" y="72" width="56" height="30" rx="3" fill="#1f3a34" stroke="#2dd4bf"/>
+        <text x="420" y="91" text-anchor="middle" font-size="9" fill="#7fe6d6">switch ASIC</text>
+        <g fill="#c47a9e"><rect x="356" y="52" width="10" height="10"/><rect x="356" y="110" width="10" height="10"/><rect x="474" y="52" width="10" height="10"/><rect x="474" y="110" width="10" height="10"/></g>
+        <text x="420" y="150" text-anchor="middle" font-size="10.5" fill="#9aa3b5">~250–1,000+ fibres · fail =</text>
+        <text x="420" y="167" text-anchor="middle" font-size="10.5" fill="#9aa3b5">scrap the whole package</text>
+        <text x="420" y="190" text-anchor="middle" class="m" font-size="11" fill="#eca6a7">yield unforgiving</text>
+      </svg>
+      <p class="cap">Same alignment/attach step; radically different economics. CPO turns a forgiving, discard-on-fail module into an unforgiving single point of failure — which is exactly why packaging yield gates the CPO timeline.</p>
+    </div>
+    <div class="panel">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:10px">WHO ASSEMBLES WHAT · 2026</div>
+      <table class="tbl">
+        <tr><th>Route</th><th>Assembler</th><th>Stage</th></tr>
+        <tr><td><b>1.6T pluggable</b></td><td>Fabrinet, Innolight</td><td><span class="lyr ly2">volume</span></td></tr>
+        <tr><td><b>800ZR / DCI</b></td><td>Fabrinet, Coherent, Ciena</td><td><span class="lyr ly2">volume</span></td></tr>
+        <tr><td><b>CPO engine</b></td><td>TSMC COUPE, Fabrinet, SPIL</td><td><span class="lyr ly3">ramping</span></td></tr>
+        <tr><td><b>CPO system</b></td><td>Foxconn (chassis)</td><td><span class="lyr ly3">ramping</span></td></tr>
+        <tr><td><b>FAU / connector</b></td><td>SENKO, US Conec, Corning</td><td><span class="lyr lyu">early</span></td></tr>
+        <tr><td><b>Align tooling</b></td><td>ficonTEC, PI, Aerotech</td><td><span class="lyr lyp">private</span></td></tr>
+      </table>
+      <div class="gap" style="margin-top:12px"><b>Read:</b> Fabrinet is the only name that appears in <b>both</b> the volume-today column and the CPO-tomorrow column — it is on <b>both sides</b> of the CPO-timing debate.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. SUPPLY-CHAIN MAP CENTREPIECE -->
+<section>
+  <div class="sh"><span class="n">06</span><h2>End-to-end supply-chain map</h2><span class="cn">端到端供應鏈 · the centrepiece</span></div>
+  <div class="leg">
+    <span><span class="sw" style="background:var(--up)"></span>upstream</span>
+    <span><span class="sw" style="background:var(--l3)"></span>components (L3)</span>
+    <span><span class="sw" style="background:var(--choke)"></span>chokepoint (packaging)</span>
+    <span><span class="sw" style="background:var(--dup)"></span>co-bottleneck (test)</span>
+    <span><span class="sw" style="background:var(--l2)"></span>module (L2)</span>
+    <span><span class="sw" style="background:var(--l1)"></span>system (L1)</span>
+  </div>
+  <div class="flow">
+    <div class="st"><h5><span class="sw" style="background:var(--up)"></span>1 · Materials &amp; wafers</h5>
+      <ul><li><b>InP / GaAs</b> laser wafer</li><li><b>SiPh</b> wafer (TSMC)</li><li><b>PM / specialty fibre</b> (Corning, Fujikura)</li><li>TGG/YIG isolator garnet</li></ul></div>
+    <div class="st"><h5><span class="sw" style="background:var(--l3)"></span>2 · Component die</h5>
+      <ul><li><b>EML / CW laser</b> (Coherent, Lumentum)</li><li><b>PIC / modulator</b></li><li>monitor <b>photodiode</b></li><li class="x">laser is co-scarce (Run #13)</li></ul></div>
+    <div class="st ck"><h5><span class="sw" style="background:var(--choke)"></span>3 · Packaging / fibre-attach</h5>
+      <ul><li class="x">active alignment (6-DOF)</li><li class="x">fibre-attach + FAU</li><li class="x">die-bond / hybrid bond</li><li><b>Fabrinet · TSMC · OSAT</b></li></ul></div>
+    <div class="st"><h5><span class="sw" style="background:var(--dup)"></span>4 · Test / KGD</h5>
+      <ul><li><b>optical wafer test</b></li><li>engine burn-in</li><li>co-equal CPO bottleneck</li><li>Advantest, FormFactor</li></ul></div>
+    <div class="st"><h5><span class="sw" style="background:var(--l2)"></span>5 · Optical engine</h5>
+      <ul><li><b>1.6T pluggable</b></li><li><b>CPO engine</b> (COUPE)</li><li>Fabrinet, Innolight</li></ul></div>
+    <div class="st"><h5><span class="sw" style="background:var(--l1)"></span>6 · Switch / GPU</h5>
+      <ul><li>Nvidia Quantum-X</li><li>Broadcom Bailly/TH6</li><li>1.6T switch ports</li></ul></div>
+  </div>
+
+  <div class="svgwide" style="margin-top:14px">
+    <svg viewBox="0 0 1120 300" width="100%" height="300" role="img" aria-label="supply chain flow with scarcity premium bars peaking at packaging">
+      <!-- flow arrows row -->
+      <g>
+        <!-- node centers at x=110,290,470,650,830,1010 ; y=60 -->
+        <!-- thick grey arrows -->
+        <line x1="150" y1="60" x2="250" y2="60" stroke="#3a4152" stroke-width="7"/>
+        <!-- into choke thin red -->
+        <line x1="330" y1="60" x2="430" y2="60" stroke="#e0686a" stroke-width="2.4"/>
+        <path d="M420 55 l10 5 -10 5" fill="none" stroke="#e0686a" stroke-width="2.4"/>
+        <!-- out of choke thin red -->
+        <line x1="510" y1="60" x2="610" y2="60" stroke="#e0686a" stroke-width="2.4"/>
+        <path d="M600 55 l10 5 -10 5" fill="none" stroke="#e0686a" stroke-width="2.4"/>
+        <!-- rest thick grey -->
+        <line x1="690" y1="60" x2="790" y2="60" stroke="#3a4152" stroke-width="7"/>
+        <line x1="870" y1="60" x2="970" y2="60" stroke="#3a4152" stroke-width="7"/>
+        <path d="M150 55 l10 5 -10 5" fill="#3a4152"/><path d="M690 55 l10 5 -10 5" fill="#3a4152"/><path d="M870 55 l10 5 -10 5" fill="#3a4152"/>
+      </g>
+      <!-- nodes -->
+      <g font-size="11" text-anchor="middle">
+        <circle cx="110" cy="60" r="30" fill="#1b2436" stroke="#5b81c4"/><text x="110" y="63" fill="#9db4de">wafers</text>
+        <circle cx="290" cy="60" r="30" fill="#241f32" stroke="#8b84cf"/><text x="290" y="63" fill="#c9c3ef">laser+PIC</text>
+        <circle cx="470" cy="60" r="34" fill="#3a2226" stroke="#e0686a" stroke-width="2"/><text x="470" y="58" fill="#f0b9ba" font-weight="600">PACK-</text><text x="470" y="72" fill="#f0b9ba" font-weight="600">AGING</text>
+        <circle cx="650" cy="60" r="30" fill="#2c2718" stroke="#d2a24a"/><text x="650" y="63" fill="#e3bd76">test</text>
+        <circle cx="830" cy="60" r="30" fill="#242a18" stroke="#d2a24a"/><text x="830" y="63" fill="#e3bd76">engine</text>
+        <circle cx="1010" cy="60" r="30" fill="#18241e" stroke="#4faf8e"/><text x="1010" y="63" fill="#8fd4bb">switch</text>
+      </g>
+      <!-- CHOKEPOINT ribbon -->
+      <rect x="392" y="104" width="156" height="20" rx="10" fill="#e0686a"/><text x="470" y="118" text-anchor="middle" font-size="11" fill="#1a0c0d" font-weight="700">CHOKEPOINT</text>
+      <!-- scarcity premium bars -->
+      <text x="60" y="164" font-size="11" class="m" fill="#9aa3b5">Scarcity premium / value-capture by stage</text>
+      <g>
+        <!-- baseline -->
+        <line x1="70" y1="270" x2="1050" y2="270" stroke="#2a3040"/>
+        <!-- bars: heights => materials 30, laser 70, packaging 92, test 78, engine 45, switch 40 -->
+        <rect x="80" y="240" width="90" height="30" rx="3" fill="#5b81c4"/><text x="125" y="286" text-anchor="middle" font-size="10" fill="#9aa3b5">wafers</text><text x="125" y="233" text-anchor="middle" class="m" font-size="10" fill="#9db4de">30</text>
+        <rect x="245" y="200" width="90" height="70" rx="3" fill="#8b84cf"/><text x="290" y="286" text-anchor="middle" font-size="10" fill="#9aa3b5">laser+PIC</text><text x="290" y="193" text-anchor="middle" class="m" font-size="10" fill="#c9c3ef">70</text>
+        <rect x="425" y="178" width="90" height="92" rx="3" fill="#e0686a"/><text x="470" y="286" text-anchor="middle" font-size="10" fill="#eca6a7" font-weight="600">packaging</text><text x="470" y="171" text-anchor="middle" class="m" font-size="11" fill="#f0b9ba" font-weight="600">92</text>
+        <rect x="605" y="192" width="90" height="78" rx="3" fill="#d2a24a"/><text x="650" y="286" text-anchor="middle" font-size="10" fill="#9aa3b5">test</text><text x="650" y="185" text-anchor="middle" class="m" font-size="10" fill="#e3bd76">78</text>
+        <rect x="785" y="225" width="90" height="45" rx="3" fill="#c7a13f" opacity=".7"/><text x="830" y="286" text-anchor="middle" font-size="10" fill="#9aa3b5">engine</text><text x="830" y="218" text-anchor="middle" class="m" font-size="10" fill="#e3bd76">45</text>
+        <rect x="965" y="230" width="90" height="40" rx="3" fill="#4faf8e"/><text x="1010" y="286" text-anchor="middle" font-size="10" fill="#9aa3b5">switch</text><text x="1010" y="223" text-anchor="middle" class="m" font-size="10" fill="#8fd4bb">40</text>
+      </g>
+    </svg>
+    <p class="cap">Flow constricts (thin red) into and out of <b style="color:var(--choke)">packaging</b>; grey/thick elsewhere. The scarcity-premium bars peak at packaging (92, tallest) with a secondary peak at test (78) — the two steps that own the cost and the yield. Bar heights are the author's qualitative severity index (0–100), not a market price.</p>
+  </div>
+</section>
+
+<!-- 7. TIMELINE -->
+<section>
+  <div class="sh"><span class="n">07</span><h2>Multi-year evolution — when packaging binds</h2><span class="cn">路線圖</span></div>
+  <div class="tlgrid">
+    <div class="tlhead"><div>Assembly domain</div><div>2025</div><div>2026</div><div>2027</div><div>2028+</div></div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--dout)"></span>Pluggable</div>
+      <div class="cell"><b>800G volume</b>24M units; FN record FY25 $3.42B</div>
+      <div class="cell hot"><b>1.6T "the year"</b>63M 800G+ units; datacom supply-constrained at FN</div>
+      <div class="cell"><b>1.6T standard</b>displaces 800G in high-end</div>
+      <div class="cell"><b>3.2T dev</b>reach shrinks, more optics per rack</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--dup)"></span>CPO scale-up</div>
+      <div class="cell"><b>Bailly ships</b>Broadcom TH5 CPO to Meta; Nvidia announces Quantum-X</div>
+      <div class="cell hot"><b>Quantum-X targeted</b>early-26; COUPE volume target; TH6-Davisson 102.4T</div>
+      <div class="cell hot"><b>The fork</b>SemiAnalysis: slip to 28–29 · Nvidia/BCM: ramp real (200–300k switches)</div>
+      <div class="cell"><b>Mass CPO?</b>600–800k switches if yield clears; Samsung turnkey 2029</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--choke)"></span>Packaging tech</div>
+      <div class="cell">active-align, minutes/package; ficonTEC standard</div>
+      <div class="cell hot"><b>Automation launches</b>PICAlign (Aerotech+Santec+SENKO); detachable connectors</div>
+      <div class="cell hot"><b>Yield gate</b>&gt;3.5dB insertion loss on Spectrum-6; assembly redesign</div>
+      <div class="cell"><b>Wafer-scale</b>passive alignment (POET), in-line test scale-up</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--l1)"></span>Capacity adds</div>
+      <div class="cell">FN footprint supports ~$4.8B</div>
+      <div class="cell"><b>FN Building 10</b>+2.0M sq ft; extra floor Sep-26</div>
+      <div class="cell hot"><b>FN → ~$8.5B</b>Building 10 + Navanakorn complete Jan-27</div>
+      <div class="cell">KLIC TCB capacity toward ~$400M/yr</div>
+    </div>
+  </div>
+  <p class="cap">Tinted cells = stressed / catalyst. 2026–27 is the crux: 1.6T pluggables run hot <b>while</b> the CPO yield fork is decided. Fabrinet's capacity roughly doubles into exactly that window.</p>
+</section>
+
+<!-- 8. CHOKEPOINT + SEVERITY + VARIANT -->
+<section>
+  <div class="sh"><span class="n">08</span><h2>The chokepoint, scored</h2><span class="cn">卡點評分 · severity /20</span></div>
+  <div class="choke">
+    <div class="ttl">
+      <svg width="26" height="26" viewBox="0 0 26 26"><path d="M13 2 L2 22 h22 z" fill="none" stroke="#e0686a" stroke-width="2"/><line x1="13" y1="10" x2="13" y2="16" stroke="#e0686a" stroke-width="2"/><circle cx="13" cy="19" r="1.3" fill="#e0686a"/></svg>
+      <h3>Photonic packaging &amp; fibre-attach / active alignment</h3>
+    </div>
+    <p>The step that marries laser + PIC + fibre into a working engine is the slow, low-yield, hard-to-automate part of optics — <b>~70–80% of silicon-photonics module manufacturing cost</b> (vs ~20% for electronic ICs). It scales brutally into CPO: a plug-in has ~16 discardable fibres; a CPO switch package has <b>250–1,000+ fibres on one non-repairable assembly</b>. At OFC 2026 <b>TSMC itself named wafer-level test, FAU integration and high-speed optical packaging assembly</b> as the three constraints gating CPO — not the photonic chip. Severity is high but not monopoly-tight: it is a <b>capability + capacity</b> gate (several qualified assemblers, OEMs can in-source, test is a co-bottleneck), so it scores <b>16/20</b>, not 18–19.</p>
+    <div class="stats">
+      <div><b class="num">3/5</b><span>Supply concentration — Fabrinet dominant in merchant outsourced, but Coherent/Lumentum in-source &amp; TSMC/Foxconn own CPO</span></div>
+      <div><b class="num">4/5</b><span>Lead-time / hard-to-replicate — sub-micron 6-DOF align, minutes/package, skilled labour, years to scale qualified capacity</span></div>
+      <div><b class="num">4/5</b><span>Low substitutability — every module must be packaged; wafer-scale/passive alignment years out; but <i>test</i> is a rival bottleneck</span></div>
+      <div><b class="num">5/5</b><span>Demand — 63M 800G+ units 2026; CPO fibre-count explosion; $4B Nvidia laser lock-in downstream</span></div>
+      <div><b class="num" style="color:#f0b9ba">16/20</b><span>Composite · remaining asymmetry only ~7/20 (complex already ran; FN the lone laggard)</span></div>
+    </div>
+  </div>
+
+  <div style="margin-top:16px" class="two">
+    <div class="panel">
+      <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px">VARIANT / DISAGGREGATION · the actual edge</div>
+      <p style="font-size:12.5px;color:var(--mut);line-height:1.6">Consensus, post-9-Jun, is fighting over <b style="color:var(--txt)">CPO timing</b> — SemiAnalysis says packaging yield slips it to 2028–29; Nvidia/Broadcom guidance and Global Semi Research say the ramp is real in 2026–27. Both camps sold the whole optics complex when in doubt. The disaggregation they miss: <b style="color:var(--txt)">packaging difficulty is bullish the assembly-capacity owner on BOTH sides of that bet.</b> If CPO ramps, Fabrinet does the CPO sub-assembly (named Nvidia Quantum-X partner). If CPO slips, <b style="color:var(--txt)">1.6T pluggables stay dominant longer</b> — and Fabrinet is the #1 pluggable assembler. The market is treating the CPO-delay note as uniformly bearish optics and has left FN the laggard (+20% YTD vs KLIC +166–195%, COHR +100%) — that mispricing is the edge.</p>
+    </div>
+    <div class="panel">
+      <div style="font-size:12px;font-weight:700;color:var(--dup);margin-bottom:8px">HOW THIS COULD BE WRONG · honesty</div>
+      <p style="font-size:12.5px;color:var(--mut);line-height:1.6"><b style="color:#e3bd76">Denominator trap:</b> the "70–80%" is <i>module-manufacturing</i> cost at low volume, not finished-transceiver BOM (~40% assembly per LightCounting); EPIC Photonics argues it collapses toward 20% at scale. <b style="color:#e3bd76">Test not attach:</b> Optica/IEEE call optical <i>test</i> the co-equal or bigger CPO bottleneck; Broadcom claims already-automated fibre-attach. <b style="color:#e3bd76">In-sourcing:</b> TSMC/Foxconn owning CPO assembly could route around the merchant assembler. <b style="color:#e3bd76">FN concentration:</b> Nvidia 27.6% + Cisco 18.2% = ~46% of revenue in two customers. This is a capability gate, not a monopoly — don't over-rent it. <b style="color:#e3bd76">The branch that matters:</b> the 16/20 is a close call (packaging 92 vs test 78) — <b>if optical <i>test</i> proves the binding wall, the trade migrates to the ATE duopoly (Advantest / FormFactor), not the assembler</b>; weight FN accordingly.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 9. AWARENESS + INDICATORS + WATCHLIST -->
+<section>
+  <div class="sh"><span class="n">09</span><h2>Awareness curve, indicators &amp; the latent watchlist</h2><span class="cn">認知曲線 · 早 vs 已被定價</span></div>
+  <div class="svgwide">
+    <svg viewBox="0 0 1120 300" width="100%" height="300" role="img" aria-label="awareness curve staging the plays">
+      <path d="M40 250 C300 250 360 120 560 96 C760 72 840 58 1080 52" fill="none" stroke="#2a3040" stroke-width="2"/>
+      <text x="60" y="278" class="m" font-size="10" fill="#697283">latent</text>
+      <text x="300" y="278" class="m" font-size="10" fill="#697283">early</text>
+      <text x="560" y="278" class="m" font-size="10" fill="#697283">recognition</text>
+      <text x="820" y="278" class="m" font-size="10" fill="#697283">euphoria</text>
+      <text x="1030" y="278" class="m" font-size="10" fill="#697283">priced</text>
+      <!-- where next entry hides -->
+      <line x1="150" y1="70" x2="150" y2="250" stroke="#2dd4bf" stroke-width="1.4" stroke-dasharray="5 4"/>
+      <text x="150" y="60" text-anchor="middle" font-size="10" fill="#2dd4bf">where the next entry hides</text>
+      <text x="150" y="86" text-anchor="middle" font-size="9" fill="#7fe6d6">tooling · FAU · isolator</text>
+      <!-- markers -->
+      <g>
+        <circle cx="300" cy="176" r="7" fill="#e0a458"/><text x="300" y="160" text-anchor="middle" font-size="11" fill="#e3bd76" font-weight="600">POET</text><text x="300" y="200" text-anchor="middle" font-size="9" fill="#9aa3b5">early tech,</text><text x="300" y="212" text-anchor="middle" font-size="9" fill="#9aa3b5">option-priced</text>
+        <circle cx="600" cy="92" r="8" fill="#2dd4bf"/><text x="600" y="76" text-anchor="middle" font-size="12" fill="#2dd4bf" font-weight="700">FN</text><text x="600" y="116" text-anchor="middle" font-size="9" fill="#9aa3b5">+20% YTD ·</text><text x="600" y="128" text-anchor="middle" font-size="9" fill="#9aa3b5">relative-value</text>
+        <circle cx="880" cy="56" r="7" fill="#e0686a"/><text x="880" y="40" text-anchor="middle" font-size="11" fill="#eca6a7" font-weight="600">KLIC</text><text x="880" y="80" text-anchor="middle" font-size="9" fill="#9aa3b5">+166% YTD ·</text><text x="880" y="92" text-anchor="middle" font-size="9" fill="#9aa3b5">PT below spot</text>
+        <circle cx="770" cy="66" r="5" fill="#5aa9e0"/><text x="748" y="60" font-size="9" fill="#9fc7ea">COHR/LITE</text>
+      </g>
+    </svg>
+    <p class="cap">Staged by YTD move + valuation. The truly-early dollar (dashed teal) sits <b>left of every listed play</b> — in the private/hard-to-reach tooling, FAU and isolator layer. Among the tradables, FN is the least-run; KLIC is euphoric with analyst targets <i>below</i> spot; POET's tech is early but the <i>stock</i> is already option-priced.</p>
+  </div>
+
+  <div class="two" style="margin-top:16px">
+    <div class="panel" style="overflow-x:auto">
+      <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:10px">LEADING-INDICATOR DASHBOARD</div>
+      <table class="tbl">
+        <tr><th>Signal</th><th>Trigger</th><th>Where an amateur reads it (free)</th></tr>
+        <tr><td><b>FN datacom mix &amp; capacity</b></td><td>datacom flips supply-constrained→growth; Bldg-10 done Jan-27</td><td>FN earnings-call transcript (Motley Fool / Seeking Alpha)</td></tr>
+        <tr><td><b>CPO attach yield / insertion loss</b></td><td>&gt;3.5 dB Spectrum-6 resolved? system yield &gt;50%?</td><td>OFC/ECOC papers; SemiAnalysis &amp; Global Semi free posts</td></tr>
+        <tr><td><b>Nvidia CW-laser order guide</b></td><td>held ~100M units (Apr) or cut back toward 40M?</td><td>Nvidia GTC keynote; COHR/LITE earnings transcripts</td></tr>
+        <tr><td><b>KLIC TCB bookings</b></td><td>toward ~$400M capacity; optics named in the mix?</td><td>K&amp;S earnings call &amp; slides (kns.com IR)</td></tr>
+        <tr><td><b>POET production revenue</b></td><td>Lumilens $50M PO booked; &gt;30k engines shipped 2026</td><td>POET 6-K filings on SEC EDGAR (free)</td></tr>
+        <tr><td><b>Fibre-attach automation</b></td><td>PICAlign / SENKO detachable-connector design-ins</td><td>OFC/ECOC press; vendor PR (senko.com, aerotech.com)</td></tr>
+      </table>
+    </div>
+    <div class="panel">
+      <div style="font-size:12px;font-weight:700;color:var(--dacr);margin-bottom:10px">STILL-LATENT WATCHLIST · left of the earliest play</div>
+      <table class="tbl">
+        <tr><th>Link</th><th>Names</th><th>Why next / trigger</th></tr>
+        <tr><td><b>Align tooling</b></td><td>ficonTEC (CN: RoboTechnik 300757), PI &amp; Aerotech (private); <b>MKSI</b> = only clean US proxy (Newport/Ophir)</td><td>Whoever automates fibre-attach owns the moat; PICAlign is the tell. Trigger: CPO volume decision + tool-order disclosure</td></tr>
+        <tr><td><b>Detachable FAU / connector</b></td><td>SENKO, US Conec (both private), Corning (GLW)</td><td>Detachable connector removes repeat alignments = the yield fix; SENKO+GF wafer-level (ECOC-25). Trigger: Nvidia/BCM design-in</td></tr>
+        <tr><td><b>Isolator / PM fibre</b><br><span style="color:var(--dup);font-size:10px">not a clean chokepoint</span></td><td>Shin-Etsu (4063), GRANOPT (SMM 5713 / MGC 4182), Coherent KTF; PM fibre = Corning/Fujikura/YOFC</td><td>Honest: oligopoly with a long Chinese tail, no pure-play. Only strategic angle = Tb/Y rare-earth refining is China-concentrated</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 10. TOP-3 MULTI-TAB -->
+<section>
+  <div class="sh"><span class="n">10</span><h2>Top-3 at three different links</h2><span class="cn">三檔 · 8 點拆解</span></div>
+  <p class="lead">Three ways to own the same chokepoint: <b>outsource the assembly</b> (Fabrinet), <b>sell the assembly machines</b> (Kulicke &amp; Soffa), or <b>eliminate the assembly step</b> (POET). Different links, different awareness stages, different risk.</p>
+  <div class="tabs" role="tablist" aria-label="Top-3 companies">
+    <button class="tab" role="tab" id="tab-fn" aria-controls="p-fn" aria-selected="true">Fabrinet<span class="tk">FN · 16/20</span></button>
+    <button class="tab" role="tab" id="tab-klic" aria-controls="p-klic" aria-selected="false" tabindex="-1">Kulicke &amp; Soffa<span class="tk">KLIC · 12/20</span></button>
+    <button class="tab" role="tab" id="tab-poet" aria-controls="p-poet" aria-selected="false" tabindex="-1">POET<span class="tk">POET · 11/20</span></button>
+  </div>
+
+  <!-- FN -->
+  <div class="tabpanel on" id="p-fn" role="tabpanel" aria-labelledby="tab-fn">
+    <div class="vstrip">
+      <div><div class="vl">Price · 2-Jul close</div><div class="vn num">$499.61</div></div>
+      <div><div class="vl">YTD (pre-selloff)</div><div class="vn num teal">+20%</div></div>
+      <div><div class="vl">Market cap</div><div class="vn num">$17.9B</div></div>
+      <div><div class="vl">Fwd P/E</div><div class="vn num">~29–33×</div></div>
+      <div><div class="vl">Consensus PT</div><div class="vn num grn">$653</div></div>
+    </div>
+    <div class="gap"><b>The link:</b> the world's #1 <b>independent outsourced photonic assembler</b> — active alignment, fibre-attach, precision optics + test. The company that <i>is</i> the chokepoint, for hire. <b>Stage: recognition, relative-value.</b></div>
+    <div class="td">
+      <div class="tdc"><div class="h">① 怎麼賺錢 <span class="cn">how it earns</span></div><p>Contract manufacturing of complex optical modules &amp; assemblies for OEMs and, increasingly, hyperscalers direct. Low gross margin (~12%), high volume, sticky qualified capacity.</p></div>
+      <div class="tdc"><div class="h">② 營收結構 <span class="cn">revenue mix</span></div><p>Optical comms <b>76.6%</b> of FY25 (full-yr). FQ3-26: telecom $628M (+55%, DCI +90%) + datacom $260M = optical <b>~73%</b>, non-optical ~27% (HPC grew faster). Datacom held back by <b>component shortages, not demand</b>.</p></div>
+      <div class="tdc"><div class="h">③ 成長來源 <span class="cn">growth driver</span></div><p>1.6T ramp + DCI + direct-to-hyperscaler programs. FQ3-26 revenue <b>$1.214B, +39% YoY</b> (record); FQ4 guide $1.25–1.29B.</p></div>
+      <div class="tdc"><div class="h">④ 終端市場 <span class="cn">end market</span></div><p>AI datacentre optics (pluggable + DCI + CPO sub-assembly), plus industrial lasers, automotive, sensors.</p></div>
+      <div class="tdc"><div class="h">⑤ 主要客戶 <span class="cn">customers</span></div><p><b>Nvidia 27.6%</b> (was 35.1% FY24), <b>Cisco 18.2%</b>; Coherent/Ciena/Lumentum sub-10%. Named <b>Nvidia Quantum-X CPO partner</b>.</p></div>
+      <div class="tdc key"><div class="h">⑥ 護城河 <span class="cn">moat</span></div><p>Qualified, yield-proven capacity at scale + decades of process know-how OEMs can't quickly replicate. Building 10 + Navanakorn lift capacity <b>~$4.8B → ~$8.5B</b> by Jan-27 — sold-out-adjacent.</p></div>
+      <div class="tdc"><div class="h">⑦ 管理層展望 <span class="cn">outlook</span></div><p>Mgmt: datacom "well below demand" on component supply (laser/memory/ASIC) — a supply, not demand, story. Raytec minority stake for wafer-level (CPO) packaging.</p></div>
+      <div class="tdc key"><div class="h">⑧ 為何是卡點 <span class="cn">why the chokepoint</span></div><p>It performs the exact 70–80%-of-cost assembly step everything must pass — and it wins whether CPO ramps (does the CPO engine) or slips (pluggables stay dominant). Per-link severity <b>16/20</b>.</p></div>
+    </div>
+    <div class="bb">
+      <div class="bull"><b>Bull:</b> the only name hedged across the CPO-timing debate; capacity roughly doubling into the 1.6T + CPO window; the group laggard at ~29–33× fwd with $653 consensus PT (~+31%). The 2-Jul ~9% selloff improves entry.</div>
+      <div class="bear"><b>Bear:</b> ~46% revenue in two customers (Nvidia+Cisco); ~12% gross margin = low pricing power; a real CPO in-sourcing risk (TSMC/Foxconn); at ~43× trailing it isn't cheap in absolute terms — "relative-value," not "value."</div>
+    </div>
+    <div class="gap" style="margin-top:12px"><b>Asymmetric-info gap:</b> the Street prices FN as "an optics name" and dumped it on the CPO-delay note; the non-obvious fact is that a CPO <i>delay</i> extends the life of pluggables — FN's core business — so the delay news is closer to neutral-to-bullish for FN than the tape implies.</div>
+  </div>
+
+  <!-- KLIC -->
+  <div class="tabpanel" id="p-klic" role="tabpanel" aria-labelledby="tab-klic" hidden>
+    <div class="vstrip">
+      <div><div class="vl">Price · 2-Jul close</div><div class="vn num">$121.33</div></div>
+      <div><div class="vl">YTD · to 2-Jul</div><div class="vn num red">+166%</div></div>
+      <div><div class="vl">Market cap</div><div class="vn num">$6.35B</div></div>
+      <div><div class="vl">P/E (TTM)</div><div class="vn num red">~117×</div></div>
+      <div><div class="vl">Consensus PT</div><div class="vn num red">~$70–100</div></div>
+    </div>
+    <div class="gap"><b>The link:</b> sells the <b>assembly machines</b> — the APTURA fluxless thermo-compression (TCB) bonder used for co-packaged-optics &amp; advanced packaging. <b>Stage: euphoria / largely priced.</b> The "tightness ≠ buy" poster child.</div>
+    <div class="td">
+      <div class="tdc"><div class="h">① 怎麼賺錢 <span class="cn">how it earns</span></div><p>Capital equipment (ball/wedge bonders, TCB, die-attach) + aftermarket parts &amp; service. Cyclical; margins swing with the semi capex cycle.</p></div>
+      <div class="tdc"><div class="h">② 營收結構 <span class="cn">revenue mix</span></div><p>FY24: ball-bonding 53%, wedge 16%, aftermarket 24%, <b>Advanced Solutions (incl. TCB) only 7.8%</b>. Optics/CPO is a fraction <i>of</i> TCB <i>of</i> that 7.8%.</p></div>
+      <div class="tdc"><div class="h">③ 成長來源 <span class="cn">growth driver</span></div><p>Cyclical recovery (Q2-26 rev $242.6M, +21.5% QoQ; Q3 guide ~$310M) driven mostly by <b>legacy ball-bonder/memory</b> + logic/HBM TCB — <i>not</i> optics.</p></div>
+      <div class="tdc"><div class="h">④ 終端市場 <span class="cn">end market</span></div><p>OSAT/IDM assembly broadly; advanced packaging (logic, HBM) with CPO/SiPh as a named but small emerging application.</p></div>
+      <div class="tdc"><div class="h">⑤ 主要客戶 <span class="cn">customers</span></div><p>Global OSATs, IDMs, memory makers. Optical-specific customers/units <b>never disclosed</b> — treat any optics-revenue figure as unsupported.</p></div>
+      <div class="tdc"><div class="h">⑥ 護城河 <span class="cn">moat</span></div><p>Genuine: first-to-HVM fluxless TCB (Cu-Cu to 8µm). But competes with BESI/ASMPT/Shinkawa in TCB, and legacy bonding is commoditised/cyclical.</p></div>
+      <div class="tdc"><div class="h">⑦ 管理層展望 <span class="cn">outlook</span></div><p>TCB toward ~$400M capacity by early FY27 (spans logic+HBM+optical — <b>not</b> an optics number). Optics wasn't even mentioned on the Q2 call highlights.</p></div>
+      <div class="tdc key"><div class="h">⑧ 為何是卡點 <span class="cn">why the chokepoint</span></div><p>Its FTC bonder <i>is</i> a real tool for CPO assembly — but optics is optionality, not the core. Per-link severity <b>12/20</b>: contested tool, diluted exposure.</p></div>
+    </div>
+    <div class="bb">
+      <div class="bull"><b>Bull:</b> best-in-class fluxless TCB, genuine advanced-packaging share-gainer, real (if small) CPO design-in; leveraged to any heterogeneous-integration up-cycle.</div>
+      <div class="bear"><b>Bear:</b> tripled YTD to <b>~117× earnings</b>, ~3 analysts with consensus PT <i>below</i> spot, an index-removal de-rating, and a −9% session. The asymmetry that existed at the $31 trough is gone; optics is a rounding error dressed as a thesis.</div>
+    </div>
+    <div class="gap" style="margin-top:12px"><b>Asymmetric-info gap (inverted):</b> here the crowd <i>overstates</i> the optics angle. The honest read is a cyclical bonder in euphoria — include it to show what "priced" looks like, not as a buy.</div>
+  </div>
+
+  <!-- POET -->
+  <div class="tabpanel" id="p-poet" role="tabpanel" aria-labelledby="tab-poet" hidden>
+    <div class="vstrip">
+      <div><div class="vl">Price · 2-Jul close</div><div class="vn num">$8.76</div></div>
+      <div><div class="vl">YTD</div><div class="vn num amb">+53%</div></div>
+      <div><div class="vl">Market cap</div><div class="vn num">~$1.5B</div></div>
+      <div><div class="vl">Q1-26 revenue</div><div class="vn num">$0.50M</div></div>
+      <div><div class="vl">Consensus PT</div><div class="vn num red">$5.75</div></div>
+    </div>
+    <div class="gap"><b>The link:</b> the <b>Optical Interposer</b> — a wafer-level platform that uses passive alignment to <b>eliminate</b> per-unit active alignment &amp; manual fibre-attach. If it works at volume, it disintermediates the chokepoint itself. <b>Stage: early tech, but the stock is option-priced.</b></div>
+    <div class="td">
+      <div class="tdc"><div class="h">① 怎麼賺錢 <span class="cn">how it earns</span></div><p>Sells optical engines / interposers + NRE. Today essentially pre-revenue; funded entirely by equity issuance, not product cash flow.</p></div>
+      <div class="tdc"><div class="h">② 營收結構 <span class="cn">revenue mix</span></div><p>Q1-26 revenue <b>$503K</b> (+194% YoY off a trivial base) — mostly NRE + samples. Net loss $12.3M/qtr, rising with the ramp.</p></div>
+      <div class="tdc"><div class="h">③ 成長來源 <span class="cn">growth driver</span></div><p>Targets &gt;30,000 optical engines in 2026; &gt;10 engagements it claims total &gt;$100M future annual revenue; Lumilens $50M initial PO (framework "to $500M").</p></div>
+      <div class="tdc"><div class="h">④ 終端市場 <span class="cn">end market</span></div><p>800G/1.6T AI optical engines, CPO adjacency, external-light-source modules, telecom.</p></div>
+      <div class="tdc"><div class="h">⑤ 主要客戶 <span class="cn">customers</span></div><p>Celestial AI (now Marvell), Adtran, Lumilens, LITEON (2027 production), Lessengers, Mentech — mostly samples/LOIs. <b>No confirmed hyperscaler or tier-1 production win.</b></p></div>
+      <div class="tdc key"><div class="h">⑥ 護城河 <span class="cn">moat</span></div><p>Patented wafer-scale passive-alignment IP claiming ~75% lower packaging cost (company claim, unbenchmarked). Real differentiation <i>if</i> it converts to volume.</p></div>
+      <div class="tdc"><div class="h">⑦ 管理層展望 <span class="cn">outlook</span></div><p>Cash &gt;$700M pro-forma (post $400M May raise) — survival is not the risk. <b>Serial dilution is:</b> ~$830M raised in 12 months, ~172.6M shares, ~$661M warrant overhang.</p></div>
+      <div class="tdc key"><div class="h">⑧ 為何是卡點 <span class="cn">why the chokepoint</span></div><p>It attacks the exact align + attach bottleneck — from the disruptor side. Per-link severity <b>11/20</b>: novel but unproven at volume, binary. Optionality, not tightness.</p></div>
+    </div>
+    <div class="bb">
+      <div class="bull"><b>Bull:</b> a legitimate call-option on the packaging chokepoint. If one of Marvell/Adtran/LITEON converts to 2027 volume, revenue could inflect 10–50×; now cash-rich to fund it.</div>
+      <div class="bear"><b>Bear:</b> "one design win away" for a decade; ~$0.5M/qtr revenue at a ~$1.5B cap (~$0.8B EV net of &gt;$700M cash) = priced for flawless 2027–28 execution; 100% dilution-funded; consensus PT ($5.75) is below spot. A story/option, not an early value asymmetry.</div>
+    </div>
+    <div class="gap" style="margin-top:12px"><b>Asymmetric-info gap:</b> the crowd trades POET on press releases (PO "frameworks", JVs); the load-bearing fact is <i>booked production revenue + slowing share count</i>. Watch the 6-Ks, not the headlines. Size to lose.</div>
+  </div>
+</section>
+
+<!-- 11. DECISION TABLE -->
+<section>
+  <div class="sh"><span class="n">11</span><h2>Decision table</h2><span class="cn">決策表 · tightness ≠ a good buy</span></div>
+  <div class="svgwide" style="padding:0;overflow-x:auto">
+  <table class="tbl" style="min-width:860px">
+    <tr>
+      <th>Ticker</th><th>Link / chokepoint</th><th>Severity</th><th>Stage</th><th>Valuation</th><th>Remaining asymmetry</th><th>Lean</th><th>Trigger to act</th>
+    </tr>
+    <tr>
+      <td><b>FN</b></td><td>Outsourced photonic assembly (the gate, for hire)</td><td class="num">16/20</td><td><span style="color:var(--accent)">Recognition</span></td><td class="num">~29–33× fwd · +20% YTD</td><td>Moderate (~7/20) — the lone laggard</td><td><b style="color:var(--accent)">Own-it / relative-value</b></td><td>Buy-the-dip on the CPO-delay tape; Bldg-10 ramp; datacom un-constrains</td>
+    </tr>
+    <tr>
+      <td><b>KLIC</b></td><td>Assembly equipment (fluxless TCB bonder)</td><td class="num">12/20</td><td><span style="color:var(--choke)">Euphoria</span></td><td class="num">~117× P/E · +166% YTD</td><td>Low — PT below spot (thin, ~3 analysts)</td><td><b style="color:var(--choke)">Avoid at price / watch dip</b></td><td>Only on a deep de-rate toward TCB fundamentals; optics named material</td>
+    </tr>
+    <tr>
+      <td><b>POET</b></td><td>Assembly disruption (wafer-scale passive align)</td><td class="num">11/20</td><td><span style="color:var(--dup)">Early tech / option-priced</span></td><td class="num">$1.5B cap on $0.5M/qtr</td><td>Binary — huge either way</td><td><b style="color:var(--dup)">Small, sized-to-lose option</b></td><td>Booked production revenue + slowing dilution (6-Ks), not PRs</td>
+    </tr>
+    <tr>
+      <td style="color:var(--dim)">MKSI</td><td style="color:var(--dim)">Latent: alignment-tool proxy (Newport/Ophir)</td><td class="num" style="color:var(--dim)">n/a</td><td style="color:var(--dim)">Watchlist</td><td class="num" style="color:var(--dim)">diluted 3-segment</td><td style="color:var(--dim)">Indirect</td><td style="color:var(--dim)">Only clean listed tooling proxy</td><td style="color:var(--dim)">CPO tool-order disclosures</td>
+    </tr>
+  </table>
+  </div>
+  <div class="gap" style="margin-top:14px"><b>If you can only do one thing:</b> treat the CPO-delay selloff as a chance to accumulate <b>Fabrinet</b> — the one name that captures the packaging rent whether co-packaged optics arrives on Nvidia's 2026 timeline or SemiAnalysis's 2028, with a real capacity-doubling behind it. Use the ~9% pullback and size for the ~46% customer concentration. Everything genuinely <i>early</i> (tooling, FAU, isolators) is private or a diluted proxy (MKSI) — patience there, not chasing KLIC.</div>
+</section>
+
+<!-- 12. RISKS -->
+<section>
+  <div class="sh"><span class="n">12</span><h2>Open questions &amp; risks</h2><span class="cn">未解與風險</span></div>
+  <div class="two">
+    <div class="panel">
+      <div style="font-size:12px;font-weight:700;color:var(--dup);margin-bottom:8px">UNRESOLVED HOLES (honest self-critique)</div>
+      <ul style="font-size:12px;color:var(--mut);line-height:1.7;padding-left:16px">
+        <li><b>Is packaging really "the" chokepoint, or co-equal with test?</b> Multiple credible sources name optical <i>test</i> as the bigger CPO wall. This report treats them as co-binding (bars: 92 vs 78) — but if test dominates, the tool/ATE names (Advantest, FormFactor) matter more than the assembler.</li>
+        <li><b>The 70–80% figure is denominator-sensitive and volume-dependent</b> (module mfg cost, not transceiver BOM; EPIC argues it collapses to ~20% at scale). The <i>direction</i> is solid; the magnitude is a low-volume artefact.</li>
+        <li><b>CPO in-sourcing.</b> If TSMC (COUPE) + Foxconn own end-to-end CPO assembly, the merchant assembler's CPO rent is capped — FN's CPO upside could be smaller than the pluggable-durability case.</li>
+        <li><b>No clean listed pure-play for the actual tooling.</b> ficonTEC is a restricted Chinese A-share; PI/Aerotech private; MKSI is diluted. The "buy the picks-and-shovels" instinct has no clean vehicle.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <div style="font-size:12px;font-weight:700;color:var(--choke);margin-bottom:8px">RISK REGISTER</div>
+      <table class="tbl">
+        <tr><th>Risk</th><th>Hits</th><th>Watch</th></tr>
+        <tr><td>CPO ramps <i>faster</i> than feared (Nvidia guide holds)</td><td>Neutral FN, hurts pluggable-only bears</td><td>CW-laser order guide</td></tr>
+        <tr><td>Hyperscaler capex air-pocket</td><td>All</td><td>Q2 earnings (late Jul)</td></tr>
+        <tr><td>FN customer loss / Nvidia in-sources assembly</td><td>FN</td><td>10-K concentration line</td></tr>
+        <tr><td>Semi-capex roll (cyclical)</td><td>KLIC</td><td>bonder book-to-bill</td></tr>
+        <tr><td>POET dilution / no production win</td><td>POET</td><td>6-K share count</td></tr>
+        <tr><td>Rare-earth (Tb/Y) export curbs</td><td>Isolators</td><td>MOFCOM notices</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="disc">
+    <b>Compliance &amp; method.</b> Personal research for a private knowledge base — <b>NOT investment advice</b>. Prices as-of the <b>2-Jul-2026 session close</b> (the optics/semicap complex sold off ~9–16% that session on renewed CPO-delay fears; treat any "YTD" as to that close via IBKR, read-only). Load-bearing numbers cross-checked against ≥2 independent sources; estimates marked (est.). The "70–80% packaging cost" is a silicon-photonics <i>module-manufacturing</i> rule-of-thumb, not a finished-transceiver BOM. IBKR is <b>READ-ONLY — no trade was or will be placed</b>. Author holds no position bias; figures may contain errors — verify before acting.
+  </div>
+
+  <footer>
+    <b>AI-Infra Deep-Dive · Run #19 · v5 · Optics loop 4 — Photonic Packaging &amp; Fibre-Attach Chokepoint.</b> Built 04-Jul-2026. Sources: Optica OPN (Nov-25); arXiv 2503.00121; RP-Photonics; AnySilicon/Yole; TSMC OFC-2026 remarks; Nvidia GTC (Quantum-X/Spectrum-X Photonics) &amp; SEC 8-Ks (Coherent+Lumentum $4B, Mar-26); Broadcom TH6-Davisson PR (Oct-25); SemiAnalysis "Powered Down, Lights Off" (9-Jun-26) &amp; Global Semi Research rebuttal; SENKO/Aerotech/Santec PICAlign (Jan-26); Fabrinet FQ3-FY26 release + FY25 10-K; Kulicke &amp; Soffa Q2-FY26; POET Q1-26 6-K + $400M raise; LightCounting/LatitudeDS; EPIC Photonics; IBKR (read-only) &amp; FMP live quotes. Prior runs: #1 EML · #7 InP epitaxy · #13 CPO light source.
+  </footer>
+</section>
+
+</div>
+
+<script>
+(function(){
+  var tabs=[].slice.call(document.querySelectorAll('.tab'));
+  var panels={ 'tab-fn':'p-fn','tab-klic':'p-klic','tab-poet':'p-poet' };
+  function sel(t){
+    tabs.forEach(function(x){
+      var on=x===t;
+      x.setAttribute('aria-selected',on?'true':'false');
+      x.tabIndex=on?0:-1;
+      var p=document.getElementById(panels[x.id]);
+      if(p){ p.classList.toggle('on',on); if(on){p.removeAttribute('hidden')}else{p.setAttribute('hidden','')} }
+    });
+  }
+  tabs.forEach(function(t,i){
+    t.addEventListener('click',function(){sel(t);t.focus()});
+    t.addEventListener('keydown',function(e){
+      var n=null;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown')n=tabs[(i+1)%tabs.length];
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp')n=tabs[(i-1+tabs.length)%tabs.length];
+      else if(e.key==='Home')n=tabs[0];
+      else if(e.key==='End')n=tabs[tabs.length-1];
+      if(n){e.preventDefault();sel(n);n.focus()}
+    });
+  });
+})();
+</script>
+</body>
+</html>

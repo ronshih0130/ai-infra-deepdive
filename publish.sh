@@ -30,6 +30,7 @@ sync_slug() {
 # Optics & Compute fabric each keep TWO curated pages: a base report + a deeper-run report.
 sync_slug 'AI-Infra_Optics_CPO*_v5_*.html'                   optics.html
 sync_slug 'AI-Infra_Optics_*Epitaxy*_v5_*.html'              optics-epitaxy.html
+sync_slug 'AI-Infra_Optics_Photonic-Packaging*_v5_*.html'    optics-packaging.html
 sync_slug 'AI-Infra_ComputeFabric_CoWoS*_v5_*.html'          compute-fabric.html
 sync_slug 'AI-Infra_ComputeFabric_*HybridBonding*_v5_*.html' compute-fabric-hybrid.html
 sync_slug 'AI-Infra_PowerDelivery_*_v5_*.html'               power.html

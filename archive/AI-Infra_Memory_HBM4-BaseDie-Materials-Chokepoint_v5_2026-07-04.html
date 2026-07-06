@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Infra Run #20 v5 — Memory / HBM4 Base-Die + Stack-Assembly Materials Chokepoint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#13161e; --panel2:#1a1e28; --panel3:#212634; --line:#2a3040; --line2:#363d4f;
+    --txt:#e8eaf0; --mut:#9aa3b5; --dim:#697283;
+    --accent:#2dd4bf;        /* single brand accent (desaturated teal) */
+    --choke:#e0686a;         /* desaturated red */
+    --up:#5b81c4; --l3:#8b84cf; --pkg:#c47a9e; --l2:#d2a24a; --l1:#4faf8e;
+    --dup:#e0a458; --dout:#5aa9e0; --dacr:#5fc98a;
+    --pos:#4faf8e; --neg:#e0686a; --warn:#d2a24a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px;-webkit-font-smoothing:antialiased}
+  .num{font-family:"JetBrains Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  header{border-bottom:1px solid var(--line);padding:38px 0 30px;margin-bottom:8px;background:
+     radial-gradient(900px 320px at 12% -40%,rgba(45,212,191,.10),transparent 60%),
+     radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
+  .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.6px;line-height:1.12;max-width:960px}
+  .sub{font-size:15px;font-weight:400;color:var(--mut);margin-top:12px;max-width:880px}
+  .gauges{display:flex;gap:26px;margin-top:22px;flex-wrap:wrap}
+  .gauge{display:flex;align-items:center;gap:12px}
+  .gauge .gv{font-family:"JetBrains Mono",monospace;font-size:27px;font-weight:600;line-height:1}
+  .gauge .gl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);max-width:150px;line-height:1.3}
+  .meta{margin-top:22px;display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+  .meta div{padding-right:24px;margin-right:24px;border-right:1px solid var(--line)}
+  .meta div:last-child{border:0}
+  .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+  .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
+  .asof{margin-top:14px;display:inline-block;font-size:11px;color:#c4ab78;background:rgba(210,162,74,.07);border:1px solid #3a3015;border-radius:8px;padding:6px 12px}
+  .toc{position:sticky;top:0;z-index:20;background:rgba(11,13,18,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:9px 0;font-size:11.5px}
+  .toc .wrap{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+  .toc a{color:var(--mut);text-decoration:none;padding:4px 9px;border-radius:6px;white-space:nowrap}
+  .toc a:hover{background:var(--panel2);color:var(--txt)}
+  .toc .tg{font-family:"JetBrains Mono",monospace;color:var(--accent);font-size:10px;margin-right:3px}
+  section{padding:34px 0 2px}
+  .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+  .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.05em}
+  .sh h2{font-size:21px;font-weight:600;letter-spacing:-.3px}
+  .sh .cn{font-size:13px;color:var(--dim);font-weight:400;margin-left:auto}
+  .lead{color:var(--mut);font-size:13.5px;max-width:940px;margin-bottom:18px}
+  .lead b{color:var(--txt);font-weight:600}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
+  .kpi{padding:18px 20px;border-right:1px solid var(--line)}
+  .kpi:last-child{border-right:0}
+  .kpi .v{font-size:25px;font-weight:600;letter-spacing:-.5px}
+  .kpi .l{font-size:11.5px;color:var(--mut);margin-top:4px}
+  .kpi .d{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.4}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}.blu{color:var(--dout)}.pur{color:var(--l3)}
+  .matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .matrix th{background:var(--panel2);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);font-weight:600;padding:12px 14px;text-align:left;border-bottom:1px solid var(--line)}
+  .matrix td{padding:14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
+  .matrix tr:last-child td{border-bottom:0}
+  .matrix .dom{font-weight:600;font-size:14px;color:var(--txt);display:flex;align-items:center;gap:9px}
+  .matrix .dom .sw{width:10px;height:10px;border-radius:3px;flex:none}
+  .matrix .dom small{display:block;font-weight:400;font-size:10.5px;color:var(--dim);margin-top:2px}
+  .matrix td b{color:var(--txt);font-weight:600}
+  .matrix td.hot{background:rgba(224,104,106,.08)}
+  .chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--panel3);color:var(--mut);margin:2px 4px 2px 0;border:1px solid var(--line2)}
+  .chip.hot{background:rgba(224,104,106,.12);border-color:#5a3236;color:#efa0a1}
+  .gal{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:900px){.gal{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.gal{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column}
+  .card .svgbox{background:linear-gradient(180deg,#0e1117,#161a24);padding:14px;border-bottom:1px solid var(--line)}
+  .card .body{padding:14px 16px 16px}
+  .card h4{font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .card .role{font-size:12px;color:var(--mut);margin-top:6px;line-height:1.45}
+  .card .who{font-size:11px;color:var(--dim);margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px}
+  .card .who b{color:var(--l3)}
+  .badge{font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:5px;letter-spacing:.03em;flex:none}
+  .b-hot{background:rgba(224,104,106,.14);color:#eda3a4}
+  .b-now{background:rgba(45,212,191,.13);color:var(--accent)}
+  .b-next{background:rgba(90,169,224,.14);color:var(--dout)}
+  .b-emrg{background:rgba(210,162,74,.14);color:var(--dup)}
+  .svgwide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
+  .svgscroll{overflow-x:auto}
+  .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
+  .tlgrid{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .tlhead{display:grid;grid-template-columns:130px repeat(4,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
+  .tlhead div{padding:11px 12px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);border-right:1px solid var(--line)}
+  .tlhead div:first-child{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-family:"Space Grotesk",sans-serif;display:flex;align-items:center}
+  .tlrow{display:grid;grid-template-columns:130px repeat(4,1fr);border-bottom:1px solid var(--line)}
+  .tlrow:last-child{border-bottom:0}
+  .tlrow .lab{padding:13px 12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;border-right:1px solid var(--line);background:var(--panel2)}
+  .tlrow .lab .sw{width:9px;height:9px;border-radius:3px;flex:none}
+  .tlrow .cell{padding:11px 12px;border-right:1px solid var(--line);font-size:11.5px;color:var(--mut);line-height:1.4}
+  .tlrow .cell:last-child{border-right:0}
+  .tlrow .cell b{color:var(--txt);font-weight:600;display:block;margin-bottom:2px;font-size:11.5px}
+  .tlrow .cell.hot{background:rgba(224,104,106,.06)}
+  @media(max-width:780px){.tlhead,.tlrow{grid-template-columns:90px repeat(4,1fr);font-size:10px}.tlrow .cell{font-size:10px}}
+  .choke{border:1px solid #5a3236;border-radius:14px;padding:22px 24px;background:
+    linear-gradient(135deg,rgba(224,104,106,.10),transparent 55%),var(--panel)}
+  .choke .ttl{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+  .choke .ttl svg{flex:none}
+  .choke .ttl h3{font-size:17px;font-weight:600;color:var(--choke)}
+  .choke p{font-size:13.5px;color:#d9c4c6;max-width:940px}.choke p b{color:#fff}
+  .choke .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:18px;border-top:1px solid #4a2c2f;padding-top:16px}
+  @media(max-width:780px){.choke .stats{grid-template-columns:1fr 1fr}}
+  .choke .stats div{padding-right:18px}
+  .choke .stats b{display:block;font-size:20px;color:var(--choke);font-weight:600}
+  .choke .stats span{font-size:10.5px;color:var(--dim)}
+  .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  .tbl th{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .tbl td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--mut)}
+  .tbl td b{color:var(--txt)}
+  .lyr{font-family:"JetBrains Mono",monospace;font-size:10.5px;padding:1px 7px;border-radius:5px;font-weight:600}
+  .ly3{background:rgba(139,132,207,.15);color:#aaa3e6}
+  .ly2{background:rgba(210,162,74,.15);color:#e3bd76}
+  .ly1{background:rgba(79,175,142,.15);color:#7cc9ad}
+  .lyu{background:rgba(91,129,196,.15);color:#8aa7df}
+  .lyp{background:rgba(196,122,158,.15);color:#dba0bf}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .two{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+  @media(max-width:780px){.two{grid-template-columns:1fr}}
+  .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:2px 0 16px}
+  .leg span{display:flex;align-items:center;gap:7px}
+  .leg .sw{width:11px;height:11px;border-radius:3px}
+  .box{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:var(--panel);margin-bottom:14px}
+  .box.var{border-color:#2f5b57;background:linear-gradient(135deg,rgba(45,212,191,.07),transparent 55%),var(--panel)}
+  .box.var h4{color:var(--accent)}
+  .box h4{font-size:13px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px;color:var(--mut)}
+  .box p{font-size:13px;color:var(--mut)}.box p b{color:var(--txt)}
+  .plain{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;background:var(--panel2);margin-bottom:14px}
+  .plain h4{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:8px}
+  .plain p{font-size:13px;color:var(--txt);line-height:1.6}
+  .glo{display:grid;grid-template-columns:1fr 1fr;gap:8px 22px;font-size:12px;color:var(--mut);margin-top:6px}
+  @media(max-width:640px){.glo{grid-template-columns:1fr}}
+  .glo b{color:var(--txt)}
+  .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .pill{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid var(--line2);background:var(--panel2);color:var(--mut)}
+  .pill b{color:var(--txt)}
+  .sev{display:grid;grid-template-columns:1fr 1fr;gap:20px 28px}
+  @media(max-width:780px){.sev{grid-template-columns:1fr}}
+  .sevbar{margin-bottom:2px}
+  .sevbar .t{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px}
+  .sevbar .t b{color:var(--txt)}.sevbar .t span{color:var(--dim);font-family:"JetBrains Mono",monospace}
+  .track{height:8px;background:var(--panel3);border-radius:5px;overflow:hidden;position:relative}
+  .fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--choke),#c98a5a)}
+  .tabbtns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .tabbtns button{font-family:inherit;font-size:12.5px;font-weight:600;padding:9px 15px;border-radius:9px;border:1px solid var(--line2);background:var(--panel2);color:var(--mut);cursor:pointer}
+  .tabbtns button[aria-selected=true]{background:rgba(45,212,191,.12);border-color:#2f5b57;color:var(--accent)}
+  .tabpanel .grid8{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:12px}
+  @media(max-width:720px){.tabpanel .grid8{grid-template-columns:1fr}}
+  .tabpanel .g8{padding:13px 15px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .tabpanel .g8 .lb{font-size:11px;color:var(--accent);font-weight:600;margin-bottom:4px}
+  .tabpanel .g8 .tx{font-size:12.5px;color:var(--mut);line-height:1.5}.tabpanel .g8 .tx b{color:var(--txt)}
+  .valstrip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:11px;overflow:hidden;margin:14px 0}
+  @media(max-width:640px){.valstrip{grid-template-columns:1fr 1fr}}
+  .valstrip div{padding:12px 14px;border-right:1px solid var(--line)}
+  .valstrip div:last-child{border-right:0}
+  .valstrip .vv{font-size:17px;font-weight:600;font-family:"JetBrains Mono",monospace}
+  .valstrip .ll{font-size:10.5px;color:var(--dim);margin-top:3px}
+  .bb{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+  @media(max-width:640px){.bb{grid-template-columns:1fr}}
+  .bb .b1{border:1px solid #2f5b46;border-radius:10px;padding:12px 14px;background:rgba(79,175,142,.05)}
+  .bb .b2{border:1px solid #5a3236;border-radius:10px;padding:12px 14px;background:rgba(224,104,106,.05)}
+  .bb h5{font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+  .bb .b1 h5{color:var(--pos)}.bb .b2 h5{color:var(--neg)}
+  .bb p{font-size:12px;color:var(--mut);line-height:1.5}
+  .infogap{border:1px dashed var(--l3);border-radius:10px;padding:12px 14px;background:rgba(139,132,207,.05);margin-top:12px}
+  .infogap h5{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--l3);margin-bottom:6px}
+  .infogap p{font-size:12px;color:var(--mut);line-height:1.5}
+  .risk{border-left:3px solid var(--choke);padding:10px 14px;margin-bottom:10px;background:var(--panel);border-radius:0 8px 8px 0}
+  .risk b{color:var(--txt);font-size:13px}.risk p{font-size:12px;color:var(--mut);margin-top:3px}
+  .foot{margin-top:40px;border-top:1px solid var(--line);padding-top:22px;font-size:11.5px;color:var(--dim)}
+  .foot a{color:var(--accent);text-decoration:none}
+  .foot h4{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 8px}
+  .src{font-size:11px;line-height:1.7;color:var(--dim)}
+  .src a{color:#7fb3c4;word-break:break-all}
+  .disc{margin-top:16px;padding:13px 15px;border:1px solid var(--line2);border-radius:9px;background:var(--panel2);font-size:11px;color:var(--mut);line-height:1.6}
+  svg text{font-family:"Space Grotesk",sans-serif}
+  svg text.m{font-family:"JetBrains Mono",monospace}
+  @media print{
+    .toc{display:none}.tabbtns{display:none}.tabpanel[hidden]{display:block!important}
+    body{background:#fff;color:#111}svg text{fill:#111}
+  }
+  @media(max-width:820px){
+    .svgscroll svg{min-width:760px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="kick"><span class="ln"></span>AI-Infra Deep-Dive · Run #20 · Loop 4 · Memory / HBM sub-stack</div>
+    <h1>The HBM stack has a floor no one is bidding: the <span class="red">assembly-materials &amp; molding gate</span> every stack passes through — one layer below "buy SK Hynix / Micron."</h1>
+    <p class="sub">HBM4 is here (2,048-bit, ~2 TB/s/stack, Rubin 2H26). Consensus owns the DRAM makers. But the scarcity rent has three co-binding floors the crowd under-prices: the <b>sole-source stacking materials</b> (Namics MR-MUF, Resonac NCF) + the <b>~100%-share compression-molding / grinding tools</b> (Towa, Disco) that gate <i>every</i> stack regardless of who wins — and the <b>commodity-DRAM cannibalization</b> that HBM's ~3-4× wafer penalty inflicts. The base-die-at-TSMC story is real but already consensus.</p>
+    <div class="gauges">
+      <div class="gauge"><div class="gv red">17<span style="font-size:15px;color:var(--dim)">/20</span></div><div class="gl">Chokepoint severity (assembly materials/tools gate)</div></div>
+      <div class="gauge"><div class="gv amb">8<span style="font-size:15px;color:var(--dim)">/20</span></div><div class="gl">Remaining asymmetry (most links have run; Towa/materials still latent)</div></div>
+    </div>
+    <div class="meta">
+      <div><div class="k">As of</div><div class="vv">2026-07-04</div></div>
+      <div><div class="k">Layer</div><div class="vv">Compute fabric · Memory / HBM</div></div>
+      <div><div class="k">Coverage</div><div class="vv">HBM4 · base die · DRAM · TSV/grind/TCB · NCF/MUF/EMC</div></div>
+      <div><div class="k">Prices</div><div class="vv">IBKR read-only (never trade)</div></div>
+      <div><div class="k">Nature</div><div class="vv">Personal research — not advice</div></div>
+    </div>
+    <div class="asof">Prices &amp; YTD are IBKR live snapshots as of 2026-07-04. The whole complex took a ~10-20% drawdown off late-June ATHs (KOSPI −10% intraday ~Jun 23; MU peaked ~$1,255) — every "priced/euphoric" read is <i>after</i> that first crack. Estimates flagged (est.); single-source flagged (SS). This decays fast.</div>
+  </div>
+</header>
+
+<nav class="toc"><div class="wrap">
+  <a href="#exec"><span class="tg">00</span>Exec</a>
+  <a href="#frame"><span class="tg">01</span>Framework</a>
+  <a href="#anat"><span class="tg">02</span>Stack anatomy</a>
+  <a href="#assembly"><span class="tg">03</span>Sub-tech→product</a>
+  <a href="#usecase"><span class="tg">04</span>Use-case map</a>
+  <a href="#chain"><span class="tg">05</span>Supply-chain map</a>
+  <a href="#timeline"><span class="tg">06</span>Timeline</a>
+  <a href="#choke"><span class="tg">07</span>Chokepoint + severity</a>
+  <a href="#variant"><span class="tg">08</span>Variant / disaggregation</a>
+  <a href="#aware"><span class="tg">09</span>Awareness + watchlist</a>
+  <a href="#plays"><span class="tg">10</span>The plays</a>
+  <a href="#decision"><span class="tg">11</span>Decision table</a>
+  <a href="#risks"><span class="tg">12</span>Risks / self-critique</a>
+</div></nav>
+
+<div class="wrap">
+
+<!-- ============ EXEC ============ -->
+<section id="exec">
+  <div class="sh"><span class="n">00</span><h2>Executive call</h2><span class="cn">the fresh cut, one layer below the headline</span></div>
+
+  <div class="plain">
+    <h4>Explain it simply · 白話版</h4>
+    <p>An <b>HBM</b> chip is a tower of ~12-16 razor-thin DRAM dies stacked on one "brain" die at the bottom, glued and molded together, and bolted next to the GPU. Everyone is buying the tower-makers (SK Hynix, Micron, Samsung) — and they <i>are</i> minting money. But look one floor down: (1) whoever wins the memory war, <b>every tower must be ground thin, molded in resin, and underfilled with glue</b> — and a handful of Japanese firms own those tools/chemicals near-outright (Towa ~100% of HBM molding; Namics is SK Hynix's <i>only</i> underfill supplier). (2) The bottom "brain" die now has to be built in a <b>logic chip factory (TSMC)</b>, not a memory fab — a new toll. (3) Because HBM eats ~3-4× the wafer space per gigabyte of normal memory, it is <b>starving ordinary DRAM</b>, and <i>that</i> shortage (DDR5 prices doubling) may be the more un-capped money. The un-crowded money is in the floor tools/materials and the commodity-DRAM squeeze — not another bid on the tower-makers.</p>
+  </div>
+
+  <div class="two">
+    <div>
+      <div class="box var">
+        <h4>Variant perception — what we believe that the Street mostly doesn't</h4>
+        <p>Consensus: <b>"HBM = bullish memory, own SK Hynix/Micron."</b> True but fully priced (SK Hynix +237% YTD, Micron +262%). Our variant is a <b>disaggregation</b>: HBM is bullish the <i>aggregate</i>, but the least-priced scarcity sits at three co-binding floors — <b>(a) the sole-source stacking materials + near-monopoly molding/grinding tools</b> that every stack passes through <i>regardless of who wins the DRAM war</i> (Namics MR-MUF sole-source for SK Hynix; Towa ~100% HBM molding, +56% YTD lagging; Disco grind/dice; Resonac NCF); and <b>(b) the commodity-DRAM cannibalization</b> — HBM's ~3-4× wafer-per-bit penalty is draining DDR5 supply, and that shortage is <i>less price-capped</i> than HBM itself (which NVIDIA has locked via prepaid LTAs). The base-die-at-TSMC story (much-discussed) is a real dependency but is <i>already the SemiAnalysis/TrendForce consensus framing</i> — more a "who captures rent" question than hidden scarcity.</p>
+      </div>
+      <div class="box">
+        <h4>If we're wrong, it's most likely because…</h4>
+        <p><b>Samsung catches up</b> (vertically integrated SF4 base die, first-shipped HBM4 Feb-26, reported OpenAI/AMD wins) and the "who wins" question stops being neutral to the tool/material makers; or <b>CXMT floods commodity DRAM by 2028</b>, reversing the cannibalization trade; or the <b>buyers keep funding new supply</b> (NVIDIA prepays, supplier capex) faster than the choke can extract rent; or the tool/material links are simply <b>too small / too illiquid / already re-rated</b> (Resonac +166%) to matter for a public-market amateur.</p>
+      </div>
+    </div>
+    <div>
+      <div class="panel" style="margin-bottom:14px">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin-bottom:10px">Recommended binding chokepoint</div>
+        <div style="font-size:16px;font-weight:600;color:var(--choke);line-height:1.3">The HBM stack-assembly <span style="text-decoration:underline;text-decoration-color:#5a3236">materials + molding/grinding gate</span></div>
+        <div style="font-size:12.5px;color:var(--mut);margin-top:8px;line-height:1.5">The sole/near-sole Japanese suppliers of MR-MUF underfill (<b>Namics/Nagase</b>), NCF (<b>Resonac</b>), compression molding (<b>Towa ~100% HBM</b>), and grinding/dicing (<b>Disco ~70%+</b>) — every HBM4 stack passes through them regardless of which DRAM maker wins. Method-agnostic. Sunsets only when hybrid bonding arrives (~2027+).</div>
+      </div>
+      <div class="pills">
+        <div class="pill"><b>Early / lean:</b> Towa (6315) — ~100% HBM molding, +56% YTD laggard, ~4 analysts</div>
+        <div class="pill"><b>Recognition:</b> Disco (6146) — method-agnostic grind gate, +60% YTD</div>
+        <div class="pill"><b>Priced (own-the-rent):</b> SK Hynix (000660) — +237% YTD, ~6.7× fwd on peak EPS</div>
+        <div class="pill" style="border-color:#3a3015;color:#c4ab78">Not a recommendation · personal lean · read §11</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:16px">
+    <div style="font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin-bottom:8px">Layer key &amp; 6-term glossary</div>
+    <div class="glo">
+      <div><b>Core DRAM die</b> — one thin memory layer; 24/32Gb; ~12-16 stacked per HBM4 tower.</div>
+      <div><b>Base / logic die</b> — the "brain" at the bottom; HBM4 moves it from a memory process to a TSMC/Samsung <i>logic</i> node.</div>
+      <div><b>TSV (through-silicon via)</b> — vertical copper wires drilled through each die to connect the stack (2,048 in HBM4).</div>
+      <div><b>Wafer thinning/grinding</b> — grinding each die to ~30-50µm so 12-16 fit in a stack; Disco's tools.</div>
+      <div><b>TCB vs MR-MUF</b> — two ways to bond+fill the stack: thermal-compression bonding + NCF film (Samsung/Micron) vs mass-reflow molded underfill (SK Hynix, Namics resin).</div>
+      <div><b>Compression molding / EMC</b> — encasing the stack in epoxy; Towa's tool, Sumitomo Bakelite's compound.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SIZING & RENT ============ -->
+<section id="sizing">
+  <div class="sh"><span class="n">00b</span><h2>Size the prize &amp; who captures the rent</h2><span class="cn">illustrative — anchored to disclosed datapoints</span></div>
+  <div class="two">
+    <div>
+      <table class="tbl">
+        <thead><tr><th>Pool</th><th>2025</th><th>2026E</th><th>2028E</th><th>Basis</th></tr></thead>
+        <tbody>
+          <tr><td><b>HBM revenue TAM</b></td><td class="num">~$38B</td><td class="num">~$58B</td><td class="num">~$100B</td><td>TrendForce (25→26); Micron (~$100B by 28)</td></tr>
+          <tr><td>HBM bit-demand growth</td><td class="num">—</td><td class="num">+77%</td><td class="num">+68% (27)</td><td>TrendForce, Nov 2025</td></tr>
+          <tr><td>HBM % of DRAM revenue</td><td class="num">~33%</td><td class="num">rising</td><td class="num">—</td><td>TrendForce (SS)</td></tr>
+          <tr><td>HBM % of DRAM wafer input</td><td class="num">~18%</td><td class="num">~22%</td><td class="num">~30% (27)</td><td>TrendForce</td></tr>
+          <tr><td>HBM assembly materials (NCF/MUF/EMC)</td><td class="num">~$0.5-1B</td><td class="num">growing 15%+</td><td class="num">—</td><td>R&amp;M / QY (est.)</td></tr>
+          <tr><td>HBM back-end tools (grind/dice/mold/TCB)</td><td class="num">multi-$B</td><td class="num">record</td><td class="num">—</td><td>Disco/Towa/Hanmi IR</td></tr>
+        </tbody>
+      </table>
+      <p class="cap">Illustrative aggregation. The tool/material pools are a small fraction of the ~$58B HBM TAM — which is precisely why they are under-bid relative to the DRAM makers, yet each is a near-monopoly toll.</p>
+    </div>
+    <div class="box">
+      <h4>Owner vs buyer — where does the rent settle?</h4>
+      <p>Margins settle it. <b>The scarcity rent settles at the DRAM oligopoly</b> — SK Hynix posted a <b>~72% operating margin</b> in Q1-26 (op ₩37.6T on ₩52.6T rev); Micron ~<b>75% GM</b> FQ2-26 (guiding ~81%). That is 2× the best tool vendor. <b>But note the fresh nuance:</b> HBM pricing is partly locked by <b>prepaid long-term agreements</b> — but the two makers now <i>diverge</i>: <b>Micron keeps price caps in its LTAs (capping HBM upside), while SK Hynix is reportedly removing the caps</b> (TrendForce, 2 Jul 2026), so HBM upside is <i>less</i> capped at Hynix than at Micron. Independently, all three say <b>commodity DRAM is currently the higher-margin product</b> — SK Hynix is even throttling HBM4 to chase the un-capped DDR windfall (the op-margin gap favors commodity DRAM by &gt;15pp). So rent ranks: <b>DRAM makers (72-77% op) &gt; TSMC base die (58% op) &gt; equipment (40-45% op) &gt; materials (11-34%)</b>. The tool/material links earn a durable toll, not the scarcity rent — but they are un-bid and method-agnostic, which is the asymmetry. <b>Crucial rebuttal to my own bear:</b> Disco's ~41% FY25 op margin shows the toll <i>can</i> compound — the risk is that weaker links (Hanmi op −1.6% YoY, ASMPT GM ~36%) may not.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FRAMEWORK MATRIX ============ -->
+<section id="frame">
+  <div class="sh"><span class="n">01</span><h2>Framework — HBM workload domains × stack layers</h2><span class="cn">the chokepoint sits at one (domain × layer) cell</span></div>
+  <p class="lead">Two orthogonal axes. <b>Rows</b> = the workload domains HBM serves (training / large-inference / mid-tier inference & custom-ASIC). <b>Columns</b> = the stack layers. The binding cell is the same across <i>every</i> row: the <span class="red">stack-assembly materials/tools</span> layer — because it is workload-agnostic. Base-die-foundry binds most for training/flagship; commodity-DRAM cannibalization binds the whole node.</p>
+  <table class="matrix">
+    <thead><tr><th>Workload domain ↓ / Stack layer →</th><th>Core DRAM die</th><th>Base / logic die</th><th>Stack assembly (TSV·grind·bond·mold)</th><th>Package + system</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><div class="dom"><span class="sw" style="background:var(--dup)"></span>Training / flagship<small>Rubin R200 · 288GB HBM4</small></div></td>
+        <td>1c/1b·1β DRAM — SK Hynix / Samsung / Micron</td>
+        <td class="hot"><b>TSMC N12/N5</b> (SK Hynix) · Samsung SF4 in-house — <span class="red">new foundry toll</span></td>
+        <td class="hot"><b>Namics MR-MUF (sole)</b> · Towa mold · Disco grind · Hanmi TCB</td>
+        <td>CoWoS (easing) · NVLink 6</td>
+      </tr>
+      <tr>
+        <td><div class="dom"><span class="sw" style="background:var(--dout)"></span>Large inference<small>16-Hi · 48GB · custom base die</small></div></td>
+        <td>16-Hi 1c DRAM — yield-limited</td>
+        <td class="hot">Custom base die (HBM4E ~27) — <b>PHY/controller IP</b> (Synopsys/Rambus)</td>
+        <td class="hot"><b>Same materials/tools gate</b> — worsens at 16-Hi (thinner, more TSV)</td>
+        <td>CoWoS-L · custom cartridge</td>
+      </tr>
+      <tr>
+        <td><div class="dom"><span class="sw" style="background:var(--dacr)"></span>Mid-tier / custom ASIC<small>Rubin CPX · TPU · Trainium</small></div></td>
+        <td>Micron in-house base die · GDDR7 alt.</td>
+        <td>In-house or foundry base die</td>
+        <td class="hot"><b>Same gate</b> — every stacker regardless of customer</td>
+        <td>Broadcom/Marvell custom-HBM architecting</td>
+      </tr>
+      <tr>
+        <td><div class="dom"><span class="sw" style="background:var(--choke)"></span>Second-order: commodity DRAM<small>DDR5/DDR4 starved by HBM</small></div></td>
+        <td class="hot"><b>Cannibalized</b> — HBM ~3-4× wafer/bit → DDR5 +90-95% QoQ Q1-26</td>
+        <td>—</td>
+        <td>—</td>
+        <td>Server RDIMM / hyperscaler stockpiling</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="cap">Amber = binding / stressed cell. The assembly materials/tools column is the only one that lights up in <i>every</i> workload row — the mark of a workload-agnostic chokepoint. The commodity-DRAM row is the second-order squeeze on the whole compute node.</p>
+</section>
+
+<!-- ============ STACK ANATOMY ============ -->
+<section id="anat">
+  <div class="sh"><span class="n">02</span><h2>Component deep-dive — anatomy of an HBM4 stack</h2><span class="cn">draw it, don't list it</span></div>
+  <p class="lead">An HBM4 stack = 12-16 core DRAM dies (each ground to ~30-50µm) on one logic base die, wired by ~2,048 TSVs, bonded (TCB+NCF or MR-MUF), and molded in epoxy. Each of the four labelled links below has a different owner — and the scarcity does <b>not</b> peak at the DRAM die.</p>
+  <div class="svgwide svgscroll">
+    <svg viewBox="0 0 1120 380" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="HBM4 stack anatomy schematic">
+      <!-- left: the stack -->
+      <text x="30" y="30" class="m" font-size="13" fill="#e8eaf0" font-weight="600">HBM4 stack (cross-section)</text>
+      <!-- core dies -->
+      <g>
+        <rect x="60" y="60" width="230" height="16" rx="2" fill="#233047" stroke="#3a4560" stroke-width="1"/>
+        <rect x="60" y="80" width="230" height="16" rx="2" fill="#233047" stroke="#3a4560" stroke-width="1"/>
+        <rect x="60" y="100" width="230" height="16" rx="2" fill="#233047" stroke="#3a4560" stroke-width="1"/>
+        <rect x="60" y="120" width="230" height="16" rx="2" fill="#233047" stroke="#3a4560" stroke-width="1"/>
+        <rect x="60" y="140" width="230" height="16" rx="2" fill="#233047" stroke="#3a4560" stroke-width="1"/>
+        <rect x="60" y="160" width="230" height="16" rx="2" fill="#233047" stroke="#3a4560" stroke-width="1"/>
+        <rect x="60" y="180" width="230" height="16" rx="2" fill="#233047" stroke="#3a4560" stroke-width="1"/>
+      </g>
+      <!-- base die -->
+      <rect x="60" y="204" width="230" height="26" rx="2" fill="#3a2f4a" stroke="#8b84cf" stroke-width="1.5"/>
+      <text x="175" y="221" class="m" font-size="11" fill="#c9c2f0" text-anchor="middle">LOGIC BASE DIE</text>
+      <!-- microbumps -->
+      <g fill="#d2a24a">
+        <circle cx="80" cy="240" r="3"/><circle cx="110" cy="240" r="3"/><circle cx="140" cy="240" r="3"/><circle cx="170" cy="240" r="3"/><circle cx="200" cy="240" r="3"/><circle cx="230" cy="240" r="3"/><circle cx="260" cy="240" r="3"/>
+      </g>
+      <!-- TSVs -->
+      <g stroke="#5aa9e0" stroke-width="1.4" opacity="0.7">
+        <line x1="100" y1="60" x2="100" y2="204"/><line x1="140" y1="60" x2="140" y2="204"/><line x1="180" y1="60" x2="180" y2="204"/><line x1="220" y1="60" x2="220" y2="204"/><line x1="250" y1="60" x2="250" y2="204"/>
+      </g>
+      <!-- mold outline -->
+      <rect x="52" y="52" width="246" height="186" rx="4" fill="none" stroke="#c47a9e" stroke-width="1.5" stroke-dasharray="5 4"/>
+      <text x="70" y="72" font-size="10" fill="#93a0b5">12-16× core DRAM die (~30-50µm each)</text>
+
+      <!-- callouts -->
+      <g font-size="12">
+        <!-- 1 grind -->
+        <line x1="290" y1="128" x2="360" y2="100" stroke="#4faf8e" stroke-width="1"/>
+        <circle cx="360" cy="100" r="11" fill="#1a2b24" stroke="#4faf8e"/><text x="360" y="104" class="m" font-size="11" fill="#7cc9ad" text-anchor="middle">1</text>
+        <text x="378" y="96" fill="#e8eaf0" font-weight="600">Wafer thinning / grinding &amp; dicing</text>
+        <text x="378" y="112" fill="#93a0b5">Each die → ~30-50µm. Owner: <tspan fill="#7cc9ad" font-weight="600">Disco ~65-80% (est.)</tspan> · Accretech #2</text>
+
+        <!-- 2 TSV -->
+        <line x1="290" y1="132" x2="360" y2="150" stroke="#5aa9e0" stroke-width="1"/>
+        <circle cx="360" cy="150" r="11" fill="#18293a" stroke="#5aa9e0"/><text x="360" y="154" class="m" font-size="11" fill="#8aa7df" text-anchor="middle">2</text>
+        <text x="378" y="146" fill="#e8eaf0" font-weight="600">TSV etch + Cu-fill (2,048 vias)</text>
+        <text x="378" y="162" fill="#93a0b5">Owner: <tspan fill="#8aa7df" font-weight="600">Lam / AMAT / TEL ~75% etch (est.)</tspan> — no HBM-specific split</text>
+
+        <!-- 3 base die -->
+        <line x1="290" y1="217" x2="360" y2="205" stroke="#8b84cf" stroke-width="1"/>
+        <circle cx="360" cy="205" r="11" fill="#241f36" stroke="#8b84cf"/><text x="360" y="209" class="m" font-size="11" fill="#aaa3e6" text-anchor="middle">3</text>
+        <text x="378" y="201" fill="#e8eaf0" font-weight="600">Logic base die → moves to a foundry node</text>
+        <text x="378" y="217" fill="#93a0b5">SK Hynix→<tspan fill="#aaa3e6" font-weight="600">TSMC N12/N5</tspan> · Samsung→SF4 · Micron in-house</text>
+
+        <!-- 4 bond+mold -->
+        <line x1="290" y1="150" x2="360" y2="258" stroke="#e0686a" stroke-width="1"/>
+        <circle cx="360" cy="258" r="11" fill="#2b1a1c" stroke="#e0686a"/><text x="360" y="262" class="m" font-size="11" fill="#efa0a1" text-anchor="middle">4</text>
+        <text x="378" y="254" fill="#e8eaf0" font-weight="600">Bond + underfill + mold — <tspan fill="#efa0a1">THE GATE</tspan></text>
+        <text x="378" y="270" fill="#93a0b5">TCB: <tspan fill="#efa0a1" font-weight="600">Hanmi ~71%</tspan> · NCF: <tspan fill="#efa0a1" font-weight="600">Resonac</tspan> · MR-MUF: <tspan fill="#efa0a1" font-weight="600">Namics (sole)</tspan></text>
+        <text x="378" y="286" fill="#93a0b5">Compression mold: <tspan fill="#efa0a1" font-weight="600">Towa ~100% (est.)</tspan> · EMC: Sumitomo Bakelite ~40%</text>
+      </g>
+
+      <!-- scarcity bracket -->
+      <text x="378" y="322" font-size="11" fill="#93a0b5" font-style="italic">Scarcity peaks at links (3) &amp; (4) — the foundry toll and the sole/near-sole materials &amp; tools —</text>
+      <text x="378" y="338" font-size="11" fill="#93a0b5" font-style="italic">NOT at the DRAM die itself, which all three oligopolists make.</text>
+      <text x="378" y="354" font-size="11" fill="#efa0a1" font-weight="600">Every stack must pass through (1)(3)(4) regardless of which DRAM maker wins.</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ============ SUB-TECH -> PRODUCT ============ -->
+<section id="assembly">
+  <div class="sh"><span class="n">03</span><h2>Sub-tech → product — how a wafer becomes an HBM stack (L3→L2→L1)</h2><span class="cn">what changes, and who gets paid, at each step</span></div>
+  <div class="svgwide svgscroll">
+    <svg viewBox="0 0 1120 250" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="HBM assembly flow">
+      <defs><marker id="arrA" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#697283"/></marker></defs>
+      <!-- steps -->
+      <g>
+        <rect x="20" y="70" width="150" height="90" rx="10" fill="#13161e" stroke="#2a3040"/>
+        <text x="95" y="60" font-size="11" fill="#93a0b5" text-anchor="middle">STEP 1</text>
+        <text x="95" y="98" font-size="13" fill="#e8eaf0" text-anchor="middle" font-weight="600">DRAM wafer</text>
+        <text x="95" y="118" font-size="10.5" fill="#93a0b5" text-anchor="middle">1c/1b/1β node</text>
+        <text x="95" y="140" font-size="10" fill="#7cc9ad" text-anchor="middle">SKhy/Sam/Micron</text>
+      </g>
+      <line x1="172" y1="115" x2="196" y2="115" stroke="#697283" stroke-width="1.6" marker-end="url(#arrA)"/>
+      <g>
+        <rect x="200" y="70" width="150" height="90" rx="10" fill="#13161e" stroke="#4faf8e"/>
+        <text x="275" y="60" font-size="11" fill="#93a0b5" text-anchor="middle">STEP 2</text>
+        <text x="275" y="98" font-size="13" fill="#e8eaf0" text-anchor="middle" font-weight="600">TSV + thin</text>
+        <text x="275" y="118" font-size="10.5" fill="#93a0b5" text-anchor="middle">etch · grind &lt;50µm</text>
+        <text x="275" y="140" font-size="10" fill="#7cc9ad" text-anchor="middle">Lam/AMAT · Disco</text>
+      </g>
+      <line x1="352" y1="115" x2="376" y2="115" stroke="#697283" stroke-width="1.6" marker-end="url(#arrA)"/>
+      <g>
+        <rect x="380" y="70" width="150" height="90" rx="10" fill="#13161e" stroke="#8b84cf"/>
+        <text x="455" y="60" font-size="11" fill="#93a0b5" text-anchor="middle">STEP 3</text>
+        <text x="455" y="98" font-size="13" fill="#e8eaf0" text-anchor="middle" font-weight="600">+ base die</text>
+        <text x="455" y="118" font-size="10.5" fill="#93a0b5" text-anchor="middle">logic node</text>
+        <text x="455" y="140" font-size="10" fill="#aaa3e6" text-anchor="middle">TSMC / SF4</text>
+      </g>
+      <line x1="532" y1="115" x2="556" y2="115" stroke="#697283" stroke-width="1.6" marker-end="url(#arrA)"/>
+      <g>
+        <rect x="560" y="60" width="170" height="110" rx="10" fill="#1c1417" stroke="#e0686a" stroke-width="1.5"/>
+        <text x="645" y="50" font-size="11" fill="#efa0a1" text-anchor="middle" font-weight="600">STEP 4 · THE GATE</text>
+        <text x="645" y="92" font-size="13" fill="#e8eaf0" text-anchor="middle" font-weight="600">stack · bond</text>
+        <text x="645" y="110" font-size="13" fill="#e8eaf0" text-anchor="middle" font-weight="600">underfill · mold</text>
+        <text x="645" y="132" font-size="10" fill="#efa0a1" text-anchor="middle">Hanmi TCB · Namics MUF</text>
+        <text x="645" y="148" font-size="10" fill="#efa0a1" text-anchor="middle">Resonac NCF · Towa mold</text>
+      </g>
+      <line x1="732" y1="115" x2="756" y2="115" stroke="#697283" stroke-width="1.6" marker-end="url(#arrA)"/>
+      <g>
+        <rect x="760" y="70" width="150" height="90" rx="10" fill="#13161e" stroke="#2a3040"/>
+        <text x="835" y="60" font-size="11" fill="#93a0b5" text-anchor="middle">STEP 5</text>
+        <text x="835" y="98" font-size="13" fill="#e8eaf0" text-anchor="middle" font-weight="600">KGD test</text>
+        <text x="835" y="118" font-size="10.5" fill="#93a0b5" text-anchor="middle">known-good-die</text>
+        <text x="835" y="140" font-size="10" fill="#7cc9ad" text-anchor="middle">Advantest ATE</text>
+      </g>
+      <line x1="912" y1="115" x2="936" y2="115" stroke="#697283" stroke-width="1.6" marker-end="url(#arrA)"/>
+      <g>
+        <rect x="940" y="70" width="150" height="90" rx="10" fill="#13161e" stroke="#2a3040"/>
+        <text x="1015" y="60" font-size="11" fill="#93a0b5" text-anchor="middle">STEP 6</text>
+        <text x="1015" y="98" font-size="13" fill="#e8eaf0" text-anchor="middle" font-weight="600">→ CoWoS</text>
+        <text x="1015" y="118" font-size="10.5" fill="#93a0b5" text-anchor="middle">next to GPU</text>
+        <text x="1015" y="140" font-size="10" fill="#7cc9ad" text-anchor="middle">TSMC (easing)</text>
+      </g>
+      <text x="20" y="205" font-size="11" fill="#efa0a1" font-style="italic">Value/scarcity accrues at Step 3 (foundry toll) and Step 4 (materials/tools gate) — the two red boxes.</text>
+      <text x="20" y="222" font-size="11" fill="#93a0b5" font-style="italic">Stack yield loss (HBM3E &lt;~70%; 16-Hi worse) makes Step 4 the binding, un-substitutable link.</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ============ USE-CASE MAP ============ -->
+<section id="usecase">
+  <div class="sh"><span class="n">04</span><h2>Deployment map — HBM4 vs HBM3E across the node</h2><span class="cn">what Rubin changes, and where the pressure lands</span></div>
+  <div class="gal">
+    <div class="card">
+      <div class="svgbox"><svg viewBox="0 0 240 120" width="100%" role="img" aria-label="bandwidth doubling">
+        <text x="12" y="20" font-size="11" fill="#93a0b5">Interface width</text>
+        <rect x="12" y="34" width="90" height="14" rx="3" fill="#233047"/><text x="16" y="45" class="m" font-size="10" fill="#8aa7df">1024-bit HBM3E</text>
+        <rect x="12" y="56" width="200" height="14" rx="3" fill="#2f5b57"/><text x="16" y="67" class="m" font-size="10" fill="#2dd4bf">2048-bit HBM4</text>
+        <text x="12" y="92" font-size="10.5" fill="#e8eaf0" font-weight="600">2× bus → ~2 TB/s/stack (JEDEC)</text>
+        <text x="12" y="108" font-size="10" fill="#93a0b5">vendors run 10-13 Gb/s → 2.8-3.3 TB/s</text>
+      </svg></div>
+      <div class="body"><h4>Bandwidth <span class="badge b-now">HBM4</span></h4><div class="role">2,048-bit interface doubles the bus; Rubin R200 hits ~22 TB/s total (vs GB300 ~8 TB/s) at the same 288GB.</div></div>
+    </div>
+    <div class="card">
+      <div class="svgbox"><svg viewBox="0 0 240 120" width="100%" role="img" aria-label="stack height">
+        <g fill="#233047" stroke="#3a4560">
+          <rect x="30" y="70" width="60" height="8"/><rect x="30" y="60" width="60" height="8"/><rect x="30" y="50" width="60" height="8"/><rect x="30" y="40" width="60" height="8"/></g>
+        <text x="45" y="95" font-size="10" fill="#93a0b5">8-Hi</text>
+        <g fill="#2f5b57" stroke="#2dd4bf">
+          <rect x="150" y="80" width="60" height="6"/><rect x="150" y="72" width="60" height="6"/><rect x="150" y="64" width="60" height="6"/><rect x="150" y="56" width="60" height="6"/><rect x="150" y="48" width="60" height="6"/><rect x="150" y="40" width="60" height="6"/><rect x="150" y="32" width="60" height="6"/><rect x="150" y="24" width="60" height="6"/></g>
+        <text x="158" y="100" font-size="10" fill="#2dd4bf">12-16-Hi</text>
+      </svg></div>
+      <div class="body"><h4>Stack height <span class="badge b-hot">yield stress</span></h4><div class="role">12-Hi (36GB) → 16-Hi (48GB). Thinner dies + more TSVs → stack yield drops (HBM3E &lt;~70%) → the materials/tools gate binds harder.</div></div>
+    </div>
+    <div class="card">
+      <div class="svgbox"><svg viewBox="0 0 240 120" width="100%" role="img" aria-label="base die migration">
+        <rect x="20" y="45" width="90" height="30" rx="4" fill="#233047" stroke="#3a4560"/><text x="65" y="64" font-size="9.5" fill="#93a0b5" text-anchor="middle">memory process</text>
+        <text x="65" y="90" font-size="9" fill="#697283" text-anchor="middle">HBM3E base die</text>
+        <path d="M118 60 L138 60" stroke="#8b84cf" stroke-width="1.5" marker-end="url(#arrU)"/>
+        <defs><marker id="arrU" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8b84cf"/></marker></defs>
+        <rect x="145" y="45" width="90" height="30" rx="4" fill="#241f36" stroke="#8b84cf"/><text x="190" y="64" font-size="9.5" fill="#aaa3e6" text-anchor="middle">LOGIC node</text>
+        <text x="190" y="90" font-size="9" fill="#aaa3e6" text-anchor="middle">HBM4 → TSMC N12/N5</text>
+      </svg></div>
+      <div class="body"><h4>Base-die migration <span class="badge b-next">new toll</span></h4><div class="role">The bottom die moves from a memory fab to a TSMC/Samsung logic node — a foundry toll, and the surface for "custom HBM."</div></div>
+    </div>
+    <div class="card">
+      <div class="svgbox"><svg viewBox="0 0 240 120" width="100%" role="img" aria-label="cannibalization">
+        <rect x="15" y="40" width="30" height="60" rx="3" fill="#2f5b57"/><text x="30" y="112" font-size="9" fill="#2dd4bf" text-anchor="middle">HBM 1GB</text>
+        <rect x="70" y="82" width="30" height="18" rx="3" fill="#233047"/><text x="85" y="112" font-size="9" fill="#8aa7df" text-anchor="middle">DDR5 1GB</text>
+        <text x="120" y="55" font-size="10.5" fill="#efa0a1" font-weight="600">~3-4× wafer</text>
+        <text x="120" y="70" font-size="10.5" fill="#efa0a1" font-weight="600">area per bit</text>
+        <text x="120" y="92" font-size="9.5" fill="#93a0b5">→ DDR5 +90-95%</text>
+        <text x="120" y="105" font-size="9.5" fill="#93a0b5">QoQ (Q1-26)</text>
+      </svg></div>
+      <div class="body"><h4>Cannibalization <span class="badge b-hot">2nd-order</span></h4><div class="role">HBM eats ~3-4× the wafer area per GB (Micron: "3-to-1"). It is starving commodity DRAM — the less-price-capped shortage.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SUPPLY CHAIN MAP ============ -->
+<section id="chain">
+  <div class="sh"><span class="n">05</span><h2>End-to-end supply-chain map</h2><span class="cn">thin/red flow into &amp; out of the chokepoint</span></div>
+  <div class="leg">
+    <span><span class="sw" style="background:var(--up)"></span>DRAM makers</span>
+    <span><span class="sw" style="background:var(--l3)"></span>Base-die foundry</span>
+    <span><span class="sw" style="background:var(--choke)"></span>Assembly materials/tools GATE</span>
+    <span><span class="sw" style="background:var(--l1)"></span>Test</span>
+    <span><span class="sw" style="background:var(--l2)"></span>Package / buyers</span>
+  </div>
+  <div class="svgwide svgscroll">
+    <svg viewBox="0 0 1120 430" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="HBM supply chain map with chokepoint">
+      <defs>
+        <marker id="arr2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#697283"/></marker>
+        <marker id="arr2r" markerWidth="11" markerHeight="11" refX="8" refY="5.5" orient="auto"><path d="M0,0 L11,5.5 L0,11 Z" fill="#e0686a"/></marker>
+      </defs>
+      <!-- stage 1 DRAM -->
+      <rect x="20" y="120" width="150" height="150" rx="12" fill="#13161e" stroke="#5b81c4"/>
+      <text x="95" y="112" font-size="11" fill="#8aa7df" text-anchor="middle" font-weight="600">DRAM MAKERS</text>
+      <text x="95" y="150" font-size="12" fill="#e8eaf0" text-anchor="middle">SK Hynix ~57%</text>
+      <text x="95" y="172" font-size="12" fill="#e8eaf0" text-anchor="middle">Samsung ~28%</text>
+      <text x="95" y="194" font-size="12" fill="#e8eaf0" text-anchor="middle">Micron ~19%</text>
+      <text x="95" y="224" font-size="10" fill="#93a0b5" text-anchor="middle">core die · own the</text>
+      <text x="95" y="238" font-size="10" fill="#93a0b5" text-anchor="middle">scarcity rent (72% op)</text>
+      <text x="95" y="256" font-size="9.5" fill="#4faf8e" text-anchor="middle">HBM sold out 2026</text>
+
+      <!-- stage 2 base die foundry -->
+      <rect x="210" y="60" width="150" height="120" rx="12" fill="#13161e" stroke="#8b84cf"/>
+      <text x="285" y="52" font-size="11" fill="#aaa3e6" text-anchor="middle" font-weight="600">BASE-DIE FOUNDRY</text>
+      <text x="285" y="90" font-size="12" fill="#e8eaf0" text-anchor="middle">TSMC N12/N5</text>
+      <text x="285" y="110" font-size="11" fill="#93a0b5" text-anchor="middle">(SK Hynix, Micron-4E)</text>
+      <text x="285" y="130" font-size="11" fill="#93a0b5" text-anchor="middle">Samsung SF4 in-house</text>
+      <text x="285" y="152" font-size="9.5" fill="#c4ab78" text-anchor="middle">new foundry toll ·</text>
+      <text x="285" y="164" font-size="9.5" fill="#c4ab78" text-anchor="middle">consensus framing</text>
+
+      <!-- upstream tools feed -->
+      <rect x="210" y="300" width="150" height="90" rx="12" fill="#0f1319" stroke="#2a3040" stroke-dasharray="4 3"/>
+      <text x="285" y="292" font-size="10" fill="#93a0b5" text-anchor="middle">TSV / thinning tools</text>
+      <text x="285" y="326" font-size="11" fill="#8aa7df" text-anchor="middle">Disco ~65-80%</text>
+      <text x="285" y="346" font-size="11" fill="#8aa7df" text-anchor="middle">Lam/AMAT/TEL etch</text>
+      <text x="285" y="368" font-size="10" fill="#93a0b5" text-anchor="middle">grind &lt;50µm · dice</text>
+
+      <!-- CHOKEPOINT -->
+      <rect x="440" y="90" width="220" height="230" rx="14" fill="#1c1417" stroke="#e0686a" stroke-width="2"/>
+      <rect x="440" y="90" width="220" height="26" rx="13" fill="#e0686a"/>
+      <text x="550" y="108" font-size="12" fill="#1c1417" text-anchor="middle" font-weight="700">CHOKEPOINT · ASSEMBLY GATE</text>
+      <text x="550" y="146" font-size="12.5" fill="#efa0a1" text-anchor="middle" font-weight="600">MR-MUF: Namics (SOLE)</text>
+      <text x="550" y="170" font-size="12.5" fill="#efa0a1" text-anchor="middle" font-weight="600">NCF: Resonac (top of 99%)</text>
+      <text x="550" y="194" font-size="12.5" fill="#efa0a1" text-anchor="middle" font-weight="600">Mold: Towa ~100% (est.)</text>
+      <text x="550" y="218" font-size="12.5" fill="#efa0a1" text-anchor="middle" font-weight="600">Grind/dice: Disco ~70%+</text>
+      <text x="550" y="242" font-size="12.5" fill="#efa0a1" text-anchor="middle" font-weight="600">TCB: Hanmi ~71%</text>
+      <text x="550" y="272" font-size="10" fill="#d9c4c6" text-anchor="middle">EMC: Sumitomo Bakelite ~40%</text>
+      <text x="550" y="292" font-size="10" fill="#93a0b5" text-anchor="middle" font-style="italic">every stack passes through —</text>
+      <text x="550" y="306" font-size="10" fill="#93a0b5" text-anchor="middle" font-style="italic">method-agnostic toll</text>
+
+      <!-- stage 4 test -->
+      <rect x="710" y="120" width="130" height="120" rx="12" fill="#13161e" stroke="#4faf8e"/>
+      <text x="775" y="112" font-size="11" fill="#7cc9ad" text-anchor="middle" font-weight="600">TEST (KGD)</text>
+      <text x="775" y="160" font-size="12" fill="#e8eaf0" text-anchor="middle">Advantest ATE</text>
+      <text x="775" y="182" font-size="11" fill="#93a0b5" text-anchor="middle">FormFactor probe</text>
+      <text x="775" y="210" font-size="9.5" fill="#93a0b5" text-anchor="middle">(covered Run #14)</text>
+
+      <!-- stage 5 buyers -->
+      <rect x="890" y="90" width="150" height="180" rx="12" fill="#13161e" stroke="#d2a24a"/>
+      <text x="965" y="82" font-size="11" fill="#e3bd76" text-anchor="middle" font-weight="600">PACKAGE / BUYERS</text>
+      <text x="965" y="120" font-size="12" fill="#e8eaf0" text-anchor="middle">TSMC CoWoS</text>
+      <text x="965" y="140" font-size="10.5" fill="#4faf8e" text-anchor="middle">(easing 2026)</text>
+      <text x="965" y="168" font-size="12" fill="#e8eaf0" text-anchor="middle">NVIDIA Rubin</text>
+      <text x="965" y="190" font-size="11" fill="#93a0b5" text-anchor="middle">AMD · Broadcom</text>
+      <text x="965" y="210" font-size="11" fill="#93a0b5" text-anchor="middle">Google/hyperscalers</text>
+      <text x="965" y="236" font-size="9.5" fill="#c4ab78" text-anchor="middle">prepay LTAs → cap</text>
+      <text x="965" y="248" font-size="9.5" fill="#c4ab78" text-anchor="middle">HBM rent to 2030</text>
+
+      <!-- flows: grey normal, thin/red into & out of choke -->
+      <line x1="170" y1="150" x2="206" y2="120" stroke="#697283" stroke-width="3" marker-end="url(#arr2)"/>
+      <!-- DRAM into choke : thin red -->
+      <line x1="170" y1="210" x2="436" y2="200" stroke="#e0686a" stroke-width="1.5" marker-end="url(#arr2r)"/>
+      <!-- base die into choke : thin red -->
+      <line x1="360" y1="150" x2="436" y2="160" stroke="#e0686a" stroke-width="1.5" marker-end="url(#arr2r)"/>
+      <!-- tools into choke -->
+      <line x1="360" y1="330" x2="436" y2="270" stroke="#697283" stroke-width="2.5" marker-end="url(#arr2)"/>
+      <!-- choke out to test : thin red -->
+      <line x1="662" y1="190" x2="706" y2="180" stroke="#e0686a" stroke-width="1.5" marker-end="url(#arr2r)"/>
+      <!-- test to buyers : grey -->
+      <line x1="842" y1="180" x2="886" y2="180" stroke="#697283" stroke-width="3" marker-end="url(#arr2)"/>
+
+      <text x="30" y="415" font-size="10.5" fill="#93a0b5" font-style="italic">Thin red arrows = constricted flow into &amp; out of the chokepoint. Grey = ample. The rent OWNER is the DRAM maker (§00b); the un-bid TOLL is the assembly gate.</text>
+    </svg>
+  </div>
+
+  <!-- per-stage scarcity bar -->
+  <div class="svgwide svgscroll" style="margin-top:14px">
+    <svg viewBox="0 0 1120 210" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="scarcity premium by stage">
+      <text x="20" y="26" font-size="12" fill="#e8eaf0" font-weight="600">Scarcity premium / value-capture by stage <tspan fill="#697283" font-size="10">(qualitative, est.)</tspan></text>
+      <line x1="60" y1="170" x2="1080" y2="170" stroke="#2a3040"/>
+      <!-- bars -->
+      <g>
+        <rect x="90" y="70" width="120" height="100" fill="#5b81c4"/><text x="150" y="188" font-size="10.5" fill="#93a0b5" text-anchor="middle">DRAM makers</text><text x="150" y="62" class="m" font-size="10" fill="#8aa7df" text-anchor="middle">rent owner</text>
+        <rect x="270" y="110" width="120" height="60" fill="#8b84cf"/><text x="330" y="188" font-size="10.5" fill="#93a0b5" text-anchor="middle">Base-die foundry</text><text x="330" y="102" class="m" font-size="10" fill="#aaa3e6" text-anchor="middle">toll</text>
+        <!-- chokepoint tallest -->
+        <rect x="450" y="45" width="120" height="125" fill="#e0686a"/><text x="510" y="188" font-size="10.5" fill="#efa0a1" text-anchor="middle" font-weight="600">Assembly GATE</text><text x="510" y="37" class="m" font-size="10" fill="#efa0a1" text-anchor="middle">near-monopoly toll</text>
+        <rect x="630" y="120" width="120" height="50" fill="#4faf8e"/><text x="690" y="188" font-size="10.5" fill="#93a0b5" text-anchor="middle">Test</text>
+        <!-- secondary rent pool: commodity DRAM -->
+        <rect x="810" y="80" width="120" height="90" fill="#c98a5a"/><text x="870" y="188" font-size="10.5" fill="#e3bd76" text-anchor="middle">Commodity DRAM</text><text x="870" y="72" class="m" font-size="10" fill="#e3bd76" text-anchor="middle">2nd rent pool</text>
+        <rect x="960" y="135" width="90" height="35" fill="#d2a24a"/><text x="1005" y="188" font-size="10.5" fill="#93a0b5" text-anchor="middle">Package/buyers</text>
+      </g>
+      <text x="60" y="205" font-size="10" fill="#697283" font-style="italic">Tallest = assembly gate (concentration ≈ monopoly). But the DRAM makers capture the biggest $ rent; commodity DRAM is the un-capped 2nd pool. Height ≈ scarcity, not $ size.</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ============ TIMELINE ============ -->
+<section id="timeline">
+  <div class="sh"><span class="n">06</span><h2>Multi-year evolution — the hinge is HBM4E / hybrid bonding (~2027)</h2><span class="cn">rows = links · columns = 2025→2028</span></div>
+  <div class="tlgrid">
+    <div class="tlhead"><div>Link ↓ / Year →</div><div>2025</div><div>2026</div><div>2027</div><div>2028+</div></div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--up)"></span>HBM gen</div>
+      <div class="cell"><b>HBM3E ramp</b>12-Hi 36GB · sold out</div>
+      <div class="cell hot"><b>HBM4 mass prod</b>2048-bit · Rubin 2H26 · all 3 qualified</div>
+      <div class="cell hot"><b>HBM4E</b>custom base die · Rubin Ultra 384GB</div>
+      <div class="cell"><b>HBM5</b>research; hybrid bonding standard</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--l3)"></span>Base die</div>
+      <div class="cell"><b>Memory process</b>signal pass-through</div>
+      <div class="cell hot"><b>→ TSMC N12 / SF4</b>logic node · SK Hynix Feb-26</div>
+      <div class="cell hot"><b>→ TSMC N3</b>HBM4E custom · IP-heavy</div>
+      <div class="cell"><b>N3 = key HBM node</b>(Morgan Stanley)</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--choke)"></span>Bond/mold gate</div>
+      <div class="cell"><b>TCB+NCF / MR-MUF</b>Hanmi excl. · Namics sole</div>
+      <div class="cell hot"><b>MR-MUF retained 16-Hi</b>Towa mold ~100% · Disco grind</div>
+      <div class="cell hot"><b>Namics exclusivity sunsets</b>hybrid bonding begins (BESI/AMAT)</div>
+      <div class="cell"><b>Hybrid ~50% by 28</b>TCB/mold franchise erodes</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--dup)"></span>Commodity DRAM</div>
+      <div class="cell"><b>Tightening</b>DDR4 EOL · inventory 2-4wk</div>
+      <div class="cell hot"><b>Shortage / price surge</b>DDR5 +90-95% QoQ Q1 · +58-63% Q2</div>
+      <div class="cell"><b>Undersupply (consensus)</b>vs CXMT ramp</div>
+      <div class="cell"><b>CXMT flood risk</b>oversupply tail 2028</div>
+    </div>
+  </div>
+  <p class="cap">Hinge year = <b>2027</b>: Namics exclusivity sunsets, hybrid bonding starts eroding the TCB/mold franchise, HBM4E custom base die deepens the TSMC toll, and CXMT begins to threaten commodity supply. The materials/tools thesis is a <b>2026-27 window</b> with a visible sunset — enter with that clock in mind.</p>
+</section>
+
+<!-- ============ CHOKEPOINT + SEVERITY ============ -->
+<section id="choke">
+  <div class="sh"><span class="n">07</span><h2>Chokepoint callout &amp; severity scorecard</h2><span class="cn">derived, not asserted</span></div>
+  <div class="choke">
+    <div class="ttl">
+      <svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 2 L20 18 L2 18 Z" fill="none" stroke="#e0686a" stroke-width="1.6"/><line x1="11" y1="8" x2="11" y2="13" stroke="#e0686a" stroke-width="1.6"/><circle cx="11" cy="15.5" r="1" fill="#e0686a"/></svg>
+      <h3>The binding link: the HBM stack-assembly materials + molding/grinding gate</h3>
+    </div>
+    <p>Whoever wins the DRAM war, <b>every HBM4 stack must be ground thin, TSV-etched, bonded, underfilled, molded, and tested.</b> That physical gate is owned by a handful of Japanese near-monopolies: <b>Namics</b> (sole-source MR-MUF underfill for SK Hynix's ~57% share), <b>Resonac</b> (top of a 3-firm ≈99% NCF oligopoly), <b>Towa</b> (~100% of HBM compression molding, est.), <b>Disco</b> (~65-80% grind/dice, est.), and <b>Hanmi</b> (~71% TCB, ~90% at the leading edge). It is <b>method-agnostic</b> — TCB or MR-MUF, SK Hynix or Micron, it still passes through this layer. The severity discount vs a perfect 20: the rent <i>owner</i> is the DRAM maker (the gate earns a durable toll, not the scarcity rent), the links are individually small/illiquid, and hybrid bonding sunsets the TCB/mold franchise from ~2027.</p>
+    <div class="stats">
+      <div><b>~100%</b><span>Towa HBM molding (est.)</span></div>
+      <div><b>1 firm</b><span>Namics MR-MUF (sole-source)</span></div>
+      <div><b>~71%</b><span>Hanmi TCB share</span></div>
+      <div><b>~3-4×</b><span>HBM wafer/bit vs DDR5</span></div>
+      <div><b>~2027</b><span>hybrid-bonding sunset clock</span></div>
+    </div>
+  </div>
+
+  <div style="margin-top:20px" class="sev">
+    <div>
+      <div class="sevbar"><div class="t"><b>Supply concentration</b><span>5 / 5</span></div><div class="track"><div class="fill" style="width:100%"></div></div></div>
+      <div class="sevbar"><div class="t"><b>Lead-time to add capacity</b><span>4 / 5</span></div><div class="track"><div class="fill" style="width:80%"></div></div></div>
+    </div>
+    <div>
+      <div class="sevbar"><div class="t"><b>Low substitutability</b><span>4 / 5</span></div><div class="track"><div class="fill" style="width:80%"></div></div></div>
+      <div class="sevbar"><div class="t"><b>Demand-growth pressure</b><span>4 / 5</span></div><div class="track"><div class="fill" style="width:80%"></div></div></div>
+    </div>
+  </div>
+  <p class="cap" style="margin-top:14px"><b>Composite 17/20</b> for the assembly-materials/tools gate (concentration 5 · lead-time 4 · low-sub 4 · demand 4). Per-link severity varies: <b>Namics MR-MUF 18</b> (sole-source, but sunsetting — <i>conviction: LOW; single-source, not company-confirmed, and SK Hynix is evaluating fluxless/hybrid for 16-Hi, so "retained" is contested not settled</i>) · <b>Towa mold 17</b> (near-100%, method-agnostic) · <b>Disco grind 16</b> (near-monopoly but broad, not HBM-only — but the most primary-sourced and liquid) · <b>Hanmi TCB 15</b> (being dual-sourced at HBM4). <b>Co-binding chokepoints named elsewhere:</b> the TSMC base-die/leading-edge-logic squeeze (real, but consensus — call it 16) and commodity-DRAM cannibalization (a price event, not a supply monopoly — 15 as a <i>trade</i>). <b>Tightness ≠ a good buy</b> — most of these names have already re-rated; see §09-11.</p>
+</section>
+
+<!-- ============ VARIANT / DISAGGREGATION ============ -->
+<section id="variant">
+  <div class="sh"><span class="n">08</span><h2>The central counter-argument — three floors, ranked by how un-priced</h2><span class="cn">the disaggregation is the edge</span></div>
+  <p class="lead">"HBM is bullish memory" is right about the aggregate and wrong about <i>where</i> the un-priced scarcity sits. Three candidate floors, ranked <b>most→least un-priced</b>: (c) tools/materials &gt; (b) commodity-DRAM cannibalization &gt; (a) base-die-at-TSMC. The schematic contrasts the consensus view with the disaggregated one.</p>
+  <div class="svgwide svgscroll">
+    <svg viewBox="0 0 1120 300" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="consensus vs disaggregated view">
+      <!-- left: consensus -->
+      <text x="30" y="30" font-size="13" fill="#93a0b5" font-weight="600">CONSENSUS · "buy the memory makers"</text>
+      <rect x="30" y="50" width="470" height="60" rx="10" fill="#233047" stroke="#5b81c4"/>
+      <text x="265" y="78" font-size="13" fill="#e8eaf0" text-anchor="middle" font-weight="600">SK Hynix · Micron · Samsung</text>
+      <text x="265" y="96" font-size="10.5" fill="#8aa7df" text-anchor="middle">+237% / +262% / +166% YTD — fully bid</text>
+      <text x="30" y="150" font-size="11" fill="#697283">One layer down is treated as "commodity supply."</text>
+      <rect x="30" y="165" width="470" height="40" rx="8" fill="#161a24" stroke="#2a3040"/>
+      <text x="265" y="190" font-size="11" fill="#697283" text-anchor="middle">tools &amp; materials = "just capex beneficiaries"</text>
+
+      <!-- divider -->
+      <line x1="560" y1="40" x2="560" y2="270" stroke="#2a3040" stroke-dasharray="4 4"/>
+
+      <!-- right: disaggregated -->
+      <text x="590" y="30" font-size="13" fill="#2dd4bf" font-weight="600">DISAGGREGATED · where the un-priced scarcity is</text>
+      <!-- floor c -->
+      <rect x="590" y="50" width="500" height="52" rx="10" fill="#1c1417" stroke="#e0686a"/>
+      <text x="606" y="72" font-size="12" fill="#efa0a1" font-weight="600">(c) Tools/materials gate — LEAST priced</text>
+      <text x="606" y="90" font-size="10.5" fill="#d9c4c6">Namics (sole) · Towa ~100% (+56% laggard) · Disco · Resonac NCF — method-agnostic toll</text>
+      <!-- floor b -->
+      <rect x="590" y="112" width="500" height="52" rx="10" fill="#241d14" stroke="#d2a24a"/>
+      <text x="606" y="134" font-size="12" fill="#e3bd76" font-weight="600">(b) Commodity-DRAM cannibalization — 2nd</text>
+      <text x="606" y="152" font-size="10.5" fill="#cbb990">HBM ~3-4× wafer/bit starves DDR5 (+90-95% QoQ) — less price-capped than HBM (LTA-locked)</text>
+      <!-- floor a -->
+      <rect x="590" y="174" width="500" height="52" rx="10" fill="#1e1a2b" stroke="#8b84cf"/>
+      <text x="606" y="196" font-size="12" fill="#aaa3e6" font-weight="600">(a) Base-die-at-TSMC — real but ALREADY consensus</text>
+      <text x="606" y="214" font-size="10.5" fill="#b8b1e0">SK Hynix→TSMC N12/N5 toll · the SemiAnalysis/TrendForce framing — more "rent shift" than hidden</text>
+
+      <text x="590" y="258" font-size="10.5" fill="#93a0b5" font-style="italic">The edge is buying (c) — the un-bid, method-agnostic floor — before the crowd rotates down to it.</text>
+    </svg>
+  </div>
+  <div class="two" style="margin-top:16px">
+    <div class="box var">
+      <h4>Why the tools/materials floor is genuinely un-priced</h4>
+      <p>Towa is up only <b>+56% YTD</b> (vs SK Hynix +237%, Micron +262%) despite ~100% HBM molding share and just ~4 analysts. Sumitomo Bakelite +47%. These sit inside "boring" Japanese chemical/tool companies the memory crowd doesn't screen. It is the <b>Ajinomoto/Nittobo pattern</b> this rotation keeps finding: the tightest monopoly hides in the least-bid stock. The rent is a toll, not scarcity rent — but a near-monopoly toll on a market growing HBM TAM ~$38B→$100B is a durable compounder few are pricing.</p>
+    </div>
+    <div class="box">
+      <h4>How this variant is WRONG (the falsifiers)</h4>
+      <p><b>(1) Samsung catches up</b> — vertically integrated SF4 base die, first-shipped HBM4 Feb-26, reported OpenAI/AMD wins → "who wins" stops being neutral. <b>(2) CXMT floods commodity DRAM by 2028</b> (bit share 9→12%, HBM3 by end-26) → reverses floor (b). <b>(3) Buyers fund supply</b> — NVIDIA prepays + supplier capex break the choke and cap rent. <b>(4) Hybrid bonding (2027+)</b> deletes TCB/mold, sunsetting Towa/Hanmi's franchise. <b>(5) Too small/illiquid</b> — Resonac already +166%; the un-bid names may be un-bid for good reason (size, access).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AWARENESS + WATCHLIST ============ -->
+<section id="aware">
+  <div class="sh"><span class="n">09</span><h2>Awareness curve · leading indicators · still-latent watchlist</h2><span class="cn">stage honestly by YTD move + valuation</span></div>
+  <div class="svgwide svgscroll">
+    <svg viewBox="0 0 1120 300" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="awareness curve">
+      <path d="M40 250 C 260 245, 360 230, 500 170 S 760 40, 1080 30" fill="none" stroke="#2a3040" stroke-width="2"/>
+      <!-- stage labels -->
+      <text x="70" y="275" font-size="10.5" fill="#697283">Latent</text>
+      <text x="300" y="275" font-size="10.5" fill="#697283">Early (alpha)</text>
+      <text x="560" y="275" font-size="10.5" fill="#697283">Recognition</text>
+      <text x="820" y="275" font-size="10.5" fill="#697283">Euphoria</text>
+      <text x="1010" y="275" font-size="10.5" fill="#697283">Priced</text>
+      <!-- entry zone -->
+      <rect x="230" y="20" width="220" height="240" fill="rgba(45,212,191,.05)" stroke="#2f5b57" stroke-dasharray="4 4"/>
+      <text x="240" y="38" font-size="10" fill="#2dd4bf">entry zone</text>
+      <!-- next-entry marker -->
+      <line x1="200" y1="20" x2="200" y2="260" stroke="#2dd4bf" stroke-width="1.4" stroke-dasharray="5 4"/>
+      <text x="150" y="16" font-size="9.5" fill="#2dd4bf">where next entry hides →</text>
+
+      <!-- nodes -->
+      <g class="m" font-size="10">
+        <!-- latent watchlist -->
+        <circle cx="150" cy="248" r="6" fill="#d2a24a"/><text x="120" y="238" fill="#e3bd76">Namics/Nagase</text>
+        <circle cx="185" cy="240" r="6" fill="#d2a24a"/><text x="160" y="222" fill="#e3bd76">Sumitomo Bakelite</text>
+        <!-- early -->
+        <circle cx="330" cy="205" r="7" fill="#2dd4bf"/><text x="300" y="196" fill="#2dd4bf">Towa (+56%)</text>
+        <!-- recognition -->
+        <circle cx="560" cy="150" r="7" fill="#5aa9e0"/><text x="530" y="140" fill="#8aa7df">Disco (+60%)</text>
+        <circle cx="620" cy="135" r="6" fill="#8b84cf"/><text x="600" y="125" fill="#aaa3e6">Resonac (+166%)</text>
+        <!-- euphoria -->
+        <circle cx="825" cy="72" r="7" fill="#e0686a"/><text x="748" y="86" fill="#efa0a1">ASMPT (+151%)</text>
+        <circle cx="885" cy="56" r="6" fill="#e0686a"/><text x="900" y="52" fill="#efa0a1">Hanmi*</text>
+        <!-- priced -->
+        <circle cx="1010" cy="40" r="8" fill="#5b81c4"/><text x="965" y="30" fill="#8aa7df">SK Hynix (+237%)</text>
+        <circle cx="1055" cy="34" r="7" fill="#5b81c4"/><text x="1030" y="52" fill="#8aa7df">Micron (+262%)</text>
+      </g>
+      <text x="40" y="296" font-size="9.5" fill="#697283" font-style="italic">Placement by YTD move + multiple, as-of 2026-07-04 (IBKR). *Hanmi is +72% YTD but −48% from its ATH — euphoria that already broke. Complex just took a 10-20% drawdown off late-June ATHs.</text>
+    </svg>
+  </div>
+
+  <h4 style="font-size:13px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin:20px 0 10px">Leading-indicator dashboard</h4>
+  <table class="tbl">
+    <thead><tr><th>Signal</th><th>Bullish trigger</th><th>Bearish trigger</th><th>Where an amateur can read it (free)</th></tr></thead>
+    <tbody>
+      <tr><td><b>DRAM contract price (TrendForce)</b></td><td>QoQ hikes continue (Q3-26 &gt; +30%)</td><td>QoQ deceleration &lt; +10% / first decline</td><td>TrendForce press releases; Tom's Hardware DRAM coverage</td></tr>
+      <tr><td><b>Towa order backlog</b></td><td>Backlog &gt; ¥40B; Korea capacity adds</td><td>Backlog rolls; HBM4 push-outs</td><td>Towa IR (JP); Investing.com transcripts</td></tr>
+      <tr><td><b>Disco monthly shipments</b></td><td>Record months cite "HBM/GPU"</td><td>Book-to-bill &lt; 1; memory-capex pause</td><td>Disco monthly sales disclosure (IR site)</td></tr>
+      <tr><td><b>Namics/MR-MUF exclusivity clock</b></td><td>SK Hynix re-commits MR-MUF for HBM5</td><td>SK Hynix qualifies a 2nd underfill / moves to hybrid</td><td>TrendForce / DigiTimes HBM4 process notes</td></tr>
+      <tr><td><b>Hybrid-bonding milestones</b></td><td>Slips past 2028 (TCB/mold franchise extends)</td><td>BESI/AMAT HBM4E HVM confirmed 2027</td><td>SemiEngineering; BESI earnings calls</td></tr>
+      <tr><td><b>CXMT DRAM ramp</b></td><td>Yield/qual stalls; DDR5 stays scarce</td><td>CXMT competitive DDR5 volume by 2027</td><td>SemiAnalysis; Reuters/Nikkei China-chip coverage</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box" style="margin-top:16px">
+    <h4>Still-latent watchlist (left of Towa — the genuine "be early" list)</h4>
+    <p><b>1. Namics / Nagase (8012.T)</b> — the sole-source MR-MUF chokepoint has no clean pure-play; Nagase (Namics' parent) is a diluted proxy. <i>Why next:</i> if SK Hynix re-commits MR-MUF to HBM5, this becomes the tightest link in the chain. <i>Trigger:</i> HBM5 process disclosures / exclusivity renewal. <br><b>2. Sumitomo Bakelite (4203.T)</b> — ~40% EMC share, the materials laggard at +47% YTD, low-teens multiple, thin coverage. <i>Why next:</i> EMC content rises with 16-Hi + FOPLP. <i>Trigger:</i> HBM-EMC price hikes / capacity sold-out signals. <br><b>3. Accretech / Tokyo Seimitsu (7729.T)</b> — the only credible #2 to Disco in grind/dice (~15-18%, est.), far less bid. <i>Why next:</i> a Disco second-source narrative or capacity constraint. <i>Trigger:</i> memory-maker dual-sourcing of grinders.</p>
+  </div>
+</section>
+
+<!-- ============ THE PLAYS ============ -->
+<section id="plays">
+  <div class="sh"><span class="n">10</span><h2>The plays — three different links, staged early→priced</h2><span class="cn">8-point teardown · valuation · info-gap · bull/bear</span></div>
+  <div class="tabbtns" role="tablist" aria-label="plays">
+    <button role="tab" id="t1" aria-controls="p1" aria-selected="true" tabindex="0">Towa · 6315 <span style="opacity:.6">(early)</span></button>
+    <button role="tab" id="t2" aria-controls="p2" aria-selected="false" tabindex="-1">Disco · 6146 <span style="opacity:.6">(recognition)</span></button>
+    <button role="tab" id="t3" aria-controls="p3" aria-selected="false" tabindex="-1">SK Hynix · 000660 <span style="opacity:.6">(priced)</span></button>
+  </div>
+
+  <!-- TOWA -->
+  <div class="tabpanel" id="p1" role="tabpanel" aria-labelledby="t1">
+    <div class="two">
+      <div>
+        <p class="lead"><b>Towa (6315.T)</b> — the ~100%-share HBM compression-molding tool maker; the purest, least-bid expression of the assembly-gate thesis. <span class="red">Genuinely early / relative-value lean.</span></p>
+        <div class="valstrip">
+          <div><div class="vv teal">+55.7%</div><div class="ll">YTD 2026 (IBKR, 4 Jul)</div></div>
+          <div><div class="vv">¥3,318</div><div class="ll">last (IBKR)</div></div>
+          <div><div class="vv">~mid-20s×</div><div class="ll">fwd P/E (est.)</div></div>
+          <div><div class="vv">~100%</div><div class="ll">HBM molding share (est.)</div></div>
+        </div>
+        <div class="infogap"><h5>Asymmetric info-gap</h5><p>Only ~4 analysts cover it; the memory crowd doesn't screen a small-cap Japanese molding-tool maker. Backlog hit a record ¥38B (Dec-25) and FY3/27 sales guide ¥64B (+17.7%) — direct HBM4 leverage, thin sell-side, laggard YTD.</p></div>
+      </div>
+      <div>
+        <div class="grid8">
+          <div class="g8"><div class="lb">① 怎麼賺錢 How it earns</div><div class="tx">Sells compression-molding tools + ultra-narrow-gap mold-underfill systems to HBM stackers; recurring consumables/service.</div></div>
+          <div class="g8"><div class="lb">② 營收結構 Revenue mix</div><div class="tx">Semiconductor molding equipment; HBM/advanced-packaging the growth driver; Korea expansion to serve stackers.</div></div>
+          <div class="g8"><div class="lb">③ 成長來源 Growth</div><div class="tx">HBM stack count (12→16-Hi), unit growth (+77% bit demand 26), Korea capacity, HBM4 narrow-gap MUF.</div></div>
+          <div class="g8"><div class="lb">④ 終端市場 End market</div><div class="tx">SK Hynix / Samsung / Micron back-end lines; broader advanced packaging.</div></div>
+          <div class="g8"><div class="lb">⑤ 主要客戶 Customers</div><div class="tx">The three HBM makers + OSATs — <b>method-agnostic</b> (every stacker molds).</div></div>
+          <div class="g8"><div class="lb">⑥ 護城河 Moat</div><div class="tx"><b>~100% HBM molding share (est.)</b>; ultra-tight tolerance for void-free 16-Hi; qualification lock-in.</div></div>
+          <div class="g8"><div class="lb">⑦ 管理層展望 Outlook</div><div class="tx">Record backlog; FY3/27 +17.7% sales guide; capacity expansion into Korea.</div></div>
+          <div class="g8"><div class="lb">⑧ 為何是卡點 Why the choke</div><div class="tx">Molding is un-substitutable and near-monopoly; every stack passes through regardless of who wins.</div></div>
+        </div>
+        <div class="bb">
+          <div class="b1"><h5>Why it wins</h5><p>Near-monopoly on a method-agnostic step; laggard YTD; thin coverage; direct HBM4/16-Hi leverage.</p></div>
+          <div class="b2"><h5>Honest risks</h5><p>Small-cap/illiquid for a foreign amateur; HBM4 push-outs hit backlog; hybrid bonding (2027+) could eventually reduce molding intensity; ~mid-20s multiple isn't cheap in absolute terms.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DISCO -->
+  <div class="tabpanel" id="p2" role="tabpanel" aria-labelledby="t2" hidden>
+    <div class="two">
+      <div>
+        <p class="lead"><b>Disco (6146.T)</b> — the ~65-80% grind/dice near-monopoly every stacker needs to thin dies below 50µm. <span class="blu">Recognition / method-agnostic gate.</span></p>
+        <div class="valstrip">
+          <div><div class="vv blu">+60.5%</div><div class="ll">YTD 2026 (IBKR, 4 Jul)</div></div>
+          <div><div class="vv">¥76,840</div><div class="ll">last (IBKR)</div></div>
+          <div><div class="vv">~48×</div><div class="ll">fwd P/E (est.)</div></div>
+          <div><div class="vv">~41%</div><div class="ll">FY25 op margin</div></div>
+        </div>
+        <div class="infogap"><h5>Asymmetric info-gap</h5><p>Disco is well-covered but its multiple (~48× fwd) already prices strong HBM/GPU demand. The gap is that grind/dice is <b>method-agnostic and consumable-heavy</b> (grinding wheels/blades recur) — a razor-and-blade toll on <i>all</i> advanced packaging, not just HBM, so it survives a hybrid-bonding transition that hurts TCB/mold.</p></div>
+      </div>
+      <div>
+        <div class="grid8">
+          <div class="g8"><div class="lb">① 怎麼賺錢</div><div class="tx">Grinders + dicing saws + laser saws + recurring wheels/blades/consumables.</div></div>
+          <div class="g8"><div class="lb">② 營收結構</div><div class="tx">Equipment + high-margin consumables; record FY25 on "GPUs and HBM."</div></div>
+          <div class="g8"><div class="lb">③ 成長來源</div><div class="tx">Thinner dies (16-Hi), more dies/stack, DBG flow (~5 tools + consumables), broad AI packaging.</div></div>
+          <div class="g8"><div class="lb">④ 終端市場</div><div class="tx">All memory + logic + OSAT back-ends worldwide.</div></div>
+          <div class="g8"><div class="lb">⑤ 主要客戶</div><div class="tx">Every HBM maker + TSMC + OSATs — the broadest customer base in the gate.</div></div>
+          <div class="g8"><div class="lb">⑥ 護城河</div><div class="tx"><b>~65-80% grind/dice (est.)</b>; consumable lock-in; Accretech the only credible #2.</div></div>
+          <div class="g8"><div class="lb">⑦ 管理層展望</div><div class="tx">FY forecast &gt; ¥400B; record shipments driven by HBM/GPU.</div></div>
+          <div class="g8"><div class="lb">⑧ 為何是卡點</div><div class="tx">Thinning to &lt;50µm is non-negotiable for stacking; near-monopoly, method-agnostic, survives hybrid bonding.</div></div>
+        </div>
+        <div class="bb">
+          <div class="b1"><h5>Why it wins</h5><p>Broadest, most durable toll (survives any bonding method); consumable annuity; ~41% op margin = rent captured.</p></div>
+          <div class="b2"><h5>Honest risks</h5><p>~48× fwd prices a lot; memory-capex cyclicality; less "hidden" than Towa; a broad advanced-packaging play, not HBM-pure.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SK HYNIX -->
+  <div class="tabpanel" id="p3" role="tabpanel" aria-labelledby="t3" hidden>
+    <div class="two">
+      <div>
+        <p class="lead"><b>SK Hynix (000660.KS)</b> — the memory rent-owner where the scarcity actually settles. <span class="blu">Priced, but cheap on peak EPS — the honest "own-the-rent" name.</span></p>
+        <div class="valstrip">
+          <div><div class="vv">+236.5%</div><div class="ll">YTD 2026 (IBKR, 4 Jul)</div></div>
+          <div><div class="vv">₩2.19M</div><div class="ll">last (IBKR)</div></div>
+          <div><div class="vv">~6.7×</div><div class="ll">fwd P/E (on peak EPS)</div></div>
+          <div><div class="vv">~72%</div><div class="ll">Q1-26 op margin</div></div>
+        </div>
+        <div class="infogap"><h5>Asymmetric info-gap</h5><p>The consensus long. The debate isn't "is it good" (op margin ~72%, HBM #1 ~57%) — it's "is the ~6.7× fwd multiple a bargain or a cyclical trap?" The low multiple reflects <b>peak-cycle EPS</b>; it's cheap only if the up-cycle persists. The subtle edge: SK Hynix now depends on TSMC base dies <i>and</i> Namics MR-MUF — its moat is partly rented from the very chokepoint links above.</p></div>
+      </div>
+      <div>
+        <div class="grid8">
+          <div class="g8"><div class="lb">① 怎麼賺錢</div><div class="tx">Sells HBM + commodity DRAM + NAND; HBM at 5-6× DDR5/GB premium.</div></div>
+          <div class="g8"><div class="lb">② 營收結構</div><div class="tx">Q1-26 rev ₩52.6T (+198% YoY); HBM + surging commodity DRAM.</div></div>
+          <div class="g8"><div class="lb">③ 成長來源</div><div class="tx">HBM4 ramp (~60-70% Rubin allocation) + DRAM price surge (+90-95% QoQ Q1).</div></div>
+          <div class="g8"><div class="lb">④ 終端市場</div><div class="tx">NVIDIA (multi-year LTA; SK Hynix reportedly removing price caps, Jul-26), hyperscalers, servers.</div></div>
+          <div class="g8"><div class="lb">⑤ 主要客戶</div><div class="tx">NVIDIA the anchor (~57% HBM #1); custom-HBM4E for NVIDIA/Microsoft/Broadcom.</div></div>
+          <div class="g8"><div class="lb">⑥ 護城河</div><div class="tx">HBM leadership + MR-MUF process — but base die now rented from TSMC, underfill from Namics.</div></div>
+          <div class="g8"><div class="lb">⑦ 管理層展望</div><div class="tx">Record profit; 1c capacity 20k→160-190k wpm by end-26; throttling HBM4 to chase commodity margin.</div></div>
+          <div class="g8"><div class="lb">⑧ 為何是卡點</div><div class="tx">Owns the scarcity <i>rent</i> — but not a supply monopoly; its inputs are the real chokepoints.</div></div>
+        </div>
+        <div class="bb">
+          <div class="b1"><h5>Why it wins</h5><p>Where the biggest $ rent settles (~72% op margin); cheap on any normalized multiple; commodity-DRAM windfall is un-capped.</p></div>
+          <div class="b2"><h5>Honest risks</h5><p>+237% YTD; peak-cycle EPS = value-trap risk if 2027 rolls; Samsung catch-up; KOSPI leverage/retail crowding (−10% intraday Jun-23); the multiple is low <i>because</i> the market fears the cycle.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DECISION TABLE ============ -->
+<section id="decision">
+  <div class="sh"><span class="n">11</span><h2>Decision table &amp; scenarios</h2><span class="cn">severity · stage · valuation · asymmetry · lean</span></div>
+  <table class="tbl">
+    <thead><tr><th>Name</th><th>Link / chokepoint</th><th>Sev /20</th><th>Stage</th><th>YTD 26</th><th>Valuation (est.)</th><th>Rem. asym.</th><th>Personal lean</th></tr></thead>
+    <tbody>
+      <tr><td><b>Towa</b> 6315.T</td><td>HBM compression molding ~100%</td><td class="num">17</td><td>Early</td><td class="num teal">+56%</td><td class="num">~mid-20s× fwd</td><td class="num teal">High</td><td>Purest early lean</td></tr>
+      <tr><td><b>Disco</b> 6146.T</td><td>Grind/dice ~65-80%, method-agnostic</td><td class="num">16</td><td>Recognition</td><td class="num blu">+60%</td><td class="num">~48× fwd</td><td class="num amb">Medium</td><td>Durable toll, priced</td></tr>
+      <tr><td><b>SK Hynix</b> 000660.KS</td><td>Memory rent owner (not a monopoly)</td><td class="num">14</td><td>Priced</td><td class="num">+237%</td><td class="num">~6.7× fwd (peak)</td><td class="num amb">Low-med</td><td>Own-the-rent, cyclical</td></tr>
+      <tr><td>Namics/Nagase 8012.T</td><td>MR-MUF sole-source (diluted proxy)</td><td class="num">18<span style="color:var(--dim)">§</span></td><td>Latent</td><td class="num">n/a</td><td class="num">diluted</td><td class="num teal">High*</td><td>Watchlist</td></tr>
+      <tr><td>Sumitomo Bakelite 4203.T</td><td>EMC ~40%, materials laggard</td><td class="num">14</td><td>Latent/early</td><td class="num teal">+47%</td><td class="num">~low-teens×</td><td class="num teal">High</td><td>Watchlist</td></tr>
+      <tr><td>Resonac 4004.T</td><td>NCF top of 99% oligopoly</td><td class="num">16</td><td>Recognition</td><td class="num">+166%</td><td class="num">~mid-teens×</td><td class="num amb">Low-med</td><td>Watch (re-rated)</td></tr>
+      <tr><td>Hanmi 042700.KS</td><td>TCB ~71% (being dual-sourced)</td><td class="num">15</td><td>Euphoria (broke)</td><td class="num">+72%†</td><td class="num">~30s×</td><td class="num amb">Low</td><td>Pass — dilution risk</td></tr>
+      <tr><td>Micron MU</td><td>Memory rent owner (US-listed)</td><td class="num">14</td><td>Euphoria</td><td class="num">+262%</td><td class="num">~7-11× (peak)</td><td class="num amb">Low</td><td>Pass — most-run</td></tr>
+    </tbody>
+  </table>
+  <p class="cap">*Namics severity is high but there's no clean pure-play. <b>§ Namics 18 carries LOW conviction</b> (single-source, not company-confirmed, and the "MR-MUF retained for 16-Hi" call is contested by SK Hynix's own fluxless/hybrid evaluation) — do not read the 18 as harder than Disco's better-sourced 16. †Hanmi +72% YTD but −48% from its ATH ₩426k. Severity here scores the <i>link</i>; the DRAM makers own the rent but not a supply monopoly, hence lower link-severity than the assembly gate.</p>
+
+  <div class="two" style="margin-top:16px">
+    <div class="panel">
+      <h4 style="font-size:13px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Scenario table — Towa (the lead play), ~12-18m</h4>
+      <table class="tbl">
+        <thead><tr><th>Case</th><th>Prob.</th><th>What happens</th><th>~Return</th></tr></thead>
+        <tbody>
+          <tr><td><b>Bull</b></td><td class="num">35%</td><td>HBM4 16-Hi ramps, Korea capacity fills, molding intensity rises; re-rates as the "hidden monopoly"</td><td class="num pos">+60-90%</td></tr>
+          <tr><td><b>Base</b></td><td class="num">45%</td><td>HBM4 ramps on schedule; backlog holds; modest re-rate + earnings growth</td><td class="num">+15-30%</td></tr>
+          <tr><td><b>Bear</b></td><td class="num">20%</td><td>HBM4 push-outs / cycle rolls / hybrid-bonding fears; small-cap de-rates</td><td class="num neg">−30-45%</td></tr>
+        </tbody>
+      </table>
+      <p class="cap" style="margin-top:8px">Prob-weighted EV ≈ <b>+22-30%</b> (illustrative). Thin enough to demand entry discipline, not a lottery ticket.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Entry discipline &amp; dated falsifier</h4>
+      <p style="font-size:12.5px;color:var(--mut);line-height:1.6"><b>Start:</b> Towa on any give-back toward the ¥2,700-3,000 band (its 13-wk low was ¥2,269). <b>Add:</b> on a confirmed HBM4-16-Hi ramp print + backlog &gt; ¥40B. <b>Stop / reconsider:</b> below ¥2,200 (breaks the 52-wk structure) or on a memory-capex-pause signal.<br><br><b>Dated falsifier (by the next 1-2 prints):</b> if (a) DRAM contract prices <i>decline</i> QoQ, or (b) Towa's backlog rolls over, or (c) BESI/AMAT confirm HBM4E hybrid-bonding HVM for 2027 (deleting molding intensity), the assembly-gate thesis is breaking — exit the early names and rotate to the durable toll (Disco) or step aside.</p>
+    </div>
+  </div>
+  <p class="lead" style="margin-top:16px"><b>If you can only do one thing:</b> the honest, <i>actionable</i> move is <b>Disco as the liquid, margin-proven (~41% op) core</b> expression of the method-agnostic assembly gate — the toll that survives even a hybrid-bonding transition — with <b>Towa as the purest but illiquid satellite</b> (sized small; ~4-analyst small-cap) for those who can reach it. Treat the DRAM makers (SK Hynix/Micron) as <i>already-priced</i> rent-owners you buy only on cycle-fear pullbacks, not here. (Disco is the lead because it is the one link where the durable toll is <i>demonstrated</i> in the margins, not just asserted.)</p>
+</section>
+
+<!-- ============ RISKS / SELF-CRITIQUE ============ -->
+<section id="risks">
+  <div class="sh"><span class="n">12</span><h2>Risk register &amp; open-questions self-critique</h2><span class="cn">the unglamorous ones</span></div>
+  <div class="two">
+    <div>
+      <div class="risk"><b>Mislocated chokepoint</b><p>A co-bottleneck may be tighter: the TSMC leading-edge-logic squeeze (base die + logic + CoWoS all fight for N3/N5), or the <b>KGD / stack-yield wall</b> itself (HBM3E stack yield &lt;~70%, worse at 16-Hi) — which is really a <i>test + yield</i> constraint. We deliberately don't re-center on that: the ATE/test tollgate was Run #14 (Advantest), and CoWoS was Run #2 — this run takes the fresh cut at the <i>assembly materials/tools</i>. But if the true binding link is stack yield, value migrates to test/inspection, not molding. The assembly gate is <i>concentrated</i> but the rent sits at the DRAM maker.</p></div>
+      <div class="risk"><b>Buyers fund new supply</b><p>NVIDIA prepays (~$540-770M each, SS) + supplier capex (SK Hynix &gt;$30B, Micron ~$20B) break the choke over time and cap rent. The whole thesis is a <i>window</i>, not a perpetuity.</p></div>
+      <div class="risk"><b>Hybrid bonding deletes the tool/material</b><p>At HBM4E (~2027) Cu-Cu hybrid bonding starts replacing TCB + microbumps + underfill + some molding — directly sunsetting Towa/Hanmi/Namics' franchises. Timing (2027-28) is the only cushion.</p></div>
+      <div class="risk"><b>Samsung / China break the neutrality</b><p>If Samsung's vertical SF4 model wins share, or CXMT floods commodity DRAM by 2028, the "method-agnostic, who-wins-doesn't-matter" premise weakens and the cannibalization trade reverses.</p></div>
+      <div class="risk"><b>Access / liquidity / FX</b><p>The best-priced links are small-cap Japanese (Towa, Sumitomo Bakelite) or private (Namics) — hard for a US amateur to size, and yen/won moves shave USD returns. Some may be un-bid for good reason.</p></div>
+    </div>
+    <div>
+      <div class="box">
+        <h4>Open questions (unresolved holes — not a victory lap)</h4>
+        <p style="margin-bottom:8px"><b>1. Rent capture at the gate is unproven.</b> I assert the tool/material makers earn a durable toll, but Hanmi's op profit actually <i>fell</i> −1.6% YoY and ASMPT's GM slipped to ~36% — equipment is cyclical, and I can't prove the toll compounds through a memory down-cycle.</p>
+        <p style="margin-bottom:8px"><b>2. Towa's ~100% HBM-molding share is (est.),</b> triangulated from 3 secondary sources, not a primary disclosure; the standard-IC-molding splits are single-source. If the real HBM figure is 70-80%, the monopoly framing weakens.</p>
+        <p style="margin-bottom:8px"><b>3. Namics "sole-source, no 2nd source" is well-reported but not company-confirmed,</b> and the exclusivity-sunset "~early 2027" is single-source. The strongest-severity link is also the least primary-sourced.</p>
+        <p><b>Retail steelman of the bear:</b> "You're telling me to buy a tiny Japanese molding-tool stock instead of SK Hynix, which is up 237% and prints a 72% margin? The materials names either already ran (Resonac +166%) or I can't buy them. And the whole floor gets deleted by hybrid bonding in ~18 months. Just own Micron and go home." — That is a <i>reasonable</i> position; the counter is only that Towa/Sumitomo Bakelite are un-bid <i>because</i> they're boring and small, which is exactly the awareness-stage edge — but it demands small sizing and a hard falsifier.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="foot">
+  <div class="wrap" style="padding:0">
+    <h4>Method</h4>
+    <p class="src">Chokepoint deep-dive v5 (AI-Infra rotation Run #20, Loop 4 — Memory/HBM sub-stack). Two-axis MECE framing · end-to-end supply-chain map with the chokepoint flagged · scarcity-premium bar · multi-year timeline · 4-factor severity /20 · awareness-curve staging + leading-indicator dashboard + latent watchlist · multi-tab plays with valuation + info-gap · decision/scenario table · mandatory self-critique. Load-bearing numbers cross-checked ≥2 independent sources where possible; estimates flagged (est.), single-source flagged (SS). Prices IBKR read-only (never trade). This run deliberately does NOT re-center on CoWoS (Run #2), hybrid bonding/SoIC (Run #8), or test &amp; burn-in (Run #14) — it takes the fresh cut inside the memory stack.</p>
+
+    <h4>Sources (mapped to claims)</h4>
+    <p class="src">
+      HBM4 specs — JEDEC JESD270-4 <a href="https://www.jedec.org/news/pressreleases/jedec%C2%AE-and-industry-leaders-collaborate-release-jesd270-4-hbm4-standard-advancing">jedec.org</a> · Tom's Hardware.<br>
+      SK Hynix HBM4 dev — <a href="https://news.skhynix.com/sk-hynix-completes-worlds-first-hbm4-development-and-readies-mass-production/">news.skhynix.com</a>. SK Hynix–TSMC base-die MOU — <a href="https://news.skhynix.com/sk-hynix-partners-with-tsmc-to-strengthen-hbm-technological-leadership/">news.skhynix.com</a>.<br>
+      TSMC N12/N5 base die — <a href="https://www.tomshardware.com/pc-components/gpus/tsmc-to-build-base-dies-for-hbm4-memory-on-its-12nm-and-5nm-nodes">tomshardware.com</a> · SK Hynix 3nm HBM4E — <a href="https://www.trendforce.com/news/2026/03/20/news-sk-hynix-reportedly-weighs-tsmc-3nm-for-hbm4e-logic-dies-to-gain-edge-over-samsung/">trendforce.com</a>.<br>
+      Custom HBM — <a href="https://www.marvell.com/blogs/custom-hbm-what-is-it-and-why-its-the-future.html">marvell.com</a> · <a href="https://www.trendforce.com/news/2025/06/20/news-sk-hynix-reportedly-leads-custom-hbm4e-push-with-nvidia-microsoft-samsung-trails-with-hbm4/">trendforce.com</a>. Samsung 40-50% logic-die hike — <a href="https://www.trendforce.com/news/2026/04/14/news-samsung-reportedly-lifts-hbm4-logic-die-prices-by-40-50-amid-ai-boom-4nm-at-full-capacity/">trendforce.com</a>.<br>
+      Cannibalization / 3:1 ratio — <a href="https://www.trendforce.com/news/2025/12/18/news-micron-reveals-three-culprits-behind-memory-crunch-and-why-it-wont-ease-soon/">trendforce.com</a> · <a href="https://www.trendforce.com/news/2025/12/26/news-ai-reportedly-to-consume-20-of-global-dram-wafer-capacity-in-2026-hbm-gddr7-lead-demand/">trendforce.com</a> · <a href="https://www.tomshardware.com/pc-components/ram/hbm-is-eating-your-ram">tomshardware.com</a>. DRAM price moves — <a href="https://www.trendforce.com/presscenter/news/20260105-12860.html">trendforce Q1-26</a>. SemiAnalysis memory wall — <a href="https://newsletter.semianalysis.com/p/scaling-the-memory-wall-the-rise-and-roadmap-of-hbm">semianalysis.com</a>.<br>
+      Equipment/materials — Disco (SemiAnalysis) <a href="https://newsletter.semianalysis.com/p/disco-corporation-the-world-leader">semianalysis.com</a> · Hanmi 71.2% TCB <a href="https://www.asiae.co.kr/en/article/2025122209224722092">asiae.co.kr</a> · SK Hynix MR-MUF retained 16-Hi <a href="https://www.trendforce.com/news/2026/01/13/news-sk-hynix-may-stick-with-mr-muf-for-hbm4-16-high-despite-asmpt-tc-bonder-orders/">trendforce.com</a> · Resonac NCF/TIM capex <a href="https://www.resonac.com/news/2024/03/29/3007.html">resonac.com</a> · HBM4 microbumps <a href="https://semiengineering.com/hbm4-sticks-with-microbumps-postponing-hybrid-bonding/">semiengineering.com</a>.<br>
+      Prices/YTD — IBKR read-only live snapshots 2026-07-04 (MU, SK Hynix, ASMPT, Hanmi, Disco, Towa, Resonac, Sumitomo Bakelite, Nanya). Full raw capture: <span style="color:#7fb3c4">01 Sources/2026-07-04-ai-memory-hbm4-base-die-materials-chokepoint.md</span>.
+    </p>
+
+    <div class="disc">
+      <b>Disclaimer.</b> Personal research for a private knowledge base — <b>not investment advice</b>, not a recommendation or solicitation to buy or sell any security. The author may hold positions. All market shares are estimates (est.) unless a primary source is cited; single-source claims are flagged (SS); forecasts and scenario probabilities are subjective. Prices and multiples are IBKR read-only snapshots as of 2026-07-04 and decay quickly; the complex just took a 10-20% drawdown off late-June ATHs. Leans are the author's personal opinion, not advice. IBKR used read-only — never trade.
+    </div>
+
+    <h4>Iteration log</h4>
+    <p class="src">v5.0 (2026-07-04) — Run #20 initial build: memory/HBM sub-stack; binding chokepoint = assembly materials/tools gate (Namics MR-MUF / Towa / Disco / Resonac / Hanmi); plays Disco(recognition, actionable core)·Towa(early, illiquid satellite)·SK Hynix(priced); latent watchlist Namics/Nagase · Sumitomo Bakelite · Accretech; live IBKR prices anchored (Towa +56% laggard confirmed vs SK Hynix +237% / Micron +262%).<br>
+    v5.1 (2026-07-04) — applied 2-agent cross-review (viz-QA: ship-ready, 0 P0; analyst/domain: 26/30, 1 P0). Fixes: <b>P0</b> corrected stale LTA-cap mechanism (Micron keeps price caps / SK Hynix reportedly removing them, TrendForce 2-Jul-26) — HBM upside less-capped at Hynix than implied; reconciled SK Hynix HBM share to ~57% throughout; <b>re-ordered plays so Disco (liquid, ~41% op margin = proven toll) leads and Towa is the illiquid satellite</b>; tagged Namics severity-18 as LOW-conviction/single-source + contested-by-fluxless-eval; promoted the Disco-margin rebuttal into the rent section; added the "why not test/KGD-yield this time" callback (Run #14 defer); fixed §03 caption overflow (x=560→20) and the awareness-curve ASMPT/Hanmi label collision; widened Disco share to ~65-80%.</p>
+  </div>
+</div>
+
+</div>
+
+<script>
+(function(){
+  var tabs=[].slice.call(document.querySelectorAll('[role=tab]'));
+  function sel(i){
+    tabs.forEach(function(t,j){
+      var on=j===i;
+      t.setAttribute('aria-selected',on?'true':'false');
+      t.tabIndex=on?0:-1;
+      var p=document.getElementById(t.getAttribute('aria-controls'));
+      if(p){ if(on){p.hidden=false;} else {p.hidden=true;} }
+    });
+  }
+  tabs.forEach(function(t,i){
+    t.addEventListener('click',function(){sel(i);t.focus();});
+    t.addEventListener('keydown',function(e){
+      var n=null;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown')n=(i+1)%tabs.length;
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp')n=(i-1+tabs.length)%tabs.length;
+      else if(e.key==='Home')n=0;
+      else if(e.key==='End')n=tabs.length-1;
+      if(n!==null){e.preventDefault();sel(n);tabs[n].focus();}
+    });
+  });
+})();
+</script>
+</body>
+</html>

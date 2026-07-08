@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Infra Run #22 v5 — Cooling / Coolant Distribution Unit (CDU) + Heat-Exchange &amp; Pump Chokepoint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#13161e; --panel2:#1a1e28; --panel3:#212634; --line:#2a3040; --line2:#363d4f;
+    --txt:#e8eaf0; --mut:#9aa3b5; --dim:#697283;
+    --accent:#2dd4bf;
+    --choke:#e0686a;
+    --up:#5b81c4; --l3:#8b84cf; --pkg:#c47a9e; --l2:#d2a24a; --l1:#4faf8e;
+    --dup:#e0a458; --dout:#5aa9e0; --dacr:#5fc98a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px;-webkit-font-smoothing:antialiased}
+  .num{font-family:"JetBrains Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  header{border-bottom:1px solid var(--line);padding:38px 0 30px;margin-bottom:8px;background:
+     radial-gradient(900px 320px at 12% -40%,rgba(45,212,191,.10),transparent 60%),
+     radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
+  .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.6px;line-height:1.12;max-width:960px}
+  .sub{font-size:15px;font-weight:400;color:var(--mut);margin-top:12px;max-width:900px}
+  .meta{margin-top:20px;display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+  .meta div{padding-right:26px;margin-right:26px;border-right:1px solid var(--line)}
+  .meta div:last-child{border:0}
+  .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+  .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
+  .asof{margin-top:14px;display:inline-flex;align-items:center;gap:9px;font-size:11.5px;color:#c4ab78;background:rgba(210,162,74,.08);border:1px solid #3a3015;border-radius:9px;padding:7px 13px}
+  .gauges{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+  .gge{border:1px solid var(--line);border-radius:12px;padding:12px 16px;background:var(--panel);min-width:188px}
+  .gge .gl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim)}
+  .gge .gv{font-size:23px;font-weight:600;margin-top:3px}
+  .gge .gd{font-size:10.5px;color:var(--mut);margin-top:3px}
+  .gge.sev .gv{color:var(--choke)}.gge.asy .gv{color:var(--accent)}
+  nav.toc{position:sticky;top:0;z-index:40;background:rgba(11,13,18,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:9px 0;font-size:11.5px}
+  nav.toc .wrap{display:flex;gap:5px;flex-wrap:wrap}
+  nav.toc a{color:var(--mut);text-decoration:none;padding:4px 9px;border-radius:7px;border:1px solid transparent;white-space:nowrap}
+  nav.toc a:hover{color:var(--txt);border-color:var(--line2);background:var(--panel)}
+  section{padding:34px 0 2px}
+  .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+  .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.05em}
+  .sh h2{font-size:21px;font-weight:600;letter-spacing:-.3px}
+  .sh .cn{font-size:13px;color:var(--dim);font-weight:400;margin-left:auto}
+  .lead{color:var(--mut);font-size:13.5px;max-width:920px;margin-bottom:18px}
+  .lead b{color:var(--txt);font-weight:600}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
+  .kpi{padding:18px 20px;border-right:1px solid var(--line)}
+  .kpi:last-child{border-right:0}
+  .kpi .v{font-size:24px;font-weight:600;letter-spacing:-.5px}
+  .kpi .l{font-size:11.5px;color:var(--mut);margin-top:4px}
+  .kpi .d{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.4}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}
+  .matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .matrix th{background:var(--panel2);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);font-weight:600;padding:12px 14px;text-align:left;border-bottom:1px solid var(--line)}
+  .matrix td{padding:14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
+  .matrix tr:last-child td{border-bottom:0}
+  .matrix .dom{font-weight:600;font-size:14px;color:var(--txt);display:flex;align-items:center;gap:9px}
+  .matrix .dom .sw{width:10px;height:10px;border-radius:3px;flex:none}
+  .matrix .dom small{display:block;font-weight:400;font-size:10.5px;color:var(--dim);margin-top:2px}
+  .matrix td b{color:var(--txt);font-weight:600}
+  .chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--panel3);color:var(--mut);margin:2px 4px 2px 0;border:1px solid var(--line2)}
+  .chip.hot{background:rgba(224,104,106,.12);border-color:#5a3236;color:#efa0a1}
+  .gal{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  @media(max-width:980px){.gal{grid-template-columns:1fr 1fr}}
+  @media(max-width:620px){.gal{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column}
+  .card .svgbox{background:linear-gradient(180deg,#0e1117,#161a24);padding:12px;border-bottom:1px solid var(--line)}
+  .card .body{padding:13px 14px 15px}
+  .card h4{font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:6px}
+  .card .role{font-size:11.5px;color:var(--mut);margin-top:6px;line-height:1.45}
+  .card .who{font-size:10.5px;color:var(--dim);margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px}
+  .card .who b{color:var(--l3)}
+  .badge{font-size:9px;font-weight:600;padding:2px 6px;border-radius:5px;letter-spacing:.03em;flex:none}
+  .b-hot{background:rgba(224,104,106,.14);color:#eda3a4}
+  .b-now{background:rgba(45,212,191,.13);color:var(--accent)}
+  .b-next{background:rgba(90,169,224,.14);color:var(--dout)}
+  .b-emrg{background:rgba(210,162,74,.14);color:var(--dup)}
+  .svgwide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
+  .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
+  .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:2px 0 16px}
+  .leg span{display:flex;align-items:center;gap:7px}
+  .leg .sw{width:11px;height:11px;border-radius:3px}
+  .tlgrid{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .tlhead{display:grid;grid-template-columns:150px repeat(4,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
+  .tlhead div{padding:11px 12px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);border-right:1px solid var(--line)}
+  .tlhead div:first-child{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-family:"Space Grotesk",sans-serif;display:flex;align-items:center}
+  .tlrow{display:grid;grid-template-columns:150px repeat(4,1fr);border-bottom:1px solid var(--line)}
+  .tlrow:last-child{border-bottom:0}
+  .tlrow .lab{padding:13px 12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;border-right:1px solid var(--line);background:var(--panel2)}
+  .tlrow .lab .sw{width:9px;height:9px;border-radius:3px;flex:none}
+  .tlrow .cell{padding:11px 12px;border-right:1px solid var(--line);font-size:11.5px;color:var(--mut);line-height:1.4}
+  .tlrow .cell:last-child{border-right:0}
+  .tlrow .cell b{color:var(--txt);font-weight:600;display:block;margin-bottom:2px;font-size:11.5px}
+  .tlrow .cell.hot{background:rgba(224,104,106,.06)}
+  @media(max-width:780px){.tlhead,.tlrow{grid-template-columns:96px repeat(4,1fr);font-size:10px}.tlrow .cell{font-size:10px}}
+  .choke{border:1px solid #5a3236;border-radius:14px;padding:22px 24px;background:
+    linear-gradient(135deg,rgba(224,104,106,.10),transparent 55%),var(--panel)}
+  .choke .ttl{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+  .choke .ttl svg{flex:none}
+  .choke .ttl h3{font-size:17px;font-weight:600;color:var(--choke)}
+  .choke p{font-size:13.5px;color:#d9c4c6;max-width:940px}.choke p b{color:#fff}
+  .choke .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:18px;border-top:1px solid #4a2c2f;padding-top:16px}
+  @media(max-width:780px){.choke .stats{grid-template-columns:1fr 1fr}}
+  .choke .stats div{padding-right:18px}
+  .choke .stats b{display:block;font-size:20px;color:var(--choke);font-weight:600}
+  .choke .stats span{font-size:10.5px;color:var(--dim)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .two{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+  @media(max-width:780px){.two{grid-template-columns:1fr}}
+  .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  .tbl th{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .tbl td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--mut)}
+  .tbl td b{color:var(--txt)}
+  .lyr{font-family:"JetBrains Mono",monospace;font-size:10.5px;padding:1px 7px;border-radius:5px;font-weight:600}
+  .ly3{background:rgba(139,132,207,.15);color:#aaa3e6}
+  .ly2{background:rgba(210,162,74,.15);color:#e3bd76}
+  .ly1{background:rgba(79,175,142,.15);color:#7cc9ad}
+  .lyu{background:rgba(91,129,196,.15);color:#8aa7df}
+  .lyp{background:rgba(196,122,158,.15);color:#dba0bf}
+  .lyc{background:rgba(224,104,106,.15);color:#eda3a4}
+  .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
+  footer{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}
+  footer b{color:var(--mut)}
+  .liw{width:100%;border-collapse:collapse;font-size:12px}
+  .liw th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .liw td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+  .liw td b{color:var(--txt)}
+  .dotR{color:var(--choke);font-weight:600}.dotA{color:var(--dup);font-weight:600}.dotG{color:var(--dacr);font-weight:600}
+  .tabbtn{font-family:"Space Grotesk",sans-serif;background:var(--panel2);border:1px solid var(--line);color:var(--mut);padding:11px 16px;border-radius:10px 10px 0 0;font-size:13px;font-weight:600;cursor:pointer;border-bottom:none;display:flex;flex-direction:column;gap:2px;min-width:210px;text-align:left}
+  .tabbtn small{font-size:10px;font-weight:400;color:var(--dim)}
+  .tabbtn.on{background:var(--panel);color:var(--txt);border-color:var(--line2)}
+  .tabbtn.on small{color:var(--accent)}
+  .tabbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .stagebadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.04em}
+  .sg-latent{background:rgba(90,169,224,.16);color:var(--dout)}
+  .sg-early{background:rgba(95,201,138,.16);color:var(--dacr)}
+  .sg-recog{background:rgba(210,162,74,.16);color:var(--dup)}
+  .sg-eu{background:rgba(224,104,106,.16);color:var(--choke)}
+  .mini{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+  .mini div{padding:11px 13px;border-right:1px solid var(--line)}
+  .mini div:last-child{border-right:0}
+  .mini .v{font-family:"JetBrains Mono",monospace;font-size:16px;font-weight:600}
+  .mini .l{font-size:10px;color:var(--mut);margin-top:2px}
+  @media(max-width:780px){.mini{grid-template-columns:1fr 1fr 1fr}}
+  .gap{border-left:3px solid var(--accent);background:rgba(45,212,191,.06);border-radius:8px;padding:12px 15px;margin:14px 0}
+  .gap .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:5px}
+  .gap p{font-size:12.5px;color:var(--mut);line-height:1.5}.gap p b{color:var(--txt)}
+  .mtd{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
+  @media(max-width:780px){.mtd{grid-template-columns:1fr}.tabbtn{min-width:0;flex:1}}
+  .mtc{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+  .mtc .h{font-size:11.5px;font-weight:600;color:var(--accent);margin-bottom:3px}
+  .mtc p{font-size:11.5px;color:var(--mut);line-height:1.45}.mtc p b{color:var(--txt)}
+  .bbr{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+  .bbr div{border-radius:8px;padding:9px 12px;font-size:11.5px;line-height:1.45;color:var(--mut)}
+  .bbr .bl{border-left:3px solid var(--dacr);background:var(--panel2)}
+  .bbr .be{border-left:3px solid var(--choke);background:var(--panel2)}
+  .bbr b{display:block;font-size:10.5px;margin-bottom:2px}
+  .scn{width:100%;border-collapse:collapse;font-size:12px}
+  .scn th{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+  .scn td{padding:9px 11px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+  .scn td b{color:var(--txt)}
+  .scn .bull{border-left:3px solid var(--dacr)}.scn .base{border-left:3px solid var(--dup)}.scn .bear{border-left:3px solid var(--choke)}
+  svg text{font-family:"Space Grotesk",sans-serif}
+  svg text.m{font-family:"JetBrains Mono",monospace}
+  .svglabel{font-size:9px;fill:var(--dim)}
+  @media print{
+    nav.toc{display:none}
+    .tabpane[hidden]{display:block!important}
+    .tabbtn{display:none!important}
+    svg text{fill:#111}
+    body{background:#fff;color:#111}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #22 · v5 · Cooling (loop 4)</div>
+    <h1>The box every liquid-cooled rack must pass through — the Coolant Distribution Unit, and the heat-exchange + pump core hidden inside it</h1>
+    <p class="sub">Run #4 bought the <b style="color:#fff">cold plate</b>; Run #10 the <b style="color:#fff">quick-disconnect coupling</b>; Run #16 said the near-term binding link is "the 2P-DTC system <i>plus the secondary loop</i> (CDU / pump / manifold)" — and then drilled the coolant molecule instead. This loop finally opens the <b style="color:#fff">CDU</b> itself: the appliance that isolates a rack's clean coolant loop from the dirty facility water and pushes ~<b style="color:#fff">2 MW</b> of heat out of a single NVL72 rack. Inside it, the scarce, hard-to-qualify core is the <b style="color:#fff">brazed-plate heat exchanger (BPHE)</b> and the <b style="color:#fff">reliable redundant pump</b> — a pump whose failure can throttle the GPUs in seconds (a widely-cited worst-case is ~<b style="color:#fff">23s</b>, though it's workload- and coolant-mass-dependent, not a fixed constant). The honest twist this report leads with: the market <i>already found</i> the purest core play — the BPHE pure-play <b style="color:#fff">Kaori is up ~450%</b> — so the residual edge isn't the obvious name, it's the <b style="color:#fff">cheaper, quality, less-run</b> ways to own the same core: the cheaper diluted way to own the same core (<b style="color:#fff">Alfa Laval, +18% at ~17&times; EV/EBITDA</b> — its BPHE is the core of Boyd's 2.3&nbsp;MW CDU), the sealless-pump link (<b style="color:#fff">Moog</b>), and the private/laggard pump layer. The chokepoint is real; the clean pure-play already ran or got bought.</p>
+    <div class="gauges">
+      <div class="gge sev"><div class="gl">Chokepoint severity</div><div class="gv num">15<span style="font-size:13px;color:var(--dim)">/20</span></div><div class="gd">CDU heat-exchange + pump core · systemic, but multi-sourced (not a monopoly)</div></div>
+      <div class="gge asy"><div class="gl">Remaining asymmetry</div><div class="gv num">6<span style="font-size:13px;color:var(--dim)">/20</span></div><div class="gd">a relative-value laggard exists (Alfa Laval, Nidec), but the pure-plays ran or were absorbed</div></div>
+      <div class="gge"><div class="gl">Honest read</div><div class="gv" style="font-size:15px;color:var(--txt)">Proven, then priced</div><div class="gd">Kaori's +450% is the receipt — own the core cheaper (Alfa Laval), not the last winner</div></div>
+    </div>
+    <div class="meta">
+      <div><div class="k">Date</div><div class="vv num">08 Jul 2026</div></div>
+      <div><div class="k">Chain</div><div class="vv">Facility water &rarr; pump + BPHE core &rarr; CDU &rarr; manifold/QD &rarr; cold plate &rarr; GPU</div></div>
+      <div><div class="k">Universe</div><div class="vv">Global · US / TW / SE / JP</div></div>
+      <div><div class="k">Top-3</div><div class="vv">ALFA · MOG.A · VRT · (Kaori = priced anchor)</div></div>
+    </div>
+    <div class="asof">Prices = last trade <b style="color:#e7cf9e">~Wed 08 Jul 2026</b> · IBKR read-only (never trade); TW/SE quotes via aggregators · multiples are estimates — verify on a terminal · <b style="color:#e7cf9e">personal research, not investment advice</b></div>
+  </div>
+</header>
+
+<nav class="toc"><div class="wrap">
+  <a href="#s1">01 Snapshot</a><a href="#s2">02 Framework</a><a href="#s3">03 Component gallery</a><a href="#s4">04 Parts&rarr;CDU&rarr;loop</a><a href="#s5">05 CDU-type map</a><a href="#s6">06 Supply chain</a><a href="#s7">07 Timeline</a><a href="#s8">08 Chokepoint + severity</a><a href="#s9">09 Awareness + watchlist</a><a href="#s10">10 Top-3 plays</a><a href="#s11">11 Beneficiaries + risks</a><a href="#s12">12 Decision</a>
+</div></nav>
+
+<div class="wrap">
+
+<!-- 1. SNAPSHOT -->
+<section id="s1">
+  <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">為什麼是現在</span></div>
+  <p class="lead">"AI needs cooling" is a consensus trade now — everyone owns Vertiv. But a GB200 NVL72 rack dumps <b>~2.4&nbsp;MW</b> of heat, air can't touch it, and that heat has exactly one path out: through a <b>Coolant Distribution Unit (CDU)</b>. The CDU is the appliance that circulates clean coolant to the cold plates and hands the heat to the facility's chilled water across a wall of thin metal plates — without ever mixing the two. Look inside it and the scarce, hard-to-qualify parts are two: the <b>brazed-plate heat exchanger (BPHE)</b> that <i>is</i> that wall, and the <b>redundant pump</b> that must never stop (a stopped pump can throttle the processors in seconds — a cited worst-case is ~<b>23s</b>, workload-dependent). This report goes one layer beneath "buy a CDU maker" and asks: who owns the scarce core, and is any of it still early? The uncomfortable answer: the market already crowned the purest core play — Taiwan BPHE maker <b>Kaori is up ~450%</b> in a year — so the residual edge is the <i>cheaper</i> way in: the same component buried inside a diversified industrial (<b>Alfa Laval, +18% YTD at ~17&times; EV/EBITDA</b>) re-rated far less — the cheaper way to own the identical core (its BPHE sits inside Boyd's 2.3&nbsp;MW CDU). Proven thesis, relative-value expression.</p>
+  <div class="kpis">
+    <div class="kpi"><div class="v num red">~2.4 MW</div><div class="l">Heat per GB200 NVL72 rack — all through the CDU</div><div class="d">mandatory liquid cooling; ~3,000&nbsp;kg/rack; Rubin GPUs push 1.4&ndash;1.8&nbsp;kW/die (vs GB200 ~1.0&nbsp;kW) &rarr; more CDU duty, not less</div></div>
+    <div class="kpi"><div class="v num amb">~seconds</div><div class="l">Pump failure &rarr; processor throttling <span style="color:var(--dim)">(cited worst-case ~23s, workload-dep.)</span></div><div class="d">why the pump is a single-point-of-failure link — reliability, not just capacity, is the gate; redundancy N+1/2N, ≤100&nbsp;ms failover</div></div>
+    <div class="kpi"><div class="v num teal">$1.1&rarr;4.2B</div><div class="l">CDU market 2023&rarr;2030 (19% CAGR)</div><div class="d">inside a liquid-cooling market $4.8B (2025) &rarr; ~$27B (2035), 18% CAGR; L2L is the largest, tightest slice</div></div>
+    <div class="kpi"><div class="v num grn">+450% vs +18%</div><div class="l">Kaori (pure BPHE) 12m vs Alfa Laval (diluted BPHE) YTD</div><div class="d">the receipt: the chokepoint <i>did</i> pay — the pure-play ran ~5&times;; the diluted giant (~17&times; EV/EBITDA) re-rated far less = the cheaper way in</div></div>
+  </div>
+
+  <div style="margin-top:14px;border:1px solid #2c5a40;border-radius:12px;padding:12px 16px;background:rgba(95,201,138,.06)">
+    <p style="font-size:12px;color:var(--mut);line-height:1.55"><b style="color:var(--dacr)">What this run delivers · 先講結論:</b> the CDU is a genuine severity-15 systemic chokepoint, but it is <b style="color:var(--txt)">not a monopoly</b> (40+ NVIDIA cooling partners; several qualified BPHE and pump vendors) and the market has <b style="color:var(--txt)">already priced the cleanest core play</b> (Kaori +450%). So the honest output is a <b style="color:var(--txt)">relative-value</b> one: of the three listed links, <b style="color:var(--txt)">Alfa Laval is the cheapest, highest-quality, least-run way to own the same BPHE core</b> (+18% at ~17&times; EV/EBITDA; its BPHE is the core of Boyd's 2.3&nbsp;MW CDU); <b style="color:var(--txt)">Moog</b> owns the sealless-pump link (already +69%); <b style="color:var(--txt)">Vertiv</b> owns the durable box rent (fully priced at ~51&times;). The genuinely-early dollar is the private pump layer + the laggard proxy (Nidec) + the leak-detection/filtration razor. This is a <b style="color:var(--txt)">"the bottleneck already paid — own the core cheaper, or watch for the next one"</b> run, not a fresh-discovery buy.</p>
+  </div>
+
+  <div style="border:1px solid var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px;background:var(--panel)">
+    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px">EXPLAIN IT SIMPLY · 白話版</div>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6;max-width:940px">An AI rack is basically a stack of chips so hot that a fan can't save them — you must run liquid right up against the silicon. But you can't pump the building's ordinary cooling water through million-dollar GPUs (it's dirty, the wrong pressure, and a leak would be catastrophic). So each rack gets its own sealed loop of clean coolant, and a <b style="color:var(--txt)">Coolant Distribution Unit (CDU)</b> — think of it as the rack's dedicated "heart and kidney" — pushes that clean coolant around and dumps the heat into the building's water <i>through a metal wall</i>, so the two liquids never touch. Two parts inside the CDU are genuinely hard to make: the <b style="color:var(--txt)">heat-exchanger</b> (that metal wall, actually a stack of wafer-thin brazed plates) and the <b style="color:var(--txt)">pump</b> (which, if it ever stops, can cook the chips in seconds — a commonly-cited worst-case is about 23s — so it has to be built to aircraft-grade reliability with a backup). Here's the catch for an investor: the one small company that <i>only</i> makes that heat-exchanger core, Taiwan's Kaori, has already gone up about <i>five-fold</i> in a year — the crowd found it. The same part made by a big diversified company (Sweden's Alfa Laval) is up far less (about +18%), because it's a tiny slice of a giant — which makes it the <i>cheaper</i> way to own the same core. And the two other pure-play CDU makers (CoolIT, Motivair) were just <i>bought</i> by bigger companies (Ecolab and Schneider). Real bottleneck; the cleanest small pure-play already ran five-fold or disappeared into a conglomerate — so the sensible move is to own the core through the cheaper, quality names.</p>
+  </div>
+
+  <div style="margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--panel2)">
+    <div style="font-size:11px;font-weight:700;color:var(--dout);letter-spacing:.05em;margin-bottom:7px">LAYER KEY · follow the heat out of the chip, right to left of the CDU</div>
+    <p style="font-size:12px;color:var(--mut);line-height:1.7"><span class="lyr ly3">GPU DIE</span> the 1&ndash;1.8&nbsp;kW source of the heat &nbsp;·&nbsp; <span class="lyr lyp">COLD PLATE + QD</span> the liquid-cooled lid + dripless quick-disconnect (Run #4 / #10) &nbsp;·&nbsp; <span class="lyr ly2">MANIFOLD</span> the rack plumbing that fans coolant to every tray &nbsp;·&nbsp; <span class="lyr lyu">CDU</span> the appliance: <b>pump</b> + <b>BPHE</b> + filter + controls that runs the secondary loop <span class="chip hot">the box this report opens</span> &nbsp;·&nbsp; <span class="lyr lyc">BPHE + PUMP CORE</span> the scarce, co-qualified heat-exchange wall + reliable pump <span class="chip hot">the chokepoint</span> &nbsp;·&nbsp; <span class="lyr ly1">FACILITY WATER</span> the building chilled-water / heat-rejection loop it hands off to</p>
+  </div>
+
+  <div style="margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--panel)">
+    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:7px">6-TERM GLOSSARY</div>
+    <p style="font-size:12px;color:var(--mut);line-height:1.7"><b style="color:var(--txt)">CDU</b> coolant distribution unit — pumps + isolates a rack/row's clean secondary loop from the facility's primary loop · <b style="color:var(--txt)">BPHE</b> brazed-plate heat exchanger — a copper/stainless stack of thin plates that transfers heat between the two loops without mixing them (controls ΔT to ~2&ndash;3&deg;C) · <b style="color:var(--txt)">L2L / L2A</b> liquid-to-liquid (hands heat to building water) vs liquid-to-air (rejects to room air) CDU · <b style="color:var(--txt)">secondary loop</b> the clean, sealed coolant circuit between the CDU and the cold plates · <b style="color:var(--txt)">approach temperature</b> how close the secondary-loop temp gets to the facility water — smaller = a better/bigger heat exchanger · <b style="color:var(--txt)">N+1 / 2N</b> redundancy schemes so a pump can fail without throttling the rack.</p>
+  </div>
+</section>
+
+<!-- 2. FRAMEWORK -->
+<section id="s2">
+  <div class="sh"><span class="n">02</span><h2>Framework — cooling architecture &times; where the CDU sits</h2><span class="cn">兩軸 MECE</span></div>
+  <p class="lead">Two orthogonal axes. Rows = the <b>deployment architectures</b> for getting heat off an AI rack; columns = <b>what carries the heat</b>, <b>where the CDU sits</b>, and <b>who wins</b>. The chokepoint of this report lives in one cell: the <b>direct-to-chip &times; secondary-loop CDU</b> — because that is the architecture NVIDIA mandates for GB200/GB300/Rubin, and the CDU is the non-optional appliance in it.</p>
+  <table class="matrix">
+    <thead><tr><th style="width:20%">Architecture (row) · use case</th><th>What carries the heat</th><th>Where the CDU / heat-exchange sits</th><th style="width:22%">Who wins</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><div class="dom"><span class="sw" style="background:var(--choke)"></span>Single-phase D2C<small>the 2026 default · GB200/GB300</small></div></td>
+        <td>Water-glycol to a cold plate on each GPU/CPU; ~2&nbsp;kW/plate ceiling</td>
+        <td><b>The binding cell.</b> A CDU per rack/row runs the sealed secondary loop; BPHE hands heat to facility water <span class="chip hot">chokepoint</span></td>
+        <td>Vertiv · Delta · Boyd · CoolIT · nVent; BPHE: Kaori · Alfa Laval</td>
+      </tr>
+      <tr>
+        <td><div class="dom"><span class="sw" style="background:var(--dup)"></span>Two-phase D2C<small>Rubin-era · 2027&ndash;28</small></div></td>
+        <td>Dielectric fluid <i>boils</i> at the plate (5&ndash;10&times; heat transfer) as dies cross ~2&nbsp;kW</td>
+        <td>Needs a re-engineered CDU (2&times; flow, condenser duty) + the same BPHE/pump core — higher, not lower, CDU value</td>
+        <td>Vertiv · CoolIT/Ecolab · Chemours fluid (Run #16)</td>
+      </tr>
+      <tr>
+        <td><div class="dom"><span class="sw" style="background:var(--dout)"></span>Rear-door heat exchanger<small>retrofit / hybrid</small></div></td>
+        <td>Air off the rack blows through a liquid coil at the back door</td>
+        <td>A coil + a smaller CDU/pump feed the door; transitional to full D2C</td>
+        <td>Motivair/Schneider · nVent · Modine · Vertiv</td>
+      </tr>
+      <tr>
+        <td><div class="dom"><span class="sw" style="background:var(--l3)"></span>Immersion<small>niche · PFAS-cursed</small></div></td>
+        <td>Whole board submerged in a tank of dielectric fluid</td>
+        <td>Tank-side CDU + pump; single-phase surviving, 2-phase dying on PFAS (Run #16)</td>
+        <td>GRC · Submer (private) — losing to D2C</td>
+      </tr>
+      <tr>
+        <td><div class="dom"><span class="sw" style="background:var(--l1)"></span>Facility heat-rejection<small>everything ultimately rejects here</small></div></td>
+        <td>Chilled water / evaporative towers / dry coolers to ambient (Run #16 Munters link)</td>
+        <td>Downstream of the CDU — the facility-scale CDU (8&nbsp;MW+) and heat-rejection loop</td>
+        <td>Vertiv · Munters · Modine · SPX · Alfa Laval</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="cap">The chokepoint sits at <b>single-phase D2C &times; secondary-loop CDU</b> today and <i>migrates up</i> to two-phase D2C by 2027&ndash;28 — but in both, the CDU (and its BPHE + pump core) is the mandatory appliance. Immersion is the one architecture where the CDU thins out, and it is losing share. Cross-reference: the coolant molecule (Run #16), cold plate (#4), and quick-disconnect (#10) are <i>components</i>; this report is about the <i>appliance</i> that ties them into a loop.</p>
+</section>
+
+<!-- 3. COMPONENT GALLERY -->
+<section id="s3">
+  <div class="sh"><span class="n">03</span><h2>Inside the box — the CDU component gallery</h2><span class="cn">卡點的物理</span></div>
+  <p class="lead">Draw the CDU open and there are five functional blocks. Two are commoditizing (controls, filtration), one is a Run-#10 topic (the quick-disconnect), and <b>two are the scarce, hard-to-qualify core</b>: the brazed-plate heat exchanger and the redundant pump. Those two are where the rent — and the reliability risk — concentrate.</p>
+  <div class="gal">
+    <!-- BPHE -->
+    <div class="card">
+      <div class="svgbox"><svg viewBox="0 0 260 150" width="100%" role="img" aria-label="Brazed plate heat exchanger schematic">
+        <rect x="88" y="24" width="84" height="102" rx="4" fill="#1a1216" stroke="#e0686a" stroke-width="1.6"/>
+        <line x1="98" y1="30" x2="98" y2="120" stroke="#5aa9e0" stroke-width="1.4"/>
+        <line x1="108" y1="30" x2="108" y2="120" stroke="#e0686a" stroke-width="1.4"/>
+        <line x1="118" y1="30" x2="118" y2="120" stroke="#5aa9e0" stroke-width="1.4"/>
+        <line x1="128" y1="30" x2="128" y2="120" stroke="#e0686a" stroke-width="1.4"/>
+        <line x1="138" y1="30" x2="138" y2="120" stroke="#5aa9e0" stroke-width="1.4"/>
+        <line x1="148" y1="30" x2="148" y2="120" stroke="#e0686a" stroke-width="1.4"/>
+        <line x1="158" y1="30" x2="158" y2="120" stroke="#5aa9e0" stroke-width="1.4"/>
+        <path d="M40 44 L88 44" stroke="#e0686a" stroke-width="3" marker-end="url(#g3a)"/>
+        <path d="M172 106 L220 106" stroke="#e0686a" stroke-width="3" marker-end="url(#g3a)" opacity=".55"/>
+        <path d="M220 44 L172 44" stroke="#5aa9e0" stroke-width="3" marker-end="url(#g3b)"/>
+        <path d="M88 106 L40 106" stroke="#5aa9e0" stroke-width="3" marker-end="url(#g3b)"/>
+        <text x="130" y="16" text-anchor="middle" style="font-size:9.5px;font-weight:600" fill="#eda3a4">thin brazed plates</text>
+        <text x="34" y="40" text-anchor="end" style="font-size:8px" fill="#eda3a4">hot in</text>
+        <text x="34" y="112" text-anchor="end" style="font-size:8px" fill="#8aa7df">cool in</text>
+        <text x="130" y="142" text-anchor="middle" style="font-size:8px" fill="#697283">two loops, never mixing · ΔT ~2&ndash;3&deg;C</text>
+        <defs>
+          <marker id="g3a" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 z" fill="#e0686a"/></marker>
+          <marker id="g3b" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 z" fill="#5aa9e0"/></marker>
+        </defs>
+      </svg></div>
+      <div class="body"><h4>Brazed-plate heat exchanger <span class="badge b-hot">CHOKE</span></h4>
+        <div class="role">The metal wall between the two loops — a vacuum-brazed stack of pressed stainless/copper plates. More plates, tighter approach temp, higher heat density per litre. Qualification (leak-tight under pressure cycling, fouling, 5-yr life) is the moat.</div>
+        <div class="who">Who makes it: <b>Kaori (8996)</b> · <b>Alfa Laval</b> · Danfoss · SWEP · Kelvion · (China) Envicool</div>
+      </div>
+    </div>
+    <!-- Pump -->
+    <div class="card">
+      <div class="svgbox"><svg viewBox="0 0 260 150" width="100%" role="img" aria-label="Redundant CDU pump schematic">
+        <circle cx="96" cy="70" r="30" fill="#161a24" stroke="#e0a458" stroke-width="1.6"/>
+        <path d="M96 70 L96 44 M96 70 L118 84 M96 70 L74 84" stroke="#e0a458" stroke-width="2.4"/>
+        <circle cx="96" cy="70" r="5" fill="#e0a458"/>
+        <circle cx="176" cy="70" r="30" fill="#161a24" stroke="#697283" stroke-width="1.4" stroke-dasharray="4 3"/>
+        <path d="M176 70 L176 44 M176 70 L198 84 M176 70 L154 84" stroke="#697283" stroke-width="2"/>
+        <circle cx="176" cy="70" r="5" fill="#697283"/>
+        <text x="96" y="118" text-anchor="middle" style="font-size:8.5px;font-weight:600" fill="#e3bd76">DUTY</text>
+        <text x="176" y="118" text-anchor="middle" style="font-size:8.5px" fill="#8b93a5">STANDBY (N+1)</text>
+        <path d="M126 70 L146 70" stroke="#697283" stroke-width="1.4" stroke-dasharray="2 2"/>
+        <text x="136" y="34" text-anchor="middle" style="font-size:8px" fill="#e0686a">fail &rarr; ≤100 ms swap</text>
+        <text x="136" y="140" text-anchor="middle" style="font-size:8px" fill="#697283">stop &rarr; throttle in seconds</text>
+      </svg></div>
+      <div class="body"><h4>Redundant pump <span class="badge b-hot">CHOKE</span></h4>
+        <div class="role">Moves the coolant against the loop's pressure drop. The single-point-of-failure link: a stopped pump can throttle the GPUs in seconds (cited worst-case ~23s, workload-dependent), so CDUs run duty/standby (N+1) or 2N with ≤100&nbsp;ms failover and ≤5% flow wobble. Reliability &gt; raw capacity.</div>
+        <div class="who">Who makes it: <b>Grundfos</b> · <b>Wilo</b> · Xylem · Nidec — mostly private/diluted</div>
+      </div>
+    </div>
+    <!-- Manifold / QD -->
+    <div class="card">
+      <div class="svgbox"><svg viewBox="0 0 260 150" width="100%" role="img" aria-label="Manifold and quick disconnect schematic">
+        <rect x="40" y="34" width="14" height="86" rx="3" fill="#20242f" stroke="#8b84cf"/>
+        <rect x="206" y="34" width="14" height="86" rx="3" fill="#20242f" stroke="#8b84cf"/>
+        <line x1="54" y1="46" x2="206" y2="46" stroke="#8b84cf" stroke-width="2"/>
+        <line x1="54" y1="70" x2="206" y2="70" stroke="#8b84cf" stroke-width="2"/>
+        <line x1="54" y1="94" x2="206" y2="94" stroke="#8b84cf" stroke-width="2"/>
+        <circle cx="130" cy="46" r="4" fill="#c47a9e"/><circle cx="130" cy="70" r="4" fill="#c47a9e"/><circle cx="130" cy="94" r="4" fill="#c47a9e"/>
+        <text x="130" y="22" text-anchor="middle" style="font-size:9px;font-weight:600" fill="#aaa3e6">rack manifold</text>
+        <text x="130" y="118" text-anchor="middle" style="font-size:8px" fill="#dba0bf">◇ blind-mate quick-disconnects (Run #10)</text>
+        <text x="130" y="134" text-anchor="middle" style="font-size:8px" fill="#697283">fans coolant to every tray</text>
+      </svg></div>
+      <div class="body"><h4>Manifold + quick-disconnect <span class="badge b-next">SECONDARY</span></h4>
+        <div class="role">Distributes coolant from the CDU to each cold plate; the dripless blind-mate couplings let a tray be pulled hot. Tight, but multi-sourced and covered in Run #10 — a real link, not the binding one.</div>
+        <div class="who">Who makes it: <b>nVent</b> · Staubli · CPC · Danfoss · Parker</div>
+      </div>
+    </div>
+    <!-- Controls / leak detection -->
+    <div class="card">
+      <div class="svgbox"><svg viewBox="0 0 260 150" width="100%" role="img" aria-label="Controls and leak detection schematic">
+        <rect x="70" y="34" width="120" height="70" rx="6" fill="#161a24" stroke="#4faf8e"/>
+        <path d="M84 90 L104 60 L124 78 L144 50 L164 70 L176 58" fill="none" stroke="#4faf8e" stroke-width="2"/>
+        <circle cx="104" cy="60" r="2.4" fill="#5fc98a"/><circle cx="144" cy="50" r="2.4" fill="#5fc98a"/>
+        <text x="130" y="24" text-anchor="middle" style="font-size:9px;font-weight:600" fill="#7cc9ad">controls + leak sense</text>
+        <text x="130" y="124" text-anchor="middle" style="font-size:8px" fill="#697283">flow / pressure / temp / conductivity</text>
+        <text x="130" y="138" text-anchor="middle" style="font-size:8px" fill="#697283">leak detection = the safety veto</text>
+      </svg></div>
+      <div class="body"><h4>Controls + leak detection <span class="badge b-emrg">COMMODITIZING</span></h4>
+        <div class="role">The brains: variable-speed pump control, redundancy logic, and leak detection (the safety veto that can shut a rack). Rising in importance for reliability, but software/sensors are broadly sourced — value accrues to the integrator, not a scarce part.</div>
+        <div class="who">Who makes it: CDU integrators in-house · Schneider · sensor OEMs</div>
+      </div>
+    </div>
+    <!-- Filtration -->
+    <div class="card">
+      <div class="svgbox"><svg viewBox="0 0 260 150" width="100%" role="img" aria-label="Filtration and fluid chemistry schematic">
+        <rect x="96" y="30" width="68" height="90" rx="8" fill="#161a24" stroke="#5aa9e0"/>
+        <line x1="106" y1="46" x2="154" y2="46" stroke="#5aa9e0" stroke-width="1" stroke-dasharray="2 2"/>
+        <line x1="106" y1="58" x2="154" y2="58" stroke="#5aa9e0" stroke-width="1" stroke-dasharray="2 2"/>
+        <line x1="106" y1="70" x2="154" y2="70" stroke="#5aa9e0" stroke-width="1" stroke-dasharray="2 2"/>
+        <circle cx="118" cy="90" r="2" fill="#8aa7df"/><circle cx="132" cy="98" r="2" fill="#8aa7df"/><circle cx="146" cy="88" r="2" fill="#8aa7df"/>
+        <text x="130" y="22" text-anchor="middle" style="font-size:9px;font-weight:600" fill="#8aa7df">filter + fluid chemistry</text>
+        <text x="130" y="138" text-anchor="middle" style="font-size:8px" fill="#697283">particulate + biofoul + corrosion inhibitor</text>
+      </svg></div>
+      <div class="body"><h4>Filtration + fluid chemistry <span class="badge b-emrg">SERVICES ANNUITY</span></h4>
+        <div class="role">Keeps the loop clean so the BPHE and cold-plate microchannels don't foul; the coolant (Run #16) plus filters is a recurring service annuity — Ecolab's water-treatment logic for buying CoolIT. Sticky, but not the scarce hardware.</div>
+        <div class="who">Who makes it: Ecolab (CoolIT) · Chemours · fluid/filter OEMs</div>
+      </div>
+    </div>
+    <!-- Integration -->
+    <div class="card">
+      <div class="svgbox"><svg viewBox="0 0 260 150" width="100%" role="img" aria-label="CDU integration and co-qualification">
+        <rect x="70" y="26" width="120" height="98" rx="8" fill="#0e1117" stroke="#2dd4bf"/>
+        <circle cx="100" cy="54" r="9" fill="#161a24" stroke="#e0a458"/>
+        <rect x="126" y="46" width="42" height="16" rx="3" fill="#1a1216" stroke="#e0686a"/>
+        <rect x="88" y="80" width="84" height="12" rx="2" fill="#20242f" stroke="#8b84cf"/>
+        <rect x="88" y="98" width="84" height="10" rx="2" fill="#161a24" stroke="#4faf8e"/>
+        <text x="130" y="20" text-anchor="middle" style="font-size:9px;font-weight:600" fill="#2dd4bf">the CDU appliance</text>
+        <text x="100" y="72" text-anchor="middle" style="font-size:7px" fill="#e3bd76">pump</text>
+        <text x="147" y="72" text-anchor="middle" style="font-size:7px" fill="#eda3a4">BPHE</text>
+        <text x="130" y="140" text-anchor="middle" style="font-size:8px" fill="#697283">NVIDIA co-qual · 12&ndash;18 mo · rent pool</text>
+      </svg></div>
+      <div class="body"><h4>Integration + NVIDIA co-qual <span class="badge b-now">RENT POOL</span></h4>
+        <div class="role">Assembling the parts into a reference-qualified, warrantied 1&ndash;2.5&nbsp;MW box is where the near-term rent sits — but it is <i>fragmenting</i> (40+ NVIDIA partners; OCP open designs), so the box premium erodes toward the scarce core over time.</div>
+        <div class="who">Who wins: <b>Vertiv</b> · Delta · Boyd · CoolIT/Ecolab · Motivair/Schneider</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. L3->L2->L1 -->
+<section id="s4">
+  <div class="sh"><span class="n">04</span><h2>From parts to CDU to rack loop (L3 &rarr; L2 &rarr; L1)</h2><span class="cn">組裝視圖</span></div>
+  <p class="lead">How the scarce components build up into the finished cooling system, and what changes at each step. The value doesn't compound evenly: it concentrates at the <b>co-qualified CDU box</b> (near-term rent) and at the <b>scarce BPHE + pump core</b> (durable scarcity) — and thins at the ends.</p>
+  <div class="svgwide">
+    <svg viewBox="0 0 1120 250" width="100%" role="img" aria-label="Components to CDU to rack loop assembly view">
+      <!-- L3 components -->
+      <rect x="14" y="40" width="150" height="170" rx="10" fill="#13161e" stroke="#363d4f"/>
+      <text x="89" y="30" text-anchor="middle" class="m" style="font-size:10px;font-weight:600" fill="#aaa3e6">L3 · components</text>
+      <rect x="30" y="56" width="118" height="26" rx="4" fill="#1a1216" stroke="#e0686a"/><text x="89" y="73" text-anchor="middle" style="font-size:9px" fill="#eda3a4">BPHE core</text>
+      <rect x="30" y="88" width="118" height="26" rx="4" fill="#161a24" stroke="#e0a458"/><text x="89" y="105" text-anchor="middle" style="font-size:9px" fill="#e3bd76">redundant pump</text>
+      <rect x="30" y="120" width="118" height="24" rx="4" fill="#20242f" stroke="#8b84cf"/><text x="89" y="136" text-anchor="middle" style="font-size:9px" fill="#aaa3e6">manifold / QD</text>
+      <rect x="30" y="148" width="118" height="24" rx="4" fill="#161a24" stroke="#4faf8e"/><text x="89" y="164" text-anchor="middle" style="font-size:9px" fill="#7cc9ad">controls / leak</text>
+      <rect x="30" y="176" width="118" height="24" rx="4" fill="#161a24" stroke="#5aa9e0"/><text x="89" y="192" text-anchor="middle" style="font-size:9px" fill="#8aa7df">filter / fluid</text>
+
+      <!-- arrow -->
+      <path d="M164 125 L212 125" stroke="#697283" stroke-width="6" marker-end="url(#a4)"/>
+      <text x="188" y="112" text-anchor="middle" style="font-size:8px" fill="#697283">qualify</text>
+
+      <!-- L2 CDU -->
+      <rect x="214" y="46" width="300" height="158" rx="10" fill="#0f1520" stroke="#2dd4bf" stroke-width="1.6"/>
+      <text x="364" y="34" text-anchor="middle" class="m" style="font-size:10px;font-weight:600" fill="#2dd4bf">L2 · the CDU appliance</text>
+      <rect x="236" y="72" width="120" height="40" rx="5" fill="#1a1216" stroke="#e0686a"/><text x="296" y="90" text-anchor="middle" style="font-size:9px" fill="#eda3a4">BPHE +</text><text x="296" y="103" text-anchor="middle" style="font-size:9px" fill="#e3bd76">pump = core</text>
+      <rect x="370" y="72" width="122" height="40" rx="5" fill="#161a24" stroke="#363d4f"/><text x="431" y="90" text-anchor="middle" style="font-size:8.5px" fill="#9aa3b5">controls · filter ·</text><text x="431" y="103" text-anchor="middle" style="font-size:8.5px" fill="#9aa3b5">redundancy logic</text>
+      <rect x="236" y="126" width="256" height="30" rx="5" fill="#0e1a17" stroke="#2dd4bf" stroke-dasharray="3 3"/><text x="364" y="145" text-anchor="middle" style="font-size:9px" fill="#7ee0d1">NVIDIA reference co-qual · warranty · 1&ndash;2.5 MW</text>
+      <text x="364" y="180" text-anchor="middle" style="font-size:8.5px" fill="#697283">what changes: parts become a warrantied, reference-qualified appliance</text>
+      <text x="364" y="195" text-anchor="middle" style="font-size:8.5px" fill="#2dd4bf">near-term rent pool — but fragmenting (40+ partners)</text>
+
+      <!-- arrow -->
+      <path d="M514 125 L562 125" stroke="#697283" stroke-width="6" marker-end="url(#a4)"/>
+      <text x="538" y="112" text-anchor="middle" style="font-size:8px" fill="#697283">install</text>
+
+      <!-- L1 rack loop -->
+      <rect x="564" y="46" width="300" height="158" rx="10" fill="#13161e" stroke="#363d4f"/>
+      <text x="714" y="34" text-anchor="middle" class="m" style="font-size:10px;font-weight:600" fill="#7cc9ad">L1 · rack cooling loop</text>
+      <rect x="586" y="70" width="60" height="120" rx="5" fill="#161a24" stroke="#8b84cf"/><text x="616" y="134" text-anchor="middle" style="font-size:8px" fill="#aaa3e6">CDU</text>
+      <rect x="662" y="70" width="184" height="26" rx="4" fill="#20242f" stroke="#c47a9e"/><text x="754" y="87" text-anchor="middle" style="font-size:8.5px" fill="#dba0bf">manifold &rarr; cold plates (72 GPUs)</text>
+      <rect x="662" y="104" width="184" height="26" rx="4" fill="#20242f" stroke="#c47a9e"/><text x="754" y="121" text-anchor="middle" style="font-size:8.5px" fill="#dba0bf">quick-disconnects (Run #10)</text>
+      <rect x="662" y="138" width="184" height="26" rx="4" fill="#1a1216" stroke="#e0686a"/><text x="754" y="155" text-anchor="middle" style="font-size:8.5px" fill="#eda3a4">~2.4 MW secondary loop</text>
+      <text x="714" y="182" text-anchor="middle" style="font-size:8.5px" fill="#697283">what changes: a rack becomes coolable at 130 kW+</text>
+
+      <!-- arrow -->
+      <path d="M864 125 L912 125" stroke="#697283" stroke-width="6" marker-end="url(#a4)"/>
+
+      <!-- facility -->
+      <rect x="914" y="66" width="192" height="118" rx="10" fill="#121a15" stroke="#4faf8e" stroke-width="1.4"/>
+      <text x="1010" y="52" text-anchor="middle" class="m" style="font-size:10px;font-weight:600" fill="#7cc9ad">facility loop</text>
+      <text x="1010" y="100" text-anchor="middle" style="font-size:9px" fill="#b7e0cf">chilled water / towers /</text>
+      <text x="1010" y="115" text-anchor="middle" style="font-size:9px" fill="#b7e0cf">dry coolers &rarr; ambient</text>
+      <text x="1010" y="140" text-anchor="middle" style="font-size:8.5px" fill="#697283">Run #16 heat-rejection</text>
+      <text x="1010" y="156" text-anchor="middle" style="font-size:8.5px" fill="#697283">(Munters / Modine)</text>
+
+      <defs><marker id="a4" markerWidth="6" markerHeight="6" refX="4.5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#697283"/></marker></defs>
+    </svg>
+  </div>
+  <p class="cap">The BPHE + pump "core" stays scarce all the way up the stack (it's the physics), whereas the CDU box premium depends on qualification and warranty — which NVIDIA's reference designs and OCP open-sourcing are steadily commoditizing. That is the whole disaggregation of this report: <b>durable rent = the core; eroding rent = the box.</b></p>
+</section>
+
+<!-- 5. CDU-TYPE / DEPLOYMENT MAP -->
+<section id="s5">
+  <div class="sh"><span class="n">05</span><h2>Which CDU serves which density — deployment map</h2><span class="cn">部署對應</span></div>
+  <p class="lead">Not all CDUs are equal. As rack density climbs from ~30&nbsp;kW to 130&nbsp;kW to Rubin's 250&ndash;600&nbsp;kW, the CDU moves from a small in-rack unit to a row-level sidecar to a facility-scale machine — and the BPHE/pump core scales with it. This is where the "L2L is the tight, valuable slice" claim comes from.</p>
+  <div class="svgwide">
+    <svg viewBox="0 0 1120 300" width="100%" role="img" aria-label="CDU type by rack density map">
+      <line x1="60" y1="250" x2="1080" y2="250" stroke="#363d4f"/>
+      <text x="60" y="278" style="font-size:9px" fill="#697283">~30 kW/rack</text>
+      <text x="360" y="278" text-anchor="middle" style="font-size:9px" fill="#697283">~130 kW (GB200 NVL72)</text>
+      <text x="700" y="278" text-anchor="middle" style="font-size:9px" fill="#697283">250&ndash;600 kW (GB300 / Rubin)</text>
+      <text x="1010" y="278" text-anchor="middle" style="font-size:9px" fill="#697283">MW-scale factory</text>
+      <text x="60" y="30" style="font-size:11px;font-weight:600" fill="#e8eaf0">CDU form-factor climbs with density &rarr; more BPHE plates, bigger/redundant pumps</text>
+
+      <!-- in-rack -->
+      <rect x="70" y="70" width="170" height="150" rx="10" fill="#13161e" stroke="#5aa9e0"/>
+      <text x="155" y="94" text-anchor="middle" style="font-size:11px;font-weight:600" fill="#8aa7df">In-rack CDU</text>
+      <text x="155" y="114" text-anchor="middle" style="font-size:9px" fill="#9aa3b5">L2A or small L2L</text>
+      <text x="155" y="132" text-anchor="middle" style="font-size:9px" fill="#9aa3b5">~7&ndash;80 kW</text>
+      <text x="155" y="156" text-anchor="middle" style="font-size:8.5px" fill="#697283">compact BPHE (Kaori)</text>
+      <text x="155" y="172" text-anchor="middle" style="font-size:8.5px" fill="#697283">enterprise / edge / retrofit</text>
+      <text x="155" y="200" text-anchor="middle" class="m" style="font-size:8px" fill="#5aa9e0">JetCool · Stulz · nVent</text>
+
+      <!-- row/sidecar -->
+      <rect x="290" y="60" width="200" height="160" rx="10" fill="#0f1520" stroke="#2dd4bf"/>
+      <text x="390" y="84" text-anchor="middle" style="font-size:11px;font-weight:600" fill="#2dd4bf">In-row / sidecar CDU</text>
+      <text x="390" y="104" text-anchor="middle" style="font-size:9px" fill="#b7e0cf">L2L · the volume workhorse</text>
+      <text x="390" y="122" text-anchor="middle" style="font-size:9px" fill="#b7e0cf">~0.7&ndash;2 MW</text>
+      <text x="390" y="146" text-anchor="middle" style="font-size:8.5px" fill="#7ee0d1">CoolIT CHx2000 = 2 MW</text>
+      <text x="390" y="162" text-anchor="middle" style="font-size:8.5px" fill="#7ee0d1">Boyd + Alfa Laval = 2.3 MW</text>
+      <text x="390" y="186" text-anchor="middle" style="font-size:8.5px" fill="#697283">the GB200/GB300 default</text>
+      <text x="390" y="206" text-anchor="middle" class="m" style="font-size:8px" fill="#2dd4bf">Vertiv · Delta · Boyd · CoolIT</text>
+
+      <!-- facility -->
+      <rect x="540" y="70" width="200" height="150" rx="10" fill="#13161e" stroke="#e0a458"/>
+      <text x="640" y="94" text-anchor="middle" style="font-size:11px;font-weight:600" fill="#e3bd76">Facility-scale CDU</text>
+      <text x="640" y="114" text-anchor="middle" style="font-size:9px" fill="#9aa3b5">L2L mega-unit</text>
+      <text x="640" y="132" text-anchor="middle" style="font-size:9px" fill="#9aa3b5">2.5&ndash;10 MW+</text>
+      <text x="640" y="156" text-anchor="middle" style="font-size:8.5px" fill="#697283">Motivair MCDU-70 = 2.5 MW</text>
+      <text x="640" y="172" text-anchor="middle" style="font-size:8.5px" fill="#697283">DCX facility unit = 8.15 MW</text>
+      <text x="640" y="200" text-anchor="middle" class="m" style="font-size:8px" fill="#e0a458">Schneider · Vertiv · DCX</text>
+
+      <!-- the core scales -->
+      <rect x="790" y="70" width="290" height="150" rx="10" fill="#1a1216" stroke="#e0686a" stroke-width="1.6"/>
+      <text x="935" y="94" text-anchor="middle" style="font-size:11px;font-weight:700" fill="#eda3a4">&hellip; and the scarce core scales with all of them</text>
+      <text x="935" y="118" text-anchor="middle" style="font-size:9px" fill="#d9c4c6">bigger duty &rarr; more BPHE plate area,</text>
+      <text x="935" y="134" text-anchor="middle" style="font-size:9px" fill="#d9c4c6">tighter approach temp, larger redundant pumps</text>
+      <text x="935" y="160" text-anchor="middle" style="font-size:9px" fill="#eda3a4">L2L &gt; L2A for AI: it lets the facility</text>
+      <text x="935" y="176" text-anchor="middle" style="font-size:9px" fill="#eda3a4">run warm-water &amp; recover heat &rarr; the tight slice</text>
+      <text x="935" y="202" text-anchor="middle" class="m" style="font-size:8px" fill="#eda3a4">every arrow points back to BPHE + pump</text>
+    </svg>
+  </div>
+  <p class="cap">Capacity points verified: CoolIT CHx2000 = 2&nbsp;MW L2L at 5&deg;C approach (GB300 NVL72); Boyd's in-row CDU with a custom Alfa&nbsp;Laval BPHE at its core = 2.3&nbsp;MW; Motivair (Schneider) MCDU-70 = 2.5&nbsp;MW, portfolio to 10&nbsp;MW+; DCX facility CDU = 8.15&nbsp;MW at 45&deg;C warm water. The through-line: whatever the form factor, demand routes back to the BPHE + reliable-pump core.</p>
+</section>
+
+<!-- 6. SUPPLY CHAIN -->
+<section id="s6">
+  <div class="sh"><span class="n">06</span><h2>End-to-end supply chain — where it constricts, where the rent settles</h2><span class="cn">供應鏈全景</span></div>
+  <p class="lead">The centerpiece. Follow the heat left&rarr;right, from the GPU die out to the ambient air. Flow runs abundant until it <b>constricts hard</b> at the BPHE + pump core (thin red arrows = the choke), passes through the co-qualified CDU box, and re-widens into manifolds and the facility loop. The bar chart reads two things separately: <b>physical scarcity</b> (tallest at the BPHE/pump core — the chokepoint) versus <b>where the rent actually settles</b> — and here there are <i>two</i> rent diamonds: one at the CDU integrator (Vertiv, near-term) and one <b>already collected</b> at the pure-play core (Kaori, +450%).</p>
+  <div class="leg">
+    <span><span class="sw" style="background:var(--choke)"></span>Chokepoint (constricted flow)</span>
+    <span><span class="sw" style="background:#697283"></span>Abundant flow</span>
+    <span><span class="sw" style="background:var(--l1)"></span>Rent pool (margin settles)</span>
+    <span><span class="sw" style="background:var(--accent)"></span>CDU box (eroding rent)</span>
+  </div>
+  <div class="svgwide">
+    <svg viewBox="0 0 1120 470" width="100%" role="img" aria-label="CDU end-to-end supply chain map with scarcity and rent bars">
+      <!-- stage cards -->
+      <!-- 1 GPU -->
+      <rect x="10" y="30" width="150" height="128" rx="10" fill="#13161e" stroke="#363d4f"/>
+      <text x="85" y="52" text-anchor="middle" style="font-size:11px;font-weight:600" fill="#aaa3e6">1 · GPU rack (heat source)</text>
+      <text x="85" y="74" text-anchor="middle" style="font-size:9.5px" fill="#9aa3b5">72 GPUs · ~2.4 MW</text>
+      <text x="85" y="88" text-anchor="middle" style="font-size:9.5px" fill="#9aa3b5">1&ndash;1.8 kW/die</text>
+      <text x="85" y="114" text-anchor="middle" style="font-size:9px" fill="#697283">the demand (abundant)</text>
+      <text x="85" y="146" text-anchor="middle" style="font-size:9px" fill="#aaa3e6">NVIDIA GB200/300 · Rubin</text>
+
+      <!-- 2 cold plate/manifold -->
+      <rect x="196" y="30" width="150" height="128" rx="10" fill="#13161e" stroke="#3a2f38"/>
+      <text x="271" y="52" text-anchor="middle" style="font-size:11px;font-weight:600" fill="#dba0bf">2 · Cold plate + manifold</text>
+      <text x="271" y="74" text-anchor="middle" style="font-size:9.5px" fill="#9aa3b5">collects heat into coolant</text>
+      <text x="271" y="88" text-anchor="middle" style="font-size:9.5px" fill="#9aa3b5">Run #4 / #10</text>
+      <text x="271" y="114" text-anchor="middle" style="font-size:9px" fill="#697283">multi-sourced</text>
+      <text x="271" y="146" text-anchor="middle" style="font-size:9px" fill="#dba0bf">nVent · Staubli · CPC</text>
+
+      <!-- 3 CHOKEPOINT: BPHE + pump -->
+      <rect x="382" y="22" width="168" height="144" rx="10" fill="#1a1216" stroke="#e0686a" stroke-width="2"/>
+      <text x="466" y="44" text-anchor="middle" style="font-size:11.5px;font-weight:700" fill="#eda3a4">3 · BPHE + pump core</text>
+      <text x="466" y="63" text-anchor="middle" style="font-size:9.5px" fill="#d9c4c6">heat-exchange wall + the</text>
+      <text x="466" y="77" text-anchor="middle" style="font-size:9.5px" fill="#d9c4c6">pump that must never stop</text>
+      <text x="466" y="100" text-anchor="middle" style="font-size:9px" fill="#eda3a4">few qualified vendors</text>
+      <text x="466" y="116" text-anchor="middle" style="font-size:9px" fill="#eda3a4">Kaori BPHE +450% · pumps private</text>
+      <text x="466" y="140" text-anchor="middle" style="font-size:9px" fill="#f0a6a7">Kaori · Alfa Laval · Grundfos · Wilo</text>
+      <text x="466" y="155" text-anchor="middle" class="m" style="font-size:8.5px" fill="#eda3a4">the scarce, hard-to-qualify link</text>
+
+      <!-- 4 CDU integration RENT (near-term) -->
+      <rect x="586" y="22" width="164" height="144" rx="10" fill="#0f1520" stroke="#2dd4bf" stroke-width="2"/>
+      <text x="668" y="44" text-anchor="middle" style="font-size:11px;font-weight:700" fill="#2dd4bf">4 · CDU integration</text>
+      <text x="668" y="63" text-anchor="middle" style="font-size:9.5px" fill="#b7e0cf">assemble + NVIDIA co-qual</text>
+      <text x="668" y="86" text-anchor="middle" style="font-size:9px" fill="#7ee0d1">NEAR-TERM RENT</text>
+      <text x="668" y="102" text-anchor="middle" style="font-size:9px" fill="#9aa3b5">but fragmenting — 40+ partners,</text>
+      <text x="668" y="116" text-anchor="middle" style="font-size:9px" fill="#9aa3b5">OCP open designs</text>
+      <text x="668" y="140" text-anchor="middle" style="font-size:9px" fill="#7ee0d1">Vertiv · Delta · Boyd · CoolIT</text>
+      <text x="668" y="155" text-anchor="middle" style="font-size:9px" fill="#7ee0d1">Motivair/Schneider</text>
+
+      <!-- 5 facility loop -->
+      <rect x="786" y="30" width="150" height="128" rx="10" fill="#13161e" stroke="#363d4f"/>
+      <text x="861" y="52" text-anchor="middle" style="font-size:11px;font-weight:600" fill="#8aa7df">5 · Facility loop</text>
+      <text x="861" y="74" text-anchor="middle" style="font-size:9.5px" fill="#9aa3b5">chilled water / CDU-to-</text>
+      <text x="861" y="88" text-anchor="middle" style="font-size:9.5px" fill="#9aa3b5">facility handoff</text>
+      <text x="861" y="114" text-anchor="middle" style="font-size:9px" fill="#697283">plumbing (abundant)</text>
+      <text x="861" y="146" text-anchor="middle" style="font-size:9px" fill="#8aa7df">EPC · piping · pumps</text>
+
+      <!-- 6 heat rejection RENT pool -->
+      <rect x="972" y="22" width="140" height="144" rx="10" fill="#121a15" stroke="#4faf8e" stroke-width="2"/>
+      <text x="1042" y="44" text-anchor="middle" style="font-size:11px;font-weight:700" fill="#7cc9ad">6 · Heat rejection</text>
+      <text x="1042" y="63" text-anchor="middle" style="font-size:9px" fill="#b7e0cf">towers / dry coolers &rarr; air</text>
+      <text x="1042" y="86" text-anchor="middle" style="font-size:9px" fill="#7cc9ad">Run #16 rent pool</text>
+      <text x="1042" y="104" text-anchor="middle" style="font-size:9px" fill="#9aa3b5">the ambient sink</text>
+      <text x="1042" y="132" text-anchor="middle" style="font-size:9px" fill="#7cc9ad">Munters · Modine</text>
+      <text x="1042" y="148" text-anchor="middle" style="font-size:9px" fill="#7cc9ad">SPX · Vertiv</text>
+
+      <!-- flows -->
+      <path d="M160 94 L194 94" stroke="#697283" stroke-width="7" marker-end="url(#amg)"/>
+      <path d="M346 94 L380 94" stroke="#e0686a" stroke-width="2.5" marker-end="url(#am)"/>
+      <path d="M550 94 L584 94" stroke="#e0686a" stroke-width="2.5" marker-end="url(#am)"/>
+      <path d="M750 94 L784 94" stroke="#697283" stroke-width="7" marker-end="url(#amg)"/>
+      <path d="M936 94 L970 94" stroke="#697283" stroke-width="7" marker-end="url(#amg)"/>
+      <text x="1042" y="184" text-anchor="middle" style="font-size:9px" fill="#697283">&rarr; ambient (heat leaves the building)</text>
+
+      <!-- CHOKEPOINT ribbon -->
+      <rect x="382" y="192" width="168" height="20" rx="4" fill="#e0686a"/>
+      <text x="466" y="206" text-anchor="middle" style="font-size:10px;font-weight:700" fill="#160a0b">&#9668; CHOKEPOINT &#9658;</text>
+
+      <!-- BAR CHART -->
+      <text x="20" y="246" style="font-size:11px;font-weight:600" fill="#e8eaf0">Per-stage read — physical scarcity (bars) vs where rent settles (&#9670;)</text>
+      <line x1="40" y1="430" x2="1080" y2="430" stroke="#363d4f"/>
+      <text x="30" y="270" class="svglabel m" style="font-size:8px">100</text>
+      <text x="34" y="350" class="svglabel m" style="font-size:8px">50</text>
+      <line x1="40" y1="266" x2="1080" y2="266" stroke="#1e2430" stroke-dasharray="2 4"/>
+      <line x1="40" y1="348" x2="1080" y2="348" stroke="#1e2430" stroke-dasharray="2 4"/>
+
+      <!-- bars: centers ~ 85(1), 271(2), 466(3 choke), 668(4 cdu), 861(5), 1042(6) -->
+      <!-- 1 GPU: 28 -->
+      <rect x="47" y="385" width="76" height="45" fill="#8b84cf" opacity=".7"/>
+      <text x="85" y="377" text-anchor="middle" class="m" style="font-size:9px" fill="#aaa3e6">28</text>
+      <text x="85" y="446" text-anchor="middle" style="font-size:8.5px" fill="#697283">GPU rack</text>
+      <!-- 2 cold plate: 42 -->
+      <rect x="233" y="363" width="76" height="67" fill="#c47a9e" opacity=".75"/>
+      <text x="271" y="355" text-anchor="middle" class="m" style="font-size:9px" fill="#dba0bf">42</text>
+      <text x="271" y="446" text-anchor="middle" style="font-size:8.5px" fill="#697283">plate/manifold</text>
+      <!-- 3 BPHE+pump: 95 CHOKE -->
+      <rect x="428" y="278" width="76" height="152" fill="#e0686a"/>
+      <text x="466" y="270" text-anchor="middle" class="m" style="font-size:10px;font-weight:700" fill="#eda3a4">95</text>
+      <text x="466" y="446" text-anchor="middle" style="font-size:8.5px" fill="#eda3a4">BPHE+pump &#9668;</text>
+      <!-- 4 CDU integ: 55 scarcity, rent diamond -->
+      <rect x="630" y="342" width="76" height="88" fill="#2dd4bf" opacity=".5"/>
+      <text x="668" y="334" text-anchor="middle" class="m" style="font-size:9px" fill="#7ee0d1">55</text>
+      <text x="668" y="446" text-anchor="middle" style="font-size:8.5px" fill="#2dd4bf">CDU box</text>
+      <!-- 5 facility: 30 -->
+      <rect x="823" y="382" width="76" height="48" fill="#5b81c4" opacity=".6"/>
+      <text x="861" y="374" text-anchor="middle" class="m" style="font-size:9px" fill="#8aa7df">30</text>
+      <text x="861" y="446" text-anchor="middle" style="font-size:8.5px" fill="#697283">facility</text>
+      <!-- 6 heat rejection: 46 rent -->
+      <rect x="1004" y="358" width="76" height="72" fill="#4faf8e" opacity=".55"/>
+      <text x="1042" y="350" text-anchor="middle" class="m" style="font-size:9px" fill="#7cc9ad">46</text>
+      <text x="1042" y="446" text-anchor="middle" style="font-size:8.5px" fill="#7cc9ad">heat reject</text>
+
+      <!-- rent diamonds -->
+      <path d="M466 292 l11 11 l-11 11 l-11 -11 z" fill="#e0a458"/>
+      <text x="466" y="333" text-anchor="middle" style="font-size:7.5px" fill="#e3bd76">&#9670; rent already collected (Kaori +450%)</text>
+      <path d="M668 320 l11 11 l-11 11 l-11 -11 z" fill="#2dd4bf"/>
+      <text x="668" y="314" text-anchor="middle" style="font-size:8px;font-weight:600" fill="#7ee0d1">&#9670; near-term rent</text>
+      <path d="M1042 292 l11 11 l-11 11 l-11 -11 z" fill="#4faf8e"/>
+      <text x="1042" y="286" text-anchor="middle" style="font-size:8px;font-weight:600" fill="#7cc9ad">&#9670; rent</text>
+
+      <defs>
+        <marker id="am" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#e0686a"/></marker>
+        <marker id="amg" markerWidth="6" markerHeight="6" refX="4.5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#697283"/></marker>
+      </defs>
+    </svg>
+  </div>
+  <p class="cap">Bars = author's qualitative scarcity/value-capture scores (0&ndash;100), not a traded index. The story: <b>physical scarcity peaks at the BPHE + pump core</b> (few qualified vendors; the seconds-to-throttle reliability gate), while the <b>near-term rent</b> sits at the co-qualified CDU box (Vertiv) and the <b>facility-heat-rejection</b> rent pool is a Run #16 story. The distinctive feature vs other runs: an <b>amber diamond at the core</b> marks rent that has <i>already been collected</i> — the pure BPHE play Kaori is +450%/12m — which is exactly why this is a "proven, then priced" chokepoint rather than a fresh-discovery one. <b>Caveat:</b> the CDU box (stage 4) scarcity is deliberately drawn <i>lower</i> than the core to reflect fragmentation (40+ NVIDIA partners) — a judgment call; a bull on Vertiv's scale/warranty moat would draw it taller.</p>
+</section>
+
+<!-- 7. TIMELINE -->
+<section id="s7">
+  <div class="sh"><span class="n">07</span><h2>Multi-year roadmap — the CDU gets bigger, the core stays scarce</h2><span class="cn">時間軸</span></div>
+  <p class="lead">Rows = the moving parts; columns = 2026 &rarr; 2029+. The CDU demand curve is secular (every liquid-cooled rack, and density is <i>rising</i> into Rubin), but the two dated wild-cards are (a) <b>two-phase D2C</b> (2027&ndash;28), which <i>raises</i> CDU/BPHE duty, and (b) <b>in-chip microfluidics</b> (2028+, Run #16), the only architecture that would eventually trim the secondary-loop BPHE — plus the ongoing <b>consolidation</b> that keeps removing clean listed vehicles.</p>
+  <div class="tlgrid">
+    <div class="tlhead"><div>Vector</div><div>2026</div><div>2027</div><div>2028</div><div>2029+</div></div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--choke)"></span>BPHE + pump core</div>
+      <div class="cell hot"><b>Tight</b>L2L BPHE sold into shortage; Kaori +450%, near ATH; pumps reliability-gated</div>
+      <div class="cell hot"><b>Still tight</b>Rubin 2&times; flow raises plate area + pump duty; qualification backlog</div>
+      <div class="cell"><b>Capacity adds</b>Kaori/Alfa Laval/Danfoss expand; China (Envicool) enters L2L</div>
+      <div class="cell"><b>Rebalancing</b>multi-vendor BPHE; rent normalizes toward the integrator</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--accent)"></span>CDU form-factor</div>
+      <div class="cell"><b>In-row 1&ndash;2 MW</b>GB200/300 default; CoolIT CHx2000, Motivair 2.5 MW</div>
+      <div class="cell"><b>Facility-scale</b>8 MW+ units (DCX); NVIDIA reference CDUs proliferate</div>
+      <div class="cell"><b>Standardized</b>OCP open designs commoditize the box; ODMs enter</div>
+      <div class="cell"><b>Box margin thins</b>rent migrates to core + services + scale leaders</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--dup)"></span>Architecture</div>
+      <div class="cell"><b>Single-phase D2C</b>the 2026 workhorse; rear-door for retrofits</div>
+      <div class="cell hot"><b>2-phase D2C</b>dielectric boils at plate as dies cross ~2 kW; +CDU duty</div>
+      <div class="cell hot"><b>In-chip pilots</b>TSMC IMC-Si / Microsoft-Corintis (Run #16) — threatens cold plate/TIM</div>
+      <div class="cell"><b>In-chip scale?</b>if it lands, secondary-loop BPHE duty eases 2029+</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--dacr)"></span>Demand / consolidation</div>
+      <div class="cell hot"><b>Surging + M&amp;A</b>Vertiv backlog $15B (+109%); CoolIT&rarr;Ecolab $4.75B; Motivair&rarr;Schneider</div>
+      <div class="cell"><b>Capacity race</b>Modine $2B DC target FY28; nVent expands; Delta scales</div>
+      <div class="cell"><b>Fewer pure-plays</b>absorption continues — clean vehicles keep disappearing</div>
+      <div class="cell"><b>~$4B+ CDU TAM</b>19% CAGR; L2L the tight slice; secular into Rubin+</div>
+    </div>
+  </div>
+  <p class="cap">Dates triangulated from company releases (Vertiv Q4-2025 8-K; Ecolab/Schneider deal notices; Modine guidance) and architecture roadmaps (SemiAnalysis, OFC/OCP, Run #16). The honest counter: two-phase-D2C and in-chip timing both slip routinely, and NVIDIA's own reference/OCP designs are the biggest swing factor for how fast the <i>box</i> commoditizes.</p>
+</section>
+
+<!-- 8. CHOKEPOINT + SEVERITY -->
+<section id="s8">
+  <div class="sh"><span class="n">08</span><h2>The chokepoint, scored — and how it could be wrong</h2><span class="cn">卡點評分</span></div>
+  <div class="choke">
+    <div class="ttl">
+      <svg width="26" height="26" viewBox="0 0 26 26"><path d="M13 2 L24 22 L2 22 Z" fill="none" stroke="#e0686a" stroke-width="2"/><line x1="13" y1="9" x2="13" y2="16" stroke="#e0686a" stroke-width="2"/><circle cx="13" cy="19" r="1.3" fill="#e0686a"/></svg>
+      <h3>The CDU heat-exchange + pump core — the appliance gate on every liquid-cooled rack</h3>
+    </div>
+    <p>Every liquid-cooled AI rack needs a CDU; the CDU cannot skip its <b>BPHE</b> (the two loops must not mix) or its <b>pump</b> (a stop can throttle the rack in seconds); both are qualified over 12&ndash;18 months and sourced from a short list of vendors. That is a genuine severity-15 systemic chokepoint. But it is <b>honestly softer than a monopoly</b>: NVIDIA lists 40+ cooling partners and open-sources reference CDU designs, and the BPHE/pump each have several qualified suppliers (Kaori, Alfa Laval, Danfoss, SWEP, Kelvion; Grundfos, Wilo, Xylem). So the tightness is <b>real but multi-sourced</b> — which is why severity is 15, not the 18&ndash;19 of the glass-cloth/GOES monopolies — and, critically, the <b>market already priced the cleanest expression</b> (Kaori +450%).</p>
+    <div class="stats">
+      <div><b class="num">15/20</b><span>Composite severity (supply 3 · lead-time 4 · low-sub 3 · demand 5)</span></div>
+      <div><b class="num">~sec</b><span>Pump-stop to throttle (cited worst-case ~23s) — why reliability is the gate</span></div>
+      <div><b class="num">40+</b><span>NVIDIA cooling partners — why it's not a monopoly</span></div>
+      <div><b class="num">6/20</b><span>Remaining asymmetry — a relative-value laggard exists, but pure-plays ran or got bought</span></div>
+    </div>
+  </div>
+
+  <div class="two" style="margin-top:16px">
+    <div class="gap"><div class="h">VARIANT / DISAGGREGATION — the edge, and the trap inside it</div>
+      <p>Consensus says "AI cooling = buy Vertiv" or "buy a CDU maker." The <b>edge is a three-part disaggregation</b>: (1) the CDU <i>box</i> is fragmenting — 40+ NVIDIA partners plus OCP open reference designs — so the integrator's premium erodes toward the scarce <b>BPHE + pump core</b> one layer down; (2) the market has <b>already found</b> the purest core play (Kaori +450%/12m), so the component thesis is <i>proven but priced</i> — the residual edge is the <b>cheaper, quality proxies</b> (Alfa Laval +18% at ~17&times; EV/EBITDA vs Kaori's re-rate; the sealless-pump link Moog; the laggard Nidec) and the private reliable-pump layer; (3) the <b>"absorbed pure-play" tell</b> — CoolIT&rarr;Ecolab ($4.75B, 29&times; fwd EBITDA) and Motivair&rarr;Schneider ($850M, 75% stake, closed Feb-2025) — validates the chokepoint <i>and</i> removes the clean vehicles, which is itself the signal.</p>
+    </div>
+    <div class="panel">
+      <div style="font-size:11px;font-weight:700;color:var(--choke);letter-spacing:.04em;margin-bottom:8px">HOW THE THESIS COULD BE WRONG</div>
+      <table class="tbl"><tbody>
+        <tr><td><b>Box commoditizes fast</b><br><span style="font-size:11px">NVIDIA reference + OCP designs + ODM entry compress CDU margins &rarr; bearish Vertiv's cooling premium</span></td></tr>
+        <tr><td><b>BPHE is multi-sourced</b><br><span style="font-size:11px">Kaori/Alfa Laval/Danfoss/SWEP/Kelvion + China (Envicool) &rarr; not a true monopoly; Kaori's +450% can de-rate hard on any capex pause</span></td></tr>
+        <tr><td><b>In-chip microfluidics</b><br><span style="font-size:11px">2028+ (Run #16) could delete the cold-plate/TIM layer and ease secondary-loop BPHE duty long-term</span></td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:14px">
+    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:6px">RENT-CAPTURE TEST — who keeps the scarcity rent?</div>
+    <p style="font-size:12.5px;color:var(--mut);line-height:1.6">Margins settle the argument. <b style="color:var(--txt)">Kaori</b> (BPHE, tiny base) ran +450% <i>with margin expansion</i> — the component captured huge, durable rent, and the market found it. <b style="color:var(--txt)">Vertiv</b> (the system) captured strong rent too (backlog +109%, margins expanding) but faces reference-design commoditization, so its box rent is durable-for-now but <i>eroding</i>. The <b style="color:var(--txt)">pump makers</b> (Grundfos, Wilo — private) capture reliability rent invisibly. Verdict: rent is <b>shared</b> between the co-qualified integrator (near-term, eroding) and the scarce core (durable) — but the <b>pure-component rent has already been paid out</b> in Kaori's tape. That is the defining difference from GOES/glass-cloth, where the material stayed cheap: here the material pure-play <i>won</i>, which is bullish confirmation of the framework and bearish for a late entry into the obvious name.</p>
+  </div>
+</section>
+
+<!-- 9. AWARENESS + LEADING INDICATORS + WATCHLIST -->
+<section id="s9">
+  <div class="sh"><span class="n">09</span><h2>Awareness curve · leading indicators · still-latent watchlist</h2><span class="cn">意識曲線</span></div>
+  <p class="lead">Stage the names honestly by YTD move + valuation. The unusual shape of this chain: the purest chokepoint play sits furthest <i>right</i> (Kaori, priced) — the opposite of a hidden gem — and almost the whole loop has re-rated. The three own-it links cluster in <b>recognition</b> (Alfa Laval +18%, cheapest) to <b>euphoria</b> (Moog +69%, Vertiv +80%). The dashed marker sits left, at the <b>private pump owners + the laggard proxy (Nidec) + the leak-detection/filtration razor</b>, where the genuinely un-priced dollar still hides.</p>
+  <div class="svgwide">
+    <svg viewBox="0 0 1120 300" width="100%" role="img" aria-label="Awareness curve staging the plays">
+      <path d="M40 250 C300 250 360 90 560 90 C760 90 820 55 1080 48" fill="none" stroke="#2a3040" stroke-width="2"/>
+      <text x="60" y="275" style="font-size:9px" fill="#697283">Latent</text>
+      <text x="300" y="275" style="font-size:9px" fill="#697283">Early</text>
+      <text x="560" y="275" text-anchor="middle" style="font-size:9px" fill="#697283">Recognition</text>
+      <text x="820" y="275" text-anchor="middle" style="font-size:9px" fill="#697283">Euphoria</text>
+      <text x="1060" y="275" text-anchor="end" style="font-size:9px" fill="#697283">Priced</text>
+
+      <!-- where the next entry hides marker -->
+      <line x1="180" y1="60" x2="180" y2="258" stroke="#2dd4bf" stroke-width="1.4" stroke-dasharray="5 4"/>
+      <text x="180" y="52" text-anchor="middle" style="font-size:9px;font-weight:600" fill="#2dd4bf">&#9660; where the next entry hides</text>
+      <text x="180" y="40" text-anchor="middle" style="font-size:8px" fill="#5aa9e0">private pump owners + leak-detect razor</text>
+
+      <!-- nodes -->
+      <!-- Private pump owners latent -->
+      <circle cx="110" cy="240" r="6" fill="#5aa9e0"/><text x="110" y="224" text-anchor="middle" style="font-size:9px" fill="#8aa7df">Grundfos/Wilo</text><text x="110" y="256" text-anchor="middle" style="font-size:8px" fill="#697283">private pumps</text>
+      <!-- Nidec early/laggard -->
+      <circle cx="250" cy="206" r="6" fill="#5fc98a"/><text x="250" y="190" text-anchor="middle" style="font-size:9px" fill="#7cc9ad">Nidec</text><text x="250" y="223" text-anchor="middle" class="m" style="font-size:8px" fill="#697283">+20% · pump/CDU laggard</text>
+      <!-- Ecolab early -->
+      <circle cx="340" cy="178" r="6" fill="#5fc98a"/><text x="340" y="162" text-anchor="middle" style="font-size:9px" fill="#7cc9ad">Ecolab</text><text x="340" y="195" text-anchor="middle" class="m" style="font-size:8px" fill="#697283">+8% · absorbed CoolIT</text>
+      <!-- Alfa Laval recognition (own-it lean) -->
+      <circle cx="510" cy="98" r="8" fill="#e0a458" stroke="#2dd4bf" stroke-width="1.5"/><text x="510" y="82" text-anchor="middle" style="font-size:9.5px;font-weight:700" fill="#7ee0d1">Alfa Laval</text><text x="510" y="116" text-anchor="middle" class="m" style="font-size:8px" fill="#697283">+18% · ~17&times; · own-it lean</text>
+      <!-- nVent recognition -->
+      <circle cx="600" cy="86" r="6" fill="#e0a458"/><text x="600" y="132" text-anchor="middle" style="font-size:9px" fill="#e3bd76">nVent +46%</text>
+      <!-- Moog recognition->euphoria -->
+      <circle cx="720" cy="72" r="7" fill="#e0a458" stroke="#e0686a" stroke-width="1.2"/><text x="720" y="56" text-anchor="middle" style="font-size:9.5px;font-weight:600" fill="#e3bd76">Moog (pump)</text><text x="720" y="90" text-anchor="middle" class="m" style="font-size:8px" fill="#697283">+69% · ATH</text>
+      <!-- Vertiv euphoria -->
+      <circle cx="830" cy="64" r="8" fill="#e0686a"/><text x="830" y="48" text-anchor="middle" style="font-size:9.5px;font-weight:600" fill="#eda3a4">Vertiv</text><text x="830" y="82" text-anchor="middle" class="m" style="font-size:8px" fill="#697283">+80% (&minus;23% off high)</text>
+      <!-- Kaori priced (the purest = furthest right) -->
+      <circle cx="1010" cy="52" r="9" fill="#e0686a"/><text x="1010" y="35" text-anchor="middle" style="font-size:9.5px;font-weight:700" fill="#eda3a4">Kaori (pure BPHE)</text><text x="1010" y="72" text-anchor="middle" class="m" style="font-size:8px" fill="#697283">+450% / 12m · ATH</text>
+    </svg>
+  </div>
+  <p class="cap">The irony worth internalizing: on a normal chain the purest chokepoint pure-play is the hidden early name; here it is the <b>most-priced</b> one (Kaori +450%). The whole own-it cluster has re-rated — so the discipline is relative-value (<b>Alfa Laval</b>, cheapest and least-run, moving up into CDU systems) plus watching the still-latent private pump layer, not chasing the last winner.</p>
+
+  <div class="two" style="margin-top:18px">
+    <div class="panel">
+      <div style="font-size:11px;font-weight:700;color:var(--dout);letter-spacing:.04em;margin-bottom:10px">LEADING-INDICATOR DASHBOARD — signal · trigger · where an amateur can read it</div>
+      <table class="liw"><thead><tr><th>Signal</th><th>Trigger threshold</th><th>Where to read it (free)</th></tr></thead><tbody>
+        <tr><td><b>CDU / thermal order intake</b></td><td>Vertiv book-to-bill &gt;1.3&times; sustained; backlog growth decelerates &lt;+50%</td><td>Vertiv/nVent/Modine quarterly 8-K + earnings calls (IR sites, SEC EDGAR)</td></tr>
+        <tr><td><b>BPHE pure-play tape + margin</b></td><td>Kaori (8996) monthly revenue YoY rolling over, or GM compression</td><td>TWSE MOPS monthly sales; Yahoo/Investing 8996.TW</td></tr>
+        <tr><td><b>Consolidation / M&amp;A</b></td><td>Another CDU or BPHE pure-play acquired = confirms scarcity, removes vehicle</td><td>Company press releases; SEC 8-K; DCD news</td></tr>
+        <tr><td><b>Rubin cooling spec</b></td><td>2&times;-flow CDU / two-phase mandate in NVIDIA reference &rarr; +BPHE/pump duty</td><td>NVIDIA GTC / OCP contributions; SemiAnalysis</td></tr>
+        <tr><td><b>In-chip microfluidics</b></td><td>TSMC IMC-Si / Corintis production milestone &rarr; long-run BPHE risk</td><td>OFC/ISSCC papers; TSMC symposium; Run #16 tracker</td></tr>
+      </tbody></table>
+    </div>
+    <div class="panel">
+      <div style="font-size:11px;font-weight:700;color:var(--dacr);letter-spacing:.04em;margin-bottom:10px">STILL-LATENT WATCHLIST — where the un-priced dollar hides</div>
+      <table class="liw"><thead><tr><th>Candidate</th><th>Why it's next · trigger that wakes it</th></tr></thead><tbody>
+        <tr><td><b>Private pump owners</b><br><span class="stagebadge sg-latent">LATENT</span></td><td>Grundfos &gt; Wilo (both private), Xylem (XYL, listed-but-diluted) — the seconds-to-throttle single-point-of-failure link; CDU-pump market ~$1.8B by 2032, magnetic-drive CAGR ~20%. Un-bid because it's private/diluted. Wakes on a listed sealless-pump pure-play or a spin-out.</td></tr>
+        <tr><td><b>Nidec (6594)</b><br><span class="stagebadge sg-early">LAGGARD PROXY</span></td><td>+20% YTD (&minus;22% off high); 10k+ CDU pumps shipped "zero failures", China-localization + a new liquid-cooling site (Apr-2026). The listed pump+CDU relative-value laggard. Wakes if it breaks out DC-cooling revenue.</td></tr>
+        <tr><td><b>Ecolab / CoolIT (ECL) + leak-detect razor</b><br><span class="stagebadge sg-early">EARLY / ABSORBED</span></td><td>Bought CoolIT for $4.75B (Mar-2026); +8% YTD; the recurring fluid/filter + leak-detection reliability annuity. A giant-diluted way to own a top CDU pure-play. Wakes if the high-tech segment ($4B by 2030 target) is broken out.</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+</section>
+
+<!-- 10. TOP-3 -->
+<section id="s10">
+  <div class="sh"><span class="n">10</span><h2>Top-3 plays — three different links on one loop</h2><span class="cn">三檔拆解</span></div>
+  <p class="lead">Three names at three distinct links of the CDU core: the <b>heat-exchange core</b> (Alfa Laval — the same BPHE as Kaori, but cheaper, quality, and moving <i>up</i> into systems), the <b>reliable pump</b> (Moog — the sealless integrated-rotor pump (CoreMotion), the seconds-to-throttle SPOF link), and the <b>system box</b> (Vertiv — durable backlog rent, fully priced). None is genuinely <i>early</i> — the pure-play (Kaori +450%) already proved the thesis; these are the disciplined ways to own the core now, ranked by relative value. The genuinely-early dollar is the §9 watchlist (private pumps, Nidec, leak-detection razor).</p>
+  <div role="tablist" aria-label="Top-3 plays" style="display:flex;gap:4px;flex-wrap:wrap">
+    <button class="tabbtn on" role="tab" id="tab-alfa" aria-selected="true" aria-controls="pane-alfa" tabindex="0">ALFA · Alfa Laval<small>the BPHE core, cheaper · RECOGNITION / own-it lean (+18%)</small></button>
+    <button class="tabbtn" role="tab" id="tab-mog" aria-selected="false" aria-controls="pane-mog" tabindex="-1">MOG.A · Moog<small>the sealless pump · RECOGNITION&rarr;EUPHORIA (+69%)</small></button>
+    <button class="tabbtn" role="tab" id="tab-vrt" aria-selected="false" aria-controls="pane-vrt" tabindex="-1">VRT · Vertiv<small>the system box · EUPHORIA / priced (+80%)</small></button>
+  </div>
+
+  <!-- Alfa Laval -->
+  <div class="tabpane" id="pane-alfa" role="tabpanel" aria-labelledby="tab-alfa" style="border:1px solid var(--line2);border-radius:0 12px 12px 12px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px"><h3 style="font-size:18px">Alfa Laval · ALFA <span style="color:var(--dim);font-size:13px">Stockholm</span></h3><span class="stagebadge sg-recog">RECOGNITION · own-it lean</span><span class="chip">the BPHE core, diluted &amp; cheapest</span></div>
+    <div class="mini">
+      <div><div class="v teal num">SEK 554</div><div class="l">last · 08 Jul</div></div>
+      <div><div class="v num" style="color:var(--dacr)">+18%</div><div class="l">YTD (1Y +34%)</div></div>
+      <div><div class="v num">~16.7&times;</div><div class="l">EV/EBITDA (cheapest of 3)</div></div>
+      <div><div class="v num">+25%</div><div class="l">Q1-26 DC order intake YoY</div></div>
+      <div><div class="v num">SEK 48.7B</div><div class="l">order book · B2B &gt;1.0</div></div>
+    </div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢 — how it makes money</div><p>Global leader in <b>heat transfer, separation &amp; fluid handling</b> — the market's broadest line of <b>brazed-plate heat exchangers (BPHE)</b>, the exact liquid-to-liquid core inside a CDU, plus pumps and now integrated cooling systems.</p></div>
+      <div class="mtc"><div class="h">② 營收結構 — revenue mix</div><p>Three divisions (Energy, Food &amp; Water, Marine); data-center cooling is a fast-growing slice of Energy — diluted inside a ~SEK 60B+ revenue industrial, which is precisely why it re-rated far less than Kaori.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源 — growth driver</div><p>AI-cooling BPHE demand: Q1-26 data-center order intake <b>+25% YoY</b>; its custom BPHE is the core of Boyd's 2.3 MW in-row CDU. It is also broadening across the cooling stack — it launched <b>FreeWaterLoop</b> on 4-Mar-2026, though that is a <i>facility-loop</i> heat-rejection system (the primary side, adjacent to — not the same as — the secondary-loop CDU core this report defines).</p></div>
+      <div class="mtc"><div class="h">④ 終端市場 — end market</div><p>Data centers, energy, HVAC/refrigeration, marine, food &amp; water — a deep, cyclical-but-diversified base that cushions an AI air-pocket.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶 — customers</div><p>CDU integrators (Boyd et al.), OEMs, and end operators; broad and less concentrated than a small pure-play.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河 — moat</div><p>The widest qualified BPHE range + brand + service + the move into integrated loops; scale that Kaori/Danfoss/SWEP can't fully match, though the component itself is multi-sourced.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望 — outlook</div><p>Order book SEK 48.7B, book-to-bill &gt;1.0; quality metrics ROE 18.9% / ROIC 13.5%; management leaning into data-center cooling as a structural growth leg.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點 — why it's the chokepoint link</div><p>It <i>owns the scarce BPHE core</i> — the same link Kaori proved pays — but at ~17&times; EV/EBITDA and +18% YTD it's the <b>cheapest, least-run, highest-quality</b> way to hold it, inside a broad thermal franchise.</p></div>
+    </div>
+    <div class="gap" style="margin-top:12px"><div class="h">ASYMMETRIC INFO GAP</div><p>The market still prices Alfa Laval as a cyclical Swedish industrial (heat exchangers, marine, food) rather than an AI-cooling core supplier — the "hidden inside a conglomerate" pattern (Run #17 Amphenol / Run #21 GOES). Kaori's +450% is the proof the BPHE link pays; Alfa Laval gives the <i>same</i> core at a fraction of the multiple, with a +25% DC order-intake tell (its BPHE already sits in Boyd's 2.3&nbsp;MW CDU; FreeWaterLoop adds facility-loop reach, adjacent to the CDU core). It is dilution, not neglect — but it's the honest relative-value own-it here.</p></div>
+    <div class="bbr"><div class="bl"><b>BULL</b>Cheapest quality way to own the proven BPHE core; +25% DC order intake; BPHE inside Boyd's 2.3&nbsp;MW CDU; diversified base + real balance-sheet quality (ROE ~19%).</div><div class="be"><b>BEAR</b>DC cooling is a small slice &rarr; diluted; industrial cyclicality (marine/food) can swamp the AI signal; a Kaori-style pure-play re-rate won't happen inside a SEK 60B+ base.</div></div>
+  </div>
+
+  <!-- Moog -->
+  <div class="tabpane" id="pane-mog" role="tabpanel" aria-labelledby="tab-mog" hidden style="border:1px solid var(--line2);border-radius:0 12px 12px 12px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px"><h3 style="font-size:18px">Moog · MOG.A <span style="color:var(--dim);font-size:13px">NYSE</span></h3><span class="stagebadge sg-recog">RECOGNITION &rarr; EUPHORIA</span><span class="chip">the sealless pump — the seconds-to-throttle link</span></div>
+    <div class="mini">
+      <div><div class="v teal num">$412</div><div class="l">last · 08 Jul (at ATH)</div></div>
+      <div><div class="v num" style="color:var(--dup)">+69%</div><div class="l">YTD (1Y +127%)</div></div>
+      <div><div class="v num">~24&times;</div><div class="l">EV/EBITDA · EV/Sales 3.2&times;</div></div>
+      <div><div class="v num">~$1.0B</div><div class="l">Industrial (of ~$4.2B co)</div></div>
+      <div><div class="v num">ROE 14%</div><div class="l">quality</div></div>
+    </div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢 — how it makes money</div><p>Precision motion control across <b>aerospace, defense &amp; industrial</b>; the AI-cooling angle is its <b>CoreMotion sealless integrated-rotor pump</b> — a leak-proof pump for the reliability-critical CDU secondary loop.</p></div>
+      <div class="mtc"><div class="h">② 營收結構 — revenue mix</div><p>~$4.2B company: Aircraft + Space &amp; Defense dominate; <b>Industrial ~$1.0B</b> houses the CoreMotion pump — so the CDU-pump exposure is real but <i>diluted</i> inside an aero/defense compounder.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源 — growth driver</div><p>Sealless pumps into liquid-cooled AI racks (the seconds-to-throttle SPOF link demands leak-proof reliability); Industrial revenue +14%/+9% YoY with CoreMotion cited as a driver; magnetic-drive pump segment growing ~20% CAGR.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場 — end market</div><p>Commercial/military aircraft, space &amp; defense, and industrial automation + data-center cooling — a defensive, backlog-rich base.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶 — customers</div><p>Airframers, defense primes, industrial OEMs, and (growing) CDU makers / data-center operators.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河 — moat</div><p>Precision-motion engineering + qualification for reliability-critical duty; sealless/mag-drive know-how is a genuine edge, but it competes with Grundfos, Wilo, Xylem, Nidec.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望 — outlook</div><p>At an all-time high (+69% YTD, 1Y +127%) on aero/defense strength <i>plus</i> the CoreMotion narrative; ~24&times; EV/EBITDA prices a lot of the pump optionality already.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點 — why the chokepoint link</div><p>It owns the <b>reliable-pump</b> half of the CDU core — the single-point-of-failure the industry designs redundancy around. The purest <i>listed</i> pump play, but dilution (aero/defense) and a full multiple cap the upside.</p></div>
+    </div>
+    <div class="gap" style="margin-top:12px"><div class="h">ASYMMETRIC INFO GAP</div><p>Most pump capacity is private (Grundfos, Wilo) or diluted (Xylem, Nidec), so Moog is the rare <i>listed</i> handle on the seconds-to-throttle reliability link — but the market bought Moog largely for aero/defense, and the CoreMotion pump is a small, hard-to-size slice of a $4.2B company at an all-time high. The edge is knowing the pump is a genuine chokepoint half; the risk is paying a euphoric multiple for exposure you can't cleanly quantify.</p></div>
+    <div class="bbr"><div class="bl"><b>BULL</b>The listed way to own the reliability-critical sealless pump; aero/defense backlog underpins the base; mag-drive segment compounding ~20%.</div><div class="be"><b>BEAR</b>Pump exposure is a small, opaque slice; at ATH / ~24&times; the CoreMotion optionality is priced; competes with private scale leaders (Grundfos).</div></div>
+  </div>
+
+  <!-- VRT -->
+  <div class="tabpane" id="pane-vrt" role="tabpanel" aria-labelledby="tab-vrt" hidden style="border:1px solid var(--line2);border-radius:0 12px 12px 12px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px"><h3 style="font-size:18px">Vertiv Holdings · VRT <span style="color:var(--dim);font-size:13px">NYSE</span></h3><span class="stagebadge sg-eu">EUPHORIA · priced</span><span class="chip">the CDU / thermal system box</span></div>
+    <div class="mini">
+      <div><div class="v teal num">$292</div><div class="l">last · 08 Jul</div></div>
+      <div><div class="v num" style="color:var(--choke)">+80%</div><div class="l">YTD (&minus;23% off $380 high)</div></div>
+      <div><div class="v num">$15.0B</div><div class="l">backlog (+109% YoY)</div></div>
+      <div><div class="v num">~51&times;</div><div class="l">EV/EBITDA · ROE 42%</div></div>
+      <div><div class="v num">~$13.5B</div><div class="l">2026 sales guide (+28%)</div></div>
+    </div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢 — how it makes money</div><p>Full-stack data-center power &amp; thermal: UPS, switchgear, busway, and the <b>liquid-cooling stack</b> (CDUs, cold plates, rear-door, trim coolers) — increasingly sold as an integrated "AI factory" package with service.</p></div>
+      <div class="mtc"><div class="h">② 營收結構 — revenue mix</div><p>~$10.2B 2025 revenue across Americas / EMEA / APAC; thermal (incl. liquid cooling) is the fastest-growing line; recurring services attach on top.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源 — growth driver</div><p>AI-rack density forcing liquid cooling as the default; backlog $15B (+109%) &asymp; 12&ndash;18 mo forward revenue; ~$1B Q4 acquisitions (incl. PerchRight) add capacity.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場 — end market</div><p>Hyperscalers + neoclouds + colos building GB200/300 &amp; Rubin AI factories worldwide.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶 — customers</div><p>The major hyperscalers and large colo/neocloud operators; NVIDIA-reference ecosystem partner.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河 — moat</div><p>Scale, install base, service network, and reference-qualification across the <i>whole</i> power+thermal stack — hard for a point CDU vendor to match. But the CDU box itself is contestable.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望 — guidance</div><p>2026 net sales $13.25&ndash;13.75B (organic +27&ndash;29%), adj EPS $5.97&ndash;6.07 (+43% mid); CEO: liquid-cooling capacity growing "really, really rapidly."</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點 — why the chokepoint link</div><p>It is <i>not</i> the scarce component — it's the <b>rent-capturer</b> that assembles and warranties the co-qualified CDU/thermal system. Durable-for-now rent, but eroding as NVIDIA reference/OCP designs commoditize the box.</p></div>
+    </div>
+    <div class="gap" style="margin-top:12px"><div class="h">ASYMMETRIC INFO GAP</div><p>The debate is valuation, not demand: at ~$292 (&minus;23% off its $380 high) on ~51&times; EV/EBITDA with a $15B backlog, VRT already prices a lot of the cooling supercycle. The under-appreciated risk is <b>who owns the CDU box in 3 years</b> — if NVIDIA reference + OCP designs turn CDUs into an ODM commodity, Vertiv keeps the power + service rent but loses the cooling premium the multiple assumes.</p></div>
+    <div class="bbr"><div class="bl"><b>BULL</b>Own the whole AI-factory power+thermal stack; backlog covers 12&ndash;18 mo; services annuity compounds; the safe, liquid, highest-quality way to own the theme (ROE 42%).</div><div class="be"><b>BEAR</b>Priced for perfection at ~51&times; EV/EBITDA; CDU box commoditizes; a hyperscaler capex wobble hits the multiple hard (already &minus;23% off high).</div></div>
+  </div>
+</section>
+
+<!-- 11. BENEFICIARIES + RISKS -->
+<section id="s11">
+  <div class="sh"><span class="n">11</span><h2>Second-order beneficiaries &amp; risk register</h2><span class="cn">外溢與風險</span></div>
+  <div class="two">
+    <div class="panel">
+      <div style="font-size:11px;font-weight:700;color:var(--dacr);letter-spacing:.04em;margin-bottom:10px">SECOND / THIRD-ORDER BENEFICIARIES</div>
+      <table class="tbl"><tbody>
+        <tr><td><b>Other BPHE makers</b> — Danfoss (private), SWEP/Dover, Kelvion, Envicool (China): alt-vendors to Alfa Laval/Kaori; the China entrant is also the price-risk.</td></tr>
+        <tr><td><b>Other pump makers</b> — Grundfos &gt; Wilo (private), Xylem (XYL), Nidec (6594): the seconds-to-throttle SPOF link beyond Moog; a listed pure-play or Nidec DC-cooling breakout wakes this.</td></tr>
+        <tr><td><b>#2 integrators</b> — nVent (NVT, +46%, manifold+CDU, NVIDIA collab), Delta (2308), Modine (MOD, +68%): relative-value / diversified CDU demand.</td></tr>
+        <tr><td><b>Absorbing acquirers</b> — Ecolab (CoolIT, $4.75B), Schneider (Motivair, $850M/75%): buy the scarcity + the fluid/filter service annuity.</td></tr>
+        <tr><td><b>Facility heat-rejection</b> — Munters, Modine, SPX (Run #16): downstream of every CDU; the ambient sink.</td></tr>
+      </tbody></table>
+    </div>
+    <div class="panel">
+      <div style="font-size:11px;font-weight:700;color:var(--choke);letter-spacing:.04em;margin-bottom:10px">RISK REGISTER</div>
+      <table class="tbl"><tbody>
+        <tr><td><b>Box commoditization</b> — NVIDIA reference + OCP designs + ODM entry compress CDU margins (hits Vertiv/nVent premium).</td></tr>
+        <tr><td><b>Kaori de-rate</b> — +450% / near ATH / thin coverage; a small AI-capex wobble is amplified in a small-cap.</td></tr>
+        <tr><td><b>China BPHE entry</b> — Envicool and domestic plate makers undercut on price, eroding the L2L rent.</td></tr>
+        <tr><td><b>Architecture leap</b> — in-chip microfluidics (2028+, Run #16) trims secondary-loop BPHE duty long-term.</td></tr>
+        <tr><td><b>FX / illiquidity</b> — TW (Kaori), SE (Alfa Laval) names carry currency + access friction for a US retail account.</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+</section>
+
+<!-- 12. DECISION -->
+<section id="s12">
+  <div class="sh"><span class="n">12</span><h2>Decision table &amp; the one-line read</h2><span class="cn">決策表</span></div>
+  <div style="border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px;background:var(--panel2)">
+    <p style="font-size:12.5px;color:var(--mut);line-height:1.6"><b style="color:var(--dacr)">Read the conclusion first · 先講結論:</b> the CDU is a real, secular, severity-15 chokepoint — but it is <b style="color:var(--txt)">multi-sourced, not a monopoly</b>, and the <b style="color:var(--txt)">purest expression already ran ~5&times;</b> (Kaori). So this is a <b style="color:var(--txt)">relative-value</b> layer, not a fresh-discovery buy. Of the three listed links, the <i>own-it</i> lean is <b style="color:var(--txt)">Alfa Laval</b> — the same BPHE core as Kaori at ~17&times; EV/EBITDA, moving up into CDU systems, the cheapest and least-run; <b style="color:var(--txt)">Moog</b> is the listed sealless-pump link (priced, at ATH); <b style="color:var(--txt)">Vertiv</b> is the durable box rent (fully priced at ~51&times;). The genuinely-early dollar is the watchlist — private pumps, the laggard Nidec, and the leak-detection razor.</p>
+  </div>
+  <div class="svgwide" style="padding:0">
+  <table class="tbl" style="font-size:12px">
+    <thead><tr><th>Ticker</th><th>Chokepoint link</th><th>Severity /20</th><th>Stage</th><th>Valuation (est.)</th><th>Rem. asymmetry</th><th>Lean</th><th>Trigger to act</th></tr></thead>
+    <tbody>
+      <tr style="background:rgba(45,212,191,.05)"><td><b>ALFA</b><br>Alfa Laval</td><td>Brazed-plate <b>heat-exchange core</b> (diluted, cheapest)</td><td class="num">16*</td><td><span class="stagebadge sg-recog">RECOGNITION</span></td><td>+18% YTD · ~16.7&times; EV/EBITDA</td><td class="num">7/20</td><td><b>Own-it lean (relative value)</b></td><td>own on weakness; add on DC order-intake acceleration</td></tr>
+      <tr><td><b>MOG.A</b><br>Moog</td><td>Sealless <b>reliable pump</b> (the seconds-to-throttle link)</td><td class="num">16*</td><td><span class="stagebadge sg-eu">RECOG&rarr;EU</span></td><td>+69% YTD · at ATH · ~24&times;</td><td class="num">4/20</td><td><b>Quality, but priced</b></td><td>a pullback + CoreMotion pump revenue disclosed</td></tr>
+      <tr><td><b>VRT</b><br>Vertiv</td><td>CDU / thermal <b>system box</b> (rent-capturer)</td><td class="num">14</td><td><span class="stagebadge sg-eu">EUPHORIA</span></td><td>+80% YTD · ~51&times; EV/EBITDA</td><td class="num">3/20</td><td><b>Own-the-rent, on weakness</b></td><td>a &gt;20% pullback or book-to-bill re-acceleration &gt;1.5&times;</td></tr>
+      <tr style="background:rgba(224,104,106,.05)"><td><b>8996</b><br>Kaori</td><td><b>Pure BPHE</b> core — the priced anchor</td><td class="num">16</td><td><span class="stagebadge sg-eu">EUPHORIA</span></td><td>+450%/12m · PT ~at spot · 4 analysts</td><td class="num">2/20</td><td><b>Admire, don't chase</b></td><td>the receipt that the thesis pays — not an entry</td></tr>
+      <tr style="background:rgba(90,169,224,.05)"><td><b>Nidec / pumps</b><br>6594 · Grundfos*</td><td>Laggard <b>pump + CDU</b> proxy + private pump layer</td><td class="num">16*</td><td><span class="stagebadge sg-latent">LATENT</span></td><td>Nidec +20% · pumps private</td><td class="num">8/20</td><td><b>Watchlist — the early dollar</b></td><td>Nidec DC-cooling breakout; a listed sealless-pump pure-play</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="cap">*The 16* is the <i>isolated link</i> severity of the scarce BPHE/pump core; Vertiv's 14 is the multi-sourced integrator box. The <b>composite 15/20</b> is the co-qualified CDU <i>system</i> as a whole — it blends the scarce 16-core with the 14-box (≈15), which is why no single row equals the headline number. The 16* is a link score, not the diluted equity's <i>captured</i> rent — that gap (rent not yet in the diluted share) is exactly why Alfa Laval / Nidec carry the higher remaining asymmetry. Valuations are estimates — verify on a terminal.</p>
+
+  <div style="border:1px solid #2c5a40;border-radius:12px;padding:16px 18px;margin-top:16px;background:rgba(95,201,138,.06)">
+    <div style="font-size:11px;font-weight:700;color:var(--dacr);letter-spacing:.05em;margin-bottom:7px">IF YOU CAN ONLY DO ONE THING</div>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6">Don't chase Kaori at +450% — treat its tape as <b style="color:var(--txt)">confirmation that the BPHE chokepoint is real and pays</b>, then own the same core the cheaper way: <b style="color:var(--txt)">Alfa Laval (ALFA, +18% YTD, ~17&times; EV/EBITDA)</b> holds the identical BPHE link at a fraction of Kaori's multiple (its BPHE is the core of Boyd's 2.3&nbsp;MW CDU; DC order intake +25%). Keep <b style="color:var(--txt)">Moog</b> (the listed pump) and <b style="color:var(--txt)">Vertiv</b> (the box) as own-on-weakness quality names, and watch the still-latent private-pump layer + <b style="color:var(--txt)">Nidec</b> for the genuinely-early dollar. The framework worked here (a pure-play 5-bagger) — the discipline is to own the core cheaply, and to be early to the <i>next</i> such link, not late to the last one.</p>
+  </div>
+
+  <div class="disc">
+    <b>Disclaimer &amp; sources.</b> Personal research for a private knowledge base — <b>NOT investment advice</b>. IBKR read-only; never trade. Live quotes = IBKR snapshot ~08 Jul 2026 (VRT/NVT/MOD/ECL/MOG.A/Nidec); SE (Alfa Laval) and TW (Kaori 8996) via FMP/aggregators as IBKR lacks those market-data subscriptions — treat as approximate. A verification pass corrected Alfa Laval to +18.3% YTD (a &minus;9% aggregator print was stale). Load-bearing facts cross-checked ≥2 sources where noted; multiples/shares marked (est.). Sources: GMInsights, Valuates/PRNewswire, LP Information (market size); NVIDIA developer blog + OCP; Introl, ToneCooling (rack/thermal specs); ASHRAE TC 9.9 via search (worst-case ~23s stat, workload-dep., unverified as an ASHRAE constant); Supermicro/Modine/nVent/Stulz/JetCool/Eaton (CDU component specs); Grundfos/Wilo/Xylem/Nidec (pumps); Kaori + Alfa Laval + Boyd (BPHE); Ecolab IR + SEC 8-K + SmartWaterMagazine + Futurum (CoolIT deal); Vertiv Q4-2025 8-K + IR (backlog/guidance); DCD, deepfundamental (Substack); SemiAnalysis (Rubin). As-of 2026-07-08. Immutable source note: <b>01 Sources/2026-07-08_AI-Infra_Cooling_CDU-Chokepoint.md</b>.
+  </div>
+
+  <footer>
+    <p><b>AI-Infra Deep-Dive · Run #22 · v5 · Cooling (loop 4).</b> Opens the CDU appliance that Run #16 named-but-skipped, beneath Run #4 (cold plate) and Run #10 (quick-disconnect): the binding link is the <b>brazed-plate heat exchanger + reliable pump core</b> inside the coolant distribution unit (severity 15/20; remaining asymmetry 6/20). Central finding — a <i>proven-then-priced</i> chokepoint: the pure BPHE play (Kaori) already ran +450%, and the two clean CDU pure-plays (CoolIT&rarr;Ecolab $4.75B, Motivair&rarr;Schneider $850M/75%) were absorbed — so the play is relative-value, not fresh discovery. Top-3 at three links: <b>Alfa Laval</b> (the BPHE core diluted &amp; cheapest, RECOGNITION +18% at ~17&times; EV/EBITDA, its BPHE inside Boyd's 2.3 MW CDU — the own-it lean) · <b>Moog MOG.A</b> (the sealless pump / seconds-to-throttle link, RECOGNITION&rarr;EUPHORIA +69% at ATH) · <b>Vertiv</b> (the system box, EUPHORIA/priced +80% at ~51&times;, own-on-weakness). Kaori 8996 (+450%) is the priced anchor: admire-don't-chase. The genuinely-early dollar sits in the watchlist (private pumps, laggard Nidec +20%, leak-detection razor, Ecolab). Live IBKR anchors: VRT +80.4% (&minus;23% off high) · MOG.A +69.3% (ATH) · NVT +45.7% · MOD +68.5% · Nidec +20.5% · ECL +8.1%; FMP: Alfa Laval +18.3% YTD (SEK 554), Kaori +432&ndash;494%/12m. Data correction from a verification pass: Alfa Laval is +18% YTD (a prior &minus;9% aggregator figure was a stale misread). SVG fonts set via CSS rule (no var-based font attributes); tabs keyboard-accessible (roving tabindex + arrows) + @media print; bar chart tallest at the chokepoint (BPHE+pump), with an amber "rent already collected" diamond at the core to encode the proven-then-priced read; per-link severity reconciled to the composite 15/20. Cross-reviewed by an independent reviewer subagent; recurs every 2 days. Personal research, not investment advice.</p>
+  </footer>
+
+</section>
+
+</div>
+<script>
+(function(){
+  var tabs=[].slice.call(document.querySelectorAll('[role=tab]'));
+  function sel(t){
+    tabs.forEach(function(b){
+      var on=(b===t);
+      b.classList.toggle('on',on);
+      b.setAttribute('aria-selected',on?'true':'false');
+      b.tabIndex=on?0:-1;
+      var p=document.getElementById(b.getAttribute('aria-controls'));
+      if(p){ if(on){p.hidden=false;p.style.display='block';} else {p.hidden=true;p.style.display='none';} }
+    });
+  }
+  tabs.forEach(function(t,i){
+    t.addEventListener('click',function(){sel(t);t.focus();});
+    t.addEventListener('keydown',function(e){
+      var n=null;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown') n=tabs[(i+1)%tabs.length];
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp') n=tabs[(i-1+tabs.length)%tabs.length];
+      else if(e.key==='Home') n=tabs[0];
+      else if(e.key==='End') n=tabs[tabs.length-1];
+      if(n){e.preventDefault();sel(n);n.focus();}
+    });
+  });
+})();
+</script>
+</body>
+</html>

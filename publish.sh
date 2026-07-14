@@ -53,8 +53,9 @@ case "$SLUG" in
   *) echo "BLOCKED: slug is not allowlisted: $SLUG" >&2; exit 2 ;;
 esac
 
+EXPECTED_SHA_LC="$(printf '%s' "$EXPECTED_SHA" | tr 'A-F' 'a-f')"
 ACTUAL_SHA="$(shasum -a 256 "$ARTIFACT" | awk '{print $1}')"
-[[ "$ACTUAL_SHA" == "${EXPECTED_SHA,,}" ]] || {
+[[ "$ACTUAL_SHA" == "$EXPECTED_SHA_LC" ]] || {
   echo "BLOCKED: artifact hash mismatch" >&2
   exit 2
 }
@@ -69,7 +70,7 @@ TMP_DEST="${SLUG}.publish-tmp.$$"
 trap 'rm -f "$SITE_DIR/$TMP_DEST"' EXIT
 cp "$ARTIFACT" "$TMP_DEST"
 COPIED_SHA="$(shasum -a 256 "$TMP_DEST" | awk '{print $1}')"
-[[ "$COPIED_SHA" == "${EXPECTED_SHA,,}" ]] || { echo "BLOCKED: staged-copy hash mismatch" >&2; exit 2; }
+[[ "$COPIED_SHA" == "$EXPECTED_SHA_LC" ]] || { echo "BLOCKED: staged-copy hash mismatch" >&2; exit 2; }
 mv "$TMP_DEST" "$SLUG"
 
 git add -- "$SLUG"

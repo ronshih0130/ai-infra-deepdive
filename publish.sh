@@ -49,7 +49,7 @@ case "$SLUG" in
   optics.html|optics-epitaxy.html|optics-packaging.html|compute-fabric.html|compute-fabric-hybrid.html|\
   power.html|cooling.html|networking.html|substrates.html|macro.html|alpha-map.html|\
   alpha-map-blueprint.html|leading-data-map.html|bom-alpha-scan.html|alpha-funnel.html|\
-  leading-indicators.html|aixtron.html|xfab.html) ;;
+  leading-indicators.html|aixtron.html|xfab.html|tech-alpha-map.html) ;;
   *) echo "BLOCKED: slug is not allowlisted: $SLUG" >&2; exit 2 ;;
 esac
 

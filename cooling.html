@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Infra Run #22 v5 — Cooling / CDU core (brazed-plate HX + reliable pump) Chokepoint</title>
+<title>AI Infra Run #28 v5 — Cooling / Metal Thermal-Interface (TIM) · Gallium–Indium Chokepoint</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
@@ -12,8 +12,11 @@
     --txt:#e8eaf0; --mut:#9aa3b5; --dim:#697283;
     --accent:#2dd4bf;        /* single brand accent (desaturated teal) */
     --choke:#e0686a;         /* desaturated red */
-    /* categorical: supply-chain stages */
-    --up:#5b81c4; --l3:#8b84cf; --pkg:#c47a9e; --l2:#d2a24a; --l1:#4faf8e;
+    /* categorical: thermal stack layers */
+    --up:#5b81c4;  /* UP  feedstock metals */
+    --l3:#8b84cf;  /* L3  metal-TIM formulation (chokepoint) */
+    --l2:#d2a24a;  /* L2  interface / application */
+    --l1:#4faf8e;  /* L1  cold plate / loop */
     /* categorical: cooling domains */
     --dup:#e0a458; --dout:#5aa9e0; --dacr:#5fc98a;
   }
@@ -26,39 +29,41 @@
      radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
   .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
   .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
-  h1{font-size:32px;font-weight:700;letter-spacing:-.6px;line-height:1.12;max-width:960px}
-  .sub{font-size:15px;font-weight:400;color:var(--mut);margin-top:12px;max-width:900px}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.6px;line-height:1.12;max-width:940px}
+  .sub{font-size:15px;font-weight:400;color:var(--mut);margin-top:12px;max-width:860px}
   .meta{margin-top:20px;display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
-  .meta div{padding-right:26px;margin-right:26px;border-right:1px solid var(--line)}
+  .meta div{padding-right:26px;margin-right:26px;border-right:1px solid var(--line);margin-bottom:8px}
   .meta div:last-child{border:0}
   .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
   .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
-  .asof{margin-top:14px;display:inline-flex;align-items:center;gap:9px;font-size:11.5px;color:#c4ab78;background:rgba(210,162,74,.08);border:1px solid #3a3015;border-radius:9px;padding:7px 13px}
-  .gauges{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
-  .gge{border:1px solid var(--line);border-radius:12px;padding:12px 16px;background:var(--panel);min-width:188px}
-  .gge .gl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim)}
-  .gge .gv{font-size:23px;font-weight:600;margin-top:3px}
-  .gge .gd{font-size:10.5px;color:var(--mut);margin-top:3px}
-  .gge.sev .gv{color:var(--choke)}.gge.asy .gv{color:var(--accent)}
-  nav.toc{position:sticky;top:0;z-index:40;background:rgba(11,13,18,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:9px 0;font-size:11.5px}
-  nav.toc .wrap{display:flex;gap:5px;flex-wrap:wrap}
-  nav.toc a{color:var(--mut);text-decoration:none;padding:4px 9px;border-radius:7px;border:1px solid transparent;white-space:nowrap}
-  nav.toc a:hover{color:var(--txt);border-color:var(--line2);background:var(--panel)}
+  .gauges{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap}
+  .gauge{border:1px solid var(--line);border-radius:12px;padding:12px 16px;background:var(--panel);min-width:190px}
+  .gauge .gl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim)}
+  .gauge .gv{font-size:22px;font-weight:600;margin-top:3px}
+  .gauge .gb{height:6px;border-radius:4px;background:var(--panel3);margin-top:8px;overflow:hidden}
+  .gauge .gf{height:100%;border-radius:4px}
+  .staleband{margin-top:16px;font-size:11.5px;color:#c4ab78;background:rgba(210,162,74,.07);border:1px solid #3a3015;border-radius:9px;padding:9px 14px}
+  /* sticky toc */
+  .toc{position:sticky;top:0;z-index:20;background:rgba(11,13,18,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:9px 0;font-size:11.5px}
+  .toc .wrap{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+  .toc a{color:var(--mut);text-decoration:none;padding:3px 8px;border-radius:6px;white-space:nowrap}
+  .toc a:hover{background:var(--panel2);color:var(--txt)}
+  .toc .tt{color:var(--dim);font-family:"JetBrains Mono",monospace;font-size:10px;margin-right:4px}
   section{padding:34px 0 2px}
   .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
   .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.05em}
   .sh h2{font-size:21px;font-weight:600;letter-spacing:-.3px}
   .sh .cn{font-size:13px;color:var(--dim);font-weight:400;margin-left:auto}
-  .lead{color:var(--mut);font-size:13.5px;max-width:920px;margin-bottom:18px}
+  .lead{color:var(--mut);font-size:13.5px;max-width:900px;margin-bottom:18px}
   .lead b{color:var(--txt);font-weight:600}
   .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
   @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
   .kpi{padding:18px 20px;border-right:1px solid var(--line)}
   .kpi:last-child{border-right:0}
-  .kpi .v{font-size:24px;font-weight:600;letter-spacing:-.5px}
+  .kpi .v{font-size:25px;font-weight:600;letter-spacing:-.5px}
   .kpi .l{font-size:11.5px;color:var(--mut);margin-top:4px}
   .kpi .d{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.4}
-  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}.pur{color:var(--l3)}
   .matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
   .matrix th{background:var(--panel2);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);font-weight:600;padding:12px 14px;text-align:left;border-bottom:1px solid var(--line)}
   .matrix td{padding:14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
@@ -69,53 +74,65 @@
   .matrix td b{color:var(--txt);font-weight:600}
   .chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--panel3);color:var(--mut);margin:2px 4px 2px 0;border:1px solid var(--line2)}
   .chip.hot{background:rgba(224,104,106,.12);border-color:#5a3236;color:#efa0a1}
-  .gal{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  @media(max-width:980px){.gal{grid-template-columns:1fr 1fr}}
-  @media(max-width:620px){.gal{grid-template-columns:1fr}}
+  .gal{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:900px){.gal{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.gal{grid-template-columns:1fr}}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column}
-  .card .svgbox{background:linear-gradient(180deg,#0e1117,#161a24);padding:12px;border-bottom:1px solid var(--line)}
-  .card .body{padding:13px 14px 15px}
-  .card h4{font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:6px}
-  .card .role{font-size:11.5px;color:var(--mut);margin-top:6px;line-height:1.45}
-  .card .who{font-size:10.5px;color:var(--dim);margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px}
+  .card .svgbox{background:linear-gradient(180deg,#0e1117,#161a24);padding:14px;border-bottom:1px solid var(--line)}
+  .card .body{padding:14px 16px 16px}
+  .card h4{font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .card .role{font-size:12px;color:var(--mut);margin-top:6px;line-height:1.45}
+  .card .who{font-size:11px;color:var(--dim);margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px}
   .card .who b{color:var(--l3)}
-  .badge{font-size:9px;font-weight:600;padding:2px 6px;border-radius:5px;letter-spacing:.03em;flex:none}
+  .badge{font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:5px;letter-spacing:.03em;flex:none}
   .b-hot{background:rgba(224,104,106,.14);color:#eda3a4}
   .b-now{background:rgba(45,212,191,.13);color:var(--accent)}
   .b-next{background:rgba(90,169,224,.14);color:var(--dout)}
   .b-emrg{background:rgba(210,162,74,.14);color:var(--dup)}
   .svgwide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
+  .svgscroll{overflow-x:auto}
   .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
-  .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:2px 0 16px}
-  .leg span{display:flex;align-items:center;gap:7px}
-  .leg .sw{width:11px;height:11px;border-radius:3px}
+  .flow{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+  @media(max-width:900px){.flow{grid-template-columns:1fr 1fr 1fr}}
+  @media(max-width:560px){.flow{grid-template-columns:1fr 1fr}}
+  .st{border:1px solid var(--line);border-radius:11px;padding:12px 11px;background:var(--panel2)}
+  .st.ck{border-color:#5a3236;background:linear-gradient(160deg,rgba(224,104,106,.10),transparent 70%),var(--panel2)}
+  .st h5{font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px;display:flex;align-items:center;gap:6px;color:var(--mut)}
+  .st h5 .sw{width:8px;height:8px;border-radius:50%;flex:none}
+  .st ul{list-style:none;font-size:11.5px}
+  .st li{padding:4px 0;color:var(--mut);border-bottom:1px dashed var(--line2);line-height:1.3}
+  .st li:last-child{border:0}.st li b{color:var(--txt);font-weight:600}
+  .st li .x{color:var(--choke);font-weight:600}
   .tlgrid{border:1px solid var(--line);border-radius:14px;overflow:hidden}
-  .tlhead{display:grid;grid-template-columns:150px repeat(4,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
+  .tlhead{display:grid;grid-template-columns:130px repeat(4,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
   .tlhead div{padding:11px 12px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);border-right:1px solid var(--line)}
   .tlhead div:first-child{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-family:"Space Grotesk",sans-serif;display:flex;align-items:center}
-  .tlrow{display:grid;grid-template-columns:150px repeat(4,1fr);border-bottom:1px solid var(--line)}
+  .tlrow{display:grid;grid-template-columns:130px repeat(4,1fr);border-bottom:1px solid var(--line)}
   .tlrow:last-child{border-bottom:0}
   .tlrow .lab{padding:13px 12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;border-right:1px solid var(--line);background:var(--panel2)}
   .tlrow .lab .sw{width:9px;height:9px;border-radius:3px;flex:none}
   .tlrow .cell{padding:11px 12px;border-right:1px solid var(--line);font-size:11.5px;color:var(--mut);line-height:1.4}
   .tlrow .cell:last-child{border-right:0}
   .tlrow .cell b{color:var(--txt);font-weight:600;display:block;margin-bottom:2px;font-size:11.5px}
-  .tlrow .cell.hot{background:rgba(224,104,106,.06)}
-  @media(max-width:780px){.tlhead,.tlrow{grid-template-columns:96px repeat(4,1fr);font-size:10px}.tlrow .cell{font-size:10px}}
+  .tlrow .cell.hot{background:rgba(224,104,106,.07)}
+  .tlrow .cell.cool{background:rgba(45,212,191,.05)}
+  @media(max-width:780px){.tlhead,.tlrow{grid-template-columns:86px repeat(4,1fr);font-size:10px}.tlrow .cell{font-size:10px}}
   .choke{border:1px solid #5a3236;border-radius:14px;padding:22px 24px;background:
     linear-gradient(135deg,rgba(224,104,106,.10),transparent 55%),var(--panel)}
   .choke .ttl{display:flex;align-items:center;gap:11px;margin-bottom:10px}
-  .choke .ttl svg{flex:none}
   .choke .ttl h3{font-size:17px;font-weight:600;color:var(--choke)}
   .choke p{font-size:13.5px;color:#d9c4c6;max-width:940px}.choke p b{color:#fff}
-  .choke .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:18px;border-top:1px solid #4a2c2f;padding-top:16px}
+  .choke .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:18px;border-top:1px solid #4a2c2f;padding-top:16px}
   @media(max-width:780px){.choke .stats{grid-template-columns:1fr 1fr}}
   .choke .stats div{padding-right:18px}
-  .choke .stats b{display:block;font-size:20px;color:var(--choke);font-weight:600}
+  .choke .stats b{display:block;font-size:21px;color:var(--choke);font-weight:600}
   .choke .stats span{font-size:10.5px;color:var(--dim)}
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
-  .two{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
-  @media(max-width:780px){.two{grid-template-columns:1fr}}
+  .score{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+  @media(max-width:780px){.score{grid-template-columns:1fr}}
+  .var{border-left:3px solid var(--choke);background:var(--panel2);border-radius:8px;padding:14px 16px;margin-top:8px}
+  .var .h{font-size:11px;font-weight:700;color:var(--choke);letter-spacing:.04em;margin-bottom:6px}
+  .var p{font-size:12.5px;color:var(--mut);line-height:1.55}.var p b{color:var(--txt)}
+  .var p+p{margin-top:8px}
   .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
   .tbl th{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
   .tbl td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--mut)}
@@ -125,23 +142,24 @@
   .ly2{background:rgba(210,162,74,.15);color:#e3bd76}
   .ly1{background:rgba(79,175,142,.15);color:#7cc9ad}
   .lyu{background:rgba(91,129,196,.15);color:#8aa7df}
-  .lyp{background:rgba(196,122,158,.15);color:#dba0bf}
-  .lyc{background:rgba(224,104,106,.15);color:#eda3a4}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:2px 0 16px}
+  .leg span{display:flex;align-items:center;gap:7px}
+  .leg .sw{width:11px;height:11px;border-radius:3px}
   .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
   footer{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}
   footer b{color:var(--mut)}
+  /* awareness + tabs */
   .liw{width:100%;border-collapse:collapse;font-size:12px}
   .liw th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
   .liw td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
   .liw td b{color:var(--txt)}
-  .dotR{color:var(--choke);font-weight:600}.dotA{color:var(--dup);font-weight:600}.dotG{color:var(--dacr);font-weight:600}
-  .tabbtn{font-family:"Space Grotesk",sans-serif;background:var(--panel2);border:1px solid var(--line);color:var(--mut);padding:11px 16px;border-radius:10px 10px 0 0;font-size:13px;font-weight:600;cursor:pointer;border-bottom:none;display:flex;flex-direction:column;gap:2px;min-width:210px;text-align:left}
+  .tabbtn{font-family:"Space Grotesk",sans-serif;background:var(--panel2);border:1px solid var(--line);color:var(--mut);padding:11px 16px;border-radius:10px 10px 0 0;font-size:13px;font-weight:600;cursor:pointer;border-bottom:none;display:flex;flex-direction:column;gap:2px;min-width:172px;text-align:left}
   .tabbtn small{font-size:10px;font-weight:400;color:var(--dim)}
   .tabbtn.on{background:var(--panel);color:var(--txt);border-color:var(--line2)}
   .tabbtn.on small{color:var(--accent)}
   .tabbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   .stagebadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.04em}
-  .sg-latent{background:rgba(90,169,224,.16);color:var(--dout)}
   .sg-early{background:rgba(95,201,138,.16);color:var(--dacr)}
   .sg-recog{background:rgba(210,162,74,.16);color:var(--dup)}
   .sg-eu{background:rgba(224,104,106,.16);color:var(--choke)}
@@ -150,12 +168,11 @@
   .mini div:last-child{border-right:0}
   .mini .v{font-family:"JetBrains Mono",monospace;font-size:16px;font-weight:600}
   .mini .l{font-size:10px;color:var(--mut);margin-top:2px}
-  @media(max-width:780px){.mini{grid-template-columns:1fr 1fr 1fr}}
   .gap{border-left:3px solid var(--accent);background:rgba(45,212,191,.06);border-radius:8px;padding:12px 15px;margin:14px 0}
   .gap .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:5px}
   .gap p{font-size:12.5px;color:var(--mut);line-height:1.5}.gap p b{color:var(--txt)}
   .mtd{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
-  @media(max-width:780px){.mtd{grid-template-columns:1fr}.tabbtn{min-width:0;flex:1}}
+  @media(max-width:780px){.mtd{grid-template-columns:1fr}.mini{grid-template-columns:1fr 1fr 1fr}.tabbtn{min-width:0;flex:1}}
   .mtc{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
   .mtc .h{font-size:11.5px;font-weight:600;color:var(--accent);margin-bottom:3px}
   .mtc p{font-size:11.5px;color:var(--mut);line-height:1.45}.mtc p b{color:var(--txt)}
@@ -164,21 +181,22 @@
   .bbr .bl{border-left:3px solid var(--dacr);background:var(--panel2)}
   .bbr .be{border-left:3px solid var(--choke);background:var(--panel2)}
   .bbr b{display:block;font-size:10.5px;margin-bottom:2px}
-  .scn{width:100%;border-collapse:collapse;font-size:12px}
-  .scn th{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em}
-  .scn td{padding:9px 11px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
-  .scn td b{color:var(--txt)}
-  .scn .bull{border-left:3px solid var(--dacr)}.scn .base{border-left:3px solid var(--dup)}.scn .bear{border-left:3px solid var(--choke)}
+  .watch{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:6px}
+  @media(max-width:820px){.watch{grid-template-columns:1fr}}
+  .wc{background:var(--panel2);border:1px solid var(--line2);border-radius:11px;padding:13px 15px}
+  .wc .h{font-size:12.5px;font-weight:600;color:var(--dout);margin-bottom:4px;display:flex;justify-content:space-between;gap:8px}
+  .wc p{font-size:11.5px;color:var(--mut);line-height:1.45}.wc p b{color:var(--txt)}
+  .wc .tr{font-size:10.5px;color:var(--dim);margin-top:7px;border-top:1px dashed var(--line2);padding-top:6px}
+  .onebox{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px;background:linear-gradient(135deg,rgba(45,212,191,.06),transparent 60%),var(--panel)}
+  .onebox .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:7px}
+  .onebox p{font-size:13px;color:var(--txt);line-height:1.6}
+  /* svg font rules — set via CSS, never as an SVG presentation attribute */
   svg text{font-family:"Space Grotesk",sans-serif}
   svg text.m{font-family:"JetBrains Mono",monospace}
   .svglabel{font-size:9px;fill:var(--dim)}
   @media print{
-    nav.toc{display:none}
-    .tabpane[hidden]{display:block!important}
-    .tabbtn{display:none!important}
-    [role=tabpanel][hidden]{display:block!important}
-    svg text{fill:#111}
-    body{background:#fff;color:#111}
+    .toc{display:none} .tabpane[hidden]{display:block!important} .tabbtns{display:none}
+    svg text{fill:#111} body{background:#fff;color:#111}
   }
 </style>
 </head>
@@ -186,26 +204,38 @@
 
 <header>
   <div class="wrap">
-    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #22 · v5 · Cooling (loop 4)</div>
-    <h1>Inside the box — the brazed-plate heat exchanger and the reliable pump, the scarce core beneath every AI coolant-distribution unit</h1>
-    <p class="sub">Run #4 bought the <b style="color:#fff">cold-plate / quick-disconnect interface</b>; Run #10 the <b style="color:#fff">blind-mate quick-disconnect coupling</b>; Run #16 found the coolant <i>molecule</i> is a red herring and moved to the <b style="color:#fff">2-phase direct-to-chip system + secondary loop</b>. This loop goes into the machine those loops all pass through — the <b style="color:#fff">coolant-distribution unit (CDU)</b>, the gating system for every liquid-cooled AI rack (12–18-month lead-times). The twist this report leads with: the CDU <i>box</i> is <b style="color:#fff">assembled by 40+ NVIDIA/OCP partners against a public reference design</b> (Vertiv leads share, but hyperscalers qualify second sources by policy), so the box isn't the scarce link; the hard-to-replicate core sits one layer below at the <b style="color:#fff">brazed-plate heat exchanger + the reliability-critical redundant pump</b> — but the market already <i>proved</i> it (BPHE-centric play Kaori +~450%) and is <i>absorbing</i> it (CoolIT&rarr;Ecolab $4.75B announced Mar-2026, Motivair&rarr;Schneider $850M closed Feb-2025), so the residual edge is diluted proxies + the private pump layer.</p>
+    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #28 · Cooling loop 5 · v5</div>
+    <h1>The Last Millimeter — the Metal Thermal-Interface Chokepoint (and whether the rent has an owner)</h1>
+    <p class="sub">Below the cold plate, the QD, the coolant and the CDU sits the <b style="color:#fff">invisible interface</b> between the chip and the water block. As Rubin-class GPUs cross ~2,000W it is migrating from cheap silicone to <b style="color:#fff">scarce metal</b> — liquid-metal (Ga-In-Sn), indium-solder, sinter-silver — whose feedstock China controls (<b style="color:#fff">gallium ~99%, indium ~68%</b>). Two axes (cooling domain × interface layer), an end-to-end supply map, and a top-3 at <b style="color:#fff">different</b> links staged on the awareness curve.</p>
     <div class="gauges">
-      <div class="gge sev"><div class="gl">Chokepoint severity</div><div class="gv num">15<span style="font-size:13px;color:var(--dim)">/20</span></div><div class="gd">CDU core (BPHE + pump) · tight but multi-sourced by design</div></div>
-      <div class="gge asy"><div class="gl">Remaining asymmetry</div><div class="gv num">6<span style="font-size:13px;color:var(--dim)">/20</span></div><div class="gd">low — pure vehicles ran (Kaori +450%) or were absorbed</div></div>
-      <div class="gge"><div class="gl">Honest read</div><div class="gv" style="font-size:15px;color:var(--txt)">Real but mostly-priced</div><div class="gd">disciplined entry; own-it lean = the diluted BPHE proxy (Alfa Laval)</div></div>
+      <div class="gauge"><div class="gl">Chokepoint severity</div><div class="gv num red">15<span style="font-size:13px;color:var(--dim)">/20</span></div><div class="gb"><div class="gf" style="width:75%;background:var(--choke)"></div></div></div>
+      <div class="gauge"><div class="gl">Remaining asymmetry</div><div class="gv num amb">~6<span style="font-size:13px;color:var(--dim)">/20</span></div><div class="gb"><div class="gf" style="width:30%;background:var(--dup)"></div></div></div>
+      <div class="gauge"><div class="gl">Read</div><div class="gv" style="font-size:15px;color:var(--txt)">Admire · own selectively</div><div style="font-size:10.5px;color:var(--dim);margin-top:6px">real choke, no clean owner</div></div>
     </div>
     <div class="meta">
-      <div><div class="k">Date</div><div class="vv num">08 Jul 2026</div></div>
-      <div><div class="k">Chain</div><div class="vv">cold-plate &rarr; manifold/QD &rarr; CDU (pump + BPHE) &rarr; facility loop &rarr; heat-reject &rarr; atmosphere</div></div>
-      <div><div class="k">Universe</div><div class="vv">Global · US / EU / JP / TW</div></div>
-      <div><div class="k">Top-3</div><div class="vv">ALFA · MOG.A · VRT</div></div>
+      <div><div class="k">Date</div><div class="vv num">20 Jul 2026</div></div>
+      <div><div class="k">Stack path</div><div class="vv">Ga/In metal → metal-TIM paste → TIM1/TIM1.5 → cold plate</div></div>
+      <div><div class="k">Universe</div><div class="vv">Global · US / CA / EU / JP / KR</div></div>
+      <div><div class="k">Top-3</div><div class="vv">SOLS · VNP · HEN</div></div>
+      <div><div class="k">Prices</div><div class="vv">IBKR read-only · never traded</div></div>
     </div>
-    <div class="asof">Prices = last trade <b style="color:#e7cf9e">~Wed 08 Jul 2026</b> · IBKR read-only (never trade) · multiples are estimates — verify on a terminal · <b style="color:#e7cf9e">personal research, not investment advice</b></div>
+    <div class="staleband"><b>As-of 20 Jul 2026.</b> Prices/multiples decay fast — quotes are IBKR live snapshots on this date. Personal research for a private knowledge base — <b>not investment advice</b>. Estimates marked (est.).</div>
   </div>
 </header>
 
 <nav class="toc"><div class="wrap">
-  <a href="#s1">01 Snapshot</a><a href="#s2">02 Framework</a><a href="#s3">03 CDU internals gallery</a><a href="#s4">04 Chip&rarr;CDU&rarr;facility</a><a href="#s5">05 Box vs core</a><a href="#s6">06 Supply chain</a><a href="#s7">07 Timeline</a><a href="#s8">08 Chokepoint + severity</a><a href="#s9">09 Awareness + watchlist</a><a href="#s10">10 Top-3 plays</a><a href="#s11">11 Rent + risks</a><a href="#s12">12 Decision</a>
+  <a href="#s1"><span class="tt">01</span>Snapshot</a>
+  <a href="#s2"><span class="tt">02</span>Framework</a>
+  <a href="#s3"><span class="tt">03</span>Interfaces</a>
+  <a href="#s4"><span class="tt">04</span>The stack</a>
+  <a href="#s5"><span class="tt">05</span>Deployment</a>
+  <a href="#s6"><span class="tt">06</span>Supply chain</a>
+  <a href="#s7"><span class="tt">07</span>Timeline</a>
+  <a href="#s8"><span class="tt">08</span>Chokepoint</a>
+  <a href="#s9"><span class="tt">09</span>Awareness</a>
+  <a href="#s10"><span class="tt">10</span>The plays</a>
+  <a href="#s11"><span class="tt">11</span>Decision</a>
+  <a href="#s12"><span class="tt">12</span>Open questions</a>
 </div></nav>
 
 <div class="wrap">
@@ -213,756 +243,741 @@
 <!-- 1. SNAPSHOT -->
 <section id="s1">
   <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">為什麼是現在</span></div>
-  <p class="lead">"AI needs cooling" is a top-3 infrastructure trade of 2026: a GB300 NVL72 rack now provisions <b>150+ kW</b> and rejects <b>~2 MW+</b> of heat, air can no longer carry it, and NVIDIA's Rubin (2027) goes <b>100% liquid</b> on warm-water direct-to-chip. Every one of those racks routes its heat through a <b>coolant distribution unit (CDU)</b> — the box that isolates the chip-side loop from facility water and pushes coolant with the flow and reliability the GPUs demand. CDUs run <b>12–18-month lead-times</b> and the market grows an estimated <b>~$1B&rarr;$4–7.7B</b> this decade. But this report asks the chokepoint question one layer down: the CDU <i>box</i> is assembled by 40+ vendors against a public NVIDIA/OCP reference design (Vertiv leads share, but hyperscalers qualify second sources by policy) — so what <i>inside</i> it is genuinely hard to replicate? The answer is the <b>brazed-plate heat exchanger (BPHE)</b> that transfers the heat between loops and the <b>reliability-critical redundant pump</b> — because if a pump stops, the chips throttle in <b>seconds</b>. The catch, and this report's main idea: the market <i>already found</i> the core (BPHE-centric play Kaori +~450%) and <i>bought</i> the pure-plays (CoolIT&rarr;Ecolab, Motivair&rarr;Schneider), so the choke is proven but the clean tickets are gone.</p>
+  <p class="lead">Five cooling deep-dives already mapped the <b>cold plate</b>, the <b>quick-disconnect</b>, the <b>coolant</b> and the <b>CDU</b>. This one goes to the layer they all sit on top of: the <b>thermal interface material (TIM)</b> — the paper-thin film between the silicon and the water-cooled plate. At ~700–1,000W it can be silicone paste. At Rubin's <b>~2,000W package</b> it cannot — the interface has to go <b>metal</b>. And metal means <b>gallium and indium</b>, two byproduct metals China refines ~99% and ~68% of. That is the chokepoint. The catch — which this report is honest about — is that the rent may have <b>no clean listed owner</b>.</p>
   <div class="kpis">
-    <div class="kpi"><div class="v num teal">~$1B&rarr;$4–7.7B</div><div class="l">CDU market this decade <span style="color:var(--dim)">(est.)</span></div><div class="d">~19–33% CAGR (sources differ); 12–18-mo lead-times; you can't deploy a liquid rack without one</div></div>
-    <div class="kpi"><div class="v num red">seconds</div><div class="l">Pump-fail &rarr; GPU throttle</div><div class="d">the pump is the single-point-of-failure (throttle in seconds — rack-dependent est., not a hard ASHRAE figure) &rarr; N+1/2N + 100 ms failover mandatory (which caps any one vendor's toll)</div></div>
-    <div class="kpi"><div class="v num red">+450% vs +18%</div><div class="l">Kaori (BPHE-centric) vs Alfa Laval</div><div class="d">the BPHE-heavy play already ran ~5&times; (≈+300–490%, date-dependent); the diluted BPHE proxy is the relative laggard — the residual edge</div></div>
-    <div class="kpi"><div class="v num amb">$4.75B / $850M</div><div class="l">CoolIT&rarr;Ecolab · Motivair&rarr;Schneider</div><div class="d">the "pure-play absorbed" tell — validates the choke, removes the clean vehicles (Alphawave&rarr;Qualcomm pattern again)</div></div>
-  </div>
-
-  <div style="margin-top:14px;border:1px solid #2c5a40;border-radius:12px;padding:12px 16px;background:rgba(95,201,138,.06)">
-    <p style="font-size:12px;color:var(--mut);line-height:1.55"><b style="color:var(--dacr)">What this run delivers · 先講結論:</b> a <b style="color:var(--txt)">disciplined-entry / mostly-priced</b> layer, not a fat pitch. The chokepoint is real (severity-15) but the pure vehicles have run (Kaori +450%) or been bought (CoolIT, Motivair), so the honest expression is the <b style="color:var(--txt)">diluted BPHE proxy (Alfa Laval, +18% YTD, cheapest of the three)</b> + the <b style="color:var(--txt)">private pump layer (Nidec as the listed proxy)</b> + patience — consistent with every prior cooling run (#4/#10/#16 all concluded "the pure-plays ran; the un-bid link is the relative-value laggard"). Own-it lean = <b style="color:var(--txt)">Alfa Laval</b>; Vertiv is the highest-quality-but-fully-priced box. Calibrate before you read on.</p>
+    <div class="kpi"><div class="v num red">~2,000W</div><div class="l">Rubin-class GPU package power</div><div class="d">Roadmapped 2025–26; Rubin Ultra ~3,600W by 2027 (est.). Die-level heat flux (W/cm²), not absolute watts, is what forces metal TIM</div></div>
+    <div class="kpi"><div class="v num amb">3–8 → 25–80</div><div class="l">TIM conductivity, W/mK (polymer → liquid-metal)</div><div class="d">Indium-solder 50+; the jump the interface is being forced to make</div></div>
+    <div class="kpi"><div class="v num red">99% · ~60%</div><div class="l">China share: refined gallium · indium (est.)</div><div class="d">USGS MCS-2026 (indium ~55–68% across sources); US 100% import-reliant on gallium</div></div>
+    <div class="kpi"><div class="v num teal">27 Nov 2026</div><div class="l">China Ga/Ge export-ban suspension EXPIRES</div><div class="d">The dated catalyst — a public, un-priced-into-"cooling" event</div></div>
   </div>
 
   <div style="border:1px solid var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px;background:var(--panel)">
     <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px">EXPLAIN IT SIMPLY · 白話版</div>
-    <p style="font-size:13px;color:var(--mut);line-height:1.6;max-width:940px">A rack of AI chips now throws off as much heat as ~100 homes. Air can't remove it, so cool liquid is piped right up to the chips. But you can't run ordinary building water over $3–4 million of GPUs, so every rack needs a machine — the <b style="color:var(--txt)">CDU (coolant distribution unit)</b> — that keeps two water loops separate and pushes coolant around at the right pressure and flow. Inside that machine, two parts are genuinely hard to build well. First, the <b style="color:var(--txt)">heat exchanger</b>: a tight stack of thin metal plates that hands heat from the chip loop to the building loop <i>without</i> letting the two waters mix. Second, the <b style="color:var(--txt)">pumps</b>: they must run 24/7, because if a pump stops, the chips overheat and slow themselves down within <b style="color:var(--txt)">seconds</b> — so data centers always fit a spare that takes over in a blink. Lots of companies can bolt together the CDU <i>box</i>, so the box isn't the scarce thing. The two internals are. Here's the catch, and the point of this report: the market already worked this out. The one pure heat-exchanger stock (Kaori, in Taiwan) is up about <b style="color:var(--txt)">five-fold</b>, and the best pump makers are private European firms you simply can't buy shares in. So the bottleneck is real and clear — there's just no cheap, clean way left to own it. The least-crowded entry is a big, high-quality European maker (<b style="color:var(--txt)">Alfa Laval</b>) where this heat-exchanger business is a fast-growing but still-small slice.</p>
-  </div>
-
-  <div style="margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--panel2)">
-    <div style="font-size:11px;font-weight:700;color:var(--dout);letter-spacing:.05em;margin-bottom:7px">LAYER KEY · read the loop like a ladder, chip &rarr; atmosphere</div>
-    <p style="font-size:12px;color:var(--mut);line-height:1.7"><span class="lyr lyu">L1 CHIP</span> cold-plate + TIM on the GPU die (Runs #4 / #16) &nbsp;·&nbsp; <span class="lyr lyp">MANIFOLD/QD</span> in-rack plumbing + blind-mate quick-disconnects (Run #10) &nbsp;·&nbsp; <span class="lyr lyc">CDU CORE</span> the pump + brazed-plate heat exchanger inside the coolant-distribution unit <span class="chip hot">the chokepoint</span> &nbsp;·&nbsp; <span class="lyr ly2">CDU BOX</span> the assembled/qualified unit — multi-sourced, where integration &amp; service rent sits &nbsp;·&nbsp; <span class="lyr ly1">FACILITY LOOP</span> secondary&rarr;primary water, pipes, valves &nbsp;·&nbsp; <span class="lyr ly3">HEAT REJECT</span> chiller / dry-cooler / cooling tower &rarr; atmosphere</p>
-  </div>
-
-  <div style="margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--panel)">
-    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:7px">6-TERM GLOSSARY</div>
-    <p style="font-size:12px;color:var(--mut);line-height:1.7"><b style="color:var(--txt)">CDU</b> coolant distribution unit — pumps + heat exchanger + valves + controls that isolate and circulate the chip-side loop · <b style="color:var(--txt)">BPHE</b> brazed-plate heat exchanger — a stack of pressed metal plates that transfers heat between two liquids without mixing them (the CDU's thermal core) · <b style="color:var(--txt)">DLC / direct-to-chip</b> liquid cooling with a cold-plate on the die; today mostly single-phase warm water · <b style="color:var(--txt)">L2L / L2A</b> liquid-to-liquid CDU (rejects to facility water) vs liquid-to-air (rejects to room air) · <b style="color:var(--txt)">sealless / magnetic-drive pump</b> a pump with no rotating shaft seal — fewer leak points, higher reliability (the premium tier) · <b style="color:var(--txt)">N+1 / 2N redundancy</b> a spare pump that auto-takes-over so a single failure can't kill the rack.</p>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6;max-width:940px">Imagine pressing a hot pan onto a cold countertop. Even if both look flat, microscopic air gaps trap the heat — so you smear a paste in between to carry it across. In an AI chip that paste is the <b style="color:var(--txt)">thermal interface material (TIM)</b>, and the "countertop" is a water-cooled metal plate. Today's paste is cheap silicone. But new chips like NVIDIA's <b style="color:var(--txt)">Rubin</b> run so hot that silicone can't move the heat fast enough — engineers are switching to a <b style="color:var(--txt)">liquid metal</b> (a gallium-indium alloy that stays liquid at room temperature) or a soldered metal joint. The problem: <b style="color:var(--txt)">gallium and indium are metals China controls almost entirely</b>, and the liquid metal eats copper unless you plate a nickel shield first — so it's genuinely hard to do. That combination — scarce metal + hard to apply — is the <b style="color:var(--txt)">chokepoint</b>. The honest twist this report lands on: the purest maker (Indium Corporation) is <b style="color:var(--txt)">private</b>, the listed names are diluted or already-run, the metal is a tiny sliver of a $30,000 GPU, and chipmakers are already working to <b style="color:var(--txt)">delete the paste entirely</b> (etching water channels straight into the silicon). So: understand it, watch the November catalyst — but don't overpay for it.</p>
   </div>
 </section>
 
 <!-- 2. FRAMEWORK -->
 <section id="s2">
-  <div class="sh"><span class="n">02</span><h2>Framework — cooling domains &times; the loop layer</h2><span class="cn">兩軸座標</span></div>
-  <p class="lead">Two orthogonal axes. <b>Rows</b> = how the heat is removed (the deployment domains). <b>Columns</b> = what's used / the binding constraint / who wins / where the CDU-core sits. The chokepoint is one cell: <b>single-phase direct-to-chip &times; the CDU core (pump + BPHE)</b> — the architecture NVIDIA standardised on for GB300/Rubin, whose reliability and heat-transfer both bind at the coolant-distribution unit.</p>
+  <div class="sh"><span class="n">02</span><h2>The framework — two orthogonal axes</h2><span class="cn">MECE 框架</span></div>
+  <p class="lead">Every cooling solution lives at one <b>(deployment domain × thermal-stack layer)</b> coordinate. The <b>domain</b> answers <i>how</i> the chip is cooled and how hard; the <b>layer</b> answers <i>which physical part</i> we're pricing. Prior runs priced the cold plate and the loop (L1). This run drops one layer to the <b>interface (L2/L3)</b> — and the chokepoint sits at the cell where <b>high-power direct-to-chip</b> meets the <b>metal-TIM formulation</b>.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+    <div class="panel" style="padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">THE THERMAL STACK · 分層 (read this first)</div>
+      <div style="font-size:12px;color:var(--mut);line-height:1.85">
+        <span class="lyr ly1">L1</span> the <b>cold plate / loop</b> that carries heat away (prior runs) &nbsp;·&nbsp;
+        <span class="lyr ly2">L2</span> the <b>interface</b> — TIM1 (die↔lid) &amp; TIM1.5 (lid↔plate) &nbsp;·&nbsp;
+        <span class="lyr ly3">L3</span> the <b>metal-TIM formulation</b> (liquid-metal paste / solder preform / sinter + the nickel-barrier know-how) &nbsp;·&nbsp;
+        <span class="lyr lyu">UP</span> the raw <b>byproduct metals</b> — gallium, indium, silver.
+      </div>
+    </div>
+    <div class="panel" style="padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">6-TERM GLOSSARY · 名詞</div>
+      <div style="font-size:11.5px;color:var(--mut);line-height:1.75">
+        <b>TIM</b> the paste/film that carries heat across a joint · <b>Galinstan</b> gallium-indium-tin alloy, liquid at room temp · <b>TIM1 / TIM1.5</b> die-to-lid / lid-to-plate interfaces · <b>pump-out</b> the TIM slowly squeezing out under thermal cycling (a failure mode) · <b>electroless-Ni barrier</b> a nickel plating that stops liquid metal corroding copper · <b>byproduct metal</b> a metal you can't mine on purpose — it only appears when refining something else (Ga from aluminium, In from zinc)
+      </div>
+    </div>
+  </div>
   <table class="matrix">
-    <tr><th style="width:20%">Cooling domain (row)</th><th>What's used</th><th>Binding constraint</th><th>Who wins</th><th>Where the CDU-core binds</th></tr>
     <tr>
-      <td><div class="dom"><span class="sw" style="background:var(--dout)"></span>Direct-to-chip, single-phase <small>the mainstream — GB200/GB300/Rubin</small></div></td>
-      <td>cold-plate + warm-water loop; row/rack <b>CDU</b> (L2L)</td>
-      <td><b>pump reliability + BPHE approach-temp</b> as flow ~doubles into Rubin <span class="chip hot">chokepoint</span></td>
-      <td>Vertiv/Schneider (box) · Alfa Laval/Kaori (BPHE) · Grundfos/Wilo/Moog (pump)</td>
-      <td><b>directly</b> — every rack routes through a CDU core</td>
+      <th style="width:180px">Cooling domain (how)</th>
+      <th style="width:120px">Heat flux / constraint</th>
+      <th>Interface used &amp; who wins</th>
+      <th style="width:150px">TIM stress</th>
     </tr>
     <tr>
-      <td><div class="dom"><span class="sw" style="background:var(--dup)"></span>Rear-door heat exchanger <small>retrofit / hybrid air-liquid</small></div></td>
-      <td>door-mounted coil + fans; facility-water CDU</td>
-      <td>facility-water availability; coil/BPHE capacity</td>
-      <td>Vertiv · nVent · Motivair/Schneider</td>
-      <td>partial — still needs a CDU + BPHE upstream</td>
+      <td><div class="dom"><span class="sw" style="background:var(--dout)"></span>Direct-to-chip (single-phase)<small>cold plate on the lid — today's default</small></div></td>
+      <td>&lt; ~1.5 kW/GPU</td>
+      <td><b>Polymer / PCM still holds.</b> High-end grease, phase-change pads. <span class="chip">Henkel Bergquist, Honeywell PTM, Fujipoly, Shin-Etsu</span></td>
+      <td>Moderate — improving polymers (10 W/mK) buy time</td>
     </tr>
     <tr>
-      <td><div class="dom"><span class="sw" style="background:var(--pkg)"></span>Immersion (1-phase / 2-phase) <small>niche, PFAS-cursed on 2-phase</small></div></td>
-      <td>dielectric-fluid tank; L2L CDU + BPHE</td>
-      <td>fluid (Run #16 red-herring) + tank ecosystem</td>
-      <td>LiquidStack · GRC · Submer (mostly private)</td>
-      <td>indirect — CDU/BPHE still reject the tank heat</td>
+      <td><div class="dom"><span class="sw" style="background:var(--choke)"></span>High-power D2C &amp; direct-die<small>Rubin / GB300, lidless</small></div></td>
+      <td>~1.5–2.6 kW/GPU</td>
+      <td><b>Metal TIM becomes mandatory.</b> Liquid-metal (Ga-In-Sn), indium-solder, sinter-silver + nickel barrier. <span class="chip hot">CHOKEPOINT — Indium Corp / Henkel / Solstice</span></td>
+      <td>Severe — this is the binding cell</td>
     </tr>
     <tr>
-      <td><div class="dom"><span class="sw" style="background:var(--dacr)"></span>Facility heat-reject <small>the last mile to atmosphere</small></div></td>
-      <td>chiller / dry-cooler / cooling tower; water</td>
-      <td>water &amp; power (PUE); waterless shift</td>
-      <td>Munters (Run #16) · SPX · Baltimore Aircoil</td>
-      <td>downstream of the core — rejects what the CDU delivers</td>
+      <td><div class="dom"><span class="sw" style="background:var(--dup)"></span>Immersion<small>tank of dielectric fluid</small></div></td>
+      <td>flux-limited by fluid</td>
+      <td><b>Immersion-stable TIM.</b> Solid metal preforms that don't dissolve in the fluid. <span class="chip">Indium Heat-Spring; niche</span></td>
+      <td>Different failure mode (dissolution) — a side pool</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--dacr)"></span>In-chip microfluidic<small>coolant etched into silicon</small></div></td>
+      <td>&gt; 2.6 kW/GPU (2028+)</td>
+      <td><b>Deletes the TIM.</b> Water within microns of transistors. <span class="chip">TSMC IMC-Si · Microsoft · Corintis</span></td>
+      <td>Zero — the disintermediation</td>
     </tr>
   </table>
-  <p class="cap">The chokepoint cell is <b>single-phase DLC &times; CDU core</b>: it is the domain that actually scales (Rubin = 100% liquid, warm-water single-phase), and within it the two links that don't commoditise are the reliability-critical pump and the brazed-plate heat exchanger. Rear-door and immersion still route heat through a CDU/BPHE; facility heat-reject sits one stage downstream (covered in Run #16 via Munters).</p>
+  <p class="cap">The scarcity originates at one cell — high-power D2C/direct-die × metal-TIM — and the bottom row (in-chip microfluidic) is the clock that eventually erases it. Tightness today, obsolescence tomorrow: both are the story.</p>
 </section>
 
-<!-- 3. GALLERY -->
+<!-- 3. INTERFACE GALLERY -->
 <section id="s3">
-  <div class="sh"><span class="n">03</span><h2>What's actually inside a CDU — the component gallery</h2><span class="cn">卡點元件圖鑑</span></div>
-  <p class="lead">Draw the parts, don't just list them. A CDU is an assembly; the two links below (BPHE + pump) are the ones with real supply concentration, long qualification, and reliability stakes. The others (valves, controls, reservoir, filtration) matter for uptime but are more commoditised.</p>
+  <div class="sh"><span class="n">03</span><h2>The four ways to make the interface metal</h2><span class="cn">介面元件</span></div>
+  <p class="lead">Three metal options replace polymer as power climbs — plus the disruptor that removes the interface entirely. Two of the three lean on <b>gallium and/or indium</b>; that's why the bottleneck is a materials story, not a one-quarter blip.</p>
   <div class="gal">
+    <!-- liquid metal -->
     <div class="card">
       <div class="svgbox">
-        <svg viewBox="0 0 320 150" width="100%" role="img" aria-label="Brazed-plate heat exchanger schematic">
-          <rect x="0" y="0" width="320" height="150" fill="none"/>
-          <!-- stacked plates -->
-          <g>
-            <rect x="70" y="30" width="180" height="90" rx="4" fill="#151a24" stroke="#e0686a" stroke-width="1.5"/>
-            <line x1="86" y1="30" x2="86" y2="120" stroke="#5aa9e0" stroke-width="1"/>
-            <line x1="102" y1="30" x2="102" y2="120" stroke="#e0686a" stroke-width="1"/>
-            <line x1="118" y1="30" x2="118" y2="120" stroke="#5aa9e0" stroke-width="1"/>
-            <line x1="134" y1="30" x2="134" y2="120" stroke="#e0686a" stroke-width="1"/>
-            <line x1="150" y1="30" x2="150" y2="120" stroke="#5aa9e0" stroke-width="1"/>
-            <line x1="166" y1="30" x2="166" y2="120" stroke="#e0686a" stroke-width="1"/>
-            <line x1="182" y1="30" x2="182" y2="120" stroke="#5aa9e0" stroke-width="1"/>
-            <line x1="198" y1="30" x2="198" y2="120" stroke="#e0686a" stroke-width="1"/>
-            <line x1="214" y1="30" x2="214" y2="120" stroke="#5aa9e0" stroke-width="1"/>
-            <line x1="230" y1="30" x2="230" y2="120" stroke="#e0686a" stroke-width="1"/>
-          </g>
-          <!-- ports -->
-          <path d="M40 45 L70 45" stroke="#e0686a" stroke-width="3" marker-end="url(#g3a)"/>
-          <path d="M250 45 L280 45" stroke="#e0686a" stroke-width="3" marker-end="url(#g3a)" opacity=".5"/>
-          <path d="M280 105 L250 105" stroke="#5aa9e0" stroke-width="3" marker-end="url(#g3b)"/>
-          <path d="M70 105 L40 105" stroke="#5aa9e0" stroke-width="3" marker-end="url(#g3b)" opacity=".5"/>
-          <text x="34" y="40" text-anchor="end" style="font-size:8px" fill="#eda3a4">hot in</text>
-          <text x="34" y="112" text-anchor="end" style="font-size:8px" fill="#8aa7df">cool out</text>
-          <text x="160" y="140" text-anchor="middle" style="font-size:8.5px" fill="#697283">~50–200 pressed plates · counter-flow</text>
-          <defs>
-            <marker id="g3a" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 z" fill="#e0686a"/></marker>
-            <marker id="g3b" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 z" fill="#5aa9e0"/></marker>
-          </defs>
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <rect x="20" y="30" width="160" height="12" rx="2" fill="#2a2f40" stroke="#3a3f55"/>
+          <text x="24" y="26" class="svglabel">cold plate (Cu + Ni barrier)</text>
+          <rect x="20" y="42" width="160" height="9" fill="#8b84cf"/>
+          <text x="100" y="49" text-anchor="middle" font-size="7" fill="#fff">liquid metal Ga-In-Sn</text>
+          <rect x="20" y="51" width="160" height="16" rx="2" fill="#1c2030" stroke="#4faf8e"/>
+          <text x="100" y="62" text-anchor="middle" font-size="8" fill="#7cc9ad">silicon die</text>
+          <text x="24" y="82" class="svglabel">25–80 W/mK · needs Ni plating</text>
+          <text x="24" y="95" class="svglabel">corrodes bare Cu 0.5–2 µm/hr</text>
         </svg>
       </div>
       <div class="body">
-        <h4>Brazed-plate heat exchanger (BPHE) <span class="badge b-hot">CORE</span></h4>
-        <p class="role">The thermal heart: hands heat from the chip loop to the facility loop across pressed, vacuum-brazed plates that keep the two waters separate. Tighter "approach temperature" = more cooling per unit — the metric that binds as Rubin flow doubles.</p>
-        <div class="who">Who: <b>Alfa Laval</b>, Kaori (TW, BPHE-centric), SWEP (Dover), Danfoss, Kelvion — a concentrated few at the high-performance end.</div>
+        <h4>Liquid metal <span class="badge b-hot">CHOKEPOINT</span></h4>
+        <p class="role">Gallium-indium-tin alloy, liquid at room temp. Highest bulk conductivity; cuts interface resistance ~60–70%. But it attacks copper — a hard-won <b>nickel barrier</b> + containment is the real IP.</p>
+        <p class="who">Makers: <b>Indium Corp</b> (private), Henkel, Thermal Grizzly (consumer)</p>
       </div>
     </div>
+    <!-- indium solder -->
     <div class="card">
       <div class="svgbox">
-        <svg viewBox="0 0 320 150" width="100%" role="img" aria-label="Sealless magnetic-drive pump schematic">
-          <circle cx="150" cy="75" r="46" fill="#151a24" stroke="#2dd4bf" stroke-width="1.5"/>
-          <!-- impeller/rotor one piece -->
-          <g fill="none" stroke="#2dd4bf" stroke-width="2">
-            <path d="M150 75 L150 40"/><path d="M150 75 L180 92"/><path d="M150 75 L120 92"/>
-            <path d="M150 75 L178 58"/><path d="M150 75 L122 58"/><path d="M150 75 L150 110"/>
-          </g>
-          <circle cx="150" cy="75" r="7" fill="#2dd4bf"/>
-          <!-- no seal marker -->
-          <text x="150" y="20" text-anchor="middle" style="font-size:8px" fill="#5fc98a">rotor + impeller = one piece</text>
-          <text x="150" y="138" text-anchor="middle" style="font-size:8px" fill="#5fc98a">no shaft seal &rarr; fewer leak points</text>
-          <!-- flow arrows -->
-          <path d="M60 75 L100 75" stroke="#9aa3b5" stroke-width="3" marker-end="url(#g3c)"/>
-          <path d="M200 75 L240 75" stroke="#9aa3b5" stroke-width="3" marker-end="url(#g3c)"/>
-          <text x="70" y="66" style="font-size:8px" fill="#9aa3b5">in</text>
-          <text x="222" y="66" style="font-size:8px" fill="#9aa3b5">out</text>
-          <defs><marker id="g3c" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 z" fill="#9aa3b5"/></marker></defs>
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <rect x="20" y="30" width="160" height="12" rx="2" fill="#2a2f40" stroke="#3a3f55"/>
+          <text x="24" y="26" class="svglabel">lid / heat-spreader</text>
+          <rect x="20" y="42" width="160" height="10" fill="#5b81c4"/>
+          <text x="100" y="49.5" text-anchor="middle" font-size="7" fill="#fff">indium solder preform</text>
+          <rect x="20" y="52" width="160" height="16" rx="2" fill="#1c2030" stroke="#4faf8e"/>
+          <text x="100" y="63" text-anchor="middle" font-size="8" fill="#7cc9ad">silicon die</text>
+          <text x="24" y="83" class="svglabel">50+ W/mK · reflowed metal bond</text>
+          <text x="24" y="96" class="svglabel">pure indium — no pump-out</text>
         </svg>
       </div>
       <div class="body">
-        <h4>Sealless / magnetic-drive pump <span class="badge b-hot">CORE</span></h4>
-        <p class="role">Moves the coolant 24/7. The premium tier is sealless (magnetic-drive/canned): the impeller and rotor are one piece with no shaft seal, so there is no seal to wear or leak. Reliability is the whole game — a stop throttles the chips in seconds.</p>
-        <div class="who">Who: <b>Grundfos</b> &gt; <b>Wilo</b> &gt; Xylem (private/diluted); <b>Moog</b> (sealless CoreMotion), Nidec — the listed challengers.</div>
+        <h4>Indium solder <span class="badge b-now">TIM1</span></h4>
+        <p class="role">A thin indium foil reflowed into a solid metal joint — the incumbent high-end TIM1 in servers. No pump-out, very reliable, but consumes <b>pure indium</b> and needs a solder process.</p>
+        <p class="who">Makers: <b>Indium Corp</b>, Henkel, DuPont, 5N Plus (metal)</p>
       </div>
     </div>
+    <!-- sinter silver -->
     <div class="card">
       <div class="svgbox">
-        <svg viewBox="0 0 320 150" width="100%" role="img" aria-label="N+1 redundant pump plus controls schematic">
-          <!-- two pumps -->
-          <circle cx="95" cy="60" r="24" fill="#151a24" stroke="#5fc98a" stroke-width="1.5"/>
-          <text x="95" y="64" text-anchor="middle" style="font-size:9px" fill="#7cc9ad">P1</text>
-          <circle cx="95" cy="112" r="24" fill="#151a24" stroke="#697283" stroke-width="1.5" stroke-dasharray="4 3"/>
-          <text x="95" y="116" text-anchor="middle" style="font-size:9px" fill="#9aa3b5">P2 spare</text>
-          <!-- controller -->
-          <rect x="180" y="55" width="110" height="60" rx="6" fill="#151a24" stroke="#e0a458" stroke-width="1.5"/>
-          <text x="235" y="80" text-anchor="middle" style="font-size:9px" fill="#e3bd76">controller</text>
-          <text x="235" y="96" text-anchor="middle" style="font-size:8px" fill="#9aa3b5">100 ms failover</text>
-          <path d="M119 60 L180 72" stroke="#5fc98a" stroke-width="2" marker-end="url(#g3d)"/>
-          <path d="M119 112 L180 98" stroke="#697283" stroke-width="2" stroke-dasharray="3 3" marker-end="url(#g3d)"/>
-          <text x="150" y="24" text-anchor="middle" style="font-size:8.5px" fill="#e3bd76">N+1: single fault can't kill the rack</text>
-          <defs><marker id="g3d" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 z" fill="#9aa3b5"/></marker></defs>
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <rect x="20" y="30" width="160" height="12" rx="2" fill="#2a2f40" stroke="#3a3f55"/>
+          <text x="24" y="26" class="svglabel">lid</text>
+          <rect x="20" y="42" width="160" height="10" fill="#d2a24a"/>
+          <g fill="#8a6a24"><circle cx="34" cy="47" r="1.3"/><circle cx="52" cy="47" r="1.3"/><circle cx="72" cy="47" r="1.3"/><circle cx="92" cy="47" r="1.3"/><circle cx="112" cy="47" r="1.3"/><circle cx="132" cy="47" r="1.3"/><circle cx="152" cy="47" r="1.3"/><circle cx="168" cy="47" r="1.3"/></g>
+          <text x="100" y="49.5" text-anchor="middle" font-size="7" fill="#3a2c10">sintered silver</text>
+          <rect x="20" y="52" width="160" height="16" rx="2" fill="#1c2030" stroke="#4faf8e"/>
+          <text x="100" y="63" text-anchor="middle" font-size="8" fill="#7cc9ad">silicon die</text>
+          <text x="24" y="83" class="svglabel">high-k · no Ga/In — silver-based</text>
+          <text x="24" y="96" class="svglabel">from power-module world</text>
         </svg>
       </div>
       <div class="body">
-        <h4>Redundancy + controls + leak-detection <span class="badge b-next">RELIABILITY</span></h4>
-        <p class="role">The reason the pump can't be a monopoly: because it's the single-point-of-failure, hyperscalers demand N+1/2N, 100 ms hot-standby and leak sensors — and multi-source the pump. Reliability engineering caps any one vendor's pricing power (echo of Run #10's open-UQD finding).</p>
-        <div class="who">Who: CDU integrators + sensor/valve/filter suppliers; leak-detection is an under-covered private "reliability razor."</div>
+        <h4>Sinter silver <span class="badge b-next">substitute</span></h4>
+        <p class="role">Silver nanoparticles sintered into a solid bond — imported from SiC power modules. High conductivity, <b>no gallium/indium</b>. The key substitution risk to the Ga/In thesis.</p>
+        <p class="who">Makers: <b>Heraeus</b>, MacDermid Alpha (Solstice), Kyocera</p>
+      </div>
+    </div>
+    <!-- microfluidic -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <rect x="20" y="34" width="160" height="30" rx="3" fill="#1c2030" stroke="#5fc98a"/>
+          <g stroke="#5aa9e0" stroke-width="2"><line x1="30" y1="40" x2="170" y2="40"/><line x1="30" y1="48" x2="170" y2="48"/><line x1="30" y1="56" x2="170" y2="56"/></g>
+          <text x="100" y="30" text-anchor="middle" font-size="8" fill="#5fc98a">coolant IN silicon</text>
+          <text x="24" y="80" class="svglabel">30–150 µm channels etched in die</text>
+          <text x="24" y="93" class="svglabel">NO TIM · ~15% better · &gt;2.6 kW</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>In-chip microfluidic <span class="badge b-emrg">2028+</span></h4>
+        <p class="role">TSMC's IMC-Si / Microsoft's cold-plate etch water channels straight into the silicon — <b>bypassing the TIM</b>. The long-run disintermediation: it deletes this whole chokepoint.</p>
+        <p class="who">Owners: <b>TSMC</b> (IMC-Si), Microsoft, Corintis (private)</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- 4. ASSEMBLY -->
+<!-- 4. THE STACK ASSEMBLY -->
 <section id="s4">
-  <div class="sh"><span class="n">04</span><h2>Chip &rarr; CDU &rarr; facility — how the core builds up into the loop</h2><span class="cn">L3&rarr;L2&rarr;L1 組裝</span></div>
-  <p class="lead">The whole-view: the die's heat travels cold-plate &rarr; manifold &rarr; <b>CDU (pump pushes it, BPHE hands it across)</b> &rarr; facility water &rarr; heat-reject. Two isolated loops meet at exactly one component — the BPHE — and one component keeps them moving — the pump. That's why the CDU core is the pinch.</p>
+  <div class="sh"><span class="n">04</span><h2>Where the interface sits — the thermal stack, exploded</h2><span class="cn">L3→L1 組裝</span></div>
+  <p class="lead">Heat leaves a transistor through a stack of interfaces. Every prior cooling run priced the <b>right half</b> (cold plate → CDU → facility). This run prices the <b>two thin films on the left</b> — TIM1 and TIM1.5 — and the metal + nickel barrier that make them work above ~1.5 kW.</p>
   <div class="svgwide">
-    <svg viewBox="0 0 1120 250" width="100%" role="img" aria-label="Chip to CDU to facility assembly">
-      <!-- primary (chip) loop -->
-      <text x="20" y="26" style="font-size:11px;font-weight:600" fill="#8aa7df">Primary loop (chip-side, closed, clean coolant PG25)</text>
-      <rect x="20" y="40" width="150" height="60" rx="8" fill="#13161e" stroke="#5b81c4"/>
-      <text x="95" y="66" text-anchor="middle" style="font-size:10px" fill="#8aa7df">GPU cold-plate</text>
-      <text x="95" y="82" text-anchor="middle" style="font-size:8.5px" fill="#697283">+ TIM (Run #4/#16)</text>
-      <rect x="210" y="40" width="140" height="60" rx="8" fill="#13161e" stroke="#8b84cf"/>
-      <text x="280" y="66" text-anchor="middle" style="font-size:10px" fill="#aaa3e6">manifold + QD</text>
-      <text x="280" y="82" text-anchor="middle" style="font-size:8.5px" fill="#697283">(Run #10)</text>
-
-      <!-- CDU box -->
-      <rect x="400" y="24" width="300" height="200" rx="12" fill="#1a1216" stroke="#e0686a" stroke-width="2"/>
-      <text x="550" y="46" text-anchor="middle" style="font-size:12px;font-weight:700" fill="#eda3a4">CDU (coolant distribution unit)</text>
-      <!-- pump -->
-      <circle cx="470" cy="110" r="34" fill="#151a24" stroke="#2dd4bf" stroke-width="1.5"/>
-      <text x="470" y="108" text-anchor="middle" style="font-size:9px" fill="#2dd4bf">pump</text>
-      <text x="470" y="122" text-anchor="middle" style="font-size:8px" fill="#5fc98a">N+1</text>
-      <!-- BPHE -->
-      <rect x="545" y="76" width="120" height="70" rx="6" fill="#151a24" stroke="#e0686a" stroke-width="1.5"/>
-      <line x1="565" y1="76" x2="565" y2="146" stroke="#5aa9e0"/><line x1="585" y1="76" x2="585" y2="146" stroke="#e0686a"/><line x1="605" y1="76" x2="605" y2="146" stroke="#5aa9e0"/><line x1="625" y1="76" x2="625" y2="146" stroke="#e0686a"/><line x1="645" y1="76" x2="645" y2="146" stroke="#5aa9e0"/>
-      <text x="605" y="163" text-anchor="middle" style="font-size:9px" fill="#eda3a4">BPHE (loop isolation)</text>
-      <text x="550" y="200" text-anchor="middle" style="font-size:8.5px" fill="#d9c4c6">+ valves · controls · reservoir · filter · leak sensors</text>
-      <text x="550" y="216" text-anchor="middle" style="font-size:8.5px" fill="#eda3a4">the two scarce links live here</text>
-
-      <!-- facility loop -->
-      <text x="760" y="26" style="font-size:11px;font-weight:600" fill="#5fc98a">Facility loop (building water &rarr; heat reject)</text>
-      <rect x="760" y="40" width="150" height="60" rx="8" fill="#13161e" stroke="#4faf8e"/>
-      <text x="835" y="66" text-anchor="middle" style="font-size:10px" fill="#7cc9ad">facility water</text>
-      <text x="835" y="82" text-anchor="middle" style="font-size:8.5px" fill="#697283">pipes · pumps · valves</text>
-      <rect x="950" y="40" width="150" height="60" rx="8" fill="#13161e" stroke="#5fc98a"/>
-      <text x="1025" y="62" text-anchor="middle" style="font-size:10px" fill="#7cc9ad">heat reject</text>
-      <text x="1025" y="78" text-anchor="middle" style="font-size:8.5px" fill="#697283">chiller/dry-cooler</text>
-      <text x="1025" y="92" text-anchor="middle" style="font-size:8.5px" fill="#697283">/ tower &rarr; air (Run #16)</text>
-
-      <!-- flows -->
-      <path d="M170 70 L208 70" stroke="#5b81c4" stroke-width="3" marker-end="url(#g4a)"/>
-      <path d="M350 70 L398 100" stroke="#8b84cf" stroke-width="3" marker-end="url(#g4a)"/>
-      <path d="M700 110 L758 70" stroke="#4faf8e" stroke-width="3" marker-end="url(#g4b)"/>
-      <path d="M910 70 L948 70" stroke="#5fc98a" stroke-width="3" marker-end="url(#g4b)"/>
+    <div class="svgscroll">
+    <svg viewBox="0 0 1060 300" width="100%" style="min-width:900px" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <marker id="g4a" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 z" fill="#8b84cf"/></marker>
-        <marker id="g4b" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 z" fill="#5fc98a"/></marker>
+        <marker id="arrH" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e0686a"/></marker>
       </defs>
+      <!-- heat arrow up -->
+      <text x="30" y="30" class="m" font-size="11" fill="#e0686a">HEAT →</text>
+      <line x1="90" y1="250" x2="90" y2="40" stroke="#e0686a" stroke-width="2" marker-end="url(#arrH)"/>
+      <text x="60" y="150" class="m" font-size="10" fill="#e0686a" transform="rotate(-90,60,150)">junction → coolant</text>
+
+      <!-- layers bottom (die) to top (coolant) -->
+      <!-- die -->
+      <rect x="150" y="210" width="520" height="40" rx="4" fill="#1c2030" stroke="#4faf8e"/>
+      <text x="410" y="234" text-anchor="middle" font-size="12" fill="#7cc9ad">Silicon die / transistors (~1.5–2 kW)</text>
+      <!-- TIM1 -->
+      <rect x="150" y="196" width="520" height="14" fill="#8b84cf"/>
+      <text x="410" y="206" text-anchor="middle" font-size="9" fill="#fff">TIM1 — die ↔ lid  (metal TIM here)</text>
+      <!-- lid -->
+      <rect x="150" y="170" width="520" height="26" rx="3" fill="#2a2f40" stroke="#3a3f55"/>
+      <text x="410" y="187" text-anchor="middle" font-size="11" fill="#c7ccda">Integrated heat-spreader / lid</text>
+      <!-- TIM1.5 -->
+      <rect x="150" y="156" width="520" height="14" fill="#d2a24a"/>
+      <text x="410" y="166" text-anchor="middle" font-size="9" fill="#2a2008">TIM1.5 — lid ↔ cold plate  (metal or polymer)</text>
+      <!-- Ni barrier -->
+      <rect x="150" y="146" width="520" height="10" fill="#5b81c4"/>
+      <text x="410" y="154" text-anchor="middle" font-size="8" fill="#fff">electroless-Ni barrier (stops Ga corroding Cu)</text>
+      <!-- cold plate -->
+      <rect x="150" y="110" width="520" height="36" rx="3" fill="#173a33" stroke="#4faf8e"/>
+      <text x="410" y="132" text-anchor="middle" font-size="11" fill="#7cc9ad">Copper cold plate + microchannels  (Run #4/#22)</text>
+      <!-- loop -->
+      <rect x="150" y="84" width="520" height="22" rx="3" fill="#12222c" stroke="#2a3040"/>
+      <text x="410" y="99" text-anchor="middle" font-size="10" fill="#8fb6c9">secondary loop → QD → CDU → facility  (Run #10/#16/#22)</text>
+
+      <!-- bracket: this run -->
+      <path d="M690,156 L710,156 L710,210 L690,210" fill="none" stroke="#e0686a" stroke-width="1.5"/>
+      <text x="720" y="178" font-size="12" fill="#e0686a" font-weight="600">THIS RUN</text>
+      <text x="720" y="193" class="svglabel" style="fill:#d9a9aa">the metal-TIM interface</text>
+      <!-- bracket: prior runs -->
+      <path d="M690,84 L710,84 L710,146 L690,146" fill="none" stroke="#4faf8e" stroke-width="1.2"/>
+      <text x="720" y="112" font-size="12" fill="#4faf8e" font-weight="600">PRIOR RUNS</text>
+      <text x="720" y="127" class="svglabel" style="fill:#79ad9c">cold plate → loop → CDU</text>
+
+      <!-- right: what changes -->
+      <text x="900" y="96" class="svglabel" style="font-size:10px;fill:#9aa3b5">as die power rises:</text>
+      <text x="900" y="150" font-size="10" fill="#d2a24a">1.0 kW → polymer OK</text>
+      <text x="900" y="182" font-size="10" fill="#e0686a">1.5 kW → metal TIM</text>
+      <text x="900" y="214" font-size="10" fill="#5fc98a">2.6 kW → delete TIM</text>
     </svg>
+    </div>
+    <p class="cap">The interface is two paper-thin films, but at Rubin power the film — not the plate — sets the junction temperature. The nickel barrier is a quiet co-requirement: without it, liquid metal destroys the copper plate the last four runs were about.</p>
   </div>
-  <p class="cap">The BPHE is the single membrane between the clean chip-side coolant and the messier facility water; the pump is the single thing keeping both moving. Everything else in the CDU (valves, controls, reservoir, filtration, leak sensors) supports those two. As Rubin roughly doubles flow, both the pump duty and the BPHE approach-temp tighten at once — which is why the "core" is the chokepoint, not the "box."</p>
 </section>
 
-<!-- 5. DISAGGREGATION -->
+<!-- 5. DEPLOYMENT MAP -->
 <section id="s5">
-  <div class="sh"><span class="n">05</span><h2>The central argument — the box is not the scarce link; the core is</h2><span class="cn">拆解：盒子 vs 核心</span></div>
-  <p class="lead">The disaggregation that <i>is</i> the edge. Consensus buys "the CDU makers / the thermal integrator" (Vertiv). But two things pull the durable rent one layer down — and one thing (already-priced pure-plays) pulls the edge back out.</p>
+  <div class="sh"><span class="n">05</span><h2>Which interface serves which cooling domain</h2><span class="cn">部署對應</span></div>
+  <p class="lead">The same four options from §3 map onto the §2 domains by heat flux. The chokepoint only binds in the <b>red band</b> — high-power direct-to-chip — but that band is exactly where every flagship AI GPU is heading.</p>
   <div class="svgwide">
-    <svg viewBox="0 0 1120 250" width="100%" role="img" aria-label="Box versus core disaggregation">
-      <!-- LEFT: buy the box -->
-      <rect x="20" y="20" width="520" height="210" rx="12" fill="#13161e" stroke="#363d4f"/>
-      <text x="40" y="46" style="font-size:13px;font-weight:700" fill="#9aa3b5">Consensus: "buy the CDU box / integrator"</text>
-      <!-- many vendors funnel to one box -->
-      <rect x="50" y="70" width="90" height="24" rx="5" fill="#1a1e28" stroke="#363d4f"/><text x="95" y="86" text-anchor="middle" style="font-size:8.5px" fill="#9aa3b5">Vertiv</text>
-      <rect x="50" y="102" width="90" height="24" rx="5" fill="#1a1e28" stroke="#363d4f"/><text x="95" y="118" text-anchor="middle" style="font-size:8.5px" fill="#9aa3b5">Schneider/Motivair</text>
-      <rect x="50" y="134" width="90" height="24" rx="5" fill="#1a1e28" stroke="#363d4f"/><text x="95" y="150" text-anchor="middle" style="font-size:8.5px" fill="#9aa3b5">Boyd · CoolIT</text>
-      <rect x="50" y="166" width="90" height="24" rx="5" fill="#1a1e28" stroke="#363d4f"/><text x="95" y="182" text-anchor="middle" style="font-size:8.5px" fill="#9aa3b5">Delta · nVent</text>
-      <rect x="50" y="198" width="90" height="24" rx="5" fill="#1a1e28" stroke="#363d4f"/><text x="95" y="214" text-anchor="middle" style="font-size:8.5px" fill="#9aa3b5">Envicool · Supermicro</text>
-      <text x="360" y="120" text-anchor="middle" style="font-size:11px;font-weight:600" fill="#9aa3b5">40+ NVIDIA / OCP partners</text>
-      <text x="360" y="140" text-anchor="middle" style="font-size:10px" fill="#697283">Vertiv leads; 2nd-sourced by policy</text>
-      <text x="360" y="164" text-anchor="middle" style="font-size:10px;font-weight:600" fill="#eda3a4">&rArr; box is multi-sourced,</text>
-      <text x="360" y="180" text-anchor="middle" style="font-size:10px;font-weight:600" fill="#eda3a4">reference-design-commoditising</text>
-      <path d="M150 150 L250 130" stroke="#697283" stroke-width="1" opacity=".5"/>
-      <path d="M150 118 L250 128" stroke="#697283" stroke-width="1" opacity=".5"/>
-      <path d="M150 178 L250 132" stroke="#697283" stroke-width="1" opacity=".5"/>
+    <div class="svgscroll">
+    <svg viewBox="0 0 1060 250" width="100%" style="min-width:900px" xmlns="http://www.w3.org/2000/svg">
+      <!-- x axis: heat flux -->
+      <line x1="60" y1="200" x2="1010" y2="200" stroke="#2a3040" stroke-width="1.5"/>
+      <text x="60" y="225" class="m" font-size="10" fill="#697283">0.7 kW</text>
+      <text x="330" y="225" class="m" font-size="10" fill="#697283">1.5 kW</text>
+      <text x="640" y="225" class="m" font-size="10" fill="#697283">2.6 kW</text>
+      <text x="940" y="225" class="m" font-size="10" fill="#697283">3.6 kW →</text>
+      <text x="500" y="243" font-size="10" fill="#697283">per-GPU heat load →  (flux W/cm² is the true driver, est.)</text>
+      <!-- bands -->
+      <rect x="60" y="60" width="270" height="130" rx="6" fill="rgba(90,169,224,.08)" stroke="#2c4a63" stroke-dasharray="3 4"/>
+      <text x="70" y="80" font-size="11" fill="#5aa9e0">Polymer / PCM zone</text>
+      <text x="70" y="98" class="svglabel">grease, phase-change pads — multi-sourced</text>
+      <text x="70" y="120" font-size="10" fill="#9aa3b5">H100 · B200 · GB200</text>
 
-      <!-- RIGHT: own the core -->
-      <rect x="580" y="20" width="520" height="210" rx="12" fill="#1a1216" stroke="#e0686a" stroke-width="1.5"/>
-      <text x="600" y="46" style="font-size:13px;font-weight:700" fill="#eda3a4">Edge: "own the core — BPHE + reliable pump"</text>
-      <rect x="610" y="70" width="200" height="70" rx="8" fill="#151a24" stroke="#e0686a"/>
-      <text x="710" y="94" text-anchor="middle" style="font-size:10px;font-weight:600" fill="#eda3a4">BPHE (heat exchanger)</text>
-      <text x="710" y="112" text-anchor="middle" style="font-size:8.5px" fill="#d9c4c6">Alfa Laval · Kaori · SWEP</text>
-      <text x="710" y="128" text-anchor="middle" style="font-size:8.5px" fill="#d9c4c6">Danfoss · Kelvion (few)</text>
-      <rect x="610" y="152" width="200" height="62" rx="8" fill="#151a24" stroke="#2dd4bf"/>
-      <text x="710" y="176" text-anchor="middle" style="font-size:10px;font-weight:600" fill="#2dd4bf">reliable pump</text>
-      <text x="710" y="194" text-anchor="middle" style="font-size:8.5px" fill="#9aa3b5">Grundfos · Wilo · Moog · Nidec</text>
-      <text x="710" y="208" text-anchor="middle" style="font-size:8px" fill="#5fc98a">N+1 forces multi-source &rarr; toll capped</text>
-      <!-- but priced -->
-      <rect x="835" y="70" width="245" height="144" rx="8" fill="#12141b" stroke="#3a3320"/>
-      <text x="957" y="92" text-anchor="middle" style="font-size:10px;font-weight:700" fill="#e3bd76">…but the edge already leaked</text>
-      <text x="957" y="116" text-anchor="middle" style="font-size:9px" fill="#9aa3b5">Kaori (BPHE-centric) +~450%</text>
-      <text x="957" y="134" text-anchor="middle" style="font-size:9px" fill="#9aa3b5">CoolIT &rarr; Ecolab $4.75B</text>
-      <text x="957" y="152" text-anchor="middle" style="font-size:9px" fill="#9aa3b5">Motivair &rarr; Schneider $850M</text>
-      <text x="957" y="176" text-anchor="middle" style="font-size:9px;font-weight:600" fill="#e3bd76">residual = diluted proxy</text>
-      <text x="957" y="192" text-anchor="middle" style="font-size:9px;font-weight:600" fill="#e3bd76">(Alfa Laval) + private pump</text>
-      <text x="957" y="208" text-anchor="middle" style="font-size:8.5px" fill="#697283">+ patience</text>
+      <rect x="330" y="60" width="310" height="130" rx="6" fill="rgba(224,104,106,.12)" stroke="#5a3236"/>
+      <text x="342" y="80" font-size="12" fill="#e0686a" font-weight="600">METAL-TIM CHOKEPOINT</text>
+      <text x="342" y="98" class="svglabel" style="fill:#d9a9aa">liquid-metal · indium-solder · sinter-silver</text>
+      <text x="342" y="120" font-size="10" fill="#efb6b7">GB300 · Rubin R100 (2026–27)</text>
+      <text x="342" y="150" class="svglabel" style="fill:#d9a9aa">scarce Ga/In · hard to apply · reliability-gated</text>
+
+      <rect x="640" y="60" width="370" height="130" rx="6" fill="rgba(95,201,138,.08)" stroke="#2c5a40" stroke-dasharray="3 4"/>
+      <text x="652" y="80" font-size="11" fill="#5fc98a">In-chip microfluidic zone</text>
+      <text x="652" y="98" class="svglabel">coolant etched into silicon — TIM deleted</text>
+      <text x="652" y="120" font-size="10" fill="#9aa3b5">Rubin Ultra · Feynman (2027–28+)</text>
+      <text x="652" y="150" class="svglabel" style="fill:#79ad9c">the disintermediation clock</text>
+
+      <!-- markers on axis -->
+      <circle cx="150" cy="200" r="4" fill="#5aa9e0"/><circle cx="450" cy="200" r="5" fill="#e0686a"/><circle cx="780" cy="200" r="4" fill="#5fc98a"/>
     </svg>
-  </div>
-  <div class="gap">
-    <div class="h">VARIANT PERCEPTION vs CONSENSUS</div>
-    <p><b>Consensus:</b> the CDU maker / thermal integrator (Vertiv, +80% YTD) is the AI-cooling chokepoint. <b>Variant:</b> the CDU <i>box</i> is assembled by 40+ NVIDIA/OCP partners against a public reference CDU design (Vertiv leads share today, but hyperscalers qualify second sources by policy) so its lead is <i>second-sourceable, not a supply monopoly</i> — its integration rent is real but erodes toward the reference design; the durable scarcity + reliability rent sits one layer below at the <b>BPHE + reliable pump</b>. <b>The honest catch (how the edge is already half-gone):</b> the market has <i>proven</i> this — the BPHE-centric play (Kaori) is up ~450% and the CDU pure-plays got <i>bought</i> (CoolIT&rarr;Ecolab $4.75B announced Mar-2026, Motivair&rarr;Schneider $850M closed Feb-2025) — so the residual, un-crowded expression is the <b>diluted BPHE proxy (Alfa Laval, +18%)</b> and the <b>private pump layer (Nidec as the listed proxy)</b>, not a fresh pure-play. <b>If we're wrong</b>, it's because (a) the pump/BPHE are genuinely multi-sourceable (N+1 by design) so neither earns a monopoly toll; (b) the integrator's 12–18-mo qualification + service annuity is a bigger moat than "the box is dumb" assumes, so Vertiv's premium is deserved; or (c) in-chip microfluidics (Run #16, 2028+) deletes the whole external loop — pump, BPHE and CDU together.</p>
+    </div>
+    <p class="cap">Immersion (§2) is a side pool with its own TIM failure mode (dissolution) and is not drawn on the flux axis. The point: the window where metal TIM is <i>mandatory but not yet deleted</i> is roughly 2026–2028 — a real but time-boxed rent.</p>
   </div>
 </section>
 
-<!-- 6. SUPPLY CHAIN -->
+<!-- 6. SUPPLY CHAIN MAP (centerpiece) -->
 <section id="s6">
-  <div class="sh"><span class="n">06</span><h2>End-to-end supply chain — where it constricts, where the rent settles</h2><span class="cn">供應鏈全景</span></div>
-  <p class="lead">The centerpiece. Follow the flow left&rarr;right: the die's heat travels through cold-plate and manifold, then <b>constricts hard</b> at the CDU core (thin red arrows = the choke — the reliability-critical pump + the brazed-plate heat exchanger), then re-widens into the assembled CDU box, the facility loop and heat-reject. The bar chart reads the two things separately: <b>physical scarcity</b> (tallest at the CDU core — the chokepoint) versus <b>where the margin/rent settles</b> (a rent diamond also sits at the core, because the BPHE-centric play Kaori shows it, <i>and</i> at the box integrator — rent is shared here, unlike the GOES run).</p>
+  <div class="sh"><span class="n">06</span><h2>End-to-end supply chain — where the value concentrates</h2><span class="cn">供應鏈全圖</span></div>
+  <p class="lead">Upstream byproduct metals → the metal-TIM formulation → applied interface → cold plate → the AI rack that demands it. Flow <b style="color:var(--choke)">constricts (thin red) into and out of the chokepoint</b>; the bar chart below reads the <b>scarcity premium per stage</b> — tallest at the metal-TIM formulation, with a secondary peak at the high-purity metal.</p>
   <div class="leg">
-    <span><span class="sw" style="background:var(--choke)"></span>Chokepoint (constricted flow)</span>
-    <span><span class="sw" style="background:#697283"></span>Abundant flow</span>
-    <span><span class="sw" style="background:var(--l1)"></span>Rent pool (margin settles)</span>
-    <span><span class="sw" style="background:var(--dup)"></span>Downstream sub-tier</span>
+    <span><span class="sw" style="background:var(--up)"></span>feedstock (UP)</span>
+    <span><span class="sw" style="background:var(--l3)"></span>metal-TIM formulation (L3)</span>
+    <span><span class="sw" style="background:var(--l2)"></span>interface/apply (L2)</span>
+    <span><span class="sw" style="background:var(--l1)"></span>cold plate/loop (L1)</span>
+    <span><span class="sw" style="background:var(--choke)"></span>chokepoint</span>
   </div>
-  <div class="svgwide">
-    <svg viewBox="0 0 1120 470" width="100%" role="img" aria-label="AI cooling CDU end-to-end supply chain map with scarcity and rent bars">
-      <!-- stage cards -->
-      <!-- 1 -->
-      <rect x="8" y="30" width="150" height="128" rx="10" fill="#13161e" stroke="#363d4f"/>
-      <text x="83" y="52" text-anchor="middle" style="font-size:10.5px;font-weight:600" fill="#8aa7df">1 · Cold-plate / TIM</text>
-      <text x="83" y="72" text-anchor="middle" style="font-size:9px" fill="#9aa3b5">on the GPU die</text>
-      <text x="83" y="86" text-anchor="middle" style="font-size:9px" fill="#9aa3b5">Runs #4 / #16</text>
-      <text x="83" y="112" text-anchor="middle" style="font-size:8.5px" fill="#697283">component, competed</text>
-      <text x="83" y="148" text-anchor="middle" style="font-size:8.5px" fill="#8aa7df">AVC · Cooler Master · Boyd</text>
+  <div class="flow">
+    <div class="st"><h5><span class="sw" style="background:var(--up)"></span>1 · Byproduct metals</h5><ul>
+      <li><b>Gallium</b> — China <span class="x">~99%</span></li>
+      <li><b>Indium</b> — China ~60%</li>
+      <li>Silver (for sinter)</li>
+      <li class="cap" style="font-style:normal;color:var(--dim)">Ga from bauxite · In from zinc</li>
+    </ul></div>
+    <div class="st"><h5><span class="sw" style="background:var(--up)"></span>2 · High-purity metal</h5><ul>
+      <li><b>5N Plus</b> (Western)</li>
+      <li>Korea Zinc (In)</li>
+      <li>China refiners</li>
+      <li class="cap" style="font-style:normal;color:var(--dim)">6N Ga/In · Galinstan alloy</li>
+    </ul></div>
+    <div class="st ck"><h5><span class="sw" style="background:var(--choke)"></span>3 · Metal-TIM formulation</h5><ul>
+      <li class="x">Indium Corp (private)</li>
+      <li><b>Henkel</b> · <b>Solstice</b></li>
+      <li>Honeywell · DuPont</li>
+      <li class="cap" style="font-style:normal;color:#d9a9aa">+ Ni-barrier / pump-out IP</li>
+    </ul></div>
+    <div class="st"><h5><span class="sw" style="background:var(--l2)"></span>4 · Apply &amp; qualify</h5><ul>
+      <li>Boyd · AVC · Auras</li>
+      <li>OSAT / chipmaker</li>
+      <li>electroless-Ni platers</li>
+      <li class="cap" style="font-style:normal;color:var(--dim)">dispense + reliability qual</li>
+    </ul></div>
+    <div class="st"><h5><span class="sw" style="background:var(--l1)"></span>5 · Cold plate + loop</h5><ul>
+      <li>AVC · Auras (Run #4)</li>
+      <li>CDU · QD (Run #10/22)</li>
+      <li>Vertiv · Boyd</li>
+      <li class="cap" style="font-style:normal;color:var(--dim)">multi-sourced, priced</li>
+    </ul></div>
+    <div class="st"><h5><span class="sw" style="background:var(--dacr)"></span>6 · AI rack demand</h5><ul>
+      <li>NVIDIA Rubin/GB300</li>
+      <li>Hyperscalers</li>
+      <li>AMD · custom ASIC</li>
+      <li class="cap" style="font-style:normal;color:var(--dim)">keeps the system rent</li>
+    </ul></div>
+  </div>
 
-      <!-- 2 -->
-      <rect x="176" y="30" width="150" height="128" rx="10" fill="#13161e" stroke="#3a3350"/>
-      <text x="251" y="52" text-anchor="middle" style="font-size:10.5px;font-weight:600" fill="#aaa3e6">2 · Manifold / QD</text>
-      <text x="251" y="72" text-anchor="middle" style="font-size:9px" fill="#9aa3b5">in-rack plumbing +</text>
-      <text x="251" y="86" text-anchor="middle" style="font-size:9px" fill="#9aa3b5">blind-mate connector</text>
-      <text x="251" y="112" text-anchor="middle" style="font-size:8.5px" fill="#697283">Run #10 chokepoint</text>
-      <text x="251" y="148" text-anchor="middle" style="font-size:8.5px" fill="#aaa3e6">CPC/Dover · Staubli · Parker</text>
-
-      <!-- 3 CHOKEPOINT -->
-      <rect x="360" y="22" width="176" height="144" rx="10" fill="#1a1216" stroke="#e0686a" stroke-width="2"/>
-      <text x="448" y="44" text-anchor="middle" style="font-size:11.5px;font-weight:700" fill="#eda3a4">3 · CDU CORE</text>
-      <text x="448" y="62" text-anchor="middle" style="font-size:9px" fill="#d9c4c6">reliable pump + BPHE</text>
-      <text x="448" y="76" text-anchor="middle" style="font-size:9px" fill="#d9c4c6">the two hard-to-qualify links</text>
-      <text x="448" y="100" text-anchor="middle" style="font-size:8.5px" fill="#eda3a4">pump: Grundfos/Wilo/Moog</text>
-      <text x="448" y="115" text-anchor="middle" style="font-size:8.5px" fill="#eda3a4">BPHE: Alfa Laval/Kaori/SWEP</text>
-      <text x="448" y="139" text-anchor="middle" style="font-size:8.5px" fill="#f0a6a7">few makers · long qual</text>
-      <text x="448" y="155" text-anchor="middle" class="m" style="font-size:8px" fill="#eda3a4">sec-scale throttle · N+1 caps toll</text>
-
-      <!-- 4 RENT POOL (box) -->
-      <rect x="570" y="22" width="164" height="144" rx="10" fill="#121a15" stroke="#4faf8e" stroke-width="2"/>
-      <text x="652" y="44" text-anchor="middle" style="font-size:11px;font-weight:700" fill="#7cc9ad">4 · CDU box / integ.</text>
-      <text x="652" y="63" text-anchor="middle" style="font-size:9px" fill="#b7e0cf">assemble · qualify · service</text>
-      <text x="652" y="86" text-anchor="middle" style="font-size:9px" fill="#7cc9ad">RENT ALSO SETTLES HERE</text>
-      <text x="652" y="102" text-anchor="middle" style="font-size:8.5px" fill="#9aa3b5">12–18mo qual + backlog</text>
-      <text x="652" y="118" text-anchor="middle" style="font-size:8.5px" fill="#9aa3b5">multi-source; NVIDIA ref-design</text>
-      <text x="652" y="140" text-anchor="middle" style="font-size:8.5px" fill="#7cc9ad">Vertiv · Schneider · Boyd</text>
-      <text x="652" y="155" text-anchor="middle" style="font-size:8.5px" fill="#7cc9ad">Delta · nVent · Envicool</text>
-
-      <!-- 5 -->
-      <rect x="768" y="30" width="150" height="128" rx="10" fill="#13161e" stroke="#363d4f"/>
-      <text x="843" y="52" text-anchor="middle" style="font-size:10.5px;font-weight:600" fill="#7cc9ad">5 · Facility loop</text>
-      <text x="843" y="72" text-anchor="middle" style="font-size:9px" fill="#9aa3b5">building water</text>
-      <text x="843" y="86" text-anchor="middle" style="font-size:9px" fill="#9aa3b5">pipes · pumps · valves</text>
-      <text x="843" y="112" text-anchor="middle" style="font-size:8.5px" fill="#697283">EPC / mechanical</text>
-      <text x="843" y="148" text-anchor="middle" style="font-size:8.5px" fill="#8aa7df">Comfort Sys · Xylem</text>
-
-      <!-- 6 -->
-      <rect x="952" y="30" width="158" height="128" rx="10" fill="#13161e" stroke="#363d4f"/>
-      <text x="1031" y="52" text-anchor="middle" style="font-size:10.5px;font-weight:600" fill="#7cc9ad">6 · Heat reject</text>
-      <text x="1031" y="72" text-anchor="middle" style="font-size:9px" fill="#9aa3b5">chiller / dry-cooler</text>
-      <text x="1031" y="86" text-anchor="middle" style="font-size:9px" fill="#9aa3b5">tower &rarr; atmosphere</text>
-      <text x="1031" y="112" text-anchor="middle" style="font-size:8.5px" fill="#697283">Run #16 (Munters)</text>
-      <text x="1031" y="148" text-anchor="middle" style="font-size:8.5px" fill="#8aa7df">Munters · SPX · BAC</text>
-
-      <!-- flows -->
-      <path d="M158 94 L174 94" stroke="#697283" stroke-width="6" marker-end="url(#cmg)"/>
-      <path d="M326 94 L358 94" stroke="#e0686a" stroke-width="2.5" marker-end="url(#cmr)"/>
-      <path d="M536 94 L568 94" stroke="#e0686a" stroke-width="2.5" marker-end="url(#cmr)"/>
-      <path d="M734 94 L766 94" stroke="#697283" stroke-width="7" marker-end="url(#cmg)"/>
-      <path d="M918 94 L950 94" stroke="#697283" stroke-width="7" marker-end="url(#cmg)"/>
-      <text x="1031" y="184" text-anchor="middle" style="font-size:9px" fill="#697283">&rarr; atmosphere / water</text>
-
-      <!-- CHOKEPOINT ribbon -->
-      <rect x="360" y="192" width="176" height="20" rx="4" fill="#e0686a"/>
-      <text x="448" y="206" text-anchor="middle" style="font-size:10px;font-weight:700" fill="#160a0b">&#9700; CHOKEPOINT &#9701;</text>
-
-      <!-- BAR CHART -->
-      <text x="20" y="246" style="font-size:11px;font-weight:600" fill="#e8eaf0">Per-stage read — physical scarcity (bars) vs where rent settles (&#9670;)</text>
-      <line x1="40" y1="430" x2="1090" y2="430" stroke="#363d4f"/>
-      <text x="30" y="270" class="svglabel m" style="font-size:8px">100</text>
-      <text x="34" y="350" class="svglabel m" style="font-size:8px">50</text>
-      <line x1="40" y1="266" x2="1090" y2="266" stroke="#1e2430" stroke-dasharray="2 4"/>
-      <line x1="40" y1="348" x2="1090" y2="348" stroke="#1e2430" stroke-dasharray="2 4"/>
-
-      <!-- bars: centers 83, 251, 448, 652, 843, 1031 -->
-      <!-- 1 cold-plate: 42 -->
-      <rect x="53" y="363" width="60" height="67" fill="#5b81c4" opacity=".8"/>
-      <text x="83" y="355" text-anchor="middle" class="m" style="font-size:9px" fill="#8aa7df">42</text>
-      <text x="83" y="446" text-anchor="middle" style="font-size:8px" fill="#697283">cold-plate</text>
-      <!-- 2 manifold/QD: 55 -->
-      <rect x="221" y="342" width="60" height="88" fill="#8b84cf" opacity=".85"/>
-      <text x="251" y="334" text-anchor="middle" class="m" style="font-size:9px" fill="#aaa3e6">55</text>
-      <text x="251" y="446" text-anchor="middle" style="font-size:8px" fill="#697283">manifold/QD</text>
-      <!-- 3 CDU core: 92 CHOKE -->
-      <rect x="418" y="283" width="60" height="147" fill="#e0686a"/>
-      <text x="448" y="275" text-anchor="middle" class="m" style="font-size:10px;font-weight:700" fill="#eda3a4">92</text>
-      <text x="448" y="446" text-anchor="middle" style="font-size:8px" fill="#eda3a4">CDU core &#9700;</text>
-      <!-- 4 box: 60 scarcity but big rent -->
-      <rect x="622" y="334" width="60" height="96" fill="#4faf8e" opacity=".6"/>
-      <text x="652" y="326" text-anchor="middle" class="m" style="font-size:9px" fill="#7cc9ad">60</text>
-      <text x="652" y="446" text-anchor="middle" style="font-size:8px" fill="#7cc9ad">CDU box</text>
-      <!-- 5 facility: 35 -->
-      <rect x="813" y="374" width="60" height="56" fill="#5b81c4" opacity=".6"/>
-      <text x="843" y="366" text-anchor="middle" class="m" style="font-size:9px" fill="#8aa7df">35</text>
-      <text x="843" y="446" text-anchor="middle" style="font-size:8px" fill="#697283">facility</text>
-      <!-- 6 heat reject: 45 -->
-      <rect x="1001" y="358" width="60" height="72" fill="#5fc98a" opacity=".55"/>
-      <text x="1031" y="350" text-anchor="middle" class="m" style="font-size:9px" fill="#7cc9ad">45</text>
-      <text x="1031" y="446" text-anchor="middle" style="font-size:8px" fill="#7cc9ad">heat reject</text>
-
-      <!-- rent diamonds: core (proven by Kaori) + box (backlog) -->
-      <path d="M448 300 l11 11 l-11 11 l-11 -11 z" fill="#e0a458"/>
-      <text x="448" y="296" text-anchor="middle" style="font-size:8px;font-weight:600" fill="#e3bd76">&#9670; rent (Kaori proved it)</text>
-      <path d="M652 305 l11 11 l-11 11 l-11 -11 z" fill="#4faf8e"/>
-      <text x="652" y="301" text-anchor="middle" style="font-size:8px;font-weight:600" fill="#7cc9ad">&#9670; rent (backlog)</text>
-
+  <div class="svgwide" style="margin-top:14px">
+    <div class="svgscroll">
+    <svg viewBox="0 0 1060 250" width="100%" style="min-width:900px" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <marker id="cmr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#e0686a"/></marker>
-        <marker id="cmg" markerWidth="6" markerHeight="6" refX="4.5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#697283"/></marker>
+        <marker id="arrG" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#4a5062"/></marker>
+        <marker id="arrR" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e0686a"/></marker>
       </defs>
+      <!-- flow arrows across the six stages -->
+      <line x1="150" y1="40" x2="230" y2="40" stroke="#4a5062" stroke-width="7" marker-end="url(#arrG)"/>
+      <line x1="310" y1="40" x2="380" y2="40" stroke="#e0686a" stroke-width="2" marker-end="url(#arrR)"/>
+      <line x1="470" y1="40" x2="540" y2="40" stroke="#e0686a" stroke-width="2" marker-end="url(#arrR)"/>
+      <line x1="630" y1="40" x2="700" y2="40" stroke="#4a5062" stroke-width="7" marker-end="url(#arrG)"/>
+      <line x1="790" y1="40" x2="860" y2="40" stroke="#4a5062" stroke-width="7" marker-end="url(#arrG)"/>
+      <text x="345" y="28" text-anchor="middle" class="svglabel" style="fill:#e0686a">constriction</text>
+      <text x="505" y="28" text-anchor="middle" class="svglabel" style="fill:#e0686a">constriction</text>
+
+      <!-- bars: scarcity premium per stage (tallest at stage 3 chokepoint) -->
+      <!-- axis -->
+      <line x1="60" y1="210" x2="1010" y2="210" stroke="#2a3040"/>
+      <text x="30" y="120" class="svglabel" transform="rotate(-90,30,120)">scarcity premium →</text>
+      <!-- stage 1 -->
+      <rect x="95" y="128" width="95" height="82" rx="3" fill="#5b81c4"/>
+      <text x="142" y="228" text-anchor="middle" class="svglabel">1 metals</text>
+      <text x="142" y="120" text-anchor="middle" class="m" font-size="10" fill="#8aa7df">55</text>
+      <!-- stage 2 (secondary peak) -->
+      <rect x="255" y="118" width="95" height="92" rx="3" fill="#5b81c4"/>
+      <text x="302" y="228" text-anchor="middle" class="svglabel">2 high-purity</text>
+      <text x="302" y="110" text-anchor="middle" class="m" font-size="10" fill="#8aa7df">62</text>
+      <text x="302" y="98" text-anchor="middle" class="svglabel" style="fill:#5aa9e0">↞ 2nd rent pool</text>
+      <!-- stage 3 (chokepoint tallest) -->
+      <rect x="415" y="78" width="95" height="132" rx="3" fill="#e0686a"/>
+      <text x="462" y="228" text-anchor="middle" class="svglabel" style="fill:#e0686a">3 formulation</text>
+      <text x="462" y="70" text-anchor="middle" class="m" font-size="11" fill="#e0686a" font-weight="600">88</text>
+      <text x="462" y="58" text-anchor="middle" class="svglabel" style="fill:#e0686a">◀ CHOKEPOINT</text>
+      <!-- stage 4 -->
+      <rect x="575" y="108" width="95" height="102" rx="3" fill="#d2a24a"/>
+      <text x="622" y="228" text-anchor="middle" class="svglabel">4 apply/qual</text>
+      <text x="622" y="100" text-anchor="middle" class="m" font-size="10" fill="#e3bd76">70</text>
+      <!-- stage 5 -->
+      <rect x="735" y="152" width="95" height="58" rx="3" fill="#4faf8e"/>
+      <text x="782" y="228" text-anchor="middle" class="svglabel">5 cold plate</text>
+      <text x="782" y="144" text-anchor="middle" class="m" font-size="10" fill="#7cc9ad">48</text>
+      <!-- stage 6 -->
+      <rect x="895" y="168" width="95" height="42" rx="3" fill="#3a4152"/>
+      <text x="942" y="228" text-anchor="middle" class="svglabel">6 AI rack</text>
+      <text x="942" y="160" text-anchor="middle" class="m" font-size="10" fill="#9aa3b5">40</text>
     </svg>
+    </div>
+    <p class="cap">Bars are a qualitative scarcity-premium index (0–100, est.), not disclosed margins. The premium peaks at the <b style="color:var(--choke)">formulation + reliability IP</b> (stage 3) with a secondary peak at <b style="color:var(--up)">high-purity metal</b> (stage 2). Crucially, stage 6 (the AI rack buyer) is where the <i>system</i> rent settles — the classic split between a scarce link and who actually keeps the money.</p>
   </div>
-  <p class="cap">Bars = author's qualitative scarcity scores (0–100), not a traded index. The story they tell is cross-checked: <b>physical scarcity peaks at the CDU core</b> (few reliable pump + BPHE makers, long qualification, seconds-scale throttle stakes), and — unlike the GOES run — <b>rent is shared</b>: the BPHE-centric play (Kaori, ≈+300–490%, partly revenue-driven) shows the <i>component</i> can capture durable rent (&#9670; at stage 3), while the box integrator (Vertiv, backlog $15B +109%) captures strong near-term integration + service rent (&#9670; at stage 4) that reference-design commoditisation may erode. <b>Caveat:</b> CDU/pump market sizes vary widely by vendor ($1B&rarr;$4.16B at 19% [Valuates] vs &rarr;$7.7B at 33% [Persistence]; pumps &rarr;$1.84B by 2032 [MarketsandMarkets]) — treat magnitudes as directional (est.).</p>
 </section>
 
 <!-- 7. TIMELINE -->
 <section id="s7">
-  <div class="sh"><span class="n">07</span><h2>Multi-year evolution — the flow doubles, the box commoditises, the loop gets deleted</h2><span class="cn">多年時間軸</span></div>
-  <p class="lead">Rows = the forces acting on the CDU core; columns = 2026&rarr;2029+. The hinge is <b>Rubin (2027)</b>: 100% liquid, warm-water single-phase, ~2&times; flow — bullish pump + BPHE duty near-term. The counter-clock is <b>in-chip microfluidics (2028+)</b>, which threatens the entire external loop.</p>
+  <div class="sh"><span class="n">07</span><h2>Multi-year timeline — the rent is time-boxed</h2><span class="cn">多年時間軸</span></div>
+  <p class="lead">Metal TIM is a bridge, not a destiny. The window where it is <b>mandatory but not yet deleted</b> runs roughly 2026–2028. The two hinge events: the <b>Nov-2026 gallium export catalyst</b> and the <b>2027–28 in-chip microfluidic ramp</b> that erases the interface.</p>
   <div class="tlgrid">
-    <div class="tlhead"><div>Force / year</div><div>2026</div><div>2027</div><div>2028</div><div>2029+</div></div>
+    <div class="tlhead"><div>Domain / driver</div><div>2026</div><div>2027</div><div>2028</div><div>2029+</div></div>
     <div class="tlrow">
-      <div class="lab"><span class="sw" style="background:var(--dout)"></span>Rack thermal load</div>
-      <div class="cell hot"><b>GB300 150+ kW</b>~2 MW+ reject/rack; DLC covers 80%+</div>
-      <div class="cell hot"><b>Rubin 100% liquid</b>warm-water 45&deg;C single-phase; ~2&times; flow</div>
-      <div class="cell"><b>Rubin Ultra</b>higher density; 2P-DTC where single-phase tops out</div>
-      <div class="cell"><b>Feynman</b>thermal wall pushes toward on-die cooling</div>
+      <div class="lab"><span class="sw" style="background:var(--choke)"></span>Metal TIM</div>
+      <div class="cell hot"><b>Adoption begins</b>GB300 / Rubin R100 cross ~2 kW; liquid-metal / In-solder qualified</div>
+      <div class="cell hot"><b>Peak need</b>Rubin Ultra ~3.6 kW; metal TIM standard on flagships</div>
+      <div class="cell cool"><b>Erosion starts</b>direct-die + in-chip on halo parts trims TIM demand</div>
+      <div class="cell">Metal TIM persists on lidded mid-range; halo goes TIM-less</div>
     </div>
     <div class="tlrow">
-      <div class="lab"><span class="sw" style="background:var(--choke)"></span>CDU core (pump+BPHE)</div>
-      <div class="cell hot"><b>12–18mo lead</b>pump/BPHE qualification the gate</div>
-      <div class="cell hot"><b>flow doubles</b>pump duty + BPHE approach-temp both tighten</div>
-      <div class="cell"><b>2P-DTC pump duty shifts</b>refrigerant-rated pumps for two-phase</div>
-      <div class="cell"><b>consolidated</b>a few qualified core suppliers per hyperscaler</div>
+      <div class="lab"><span class="sw" style="background:var(--up)"></span>Ga / In supply</div>
+      <div class="cell hot"><b>Ban suspended → 27 Nov</b>Ga ~$400/kg FOB ex-China (retail proxy ~$1,850); In ~$970/kg</div>
+      <div class="cell"><b>Non-China ramps</b>Alcoa ~60t/yr, Eurasian, Rio Tinto Canada, US DPA demo</div>
+      <div class="cell">Supply loosens if projects deliver; price normalises</div>
+      <div class="cell">Structural China dominance intact but less binding</div>
     </div>
     <div class="tlrow">
-      <div class="lab"><span class="sw" style="background:var(--l1)"></span>CDU box / rent</div>
-      <div class="cell"><b>M&amp;A land-grab</b>Ecolab/CoolIT (announced, pending), Schneider/Motivair (closed)</div>
-      <div class="cell hot"><b>NVIDIA reference CDU + OCP</b>box commoditises; rent migrates to core + service</div>
-      <div class="cell"><b>service annuity</b>uptime/maintenance the durable box rent</div>
-      <div class="cell"><b>integrator margin normalises</b>as designs standardise</div>
+      <div class="lab"><span class="sw" style="background:var(--dacr)"></span>In-chip microfluidic</div>
+      <div class="cell"><b>Demos</b>TSMC IMC-Si on CoWoS; Microsoft patent, no contracts</div>
+      <div class="cell cool"><b>Targeted ~2027</b>TSMC direct-to-silicon target; still demo-stage today</div>
+      <div class="cell cool"><b>Feynman 2028</b>water-in-wafer on halo — <b>deletes TIM</b></div>
+      <div class="cell cool">Broad adoption on highest-power dies</div>
     </div>
     <div class="tlrow">
-      <div class="lab"><span class="sw" style="background:var(--dacr)"></span>Disintermediation</div>
-      <div class="cell"><b>—</b>external loop dominant</div>
-      <div class="cell"><b>microfluidics pilots</b>TSMC IMC-Si / Corintis / Microsoft</div>
-      <div class="cell hot"><b>in-chip microfluidics</b>deletes cold-plate+TIM; trims BPHE/pump duty</div>
-      <div class="cell hot"><b>rent migrates to foundry</b>if water-in-wafer scales (Run #16 risk)</div>
+      <div class="lab"><span class="sw" style="background:var(--l2)"></span>Vehicles</div>
+      <div class="cell"><b>Element → Solstice</b>$14.5B announced 6-Jul; "absorbed pure-play" tell</div>
+      <div class="cell"><b>Deal closes 1H</b>combined ~$6.8B sales AI-materials platform</div>
+      <div class="cell">Synergies; Ga/In supply-security names de-rate if ban lapses</div>
+      <div class="cell">TIM a mature sub-line inside diluted majors</div>
     </div>
   </div>
-  <p class="cap">Read the tension: 2026–27 is <b>bullish the core</b> (100% liquid + doubling flow needs more/better pumps and BPHEs), while 2027+ the <b>box commoditises</b> toward NVIDIA's reference design (bearish the integrator premium), and 2028+ <b>in-chip microfluidics</b> is the long-run bear case for the whole external loop. That is why this is a "ride the near-term duty, mind the 2028 clock" layer, not a decade-long own-forever thesis.</p>
+  <p class="cap">Hinge years flagged. The investable message: this is a <b>2026–2028 window</b> with a hard disintermediation clock — sizing and entry discipline matter more than usual.</p>
 </section>
 
-<!-- 8. CHOKEPOINT + SEVERITY -->
+<!-- 8. CHOKEPOINT + SEVERITY + VARIANT -->
 <section id="s8">
-  <div class="sh"><span class="n">08</span><h2>Chokepoint callout + 4-factor severity</h2><span class="cn">卡點評分</span></div>
+  <div class="sh"><span class="n">08</span><h2>The chokepoint, scored — and why it's capped at 15</h2><span class="cn">卡點評分</span></div>
   <div class="choke">
-    <div class="ttl">
-      <svg width="26" height="26" viewBox="0 0 26 26"><circle cx="13" cy="13" r="12" fill="none" stroke="#e0686a" stroke-width="2"/><path d="M13 6 L13 15 M13 19 L13 19.5" stroke="#e0686a" stroke-width="2.4" stroke-linecap="round"/></svg>
-      <h3>The CDU core — the reliability-critical pump + the brazed-plate heat exchanger</h3>
-    </div>
-    <p>Every liquid-cooled AI rack rejects its heat through a coolant-distribution unit, and inside it two links don't commoditise: the <b>brazed-plate heat exchanger</b> that transfers the heat between an isolated chip loop and facility water, and the <b>reliable, redundant pump</b> that keeps both moving — because a pump stop throttles the GPUs in seconds. Both tighten as Rubin roughly doubles flow. But this is a <b>severity-15, not a monopoly-18</b> chokepoint: there are several qualified BPHE and pump makers, hyperscalers deliberately multi-source (N+1/2N) precisely because it's the single-point-of-failure, and NVIDIA's own reference CDU + OCP designs keep the box multi-vendor. Tightness is real; a monopoly toll is not.</p>
+    <div class="ttl"><h3>Metal-TIM formulation + gallium/indium feedstock</h3></div>
+    <p>Above ~1.5 kW/GPU (where die-level heat flux, W/cm², outruns polymer) the interface must go metal, and metal means (a) a <b>qualified formulation + nickel-barrier / pump-out know-how</b> held by a handful of makers (Indium Corp private, Henkel, Solstice/MacDermid, Honeywell), sitting on (b) <b>gallium (China ~99%) and indium (China ~68%)</b> — byproduct metals with inelastic supply and a live export-control history. Real scarcity — but deliberately scored <b>below</b> the rotation's 18–19 monopolies for three reasons: the formulation is an <b>oligopoly not a monopoly</b>, the gallium ban is <b>currently suspended</b> and non-China supply is ramping, and an <b>in-chip disintermediation</b> is already in demos.</p>
     <div class="stats">
-      <div><b class="num">3<span style="font-size:12px;color:var(--dim)">/5</span></b><span>Supply concentration — a few BPHE (Alfa Laval/Kaori/SWEP/Danfoss) + pump (Grundfos/Wilo/Moog) makers; not a monopoly</span></div>
-      <div><b class="num">4<span style="font-size:12px;color:var(--dim)">/5</span></b><span>Lead-time — CDU 12–18mo; pump/BPHE qualification long; copper + brazing capacity</span></div>
-      <div><b class="num">3<span style="font-size:12px;color:var(--dim)">/5</span></b><span>Low substitutability — reliability qual is hard, but ultimately multi-sourceable by design (caps the toll)</span></div>
-      <div><b class="num">5<span style="font-size:12px;color:var(--dim)">/5</span></b><span>Demand — 100% liquid at Rubin, flow doubling, CDU market ~19–33% CAGR</span></div>
+      <div><b class="num">4</b><span>Supply concentration /5 — Ga 99% / In 68%, but formulation multi-sourced</span></div>
+      <div><b class="num">3</b><span>Lead-time /5 — In inelastic; Ga capacity can ramp from bauxite</span></div>
+      <div><b class="num">3</b><span>Low substitutability /5 — sinter-silver &amp; direct-die are exits</span></div>
+      <div><b class="num">5</b><span>Demand growth /5 — every flagship GPU, explosive unit growth</span></div>
+      <div><b class="num" style="color:#fff">15</b><span>TOTAL /20 — composite (feedstock link 15 · formulation razor 14) · asymmetry ~6/20</span></div>
     </div>
   </div>
-  <div class="two" style="margin-top:14px">
-    <div class="panel">
-      <h4 style="font-size:13px;margin-bottom:9px;font-weight:600">Per-link severity — derived, not asserted <span style="font-weight:400;color:var(--dim);font-size:11px">(supply · lead · low-sub · demand)</span></h4>
-      <table class="tbl">
-        <tr><th>Link / play</th><th>4-factor</th><th>Σ /20</th></tr>
-        <tr><td><b>BPHE — Alfa Laval / Kaori</b></td><td class="num">3 · 3 · 3 · 5</td><td class="num red">14</td></tr>
-        <tr><td><b>Reliable pump — Moog / Grundfos</b></td><td class="num">3 · 4 · 3 · 5</td><td class="num red">15</td></tr>
-        <tr><td><b>CDU box — Vertiv</b></td><td class="num">2 · 4 · 2 · 5</td><td class="num amb">13</td></tr>
-        <tr><td>Facility heat-reject — Munters</td><td class="num">2 · 3 · 2 · 5</td><td class="num">12</td></tr>
-        <tr><td>Composite (CDU core)</td><td class="num">3 · 4 · 3 · 5</td><td class="num red">15</td></tr>
-      </table>
-      <p class="cap" style="margin-top:8px">The pump edges the BPHE on lead-time (reliability qualification); the box scores lowest on substitutability (40+ qualified builders + a public NVIDIA/OCP reference CDU design, even though Vertiv leads share) — it's the least-scarce, most-priced link.</p>
+
+  <div class="score">
+    <div class="var">
+      <div class="h">VARIANT PERCEPTION · 變異認知 — what the Street misses</div>
+      <p><b>Consensus:</b> "AI cooling = liquid cold plates, CDUs, coolant" — and it bids those names. <b>The un-priced deeper cut:</b> the interface itself is silently going from a commodity polymer (cheap, multi-sourced) to a <b>scarce metal</b>, and that metal sits on a China-concentrated feedstock with a <b>dated catalyst nobody tags as a "cooling" trade</b> — the Nov-27-2026 gallium/germanium ban-suspension expiry.</p>
+      <p><b>The disaggregation:</b> the same power escalation that <i>mandates</i> metal TIM is <i>also</i> driving direct-die + in-chip microfluidics that <b>delete</b> it (TSMC IMC-Si commercial ~2027, Feynman 2028). So it's bullish metal TIM near-term, bearish the <i>discrete external TIM</i> long-term — and bullish Ga/In only if <b>liquid-metal</b> wins over Ga/In-free <b>sinter-silver</b>.</p>
     </div>
-    <div class="panel">
-      <h4 style="font-size:13px;margin-bottom:9px;font-weight:600">Scope &amp; co-bottlenecks — don't over-narrow</h4>
-      <p style="font-size:12.5px;color:var(--mut);line-height:1.55">The 15/20 scores the <b>CDU core</b>. Co-binding links tighten alongside and could be the "real" pinch in specific builds: the <b>quick-disconnect coupling</b> (Run #10, severity-15, at ~450 junctions/rack), the <b>2P-DTC co-qualified system + secondary loop</b> (Run #16, severity-16, as single-phase tops out), and the <b>cold-plate</b> itself (Run #4). If flow at Rubin forces two-phase sooner than expected, the pump duty (refrigerant-rated) tightens further; if in-chip microfluidics arrives early, the whole core loosens. <b>Remaining asymmetry ~6/20</b>: the choke is real but the pure vehicles (Kaori +450%) and pure-plays (CoolIT, Motivair) are gone — tightness &ne; a good buy.</p>
+    <div class="var" style="border-left-color:var(--dup)">
+      <div class="h" style="color:var(--dup)">HOW IT'S WRONG · 反方 — the retail steelman</div>
+      <p><b>1 · Polymer holds the line.</b> Henkel's TGF 10000 already hits 10 W/mK; better cold plates + PCM may defer metal TIM past 1.5 kW, slowing adoption.</p>
+      <p><b>2 · The ban stays suspended</b> and non-China gallium (Alcoa, Rio Tinto Canada, Eurasian, US DPA Louisiana) ramps — capping the scarcity premium.</p>
+      <p><b>3 · Rent is a sliver.</b> A few grams of Ga/In per GPU is immaterial to a $30k+ part — even a 3× metal price move barely moves a diversified material-maker's P&L. That's why <b>no clean listed owner</b> shows the rent in its margin. Margins settle it — and here they say the rent is <b>diffuse</b>.</p>
     </div>
   </div>
-</section>
 
-<!-- 9. AWARENESS -->
-<section id="s9">
-  <div class="sh"><span class="n">09</span><h2>Awareness curve · leading indicators · still-latent watchlist</h2><span class="cn">意識曲線</span></div>
-  <p class="lead">Where each link sits on the crowd's awareness, what to watch, and the genuinely-early names. The dashed marker flags where the <i>next</i> entry hides — left of the earliest listed play, in the private pump/leak-detection layer and the diluted proxies.</p>
-  <div class="svgwide">
-    <svg viewBox="0 0 1120 300" width="100%" role="img" aria-label="Awareness curve staging AI cooling CDU plays">
-      <path d="M40 250 C300 240 460 210 620 150 C760 98 880 60 1080 46" fill="none" stroke="#2a3040" stroke-width="2"/>
-      <text x="120" y="292" text-anchor="middle" class="svglabel" style="font-size:9px">LATENT</text>
-      <text x="360" y="292" text-anchor="middle" class="svglabel" style="font-size:9px">EARLY</text>
-      <text x="620" y="292" text-anchor="middle" class="svglabel" style="font-size:9px">RECOGNITION</text>
-      <text x="860" y="292" text-anchor="middle" class="svglabel" style="font-size:9px">EUPHORIA</text>
-      <text x="1040" y="292" text-anchor="middle" class="svglabel" style="font-size:9px">PRICED</text>
-      <line x1="240" y1="40" x2="240" y2="262" stroke="#1e2430"/><line x1="500" y1="40" x2="500" y2="262" stroke="#1e2430"/><line x1="740" y1="40" x2="740" y2="262" stroke="#1e2430"/><line x1="960" y1="40" x2="960" y2="262" stroke="#1e2430"/>
+  <div class="svgwide" style="margin-top:16px">
+    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:6px">COMPONENT-INTERACTION SCHEMATIC · the three states side by side</div>
+    <div class="svgscroll">
+    <svg viewBox="0 0 1060 210" width="100%" style="min-width:900px" xmlns="http://www.w3.org/2000/svg">
+      <!-- polymer -->
+      <text x="150" y="30" text-anchor="middle" font-size="12" fill="#5aa9e0">Polymer TIM (today, &lt;1.5 kW)</text>
+      <rect x="60" y="45" width="180" height="16" fill="#2a2f40" stroke="#3a3f55"/><text x="150" y="57" text-anchor="middle" class="svglabel">cold plate</text>
+      <rect x="60" y="61" width="180" height="20" fill="#3a4152"/><text x="150" y="74" text-anchor="middle" font-size="8" fill="#c7ccda">grease 3–8 W/mK</text>
+      <rect x="60" y="81" width="180" height="22" fill="#1c2030" stroke="#4faf8e"/><text x="150" y="95" text-anchor="middle" font-size="9" fill="#7cc9ad">die</text>
+      <text x="150" y="128" text-anchor="middle" class="svglabel">cheap · multi-sourced · no Ga/In</text>
+      <text x="150" y="148" text-anchor="middle" class="m" font-size="11" fill="#5aa9e0">ΔT: high</text>
 
-      <!-- next-entry marker -->
-      <line x1="150" y1="70" x2="150" y2="250" stroke="#2dd4bf" stroke-width="1.5" stroke-dasharray="4 4"/>
-      <text x="150" y="62" text-anchor="middle" style="font-size:9px;font-weight:600" fill="#2dd4bf">where the next entry hides</text>
+      <!-- metal -->
+      <text x="440" y="30" text-anchor="middle" font-size="12" fill="#e0686a">Metal TIM (2026–28, this run)</text>
+      <rect x="350" y="45" width="180" height="16" fill="#2a2f40" stroke="#3a3f55"/><text x="440" y="57" text-anchor="middle" class="svglabel">cold plate + Ni barrier</text>
+      <rect x="350" y="61" width="180" height="20" fill="#8b84cf"/><text x="440" y="74" text-anchor="middle" font-size="8" fill="#fff">liquid metal 25–80 W/mK</text>
+      <rect x="350" y="81" width="180" height="22" fill="#1c2030" stroke="#4faf8e"/><text x="440" y="95" text-anchor="middle" font-size="9" fill="#7cc9ad">die</text>
+      <text x="440" y="128" text-anchor="middle" class="svglabel" style="fill:#d9a9aa">scarce Ga/In · Ni barrier · pump-out qual</text>
+      <text x="440" y="148" text-anchor="middle" class="m" font-size="11" fill="#e0686a">ΔT: low  ·  cost/complexity: high</text>
 
-      <!-- points -->
-      <!-- private pump/leak latent -->
-      <circle cx="110" cy="244" r="6" fill="#5aa9e0"/>
-      <text x="110" y="229" text-anchor="middle" style="font-size:9px" fill="#8aa7df">Grundfos/Wilo · leak-detect</text>
-      <text x="110" y="218" text-anchor="middle" class="svglabel" style="font-size:8px">private · the real owners</text>
-      <!-- Ecolab absorbed proxy latent -->
-      <circle cx="205" cy="236" r="6" fill="#5aa9e0"/>
-      <text x="205" y="200" text-anchor="middle" style="font-size:9px" fill="#8aa7df">Ecolab (CoolIT)</text>
-      <text x="205" y="189" text-anchor="middle" class="svglabel" style="font-size:8px">+8% · diluted proxy</text>
-      <!-- Alfa Laval early -->
-      <circle cx="360" cy="214" r="7" fill="#5fc98a"/>
-      <text x="360" y="199" text-anchor="middle" style="font-size:10px;font-weight:600" fill="#7cc9ad">ALFA</text>
-      <text x="360" y="188" text-anchor="middle" class="svglabel" style="font-size:8px">BPHE proxy · +18% YTD</text>
-      <!-- Nidec early -->
-      <circle cx="460" cy="200" r="6" fill="#5fc98a"/>
-      <text x="460" y="185" text-anchor="middle" style="font-size:9px" fill="#7cc9ad">Nidec 6594</text>
-      <text x="460" y="174" text-anchor="middle" class="svglabel" style="font-size:8px">pump/CDU · +20% laggard</text>
-      <!-- nVent recognition -->
-      <circle cx="650" cy="140" r="6" fill="#e0a458"/>
-      <text x="650" y="125" text-anchor="middle" style="font-size:9px" fill="#e3bd76">nVent · Modine</text>
-      <text x="650" y="114" text-anchor="middle" class="svglabel" style="font-size:8px">+46% / +68% YTD</text>
-      <!-- Moog euphoria -->
-      <circle cx="820" cy="82" r="6" fill="#e0686a"/>
-      <text x="820" y="67" text-anchor="middle" style="font-size:9px" fill="#eda3a4">MOG.A · pump</text>
-      <text x="820" y="56" text-anchor="middle" class="svglabel" style="font-size:8px">+69% · near ATH</text>
-      <!-- Vertiv euphoria -->
-      <circle cx="905" cy="66" r="6" fill="#e0686a"/>
-      <text x="905" y="98" text-anchor="middle" style="font-size:9px" fill="#eda3a4">VRT · box</text>
-      <text x="905" y="110" text-anchor="middle" class="svglabel" style="font-size:8px">+80% YTD</text>
-      <!-- Kaori priced -->
-      <circle cx="1035" cy="50" r="7" fill="#e0686a"/>
-      <text x="1035" y="35" text-anchor="middle" style="font-size:10px;font-weight:600" fill="#eda3a4">Kaori</text>
-      <text x="1035" y="70" text-anchor="middle" class="svglabel" style="font-size:8px">BPHE-centric · +~450%</text>
+      <!-- microfluidic -->
+      <text x="730" y="30" text-anchor="middle" font-size="12" fill="#5fc98a">In-chip microfluidic (2028+)</text>
+      <rect x="640" y="55" width="180" height="40" rx="3" fill="#1c2030" stroke="#5fc98a"/>
+      <g stroke="#5aa9e0" stroke-width="2"><line x1="650" y1="66" x2="810" y2="66"/><line x1="650" y1="75" x2="810" y2="75"/><line x1="650" y1="84" x2="810" y2="84"/></g>
+      <text x="730" y="50" text-anchor="middle" font-size="8" fill="#5fc98a">coolant channels in die</text>
+      <text x="730" y="128" text-anchor="middle" class="svglabel" style="fill:#79ad9c">NO TIM — interface deleted</text>
+      <text x="730" y="148" text-anchor="middle" class="m" font-size="11" fill="#5fc98a">ΔT: lowest  ·  the disruptor</text>
+
+      <!-- arrows between -->
+      <text x="300" y="80" text-anchor="middle" font-size="18" fill="#697283">→</text>
+      <text x="595" y="80" text-anchor="middle" font-size="18" fill="#697283">→</text>
+      <text x="920" y="80" font-size="10" fill="#9aa3b5">power ↑</text>
+      <line x1="890" y1="95" x2="890" y2="55" stroke="#e0686a" stroke-width="1.5"/>
     </svg>
-  </div>
-  <p class="cap">Staged by 2026 YTD move + valuation (IBKR/FMP live, 8 Jul 2026). The tell: the BPHE-centric play (Kaori +~450%) is fully priced, the pump play (Moog +69%) and box (Vertiv +80%) are euphoric, and the <b>relative laggards are the diluted proxies</b> (Alfa Laval +18% BPHE, Nidec +20% pump) — "early" here means "least-crowded," not cheap in absolute terms.</p>
-
-  <div class="two" style="margin-top:16px">
-    <div class="panel">
-      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Leading-indicator dashboard — and where an amateur can read it</h4>
-      <table class="liw">
-        <tr><th>Signal</th><th>Trigger</th><th>Where to read it (free)</th></tr>
-        <tr><td><b>CDU lead-times</b></td><td class="dotA">hold &gt;12–18 mo into 2027</td><td>DataCenterDynamics; vendor earnings-call color</td></tr>
-        <tr><td><b>Alfa Laval DC order intake</b></td><td class="dotG">data-center orders sustain &gt;+25% YoY</td><td>Alfa Laval quarterly report + slides (Energy div.)</td></tr>
-        <tr><td><b>Vertiv / Schneider backlog</b></td><td class="dotR">book-to-bill rolls under ~1.5 = box cooling</td><td>VRT / Schneider 8-K + IR slides</td></tr>
-        <tr><td><b>Moog Industrial mix</b></td><td class="dotG">data-center pumps &gt;10% of Industrial rev</td><td>Moog 10-Q segment note + earnings transcript</td></tr>
-        <tr><td><b>NVIDIA reference CDU / OCP</b></td><td class="dotR">wider reference-design adoption = box commoditises</td><td>OCP marketplace; NVIDIA GTC / dev-blog</td></tr>
-        <tr><td><b>In-chip microfluidics</b></td><td class="dotR">TSMC IMC-Si / Corintis production milestones</td><td>OFC/IEDM notes; SemiAnalysis; TSMC papers</td></tr>
-      </table>
     </div>
-    <div class="panel">
-      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Still-latent watchlist — genuinely early, left of the crowd</h4>
-      <div style="border-left:3px solid var(--dout);padding:8px 12px;margin-bottom:9px;background:var(--panel2);border-radius:0 8px 8px 0">
-        <b style="font-size:12px;color:var(--txt)">1 · Nidec (6594.T / NJDCY)</b>
-        <p style="font-size:11.5px;color:var(--mut);margin-top:3px;line-height:1.45">The listed proxy for the private pump layer: motor/pump giant, 10,000+ CDUs shipped "zero failures," China-localization push + a dedicated liquid-cooling site (Apr-2026). <b>+20% YTD, −22% off its high</b> — the relative laggard, but cooling is a sliver of a huge motor P&amp;L. <b>Trigger:</b> a segment disclosure sizing liquid-cooling, or a Western hyperscaler CDU/pump design-win. <span style="color:var(--dim)">Access: TSE 6594 or thin NJDCY ADR via IBKR.</span></p>
-      </div>
-      <div style="border-left:3px solid var(--dout);padding:8px 12px;margin-bottom:9px;background:var(--panel2);border-radius:0 8px 8px 0">
-        <b style="font-size:12px;color:var(--txt)">2 · Private pump + leak-detection owners</b>
-        <p style="font-size:11.5px;color:var(--mut);margin-top:3px;line-height:1.45">The real chokepoint owners are unlistable: <b>Grundfos, Wilo, Danfoss</b> (sealless pumps); leak-detection/filtration/sensor makers (the "reliability razor"). <b>Xylem (XYL)</b> is the one listed-but-diluted pump proxy. <b>Trigger:</b> a Grundfos/Wilo IPO or spin; a listed leak-detection pure-play. <span style="color:var(--dim)">Documents the honest reality: the moat exists, no reachable pure-play.</span></p>
-      </div>
-      <div style="border-left:3px solid var(--dup);padding:8px 12px;background:var(--panel2);border-radius:0 8px 8px 0">
-        <b style="font-size:12px;color:var(--txt)">3 · Envicool (002837.SZ) — China CDU access</b>
-        <p style="font-size:11.5px;color:var(--mut);margin-top:3px;line-height:1.45">China liquid-cooling / CDU leader, up hard off its lows; the way to play China-domestic cooling capex. <b>Trigger:</b> China AI-datacenter build acceleration; export wins. <span style="color:var(--dim)">Access: Shenzhen A-share (Stock-Connect only) — high friction for a US amateur; watch, don't reach.</span></p>
-      </div>
-    </div>
+    <p class="cap">Left→right is rising die power. The middle state is where the rent lives — but the schematic makes the risk visible: it's sandwiched between an improving polymer on the left and a TIM-deleting disruptor on the right.</p>
   </div>
 </section>
 
-<!-- 10. TOP-3 -->
-<section id="s10">
-  <div class="sh"><span class="n">10</span><h2>Top-3 plays — three different links on one loop</h2><span class="cn">三檔拆解</span></div>
-  <p class="lead">One name per link: the <b>heat exchanger</b> (Alfa Laval — diluted BPHE proxy, the relative-value own-it), the <b>pump</b> (Moog — sealless pure-ish pump, discovered), and the <b>box</b> (Vertiv — the integrator, priced). None is a genuinely-early pure-play — the BPHE-centric play (Kaori) already ran and the CDU pure-plays were bought — and that <i>is</i> the finding. Each tab carries the 8-point Chinese-labeled teardown.</p>
-  <div role="tablist" aria-label="Top-3 plays" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:-1px">
-    <button class="tabbtn on" role="tab" id="tab-alfa" aria-selected="true" aria-controls="pane-alfa" tabindex="0">ALFA · Alfa Laval<small>the heat exchanger — BPHE proxy · RECOGNITION (+18%)</small></button>
-    <button class="tabbtn" role="tab" id="tab-mog" aria-selected="false" aria-controls="pane-mog" tabindex="-1">MOG.A · Moog<small>the pump — sealless CoreMotion · EUPHORIA (+69%)</small></button>
-    <button class="tabbtn" role="tab" id="tab-vrt" aria-selected="false" aria-controls="pane-vrt" tabindex="-1">VRT · Vertiv<small>the box — CDU integrator · PRICED (+80%)</small></button>
+<!-- 9. AWARENESS + INDICATORS + WATCHLIST -->
+<section id="s9">
+  <div class="sh"><span class="n">09</span><h2>Are we early? The awareness curve</h2><span class="cn">現在是早期嗎</span></div>
+  <p class="lead">The whole game is owning a chokepoint <b>before</b> the crowd — the way the 2018 MLCC and 2021 CPU/substrate shortages were visible in lead-times and metal prices weeks before the stocks moved. The hard truth here: the <b>purest play is private</b>, and every listed proxy has either run, is diluted, or is merger-capped. The genuine early dollar is a <b>catalyst + watchlist</b>, not a stock to chase.</p>
+
+  <div class="svgwide" style="margin-bottom:14px">
+    <div class="svgscroll">
+    <svg viewBox="0 0 1060 320" width="100%" style="min-width:900px" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="awz" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5fc98a" stop-opacity="0.22"/><stop offset="1" stop-color="#5fc98a" stop-opacity="0"/></linearGradient></defs>
+      <!-- entry zone band -->
+      <rect x="70" y="40" width="150" height="230" fill="#11141c"/>
+      <rect x="220" y="40" width="180" height="230" fill="url(#awz)" stroke="#2c5a40" stroke-dasharray="3 4"/>
+      <text x="230" y="60" class="svglabel" style="fill:#5fc98a">← where the next entry hides</text>
+      <!-- S-curve -->
+      <path d="M70,250 C260,244 330,230 430,175 C540,116 640,70 1000,56" fill="none" stroke="#3a4152" stroke-width="2"/>
+      <!-- stage labels -->
+      <text x="120" y="288" class="svglabel">Latent</text>
+      <text x="300" y="288" class="svglabel" style="fill:#5fc98a">Early / alpha</text>
+      <text x="520" y="288" class="svglabel" style="fill:#e3bd76">Recognition</text>
+      <text x="760" y="288" class="svglabel" style="fill:#e0686a">Euphoria</text>
+      <text x="940" y="288" class="svglabel">Priced</text>
+      <text x="70" y="308" font-size="10" fill="#697283">time · market awareness  →</text>
+
+      <!-- dashed next-entry marker -->
+      <line x1="250" y1="46" x2="250" y2="266" stroke="#5fc98a" stroke-width="1.4" stroke-dasharray="4 4"/>
+      <text x="256" y="120" class="svglabel" style="fill:#5fc98a">Indium Corp (private)</text>
+      <text x="256" y="134" class="svglabel" style="fill:#5fc98a">· non-China gallium</text>
+
+      <!-- plotted names -->
+      <!-- HEN latent/early by price -->
+      <circle cx="330" cy="205" r="7" fill="#5fc98a"/><text x="330" y="192" text-anchor="middle" font-size="11" fill="#e8eaf0">HEN</text>
+      <text x="330" y="224" text-anchor="middle" class="svglabel">+7% · diluted leader</text>
+      <!-- SOLS recognition, pulled back -->
+      <circle cx="560" cy="150" r="7" fill="#e3bd76"/><text x="560" y="137" text-anchor="middle" font-size="11" fill="#e8eaf0">SOLS</text>
+      <text x="560" y="169" text-anchor="middle" class="svglabel">+20% · −36% off high</text>
+      <!-- VNP recognition/proven -->
+      <circle cx="690" cy="120" r="7" fill="#e3bd76"/><text x="690" y="107" text-anchor="middle" font-size="11" fill="#e8eaf0">VNP</text>
+      <text x="690" y="139" text-anchor="middle" class="svglabel">+85% · proven</text>
+      <!-- ESI absorbed -->
+      <circle cx="800" cy="98" r="6" fill="#e0686a"/><text x="800" y="85" text-anchor="middle" font-size="10" fill="#e8eaf0">ESI</text>
+      <text x="800" y="116" text-anchor="middle" class="svglabel" style="fill:#d9a9aa">merger-capped</text>
+    </svg>
+    </div>
+    <p class="cap" style="margin-top:-4px;margin-bottom:14px">Horizontal = awareness stage (qualitative, by YTD move + how much is in the price), not a linear return scale. As-of 20 Jul 2026. The clean pure-play (Indium Corp) sits in the entry zone but is <b>unlisted</b> — the defining feature of this run.</p>
   </div>
 
-  <!-- ALFA PANE -->
-  <div class="panel" role="tabpanel" id="pane-alfa" aria-labelledby="tab-alfa" tabindex="0" style="border-radius:0 12px 12px 12px">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:6px">
-      <h3 style="font-size:17px;font-weight:600">Alfa Laval · <span class="num">ALFA.ST</span> / <span class="num">ALFVF</span> <span class="stagebadge sg-recog">RECOGNITION / RELATIVE-VALUE</span></h3>
-      <span style="font-size:11.5px;color:var(--dim)">The heat-exchanger link · the diluted BPHE proxy — quality compounder, least-run of the three</span>
-    </div>
-    <div class="mini">
-      <div><div class="v num">SEK 554</div><div class="l">last · 8 Jul 2026</div></div>
-      <div><div class="v grn num">+18%</div><div class="l">YTD 2026 (least-run)</div></div>
-      <div><div class="v num">~$24B</div><div class="l">mkt cap · EV/EBITDA ~17&times;</div></div>
-      <div><div class="v num">399–592</div><div class="l">52-wk SEK</div></div>
-      <div><div class="v num">+25%*</div><div class="l">DC order intake YoY* (co-stated)</div></div>
-    </div>
-    <div class="mtd">
-      <div class="mtc"><div class="h">① 怎麼賺錢 — how it makes money</div><p>Diversified thermal/flow/separation engineer (~SEK 68B rev) across Energy, Food &amp; Water, Marine. Heat exchangers (brazed / gasketed / welded) are the core franchise; <b>data-center BPHE sits inside Energy</b>.</p></div>
-      <div class="mtc"><div class="h">② 營收結構 — revenue mix</div><p>Three divisions; Energy is the largest. Data-center cooling is a fast-growing but still-small slice of Energy — a <b>crown-jewel growth vector, financially diluted</b> by the broad book. Order book SEK 48.7B, book-to-bill &gt;1.0.</p></div>
-      <div class="mtc"><div class="h">③ 成長來源 — growth drivers</div><p><b>Data-center order intake +25% YoY</b> (*company-stated, Q1'26; Alfa Laval doesn't segment DC revenue — group intake was −1% reported / +6% organic); new XL BPHE for 2.5 MW CDUs; <b>FreeWaterLoop</b> (Mar-2026) — an integrated pump+HX+filtration system moving Alfa Laval <i>up</i> from component into system.</p></div>
-      <div class="mtc"><div class="h">④ 終端市場 — end markets</div><p>HVAC, refrigeration, marine, energy, food — plus <b>data-center liquid cooling</b> (the new AI vector). Diversification is the ballast <i>and</i> the dilution.</p></div>
-      <div class="mtc"><div class="h">⑤ 主要客戶 — key customers</div><p>CDU integrators (e.g. its BPHE is the core of Boyd's 2.3 MW in-row CDU), OEMs, EPCs, shipyards. Sells the thermal core <i>into</i> the box makers.</p></div>
-      <div class="mtc"><div class="h">⑥ 護城河 — moat</div><p>Decades of plate-pattern / brazing know-how, global service, top-tier scale; among the <b>top-5 data-center HX players</b>. A durable quality compounder, not a hype vehicle — ROE ~19%, ROIC ~13.5%.</p></div>
-      <div class="mtc"><div class="h">⑦ 管理層展望 — mgmt outlook</div><p>Q1'26: 6% organic order growth; currency + logistics headwinds on sales; capacity-investment programs for brazed/gasketed HX; China HX bolt-on in Energy. Confident on DC demand.</p></div>
-      <div class="mtc"><div class="h">⑧ 為何是卡點 — why the chokepoint</div><p>Owns the scarce <b>thermal core</b> of the CDU — the BPHE that isolates the loops — and is integrating up. It's the same thesis the BPHE-centric play Kaori (+~450%) has already validated, but at <b>~17&times; EBITDA with quality + diversification</b>, not euphoria.</p></div>
-    </div>
-    <div class="gap" style="margin-top:12px"><div class="h">ASYMMETRIC INFO-GAP</div><p>The market prices Alfa Laval as a steady Swedish industrial compounder and <b>under-weights the data-center BPHE optionality</b> that Kaori's +450% just validated. You get a top-5 heat-exchanger franchise growing DC orders a company-stated +25% YoY, the <i>cheapest of the three</i> (EV/EBITDA ~17&times; vs Moog ~24&times; / Vertiv ~51&times;), and up only +18% YTD — the least-crowded way to own the CDU core. If the DC mix is ever disclosed or FreeWaterLoop scales, the optionality de-buries. The gap: everyone bought Kaori/Vertiv/Moog; the equally-binding heat-exchanger leader is the laggard.</p></div>
-    <div class="bbr">
-      <div class="bl"><b>BULL</b>DC BPHE + FreeWaterLoop scale into a visible growth vector; quality compounder re-rates as AI-cooling optionality is recognised on top of the diversified base.</div>
-      <div class="be"><b>BEAR</b>DC stays a small slice swamped by Marine/Food cyclicality + FX; BPHE multi-sourced (Kaori/SWEP/Danfoss/Envicool) caps pricing; a general-industrial de-rate.</div>
-    </div>
-    <div class="panel" style="margin-top:12px;background:var(--panel2)">
-      <h4 style="font-size:12.5px;margin-bottom:4px;font-weight:600">Scenario table — ALFA (the lead / relative-value own-it), ~12–18m <span style="color:var(--dim);font-weight:400;font-size:11px">· illustrative, author's probabilities</span></h4>
-      <table class="scn" style="margin-top:6px">
-        <tr><th>Case</th><th>Prob.</th><th>What happens</th><th>~12–18m</th></tr>
-        <tr class="bull"><td><b>Bull</b></td><td class="num">30%</td><td>DC BPHE + FreeWaterLoop become a named growth driver; compounder re-rates with AI-cooling optionality</td><td class="num" style="color:var(--dacr)">+35%</td></tr>
-        <tr class="base"><td><b>Base</b></td><td class="num">50%</td><td>Steady mid-teens order growth; DC helps at the margin; quality compounder compounds</td><td class="num" style="color:var(--dup)">+12%</td></tr>
-        <tr class="bear"><td><b>Bear</b></td><td class="num">20%</td><td>Industrial de-rate + FX; DC too small to move the book; BPHE ASP pressure</td><td class="num" style="color:var(--choke)">−18%</td></tr>
-      </table>
-      <p class="cap" style="margin-top:8px">Prob-weighted EV ≈ 0.30(+35%) + 0.50(+12%) + 0.20(−18%) ≈ <b style="color:var(--txt)">+13%</b> — modest, but it is a <b>quality compounder with free AI-cooling optionality</b>, the lowest-drawdown way to own the choke. <b>Entry discipline (est.):</b> accumulate ~17&times; EBITDA or below; add on a DC-segment disclosure; trim if DC order growth stalls under +10%. <b>Dated falsifier:</b> if the next two quarters show DC order intake decelerating below ~+10% YoY AND no FreeWaterLoop traction, the AI-cooling optionality is failing — it's just an industrial then.</p>
-    </div>
-  </div>
-
-  <!-- MOOG PANE -->
-  <div class="panel" role="tabpanel" id="pane-mog" aria-labelledby="tab-mog" tabindex="0" hidden style="border-radius:0 12px 12px 12px">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:6px">
-      <h3 style="font-size:17px;font-weight:600">Moog · <span class="num">MOG.A</span> <span class="stagebadge sg-eu">RECOGNITION → EUPHORIA</span></h3>
-      <span style="font-size:11.5px;color:var(--dim)">The pump link · sealless CoreMotion magnetic pump — the cleanest listed pump, already found</span>
-    </div>
-    <div class="mini">
-      <div><div class="v num">$412</div><div class="l">last · 8 Jul 2026</div></div>
-      <div><div class="v red num">+69%</div><div class="l">YTD (near ATH)</div></div>
-      <div><div class="v num">~$13B</div><div class="l">mkt cap · EV/EBITDA ~24&times;</div></div>
-      <div><div class="v num">176–430</div><div class="l">52-wk (at high)</div></div>
-      <div><div class="v num">~13–14%</div><div class="l">Industrial op-margin</div></div>
-    </div>
-    <div class="mtd">
-      <div class="mtc"><div class="h">① 怎麼賺錢 — how it makes money</div><p>Precision motion-control engineer (~$4.2B rev): Aircraft Controls + Space &amp; Defense (the bulk) + <b>Industrial</b> (~$1B), where data-center cooling pumps now sit.</p></div>
-      <div class="mtc"><div class="h">② 營收結構 — revenue mix</div><p>Aerospace/defense dominate; Industrial ~$1.0B/yr. <b>Data-center cooling pumps are a fast-growing sliver of Industrial</b> — the AI-cooling exposure is real but diluted inside a defense-heavy P&amp;L.</p></div>
-      <div class="mtc"><div class="h">③ 成長來源 — growth drivers</div><p><b>Industrial +14% (Q1) / +9% (Q2) FY26 driven by data-center cooling pumps</b>; defense super-cycle; medical (enteral/IV). CoreMotion is the AI growth vector.</p></div>
-      <div class="mtc"><div class="h">④ 終端市場 — end markets</div><p>Military/commercial aircraft, space, defense; industrial automation; <b>data-center direct-to-chip &amp; immersion cooling</b> (the new pump vector).</p></div>
-      <div class="mtc"><div class="h">⑤ 主要客戶 — key customers</div><p>Primes, OEMs, CDU integrators buying CoreMotion pumps + controllers for DLC/immersion loops. Sells the pump <i>into</i> the box.</p></div>
-      <div class="mtc"><div class="h">⑥ 護城河 — moat</div><p><b>CoreMotion sealless magnetic-drive pump</b>: rotor + impeller one piece, no shaft seal &rarr; fewer leak points, higher reliability — the premium tier. Precision-motion heritage transfers directly to the reliability spec.</p></div>
-      <div class="mtc"><div class="h">⑦ 管理層展望 — mgmt outlook</div><p>Raising Industrial guidance on data-center pump demand; margin expansion from simplification; tariff pressure a headwind. Leaning into cooling as a growth pillar.</p></div>
-      <div class="mtc"><div class="h">⑧ 為何是卡點 — why the chokepoint</div><p>Owns the reliability-critical <b>pump</b> — the seconds-scale single-point-of-failure. But the market found it (+69% YTD, ~24&times; EBITDA at ATH), it's diluted in aero/defense, and N+1 multi-sourcing caps the toll (Grundfos/Wilo still lead volume).</p></div>
-    </div>
-    <div class="gap" style="margin-top:12px"><div class="h">ASYMMETRIC INFO-GAP</div><p>The gap that <i>was</i> here — "an aerospace/defense name hiding a fast-growing datacenter-pump business" (the Amphenol/Ajinomoto pattern) — has largely <b>closed</b>: Moog is +69% YTD at a 52-week high and ~24&times; EBITDA, so the datacenter pump story is now in the multiple. The remaining edge is thin: it is the cleanest <i>listed</i> way to own the reliable-pump link (Grundfos/Wilo are private), and defense provides a floor. But this is <b>recognition&rarr;euphoria, not early</b> — buy only on a pullback.</p></div>
-    <div class="bbr">
-      <div class="bl"><b>BULL</b>Datacenter pump ramps to a double-digit share of Industrial; defense super-cycle + margin expansion compound; CoreMotion could win Rubin-era design slots (author speculation, no cited win).</div>
-      <div class="be"><b>BEAR</b>~24&times; EBITDA at ATH prices the story; pumps stay a small slice; Grundfos/Wilo hold volume; tariff + defense-budget wobble de-rate.</div>
-    </div>
-    <p class="cap" style="margin-top:12px"><b>~12–18m (illustrative, author's probabilities):</b> bull +25% (pump mix compounds + defense re-rate · ~30%); base +6% (compounds with the market, story priced · ~45%); bear −25% (multiple compression off ATH · ~25%) &rarr; prob-weighted EV ≈ <b style="color:var(--txt)">+3%</b>. The cleanest listed pump, but <b>fully recognised</b> — depth of franchise &ne; remaining upside. <b>Entry discipline:</b> wait for a ~20% pullback / &lt;20&times; EBITDA; <b>falsifier:</b> if data-center pump revenue is <i>not</i> broken out or stalls by FY26-end while the multiple stays &gt;24&times;, there's no margin of safety — pass.</p>
-  </div>
-
-  <!-- VERTIV PANE -->
-  <div class="panel" role="tabpanel" id="pane-vrt" aria-labelledby="tab-vrt" tabindex="0" hidden style="border-radius:0 12px 12px 12px">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:6px">
-      <h3 style="font-size:17px;font-weight:600">Vertiv · <span class="num">VRT</span> <span class="stagebadge sg-eu">EUPHORIA / PRICED</span></h3>
-      <span style="font-size:11.5px;color:var(--dim)">The box link · CDU + full thermal-system integrator — the headline this report argues one-below</span>
-    </div>
-    <div class="mini">
-      <div><div class="v num">$292</div><div class="l">last · 8 Jul 2026</div></div>
-      <div><div class="v red num">+80%</div><div class="l">YTD (−23% off high)</div></div>
-      <div><div class="v num">~$117B</div><div class="l">mkt cap · EV/EBITDA ~51&times;</div></div>
-      <div><div class="v num">$15B</div><div class="l">backlog (+109% YoY)</div></div>
-      <div><div class="v num">ROIC ~20%</div><div class="l">high-quality, richly valued</div></div>
-    </div>
-    <div class="mtd">
-      <div class="mtc"><div class="h">① 怎麼賺錢 — how it makes money</div><p>Critical digital-infrastructure OEM: power, thermal management (incl. <b>CDUs</b>, cold-plate loops, CRAH), racks, services. The one-stop AI-data-center thermal + power integrator.</p></div>
-      <div class="mtc"><div class="h">② 營收結構 — revenue mix</div><p>~$10.2B 2025 rev; thermal + power the growth engines; service annuity a durable, high-margin tail. 2026 guide <b>$13.25–13.75B</b> (organic +27–29%), adj EPS $5.97–6.07.</p></div>
-      <div class="mtc"><div class="h">③ 成長來源 — growth drivers</div><p>AI liquid-cooling attach; <b>backlog $15B (+109% YoY), book-to-bill ~2.9&times;</b>; ~$1B Q4 acquisitions (PerchRight). Full-system integration + service.</p></div>
-      <div class="mtc"><div class="h">④ 終端市場 — end markets</div><p>Hyperscale + colo AI data centers; enterprise; telecom. The prime beneficiary of the whole liquid-cooling buildout — but at the box, not the core.</p></div>
-      <div class="mtc"><div class="h">⑤ 主要客戶 — key customers</div><p>Hyperscalers + colos; deep relationships + global service network are the real moat — a component maker can't replicate the qualification + uptime SLA.</p></div>
-      <div class="mtc"><div class="h">⑥ 護城河 — moat</div><p><b>Integration + 12–18-mo qualification + service annuity</b> — genuinely durable and why the box isn't "dumb." But NVIDIA's public reference CDU + OCP designs mean the box is second-sourceable (Vertiv leads share today) and the integration premium erodes over time.</p></div>
-      <div class="mtc"><div class="h">⑦ 管理層展望 — mgmt outlook</div><p>Q4'25: organic orders +252%, backlog +109%; strong 2026 guide. Confident on liquid-cooling attach + service; the bull case is execution on a booming backlog.</p></div>
-      <div class="mtc"><div class="h">⑧ 為何是卡點 — why the chokepoint</div><p>It's the <b>headline</b>, not the chokepoint: the box is where rent is <i>visible</i> (backlog) but multi-sourced and reference-design-exposed. Included as the "what late looks like" contrast — durable near-term rent, fully priced at ~51&times; EBITDA.</p></div>
-    </div>
-    <div class="gap" style="margin-top:12px"><div class="h">ASYMMETRIC INFO-GAP</div><p>The honest counter to this whole report: Vertiv is <b>not</b> a dumb box — its 12–18-month qualification + service annuity is a real moat, and the $15B backlog (+109%) proves near-term rent capture the component makers can't show as cleanly. The gap runs the other way: consensus may be <i>right</i> that the integrator captures the durable rent, in which case "own the core not the box" is the wrong trade. The risk to <i>Vertiv</i> is valuation (~51&times; EBITDA, +80% YTD) and NVIDIA reference-design commoditisation — not demand. This tab is the disconfirmer for the thesis, kept honest.</p></div>
-    <div class="bbr">
-      <div class="bl"><b>BULL</b>Backlog + service annuity compound; Vertiv stays the one-stop AI-thermal integrator; execution beats the +27–29% organic guide.</div>
-      <div class="be"><b>BEAR</b>~51&times; EBITDA is priced for perfection; NVIDIA reference CDU + OCP commoditise the box; any capex pause or share loss de-rates hard.</div>
-    </div>
-    <p class="cap" style="margin-top:12px"><b>~12–18m (illustrative, author's probabilities):</b> bull +25% (backlog compounds, execution beats · ~30%); base +2% (great business, priced; grows into the multiple · ~45%); bear −35% (multiple compression + commoditisation · ~25%) &rarr; prob-weighted EV ≈ <b style="color:var(--txt)">−0.5%</b>. High-quality, high-price — the negative EV is the whole point: <b>tightness of demand &ne; a good buy at 51&times;</b>. <b>Entry discipline:</b> only on a meaningful de-rate; <b>falsifier:</b> a book-to-bill under ~1.5 or a hyperscaler standardising on the NVIDIA reference CDU would confirm the box-commoditisation bear.</p>
-  </div>
-</section>
-
-<!-- 11. RENT + RISKS -->
-<section id="s11">
-  <div class="sh"><span class="n">11</span><h2>Rent-capture test · beneficiaries · risk register</h2><span class="cn">租金與風險</span></div>
-  <div class="two">
-    <div class="panel">
-      <h4 style="font-size:13px;margin-bottom:9px;font-weight:600">Rent-capture — who keeps the scarcity toll?</h4>
-      <p style="font-size:12.5px;color:var(--mut);line-height:1.6">Unlike the GOES run (rent leaked entirely to the OEM), here <b>rent is shared</b>. Margins settle it: the BPHE-centric play <b>Kaori (≈+300–490%, partly revenue-driven — 2025 rev +64%)</b> shows the <i>component</i> can capture durable rent; the box integrator <b>Vertiv (backlog $15B, +109%; ROIC ~20%)</b> captures strong near-term integration + service rent; and the <b>pump</b> makers capture reliability rent <i>invisibly</i> (Grundfos/Wilo private; Moog Industrial op ~13–14%) — but N+1 multi-sourcing caps any single pump vendor's toll. Net: the scarce <i>core</i> does keep rent (Kaori proves it), but the market has already priced the pure component and the box; the residual is the diluted proxy (Alfa Laval, EV/EBITDA ~17&times;) and the private pump layer.</p>
-      <div style="margin-top:10px;border-top:1px dashed var(--line2);padding-top:10px">
-        <p style="font-size:11.5px;color:var(--dim);line-height:1.5"><b style="color:var(--mut)">Beneficiaries beyond the top-3:</b> nVent (manifolds+CDU, +46%), Modine (CDU+coils, +68%), Delta (CDU, TW), Ecolab (absorbed CoolIT), Xylem (pumps), Munters/SPX (heat-reject, Run #16), Dover (SWEP BPHE + CPC QD, Run #10).</p>
-      </div>
-    </div>
-    <div class="panel">
-      <h4 style="font-size:13px;margin-bottom:9px;font-weight:600">Risk register</h4>
-      <table class="liw">
-        <tr><th>Risk</th><th>Type</th><th>Read</th></tr>
-        <tr><td><b>Mislocated chokepoint</b></td><td class="dotA">structure</td><td>the tighter pinch may be the QD (Run #10) or the 2P-DTC system (Run #16) in specific builds</td></tr>
-        <tr><td><b>Box commoditisation</b></td><td class="dotR">Vertiv</td><td>NVIDIA reference CDU + OCP erode the integrator premium</td></tr>
-        <tr><td><b>In-chip microfluidics</b></td><td class="dotR">all</td><td>2028+ water-in-wafer (TSMC/Corintis) deletes the external loop &mdash; pump+BPHE+CDU together</td></tr>
-        <tr><td><b>Multi-sourcing / N+1</b></td><td class="dotA">pump</td><td>reliability forces multi-source &rarr; caps pump pricing power (no monopoly toll)</td></tr>
-        <tr><td><b>Buyers absorb pure-plays</b></td><td class="dotA">edge</td><td>CoolIT&rarr;Ecolab, Motivair&rarr;Schneider &mdash; the clean vehicles keep disappearing</td></tr>
-        <tr><td><b>China substitution</b></td><td class="dotA">BPHE/CDU</td><td>Envicool + domestic BPHE/pump makers cap Western pricing</td></tr>
-        <tr><td><b>Cyclical capex pause</b></td><td class="dotR">all</td><td>an AI-capex air-pocket hits the whole priced complex first</td></tr>
-      </table>
-    </div>
-  </div>
-</section>
-
-<!-- 12. DECISION -->
-<section id="s12">
-  <div class="sh"><span class="n">12</span><h2>Decision table · conclusion · open questions</h2><span class="cn">決策表</span></div>
-  <table class="tbl" style="margin-bottom:16px">
-    <tr><th>Name</th><th>Link / chokepoint</th><th>Sev /20</th><th>Stage</th><th>Valuation (est.)</th><th>Rem. asym.</th><th>Author lean</th><th>Trigger</th></tr>
-    <tr><td><b>Alfa Laval</b> <span class="num">ALFA</span></td><td>BPHE (heat exchanger)</td><td class="num red">14</td><td><span class="stagebadge sg-recog">RECOG</span></td><td class="num">~17&times; EBITDA · +18% YTD</td><td class="num teal">~7</td><td class="grn">relative-value own-it</td><td>DC order growth &gt;+25%; segment disclosure</td></tr>
-    <tr><td><b>Moog</b> <span class="num">MOG.A</span></td><td>reliable pump</td><td class="num red">15</td><td><span class="stagebadge sg-eu">EUPHORIA</span></td><td class="num">~24&times; EBITDA · +69% YTD</td><td class="num amb">~4</td><td class="amb">quality, wait for pullback</td><td>&lt;20&times; EBITDA; pump-rev breakout</td></tr>
-    <tr><td><b>Vertiv</b> <span class="num">VRT</span></td><td>CDU box / integrator</td><td class="num amb">13</td><td><span class="stagebadge sg-eu">PRICED</span></td><td class="num">~51&times; EBITDA · +80% YTD</td><td class="num">~3</td><td class="red">admire, too rich</td><td>de-rate; book-to-bill &gt;2 holds</td></tr>
-    <tr><td>Nidec <span class="num">6594</span></td><td>pump/CDU (diluted)</td><td class="num">14</td><td><span class="stagebadge sg-early">LAGGARD</span></td><td class="num">+20% YTD · off highs</td><td class="num teal">~8</td><td class="teal">watchlist (latent)</td><td>liquid-cooling segment disclosure</td></tr>
-    <tr><td>Kaori <span class="num">8996</span></td><td>BPHE-centric</td><td class="num red">16</td><td><span class="stagebadge sg-eu">PRICED</span></td><td class="num">≈+300–490% 12m · ATH</td><td class="num">~2</td><td class="red">proven, do not chase</td><td>—</td></tr>
+  <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin:6px 0 8px">LEADING-INDICATOR DASHBOARD · where an amateur can actually read it</div>
+  <div class="svgscroll">
+  <table class="liw" style="min-width:820px">
+    <tr><th style="width:220px">Signal</th><th style="width:150px">Trigger threshold</th><th>What it tells you</th><th style="width:210px">Where to read it (free)</th></tr>
+    <tr><td><b>China Ga/Ge/Sb export ban</b></td><td>Reinstated on/after <span class="num">27 Nov 2026</span></td><td>The binary catalyst — reinstatement spikes non-China Ga/In names</td><td>MOFCOM announcements · CNBC · Fastmarkets</td></tr>
+    <tr><td><b>Gallium price (retail/investor-grade proxy)</b></td><td>&gt; <span class="num">$2,000/kg</span></td><td>Tightening; industrial FOB ex-China (~$400/kg) is the real supply-chain price</td><td>Fastmarkets · Shanghai Metals Market (SMM)</td></tr>
+    <tr><td><b>Indium spot</b></td><td>&gt; <span class="num">$1,200/kg</span> (from ~$970)</td><td>Inelastic zinc-byproduct squeeze</td><td>SMM · Strategic Metals Invest · USGS</td></tr>
+    <tr><td><b>TSMC direct-to-silicon (IMC-Si) timing</b></td><td>Commercial pull-in to <span class="num">2027</span></td><td>The TIM-deletion clock — bearish the interface rent</td><td>TSMC earnings · OFC / IEDM / Hot Chips notes</td></tr>
+    <tr><td><b>5N Plus Specialty-Semi segment</b></td><td>&gt; <span class="num">+30%</span> QoQ organic</td><td>Whether metal demand is actually inflecting</td><td>5N Plus quarterly slides (SEDAR)</td></tr>
+    <tr><td><b>Metal-TIM design-win at Rubin/GB300</b></td><td>Liquid-metal vs solder vs sinter confirmed</td><td>Which material actually wins the socket</td><td>SemiAnalysis · teardowns · Indium/Henkel PR</td></tr>
   </table>
-  <div class="panel" style="background:linear-gradient(135deg,rgba(45,212,191,.06),transparent),var(--panel2)">
-    <p style="font-size:13.5px;color:var(--txt);line-height:1.6"><b style="color:var(--accent)">If you can only do one thing:</b> treat this as a <b>disciplined-entry, mostly-priced</b> layer — the chokepoint (CDU core: BPHE + reliable pump) is real at severity-15, but the pure vehicles already ran (Kaori +450%) or were absorbed (CoolIT&rarr;Ecolab, Motivair&rarr;Schneider). The one relative-value expression is the <b>diluted BPHE proxy, Alfa Laval</b> (+18% YTD, ~17&times; EBITDA, DC orders a company-stated +25%) — a quality compounder with free AI-cooling optionality, the lowest-drawdown way to own the core — sized as a <i>starter</i>, with the genuine early dollar left on the <b>watchlist</b> (Nidec + the private pump/leak-detection layer). Moog (the pump) and Vertiv (the box) are excellent businesses you're <i>late</i> to. <b>This is closer to "own the quality laggard, watch the frontier" than a fat pitch.</b></p>
   </div>
-  <div class="panel" style="margin-top:14px">
-    <h4 style="font-size:13px;margin-bottom:9px;font-weight:600">Open questions / honest self-critique <span style="font-weight:400;color:var(--dim);font-size:11px">— the unresolved holes, not a victory lap</span></h4>
-    <ul style="font-size:12.5px;color:var(--mut);line-height:1.6;padding-left:18px">
-      <li><b>Alfa Laval's DC mix is undisclosed.</b> "DC order intake +25%" is a bright spot, but the company doesn't segment data-center revenue — so the "free optionality" thesis rests on an <i>un-sized</i> slice. It could be immaterial to a SEK 68B book for years.</li>
-      <li><b>Rent-capture is genuinely contested here.</b> The Vertiv tab is a real disconfirmer: if the integrator's qualification + service moat is the durable one, "own the core not the box" is the wrong call. Kaori's run shows the component <i>can</i> capture rent, but Kaori is BPHE-heavy (and part of its move is revenue growth, not pure re-rating) — not proof the diluted proxy (Alfa Laval) captures it too.</li>
-      <li><b>Market-size numbers are all over the map.</b> CDU $1B&rarr;$4.16B (19%) vs &rarr;$7.7B (33%); pumps &rarr;$1.84B by 2032. Different vendors, different definitions — magnitudes are directional (est.), not precise.</li>
-      <li><b>The pump toll may be structurally capped.</b> N+1/2N multi-sourcing is designed <i>because</i> the pump is the single-point-of-failure — which is exactly what prevents any one pump vendor (even Grundfos) from charging a monopoly rent. The reliability that makes it a chokepoint also caps its pricing.</li>
-      <li><b>The 2028 microfluidics clock is a real tail risk to the whole loop.</b> If in-chip / water-in-wafer scales on schedule (Run #16), it deletes the external cold-plate+TIM+BPHE+pump stack and migrates rent to the foundry — a structural bear for every name in this report.</li>
-      <li><b>Severity-15 vs asymmetry-6 is the tension.</b> The link is tight, but tightness &ne; a good buy when the pure vehicles have run and the residual is diluted. Don't read 15/20 as "buy."</li>
-    </ul>
+
+  <div style="font-size:11px;font-weight:700;color:var(--dout);letter-spacing:.04em;margin:20px 0 8px">STILL-LATENT WATCHLIST · genuinely early, under-covered (left of the top-3)</div>
+  <div class="watch">
+    <div class="wc"><div class="h">Indium Corporation <span class="stagebadge sg-early">PRIVATE</span></div><p>The <b>purest metal-TIM razor</b> — liquid-metal paste (LMP), m2TIM hybrid preform, Heat-Spring — explicitly positioned for bare-die AI GPUs. The reason this run has "no clean owner."</p><p class="tr">Trigger: an IPO or a strategic take-out (the Alphawave / CoolIT pattern)</p></div>
+    <div class="wc"><div class="h">Non-China gallium <span class="stagebadge sg-early">SUPPLY</span></div><p><b>Alcoa</b> (Wagerup ~60t/yr, ~1H27), <b>Rio Tinto</b> (Canada gallium), Eurasian (Kazakhstan Q3-26), US DPA Louisiana demo — the supply-break basket that <i>caps</i> the thesis but <i>spikes</i> on a ban reinstatement.</p><p class="tr">Trigger: China reinstates the ban 27-Nov-2026</p></div>
+    <div class="wc"><div class="h">Korea Zinc / direct-die <span class="stagebadge sg-recog">HEDGE</span></div><p><b>Korea Zinc</b> = the #2 global indium refiner (~17%), the main non-China hedge. And the disruptor basket — <b>TSMC IMC-Si</b>, Microsoft, Corintis — is the long-run short against the whole interface (own it as the hedge).</p><p class="tr">Trigger: indium &gt; $1,200/kg · IMC-Si 2027 commercial</p></div>
   </div>
 </section>
 
-<div class="disc"><b>Not investment advice.</b> Automated personal research for a private knowledge base — idea generation only, not a recommendation or solicitation. Figures from public reporting, company filings, and third-party estimates as of 8 Jul 2026 (prices = last trade ~8 Jul 2026); several are single-source and marked (est.); may contain errors or become stale. Prices via IBKR read-only (never traded). Verify against primary filings and do your own due diligence.</div>
+<!-- 10. THE PLAYS -->
+<section id="s10">
+  <div class="sh"><span class="n">10</span><h2>The plays — three different links</h2><span class="cn">三檔標的</span></div>
+  <p class="lead">Three names at three <i>different</i> links — the cooling-materials <b>platform</b> (Solstice), the <b>feedstock metal</b> (5N Plus), the diluted <b>TIM leader</b> (Henkel) — spread across the awareness curve. Ranked by <b>remaining asymmetry</b>. None is a pure-play (that's private); read this as "which diluted proxy, and at what price," not "which rocket."</p>
 
-<footer>
-  <p><b>Sources:</b> Cooling demand/architecture — NVIDIA developer blog (Vera Rubin platform); TechPowerUp (GB300 NVL72 cooling ~$50k); GlobalSemiResearch + NADDOD + ToneCooling (GB300 1400W, 150+kW/rack, Rubin 100% liquid / 45&deg;C single-phase); The Diligence Stack ("liquid cooling: the binding constraint"). CDU market — Persistence Market Research ($1B&rarr;$7.7B ~33% CAGR); Valuates/PRNewswire ($1,131M 2023 &rarr; $4,162M 2030 ~19%); Grand View / Polaris / Fact.MR (CDU market, NA $607M @32% / APAC $721M @38% 2026); GMInsights (top-5 DC <b>heat-exchanger</b> ~47%, Vertiv &gt;16% — a heat-exchanger share, NOT CDU-box; Vertiv leads the more-concentrated CDU-box segment, which the report treats as multi-vendor by NVIDIA/OCP reference-design + hyperscaler second-sourcing, not by low share). Pumps — MarketsandMarkets (DC CDU-pump &rarr;$1.84B by 2032); Precedence ($5.5B by 2035); Grand View (Grundfos/Wilo/Xylem leaders); Tark/Wilo/Moog/Danfoss product + reliability notes (N+1, 5–7 min hot-swap, magnetic-drive CAGR ~19.8%); industry reliability notes (pump-fail &rarr; GPU throttle in seconds — rack-dependent, single-source est.; ASHRAE TC 9.9 addresses time-to-throttle qualitatively, no verified "23 s" figure); CSI Designs (triple-redundant, 100 ms failover, 99.999%). Component makers — Alfa Laval (Q1'26 report + slides: DC order intake +25%, order book SEK 48.7B; XL BPHE for 2.5 MW CDUs; FreeWaterLoop 4-Mar-2026; Boyd 2.3 MW in-row CDU); Moog Q1/Q2 FY26 8-Ks (Industrial +14%/+9% on data-center cooling pumps; CoreMotion sealless product pages); Nidec (10k+ CDUs "zero failures"; liquid-cooling site 7-Apr-2026; China localization). M&amp;A — Ecolab/CoolIT ($4.75B, announced 20-Mar-2026); Schneider/Motivair (75% stake, $850M, closed Feb-2025, DCD/Facilities Dive/Schneider IR). Disintermediation — TSMC IMC-Si / Microsoft-Corintis in-chip microfluidics (Run #16). Vertiv Q4-2025 8-K + IR (orders +252%, backlog $15B +109%, 2026 guide $13.25–13.75B / EPS $5.97–6.07). IBKR read-only live last-trade / YTD (8 Jul 2026): MOG.A $412.01 (+69.3%), VRT $292–306 (+80.4%), Nidec 6594 &yen;2,569 (+20.5%); FMP live: ALFA.ST SEK 554.4 (+18.3%, EV/EBITDA ~16.7&times;), plus nVent +45.7%, Modine +68.5%, Ecolab +8%, Envicool ¥72, Kaori +~450% (aggregator). Foreign quotes cross-checked on aggregators.</p>
-  <p style="margin-top:10px">Automated AI-Infra workflow · <b>Run #22 · v5</b> · Cooling, loop 4 — goes into the coolant-distribution unit that Runs #4 (cold-plate/QD), #10 (quick-disconnect coupling) and #16 (coolant molecule / 2P-DTC system / in-chip microfluidics) all route through, and finds the binding link is the CDU <b>core</b>: the reliability-critical redundant <b>pump</b> + the brazed-plate <b>heat exchanger</b>. Central finding: the CDU <i>box</i> is assembled by 40+ NVIDIA/OCP partners against a public reference design (Vertiv leads share) so the box isn't the scarce link; the durable rent sits in the core — but the BPHE-centric play (Kaori +~450%) already proved it and the CDU pure-plays were bought (CoolIT&rarr;Ecolab $4.75B announced Mar-2026, Motivair&rarr;Schneider $850M closed Feb-2025), so the residual edge is the diluted BPHE proxy (Alfa Laval) + the private pump layer (Nidec proxy). SVG fonts set via CSS rule (no var-based font attributes); tabs keyboard-accessible (roving tabindex + arrows) + @media print; supply-chain bar chart tallest at the chokepoint (CDU core), shared rent diamonds at core + box; per-name severity reconciled to the composite-15. Recurs every 2 days. IBKR read-only; never trades. <b>Cross-review:</b> 2 independent reviewer subagents — objective-fit <b>27/30</b> "fits the objective" + fact-check, and viz-QA <b>clean (0 P0/P1)</b>. Iteration log v5.1 (2026-07-08): punch-list applied — corrected the "~16%" (it is a DC heat-exchanger vendor share, NOT CDU-box; Vertiv leads the CDU box, which the report treats as multi-vendor via NVIDIA/OCP reference-design + second-sourcing — an honest correction that modestly strengthens the Vertiv counter-case); hedged the "seconds" pump-throttle figure (single-source, not a hard ASHRAE "23 s" number); marked Alfa Laval DC-order +25% as company-stated (DC unsegmented; group Q1 −1% rep / +6% org); reframed Kaori as BPHE-centric (not a pure-play), +450%→≈+300–490% date-dependent + partly revenue-driven; hedged Ecolab/CoolIT as announced-pending; softened "Kaori proves" → "shows can"; flagged CoreMotion design-slot as author speculation; nudged BPHE port labels off the left edge.</p>
-</footer>
+  <div class="tabbtns" role="tablist" aria-label="The three plays" style="display:flex;gap:6px;margin-bottom:-1px;flex-wrap:wrap">
+    <button class="tabbtn on" role="tab" id="tab1" aria-selected="true" aria-controls="t1" tabindex="0">① Solstice · SOLS<small>materials platform · relative-value</small></button>
+    <button class="tabbtn" role="tab" id="tab2" aria-selected="false" aria-controls="t2" tabindex="-1">② 5N Plus · VNP<small>feedstock metal · proven</small></button>
+    <button class="tabbtn" role="tab" id="tab3" aria-selected="false" aria-controls="t3" tabindex="-1">③ Henkel · HEN<small>TIM leader · diluted/early-by-price</small></button>
+  </div>
 
+  <!-- TAB 1: SOLS -->
+  <div class="tabpane" id="t1" role="tabpanel" aria-labelledby="tab1" style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">Solstice Advanced Materials <span style="color:var(--dim);font-weight:400">Nasdaq: SOLS</span></h3>
+      <span class="stagebadge sg-recog">RECOGNITION · relative-value on the pullback</span>
+      <span style="font-size:12px;color:var(--mut)">Link: <b style="color:var(--txt)">cooling-materials platform (formulation + fluid)</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The Honeywell spin-off (Oct-2025) most investors still file under "<b>refrigerants</b>" — 72% of sales. But it owns the <b>PCM TIM</b> franchise, and its $14.5B purchase of <b>Element Solutions (MacDermid Alpha sTIM + Argomax silver-sinter)</b> makes it the scaled AI-thermal-materials + data-center-cooling platform. Trading −36% off its high — partly the market's mark-down of a leveraged, dilutive deal, partly a "refrigerant company" wrapper that hasn't repriced the AI-materials core.</p>
+    <div class="mini">
+      <div><div class="v">$58.38</div><div class="l">Last price</div></div>
+      <div><div class="v" style="color:var(--dup)">+20%</div><div class="l">YTD return</div></div>
+      <div><div class="v">~$45B</div><div class="l">Mkt cap est.*</div></div>
+      <div><div class="v">~$3.8B</div><div class="l">FY25 sales (→$6.8B w/ ESI)</div></div>
+      <div><div class="v" style="color:var(--choke)">−36%</div><div class="l">off 52-wk high</div></div>
+    </div>
+    <div class="gap"><div class="h">ASYMMETRIC INFO GAP · 變異認知</div><p>Consensus prices SOLS as a <b>low-GWP refrigerant company</b> (the Solstice brand) with a mid-cycle multiple. The variant view: post-Element it is the <b>single largest AI specialty-chemicals + cooling-materials platform</b> — TIM, silver-sinter, advanced-packaging chemistry <i>and</i> two-phase fluids under one roof. If the market re-tags even part of it as "AI infrastructure," the multiple re-rates. The catch: 72% is still refrigerants, the deal doesn't close until 1H-27, and it adds leverage.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢 Business model</div><p>Sells specialty molecules &amp; chemistries — refrigerants + electronic/thermal materials. Recurring, formulation-based, sticky once qualified.</p></div>
+      <div class="mtc"><div class="h">② 營收結構 Segments</div><p>~72% refrigerants &amp; applied solutions, ~28% electronic &amp; specialty (pre-Element). Element adds MacDermid Alpha electronics.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源 Growth drivers</div><p>AI data-center thermal + packaging chemistry; low-GWP refrigerant transition; Element cross-sell + ~$180M synergies by yr-3.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場 End market</div><p>HVAC/refrigerants, semiconductors, data-center cooling, defense/nuclear, healthcare packaging — diversified.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶 Customers</div><p>Chipmakers/OSATs, cooling OEMs, HVAC OEMs, hyperscalers indirectly via the AI-materials lines.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河 Moat</div><p>Qualified formulations + scale; switching costs once designed-in; breadth across the thermal-materials stack post-Element.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望 Guidance</div><p>Mid-to-high single-digit revenue / high-single-to-low-double EBITDA growth medium-term; deal accretive after synergies.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點 Why chokepoint</div><p>Owns the <i>formulation</i> link (TIM + sinter) + the fluids — the rent-capturing platform even if no single line is a monopoly.</p></div>
+    </div>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--dacr)">BULL</b>Market re-tags it AI-materials post-Element; the −36% pullback closes; synergies + AI thermal demand compound.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>Stays a refrigerant multiple; deal adds leverage &amp; integration risk; AI-thermal is too small to move a $6.8B P&L.</div>
+    </div>
+  </div>
+
+  <!-- TAB 2: VNP -->
+  <div class="tabpane" id="t2" role="tabpanel" aria-labelledby="tab2" hidden style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">5N Plus <span style="color:var(--dim);font-weight:400">TSX: VNP</span></h3>
+      <span class="stagebadge sg-recog">RECOGNITION · proven, no longer cheap</span>
+      <span style="font-size:12px;color:var(--mut)">Link: <b style="color:var(--txt)">Western high-purity gallium / indium / germanium</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The cleanest <b>non-China</b> vehicle for the feedstock — a Canadian producer of 6N gallium, indium and germanium at Western facilities. It is the supply-security call-option on the metal beneath the TIM. But it has <b>already re-rated +85% YTD</b> and its AI-TIM exposure is <b>indirect</b> (today's growth is space-solar, compound-semis, imaging — not TIM). Own the supply-security theme, not a "TIM pure-play" it isn't.</p>
+    <div class="mini">
+      <div><div class="v">C$32.82</div><div class="l">Last price</div></div>
+      <div><div class="v" style="color:var(--dup)">+85%</div><div class="l">YTD return*</div></div>
+      <div><div class="v">~C$3B</div><div class="l">Mkt cap est.*</div></div>
+      <div><div class="v">+33%</div><div class="l">Q1-26 rev YoY</div></div>
+      <div><div class="v" style="color:var(--choke)">−34%</div><div class="l">off 52-wk high</div></div>
+    </div>
+    <div class="gap"><div class="h">ASYMMETRIC INFO GAP · 變異認知</div><p>Consensus is starting to price 5N Plus as a <b>critical-metals supply-security</b> name (hence +85%). The residual edge is narrow and <b>catalyst-shaped</b>: if China reinstates the gallium/germanium ban on <b>27-Nov-2026</b>, Western high-purity metal re-rates again — and 5N is one of very few listed ways to own it. But the AI-cooling link is a <i>story overlay</i>, not yet a revenue line; don't confuse the metals bull-case with a TIM bet. *YTD: IBKR +85%; an aggregator shows +128% — hedge the exact figure.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢 Business model</div><p>Refines &amp; sells high-purity specialty metals + compounds. Value-add purification (5N/6N), long qualification, sticky.</p></div>
+      <div class="mtc"><div class="h">② 營收結構 Segments</div><p>Specialty Semiconductors + Performance Materials. FY25 rev ~US$391M / EBITDA ~$92M; Q1-26 rev $117.9M.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源 Growth drivers</div><p>Semiconductor demand, space-solar, terrestrial renewables, imaging; supply-security premium on non-China metal.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場 End market</div><p>Compound semis, satellites, medical imaging, renewables — AI-cooling is prospective, not yet material.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶 Customers</div><p>Compound-semi &amp; optoelectronics makers, space/defense primes; Western supply-chain diversifiers.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河 Moat</div><p>Rare Western high-purity Ga/In/Ge capability; qualification barriers; supply-security scarcity value.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望 Guidance</div><p>FY26 Adj EBITDA guide ~US$100–105M; management leaning into semiconductor mix. 6 analysts, avg Buy.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點 Why chokepoint</div><p>Owns the scarce non-China <i>metal</i> that liquid-metal &amp; indium-solder TIM consume — the feedstock link.</p></div>
+    </div>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--dacr)">BULL</b>Ban reinstated 27-Nov; Western metal re-rates; semiconductor mix + AI-metal narrative compounds off +85%.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>Ban stays suspended, non-China supply floods, prices roll over; AI-TIM link never becomes revenue; already +85%.</div>
+    </div>
+  </div>
+
+  <!-- TAB 3: HEN -->
+  <div class="tabpane" id="t3" role="tabpanel" aria-labelledby="tab3" hidden style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">Henkel <span style="color:var(--dim);font-weight:400">XTRA: HEN3 · ADR: HENKY</span></h3>
+      <span class="stagebadge sg-early">LATENT BY PRICE · but immaterial exposure</span>
+      <span style="font-size:12px;color:var(--mut)">Link: <b style="color:var(--txt)">global TIM leader (Bergquist liquid-metal / PCM)</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The world's #1 TIM brand (<b>Bergquist</b>) — PCM, gap fillers, liquid-metal, the new TGF 10000 (10 W/mK) — buried inside a <b>laundry &amp; adhesives giant</b>. The classic <i>scarce link in a boring wrapper</i> (the Ajinomoto pattern). Barely moved (+7% YTD), so it looks "early" — but the honest read is the exposure is <b>immaterial to the P&L</b>, so it's cheap for a reason, not neglect.</p>
+    <div class="mini">
+      <div><div class="v">€74.40</div><div class="l">Last (HEN3 pref)</div></div>
+      <div><div class="v" style="color:var(--dacr)">+7%</div><div class="l">YTD return</div></div>
+      <div><div class="v">~€30B</div><div class="l">Mkt cap est.*</div></div>
+      <div><div class="v">$20.22</div><div class="l">ADR HENKY (+9%)</div></div>
+      <div><div class="v" style="color:var(--dim)">tiny</div><div class="l">TIM % of sales</div></div>
+    </div>
+    <div class="gap"><div class="h">ASYMMETRIC INFO GAP · 變異認知</div><p>Consensus prices Henkel as a <b>consumer + industrial adhesives</b> compounder — Persil, Loctite. The variant view: it quietly owns the <b>leading data-center TIM franchise</b> and a real liquid-metal capability, and it trades at a mid-single-digit-growth multiple that ascribes ~zero to AI thermal. The honest counter: even a TIM boom is a rounding error on a ~€22B-sales group — this is a "buy the cheap toll, expect little torque" name, or simply the reason the pure exposure is un-ownable.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢 Business model</div><p>Sells adhesives, sealants &amp; functional coatings + consumer brands. Bergquist TIM is a small, high-spec electronics line.</p></div>
+      <div class="mtc"><div class="h">② 營收結構 Segments</div><p>Adhesive Technologies (incl. electronics/TIM) + Consumer Brands. TIM is a sliver of Adhesive Technologies.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源 Growth drivers</div><p>EV batteries, data-center thermal, electronics miniaturisation; TGF 10000 liquid gap filler (Dec-2025).</p></div>
+      <div class="mtc"><div class="h">④ 終端市場 End market</div><p>Autos, electronics, packaging, consumer — data-center TIM is a growing but minor slice.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶 Customers</div><p>OEMs across auto/electronics; server/thermal-module makers for Bergquist TIM.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河 Moat</div><p>#1 TIM brand + qualification stickiness + formulation IP; broad distribution &amp; scale.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望 Guidance</div><p>Steady mid-single-digit organic growth; margin recovery focus; no AI-thermal breakout guided.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點 Why chokepoint</div><p>Owns the qualified TIM <i>formulation</i> — the razor sitting on the scarce metal — but at trivial P&L weight.</p></div>
+    </div>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--dacr)">BULL</b>Cheap, defensive way to own the TIM leader; margin recovery + a small AI-thermal kicker; downside-protected.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>TIM is immaterial; consumer drag caps the multiple; no torque from the thesis — dead-money risk.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 11. DECISION TABLE -->
+<section id="s11">
+  <div class="sh"><span class="n">11</span><h2>The decision — one table</h2><span class="cn">投資決策總表</span></div>
+  <p class="lead">Reconciled into a single view, ranked by <b>remaining asymmetry</b>. The row-read: there is <b>no clean owner</b> of this chokepoint — the tightest link (Indium Corp) is private, and each listed proxy trades off a different weakness (dilution, already-run, merger-cap). Tightness ≠ a good buy.</p>
+  <div style="overflow-x:auto">
+  <table class="tbl" style="min-width:960px">
+    <tr><th>#</th><th>Ticker</th><th>Chokepoint (link)</th><th>Severity</th><th>Awareness stage</th><th>Valuation</th><th>Rem. asymmetry</th><th>Framework lean</th><th>Key trigger</th></tr>
+    <tr>
+      <td class="num">1</td><td><b>SOLS</b> · Solstice</td><td><span class="lyr ly3">L3</span> materials platform</td>
+      <td class="num">13/20</td><td><span class="stagebadge sg-recog">RECOGNITION</span></td><td class="num">~$45B · +20% YTD</td>
+      <td class="grn">Highest</td><td><b>Relative-value / own on pullback</b></td><td>Re-tag as AI-materials; Element close 1H-27</td>
+    </tr>
+    <tr>
+      <td class="num">2</td><td><b>VNP</b> · 5N Plus</td><td><span class="lyr lyu">UP</span> Western Ga/In metal</td>
+      <td class="num">15/20</td><td><span class="stagebadge sg-recog">RECOGNITION</span></td><td class="num">~C$3B · +85% YTD</td>
+      <td class="amb">Low–moderate</td><td><b>Catalyst trade, size small</b></td><td>China ban reinstated 27-Nov-2026</td>
+    </tr>
+    <tr>
+      <td class="num">3</td><td><b>HEN</b> · Henkel</td><td><span class="lyr ly3">L3</span> TIM formulation leader</td>
+      <td class="num">14/20</td><td><span class="stagebadge sg-early">LATENT (price)</span></td><td class="num">~€30B · +7% YTD</td>
+      <td class="amb">Low (immaterial)</td><td><b>Cheap toll, little torque</b></td><td>AI-thermal breakout in Adhesive Tech</td>
+    </tr>
+  </table>
+  </div>
+  <p class="cap"><b>Per-link severity</b> (same 0–20 rubric, four factors each 0–5): <b>VNP metal = 15</b> (4+3+3+5 — scarce non-China feedstock, but inelastic ≠ monopoly). <b>HEN formulation = 14</b> (3+3+3+5 — qualified razor, oligopoly). <b>SOLS platform = 13</b> (3+3+2+5 — rent-capturer, least scarce single line). The private <b>Indium Corp ≈ 16</b> would top the list — the scarcest link isn't listed. "Framework lean" is analysis, not advice.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:16px">
+    <div class="panel" style="padding:14px 16px"><div style="font-size:12px;font-weight:600;color:var(--txt);margin-bottom:8px">SOLS · scenario (~12–18m)</div>
+      <table class="tbl"><tr><th>Case</th><th>Prob</th><th>Return</th></tr>
+      <tr><td class="grn">Bull re-rate</td><td class="num">30%</td><td class="num grn">+45%</td></tr>
+      <tr><td>Base</td><td class="num">45%</td><td class="num">+8%</td></tr>
+      <tr><td class="red">Bear (refrig. multiple)</td><td class="num">25%</td><td class="num red">−25%</td></tr></table>
+      <div style="font-size:11px;color:var(--accent);margin-top:8px" class="num">EV ≈ +11%</div></div>
+    <div class="panel" style="padding:14px 16px"><div style="font-size:12px;font-weight:600;color:var(--txt);margin-bottom:8px">VNP · scenario (~12–18m)</div>
+      <table class="tbl"><tr><th>Case</th><th>Prob</th><th>Return</th></tr>
+      <tr><td class="grn">Bull (ban reinstated)</td><td class="num">30%</td><td class="num grn">+55%</td></tr>
+      <tr><td>Base</td><td class="num">40%</td><td class="num">+5%</td></tr>
+      <tr><td class="red">Bear (supply floods)</td><td class="num">30%</td><td class="num red">−35%</td></tr></table>
+      <div style="font-size:11px;color:var(--accent);margin-top:8px" class="num">EV ≈ +8%</div></div>
+    <div class="panel" style="padding:14px 16px"><div style="font-size:12px;font-weight:600;color:var(--txt);margin-bottom:8px">HEN · scenario (~12–18m)</div>
+      <table class="tbl"><tr><th>Case</th><th>Prob</th><th>Return</th></tr>
+      <tr><td class="grn">Bull (AI-thermal kicker)</td><td class="num">25%</td><td class="num grn">+25%</td></tr>
+      <tr><td>Base</td><td class="num">50%</td><td class="num">+6%</td></tr>
+      <tr><td class="red">Bear (consumer drag)</td><td class="num">25%</td><td class="num red">−15%</td></tr></table>
+      <div style="font-size:11px;color:var(--accent);margin-top:8px" class="num">EV ≈ +6%</div></div>
+  </div>
+  <p class="cap">Probabilities are the author's subjective priors (illustrative); returns are rough 12–18m price-only estimates. Thin EVs are the finding, not a failure — they argue for entry discipline and small sizing, consistent with the ~6/20 remaining-asymmetry gauge.</p>
+
+  <div class="onebox">
+    <div class="h">IF YOU CAN ONLY DO ONE THING · 一句話結論</div>
+    <p>This is a <b>real chokepoint with no clean owner</b> — the tightest link (Indium Corp) is private, the metal is a sliver of the GPU's cost, and an in-chip disruptor is already in demos. <b>Admire it; don't overpay.</b> If you must express it, own the pulled-back <i>platform</i> (SOLS) with entry discipline; treat 5N Plus as a small, dated catalyst trade around <b>27-Nov-2026</b>; and put the real early attention on the <b>Indium-Corp / non-China-gallium / nickel-barrier-chemistry watchlist</b> (the last overlaps the Run #24 plating-chemistry razor — MacDermid/Atotech/MKS), not the diluted TIM names.</p>
+  </div>
+  <p class="cap" style="margin-top:12px"><b>Dated falsifier:</b> the thesis breaks if, by ~Q4-2026/Q1-2027, (a) China does <b>not</b> reinstate the gallium ban on 27-Nov-2026 <i>and</i> non-China Ga/In prices roll over, <b>and</b> (b) TSMC/NVIDIA pull direct-to-silicon (IMC-Si) into 2027 volume — deleting the interface faster than metal TIM ramps. Conversely, ban reinstatement + a confirmed liquid-metal design-win at Rubin = validation.</p>
+</section>
+
+<!-- 12. OPEN QUESTIONS -->
+<section id="s12">
+  <div class="sh"><span class="n">12</span><h2>Open questions &amp; honest holes</h2><span class="cn">未解問題</span></div>
+  <p class="lead">A genuine self-critique — the unresolved holes a retail investor should hold against this, not a victory lap.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div class="panel"><div style="font-size:12px;font-weight:600;color:var(--choke);margin-bottom:6px">Which metal actually wins the socket?</div><p style="font-size:12px;color:var(--mut);line-height:1.55">Liquid-metal, indium-solder and sinter-silver are all in play — and <b>sinter-silver uses no Ga/In</b>. If Rubin standardises on sinter (or TLP bonding), the gallium/indium leg of the thesis weakens materially. Public design-win data is thin; the "liquid-metal in Rubin" specifics lean on secondary blogs — <b>hedged as reported/expected</b>.</p></div>
+    <div class="panel"><div style="font-size:12px;font-weight:600;color:var(--choke);margin-bottom:6px">Is the rent big enough to matter?</div><p style="font-size:12px;color:var(--mut);line-height:1.55">A few grams of metal per GPU is immaterial to a $30k+ part. No listed maker yet shows the material moving consolidated margin — so the rent may be permanently <b>too diffuse</b> to own cleanly. This is the same "admire, don't own" failure mode as the GOES run (#21).</p></div>
+    <div class="panel"><div style="font-size:12px;font-weight:600;color:var(--choke);margin-bottom:6px">The disintermediation clock</div><p style="font-size:12px;color:var(--mut);line-height:1.55">In-chip microfluidics (TSMC IMC-Si, Microsoft) explicitly <b>deletes the TIM</b>, commercial ~2027, Feynman 2028. If it ramps early, the metal-TIM window is even shorter than 2026–28 — and the whole thesis is a two-year trade, not a franchise.</p></div>
+    <div class="panel"><div style="font-size:12px;font-weight:600;color:var(--choke);margin-bottom:6px">Vehicle quality</div><p style="font-size:12px;color:var(--mut);line-height:1.55">Every top-3 name is a compromise: SOLS is 72% refrigerants + a pending deal; VNP has run +85% with indirect exposure; HEN's TIM is a rounding error. The 5N Plus YTD itself carries a source discrepancy (IBKR +85% vs aggregator +128%). Position sizes should reflect that.</p></div>
+  </div>
+</section>
+
+  <div class="disc"><b>Not investment advice.</b> Automated research synthesis for a private knowledge base — idea generation only, not a recommendation or solicitation. Figures from public reporting, SEC/USGS filings and third-party estimates as-of 20 Jul 2026; estimates marked (est.); prices are IBKR read-only live snapshots and decay fast. Verify against primary filings and do your own due diligence.</div>
+
+  <footer>
+    <p><b>Sources (mapped to claims):</b> <b>USGS Mineral Commodity Summaries 2026</b> (gallium China ~99% / US 100% import-reliant / no domestic since 1987; indium China ~55–68%; germanium ~77%) · <b>CSET / CNBC (9-Nov-2025) / Fastmarkets / CSIS / Stimson</b> (MOFCOM No.46 3-Dec-2024 ban → No.72 suspension to 27-Nov-2026; non-China Ga ~$1,850/kg +200%) · <b>Statista / Quest Metals / Strategic Metals Invest / ScienceDirect</b> (indium ~$970/kg +39%, zinc-byproduct, secondary ~30%, Korea Zinc #2) · <b>Siemens EDA blog · ToneCooling · Jiuju · Indium Corp · KingKaTech · GamersNexus · Google Patents US20240250054A1</b> (TIM conductivity ladder, liquid-metal corrosion / Ni barrier / pump-out) · <b>Semiwiki · Tom's Hardware · TSPA Substack · FinancialContent</b> (TSMC IMC-Si direct-to-silicon ~2027 / Feynman 2028; Microsoft microfluidic patent) · <b>SEC 425/8-K/10-Q · Manufacturing Dive · StockTitan · Yahoo</b> (Solstice–Element $14.5B, close 1H-27, combined ~$6.8B; SOLS spin 30-Oct-2025) · <b>Investing.com / 5N Plus Q1-26 slides · rare-earth-mining.com</b> (5N Plus financials) · <b>Data Bridge / Data Centre Magazine / Henkel</b> (TIM market shares, Bergquist TGF 10000) · IBKR read-only quotes (20-Jul-2026).</p>
+    <p style="margin-top:10px">Automated AI-Infra workflow · <b>Run #28 · v5</b> · Cooling loop 5 · supersedes Run #22 (CDU) as the newest cooling cut. Iteration log: v5.0 build — die-level metal-TIM + Ga/In feedstock chokepoint; severity 15/20; top-3 SOLS/VNP/HEN at 3 links; "no clean owner / admire, own selectively" read; Nov-2026 gallium catalyst as dated falsifier. Cross-review: independent analyst objective-fit <b>26/30</b> ("genuinely strong, honest") + viz-QA <b>SHIP-WITH-FIXES, 0 P0</b>. Punch-list applied: reconciled package-power vs die-flux units (kW/GPU + flux-governed note); relabeled gallium price as retail/investor-grade proxy (~$1,850) vs industrial FOB ex-China (~$400/kg); reconciled composite severity 15 = feedstock link 15 · formulation razor 14; reframed SOLS −36% as partly the leveraged-deal mark-down; hedged indium ~55–68% + Korea-Zinc "#2 global"; softened Rubin "CES-unveil"→roadmapped and microfluidic "commercial"→targeted/demo; added nickel-barrier-chemistry to the early watchlist; fixed §3/§4/§5 SVG label overflows; corrected 5N Plus guide currency (US$). Recurs every 2 days.</p>
+  </footer>
 </div>
+
 <script>
 (function(){
-  var tabs=[].slice.call(document.querySelectorAll('[role=tab]'));
-  function sel(t){
-    tabs.forEach(function(b){
-      var on=(b===t);
-      b.classList.toggle('on',on);
-      b.setAttribute('aria-selected',on?'true':'false');
-      b.tabIndex=on?0:-1;
-      var p=document.getElementById(b.getAttribute('aria-controls'));
-      if(p){ if(on){p.hidden=false;p.style.display='block';} else {p.hidden=true;p.style.display='none';} }
+  var tabs=Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+  function select(tab){
+    tabs.forEach(function(t){
+      var sel=(t===tab);
+      t.setAttribute('aria-selected',sel?'true':'false');
+      t.tabIndex=sel?0:-1;
+      t.classList.toggle('on',sel);
+      var p=document.getElementById(t.getAttribute('aria-controls'));
+      if(p){ if(sel){p.removeAttribute('hidden');} else {p.setAttribute('hidden','');} }
     });
   }
-  tabs.forEach(function(t,i){
-    t.addEventListener('click',function(){sel(t);t.focus();});
-    t.addEventListener('keydown',function(e){
-      var n=null;
-      if(e.key==='ArrowRight'||e.key==='ArrowDown') n=tabs[(i+1)%tabs.length];
-      else if(e.key==='ArrowLeft'||e.key==='ArrowUp') n=tabs[(i-1+tabs.length)%tabs.length];
-      else if(e.key==='Home') n=tabs[0];
-      else if(e.key==='End') n=tabs[tabs.length-1];
-      if(n){e.preventDefault();sel(n);n.focus();}
+  tabs.forEach(function(tab,i){
+    tab.addEventListener('click',function(){select(tab);tab.focus();});
+    tab.addEventListener('keydown',function(e){
+      var idx=i;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'){idx=(i+1)%tabs.length;}
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){idx=(i-1+tabs.length)%tabs.length;}
+      else if(e.key==='Home'){idx=0;}
+      else if(e.key==='End'){idx=tabs.length-1;}
+      else{return;}
+      e.preventDefault();select(tabs[idx]);tabs[idx].focus();
     });
   });
 })();

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Infra Run #21 v5 — Power Delivery / Grain-Oriented Electrical Steel (GOES) Chokepoint</title>
+<title>AI Infra Run #27 v5 — Power / On-Site Generation / Hot-Section Superalloy Casting Chokepoint</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
@@ -12,9 +12,7 @@
     --txt:#e8eaf0; --mut:#9aa3b5; --dim:#697283;
     --accent:#2dd4bf;        /* single brand accent (desaturated teal) */
     --choke:#e0686a;         /* desaturated red */
-    /* categorical: supply-chain stages */
     --up:#5b81c4; --l3:#8b84cf; --pkg:#c47a9e; --l2:#d2a24a; --l1:#4faf8e;
-    /* categorical: transformer domains */
     --dup:#e0a458; --dout:#5aa9e0; --dacr:#5fc98a;
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -26,30 +24,25 @@
      radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
   .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
   .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
-  h1{font-size:32px;font-weight:700;letter-spacing:-.6px;line-height:1.12;max-width:960px}
-  .sub{font-size:15px;font-weight:400;color:var(--mut);margin-top:12px;max-width:900px}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.6px;line-height:1.12;max-width:940px}
+  .sub{font-size:15px;font-weight:400;color:var(--mut);margin-top:12px;max-width:860px}
   .meta{margin-top:20px;display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
   .meta div{padding-right:26px;margin-right:26px;border-right:1px solid var(--line)}
   .meta div:last-child{border:0}
   .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
   .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
-  .asof{margin-top:14px;display:inline-flex;align-items:center;gap:9px;font-size:11.5px;color:#c4ab78;background:rgba(210,162,74,.08);border:1px solid #3a3015;border-radius:9px;padding:7px 13px}
-  .gauges{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
-  .gge{border:1px solid var(--line);border-radius:12px;padding:12px 16px;background:var(--panel);min-width:188px}
-  .gge .gl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim)}
-  .gge .gv{font-size:23px;font-weight:600;margin-top:3px}
-  .gge .gd{font-size:10.5px;color:var(--mut);margin-top:3px}
-  .gge.sev .gv{color:var(--choke)}.gge.asy .gv{color:var(--accent)}
-  nav.toc{position:sticky;top:0;z-index:40;background:rgba(11,13,18,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:9px 0;font-size:11.5px}
-  nav.toc .wrap{display:flex;gap:5px;flex-wrap:wrap}
-  nav.toc a{color:var(--mut);text-decoration:none;padding:4px 9px;border-radius:7px;border:1px solid transparent;white-space:nowrap}
-  nav.toc a:hover{color:var(--txt);border-color:var(--line2);background:var(--panel)}
+  /* gauges */
+  .gauges{display:flex;gap:26px;margin-top:18px;flex-wrap:wrap}
+  .gauge{min-width:230px}
+  .gauge .gl{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);display:flex;justify-content:space-between}
+  .gauge .track{height:8px;background:var(--panel3);border-radius:5px;margin-top:6px;overflow:hidden;border:1px solid var(--line)}
+  .gauge .fill{height:100%;border-radius:5px}
   section{padding:34px 0 2px}
   .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
   .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.05em}
   .sh h2{font-size:21px;font-weight:600;letter-spacing:-.3px}
   .sh .cn{font-size:13px;color:var(--dim);font-weight:400;margin-left:auto}
-  .lead{color:var(--mut);font-size:13.5px;max-width:920px;margin-bottom:18px}
+  .lead{color:var(--mut);font-size:13.5px;max-width:900px;margin-bottom:18px}
   .lead b{color:var(--txt);font-weight:600}
   .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
   @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
@@ -58,7 +51,15 @@
   .kpi .v{font-size:24px;font-weight:600;letter-spacing:-.5px}
   .kpi .l{font-size:11.5px;color:var(--mut);margin-top:4px}
   .kpi .d{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.4}
-  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}.pur{color:var(--l3)}
+  .eli{background:linear-gradient(135deg,rgba(45,212,191,.06),transparent 60%),var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;padding:16px 20px;margin:16px 0}
+  .eli h4{font-size:13px;color:var(--accent);margin-bottom:7px;letter-spacing:.02em}
+  .eli p{font-size:13px;color:var(--mut);max-width:940px}.eli p b{color:var(--txt)}
+  .eli p+p{margin-top:8px}
+  .keydef{display:grid;grid-template-columns:1fr 1fr;gap:8px 26px;margin-top:12px}
+  @media(max-width:780px){.keydef{grid-template-columns:1fr}}
+  .keydef div{font-size:12px;color:var(--mut);border-bottom:1px dashed var(--line2);padding-bottom:6px}
+  .keydef b{color:var(--txt)}
   .matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
   .matrix th{background:var(--panel2);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);font-weight:600;padding:12px 14px;text-align:left;border-bottom:1px solid var(--line)}
   .matrix td{padding:14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
@@ -69,31 +70,38 @@
   .matrix td b{color:var(--txt);font-weight:600}
   .chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--panel3);color:var(--mut);margin:2px 4px 2px 0;border:1px solid var(--line2)}
   .chip.hot{background:rgba(224,104,106,.12);border-color:#5a3236;color:#efa0a1}
-  .gal{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  @media(max-width:980px){.gal{grid-template-columns:1fr 1fr}}
-  @media(max-width:620px){.gal{grid-template-columns:1fr}}
+  .gal{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:900px){.gal{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.gal{grid-template-columns:1fr}}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column}
-  .card .svgbox{background:linear-gradient(180deg,#0e1117,#161a24);padding:12px;border-bottom:1px solid var(--line)}
-  .card .body{padding:13px 14px 15px}
-  .card h4{font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:6px}
-  .card .role{font-size:11.5px;color:var(--mut);margin-top:6px;line-height:1.45}
-  .card .who{font-size:10.5px;color:var(--dim);margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px}
+  .card .svgbox{background:linear-gradient(180deg,#0e1117,#161a24);padding:14px;border-bottom:1px solid var(--line)}
+  .card .body{padding:14px 16px 16px}
+  .card h4{font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .card .role{font-size:12px;color:var(--mut);margin-top:6px;line-height:1.45}
+  .card .who{font-size:11px;color:var(--dim);margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px}
   .card .who b{color:var(--l3)}
-  .badge{font-size:9px;font-weight:600;padding:2px 6px;border-radius:5px;letter-spacing:.03em;flex:none}
+  .badge{font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:5px;letter-spacing:.03em;flex:none}
   .b-hot{background:rgba(224,104,106,.14);color:#eda3a4}
   .b-now{background:rgba(45,212,191,.13);color:var(--accent)}
   .b-next{background:rgba(90,169,224,.14);color:var(--dout)}
   .b-emrg{background:rgba(210,162,74,.14);color:var(--dup)}
   .svgwide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
   .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
-  .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:2px 0 16px}
-  .leg span{display:flex;align-items:center;gap:7px}
-  .leg .sw{width:11px;height:11px;border-radius:3px}
+  .flow{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+  @media(max-width:900px){.flow{grid-template-columns:1fr 1fr 1fr}}
+  @media(max-width:560px){.flow{grid-template-columns:1fr 1fr}}
+  .st{border:1px solid var(--line);border-radius:11px;padding:12px 11px;background:var(--panel2)}
+  .st h5{font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px;display:flex;align-items:center;gap:6px;color:var(--mut)}
+  .st h5 .sw{width:8px;height:8px;border-radius:50%;flex:none}
+  .st ul{list-style:none;font-size:11.5px}
+  .st li{padding:4px 0;color:var(--mut);border-bottom:1px dashed var(--line2);line-height:1.3}
+  .st li:last-child{border:0}.st li b{color:var(--txt);font-weight:600}
+  .st li .x{color:var(--choke);font-weight:600}
   .tlgrid{border:1px solid var(--line);border-radius:14px;overflow:hidden}
-  .tlhead{display:grid;grid-template-columns:150px repeat(4,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
+  .tlhead{display:grid;grid-template-columns:130px repeat(4,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
   .tlhead div{padding:11px 12px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);border-right:1px solid var(--line)}
   .tlhead div:first-child{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-family:"Space Grotesk",sans-serif;display:flex;align-items:center}
-  .tlrow{display:grid;grid-template-columns:150px repeat(4,1fr);border-bottom:1px solid var(--line)}
+  .tlrow{display:grid;grid-template-columns:130px repeat(4,1fr);border-bottom:1px solid var(--line)}
   .tlrow:last-child{border-bottom:0}
   .tlrow .lab{padding:13px 12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;border-right:1px solid var(--line);background:var(--panel2)}
   .tlrow .lab .sw{width:9px;height:9px;border-radius:3px;flex:none}
@@ -101,21 +109,40 @@
   .tlrow .cell:last-child{border-right:0}
   .tlrow .cell b{color:var(--txt);font-weight:600;display:block;margin-bottom:2px;font-size:11.5px}
   .tlrow .cell.hot{background:rgba(224,104,106,.06)}
-  @media(max-width:780px){.tlhead,.tlrow{grid-template-columns:96px repeat(4,1fr);font-size:10px}.tlrow .cell{font-size:10px}}
+  @media(max-width:780px){.tlhead,.tlrow{grid-template-columns:86px repeat(4,1fr);font-size:10px}.tlrow .cell{font-size:10px}}
   .choke{border:1px solid #5a3236;border-radius:14px;padding:22px 24px;background:
     linear-gradient(135deg,rgba(224,104,106,.10),transparent 55%),var(--panel)}
   .choke .ttl{display:flex;align-items:center;gap:11px;margin-bottom:10px}
   .choke .ttl svg{flex:none}
   .choke .ttl h3{font-size:17px;font-weight:600;color:var(--choke)}
-  .choke p{font-size:13.5px;color:#d9c4c6;max-width:940px}.choke p b{color:#fff}
-  .choke .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:18px;border-top:1px solid #4a2c2f;padding-top:16px}
+  .choke p{font-size:13.5px;color:#d9c4c6;max-width:920px}.choke p b{color:#fff}
+  .choke .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:18px;border-top:1px solid #4a2c2f;padding-top:16px}
   @media(max-width:780px){.choke .stats{grid-template-columns:1fr 1fr}}
   .choke .stats div{padding-right:18px}
   .choke .stats b{display:block;font-size:20px;color:var(--choke);font-weight:600}
   .choke .stats span{font-size:10.5px;color:var(--dim)}
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
-  .two{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
-  @media(max-width:780px){.two{grid-template-columns:1fr}}
+  .scorecard{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+  @media(max-width:780px){.scorecard{grid-template-columns:1fr}}
+  .sc{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .sc h4{font-size:13px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:baseline}
+  .sc h4 .tot{font-family:"JetBrains Mono",monospace;color:var(--choke);font-weight:600}
+  .fac{margin:9px 0}
+  .fac .fl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--mut);margin-bottom:3px}
+  .fac .fl b{color:var(--txt)}
+  .fac .ft{height:7px;background:var(--panel3);border-radius:4px;overflow:hidden}
+  .fac .ff{height:100%;border-radius:4px;background:var(--choke)}
+  .fac .ff.g{background:var(--accent)}
+  .variant{border:1px solid var(--line2);border-radius:14px;padding:20px 22px;background:linear-gradient(135deg,rgba(139,132,207,.07),transparent 60%),var(--panel)}
+  .variant .vh{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--l3);margin-bottom:8px}
+  .variant p{font-size:13px;color:var(--mut);max-width:920px}.variant p b{color:var(--txt)}.variant p+p{margin-top:9px}
+  .td{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:780px){.td{grid-template-columns:1fr}}
+  .tdc{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 17px}
+  .tdc.key{border-color:#5a3236;background:linear-gradient(135deg,rgba(224,104,106,.07),transparent),var(--panel)}
+  .tdc .h{font-size:12.5px;font-weight:600;color:var(--accent);margin-bottom:7px;display:flex;align-items:baseline;gap:8px}
+  .tdc.key .h{color:var(--choke)}
+  .tdc .h .cn{color:var(--dim);font-size:10.5px;font-weight:400}
+  .tdc p{font-size:12.5px;color:var(--mut);line-height:1.5}.tdc p b{color:var(--txt)}
   .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
   .tbl th{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
   .tbl td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--mut)}
@@ -126,912 +153,834 @@
   .ly1{background:rgba(79,175,142,.15);color:#7cc9ad}
   .lyu{background:rgba(91,129,196,.15);color:#8aa7df}
   .lyp{background:rgba(196,122,158,.15);color:#dba0bf}
-  .lyc{background:rgba(224,104,106,.15);color:#eda3a4}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .two{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+  @media(max-width:780px){.two{grid-template-columns:1fr}}
+  .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:2px 0 16px}
+  .leg span{display:flex;align-items:center;gap:7px}
+  .leg .sw{width:11px;height:11px;border-radius:3px}
+  /* dashboard */
+  .dash{width:100%;border-collapse:collapse;font-size:12px}
+  .dash th{text-align:left;padding:10px 12px;background:var(--panel2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--line)}
+  .dash td{padding:11px 12px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+  .dash td b{color:var(--txt)}
+  .dash .sig{color:var(--txt);font-weight:600}
+  .dash .src{color:var(--accent);font-size:11px}
+  /* tabs */
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:0;border-bottom:1px solid var(--line)}
+  .tab{padding:11px 16px;font-size:13px;font-weight:600;color:var(--mut);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:inherit}
+  .tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+  .tab .tk{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--dim);margin-left:6px}
+  .tab[aria-selected="true"] .tk{color:var(--accent)}
+  .panelt{display:none;padding:20px 2px 2px}
+  .panelt[data-active="true"]{display:block}
+  .vstrip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:4px 0 16px}
+  @media(max-width:680px){.vstrip{grid-template-columns:1fr 1fr}}
+  .vstrip div{padding:13px 15px;border-right:1px solid var(--line)}
+  .vstrip div:last-child{border-right:0}
+  .vstrip .vv{font-size:18px;font-weight:600;font-family:"JetBrains Mono",monospace}
+  .vstrip .ll{font-size:10.5px;color:var(--dim);margin-top:3px}
+  .eight{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 14px}
+  @media(max-width:780px){.eight{grid-template-columns:1fr}}
+  .eight .e{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .eight .e .eh{font-size:12px;font-weight:600;color:var(--txt);margin-bottom:5px}
+  .eight .e .eh .cn{color:var(--accent);font-size:11px;font-weight:400;margin-left:5px}
+  .eight .e p{font-size:12px;color:var(--mut);line-height:1.45}
+  .eight .e.k{border-color:#5a3236;background:linear-gradient(135deg,rgba(224,104,106,.07),transparent),var(--panel2)}
+  .gap{border:1px solid #3a3660;background:linear-gradient(135deg,rgba(139,132,207,.09),transparent 60%),var(--panel);border-radius:11px;padding:13px 16px;margin:6px 0 14px}
+  .gap .gh{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--l3);margin-bottom:6px}
+  .gap p{font-size:12.5px;color:var(--mut)}.gap p b{color:var(--txt)}
+  .bb{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:680px){.bb{grid-template-columns:1fr}}
+  .bb div{border-radius:10px;padding:12px 14px;font-size:12px;line-height:1.45}
+  .bb .bull{background:rgba(79,175,142,.08);border:1px solid #22493c;color:#a9d9c6}
+  .bb .bear{background:rgba(224,104,106,.08);border:1px solid #5a3236;color:#e3b3b4}
+  .bb b{color:#fff}
   .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
+  .selfcrit{background:rgba(224,104,106,.05);border:1px solid #4a2c2f;border-radius:12px;padding:16px 20px}
+  .selfcrit li{font-size:12.5px;color:var(--mut);margin:7px 0 7px 18px;line-height:1.5}
+  .selfcrit li b{color:#e3b3b4}
   footer{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}
   footer b{color:var(--mut)}
-  .liw{width:100%;border-collapse:collapse;font-size:12px}
-  .liw th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
-  .liw td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
-  .liw td b{color:var(--txt)}
-  .dotR{color:var(--choke);font-weight:600}.dotA{color:var(--dup);font-weight:600}.dotG{color:var(--dacr);font-weight:600}
-  .tabbtn{font-family:"Space Grotesk",sans-serif;background:var(--panel2);border:1px solid var(--line);color:var(--mut);padding:11px 16px;border-radius:10px 10px 0 0;font-size:13px;font-weight:600;cursor:pointer;border-bottom:none;display:flex;flex-direction:column;gap:2px;min-width:210px;text-align:left}
-  .tabbtn small{font-size:10px;font-weight:400;color:var(--dim)}
-  .tabbtn.on{background:var(--panel);color:var(--txt);border-color:var(--line2)}
-  .tabbtn.on small{color:var(--accent)}
-  .tabbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  .stagebadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.04em}
-  .sg-latent{background:rgba(90,169,224,.16);color:var(--dout)}
-  .sg-early{background:rgba(95,201,138,.16);color:var(--dacr)}
-  .sg-recog{background:rgba(210,162,74,.16);color:var(--dup)}
-  .sg-eu{background:rgba(224,104,106,.16);color:var(--choke)}
-  .mini{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
-  .mini div{padding:11px 13px;border-right:1px solid var(--line)}
-  .mini div:last-child{border-right:0}
-  .mini .v{font-family:"JetBrains Mono",monospace;font-size:16px;font-weight:600}
-  .mini .l{font-size:10px;color:var(--mut);margin-top:2px}
-  @media(max-width:780px){.mini{grid-template-columns:1fr 1fr 1fr}}
-  .gap{border-left:3px solid var(--accent);background:rgba(45,212,191,.06);border-radius:8px;padding:12px 15px;margin:14px 0}
-  .gap .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:5px}
-  .gap p{font-size:12.5px;color:var(--mut);line-height:1.5}.gap p b{color:var(--txt)}
-  .mtd{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
-  @media(max-width:780px){.mtd{grid-template-columns:1fr}.tabbtn{min-width:0;flex:1}}
-  .mtc{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
-  .mtc .h{font-size:11.5px;font-weight:600;color:var(--accent);margin-bottom:3px}
-  .mtc p{font-size:11.5px;color:var(--mut);line-height:1.45}.mtc p b{color:var(--txt)}
-  .bbr{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
-  .bbr div{border-radius:8px;padding:9px 12px;font-size:11.5px;line-height:1.45;color:var(--mut)}
-  .bbr .bl{border-left:3px solid var(--dacr);background:var(--panel2)}
-  .bbr .be{border-left:3px solid var(--choke);background:var(--panel2)}
-  .bbr b{display:block;font-size:10.5px;margin-bottom:2px}
-  .scn{width:100%;border-collapse:collapse;font-size:12px}
-  .scn th{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em}
-  .scn td{padding:9px 11px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
-  .scn td b{color:var(--txt)}
-  .scn .bull{border-left:3px solid var(--dacr)}.scn .base{border-left:3px solid var(--dup)}.scn .bear{border-left:3px solid var(--choke)}
-  svg text{font-family:"Space Grotesk",sans-serif}
-  svg text.m{font-family:"JetBrains Mono",monospace}
-  .svglabel{font-size:9px;fill:var(--dim)}
-  @media print{
-    nav.toc{display:none}
-    .tabpane[hidden]{display:block!important}
-    .tabbtn{display:none!important}
-    svg text{fill:#111}
-    body{background:#fff;color:#111}
-  }
+  svg text{font-family:"Space Grotesk",-apple-system,sans-serif}
+  svg text.m{font-family:"JetBrains Mono",ui-monospace,monospace}
+  @media print{.panelt{display:block!important}.tabs{display:none}.svgwide{overflow:visible}}
 </style>
 </head>
 <body>
 
 <header>
   <div class="wrap">
-    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #21 · v5 · Power Delivery (loop 4)</div>
-    <h1>The core under the core — grain-oriented electrical steel, the material chokepoint beneath every AI-power transformer</h1>
-    <p class="sub">Run #3 bought the <b style="color:#fff">grid transformer</b>; Run #9 the <b style="color:#fff">rack 800V-HVDC conversion + nanocrystalline magnetics</b>; Run #15 the <b style="color:#fff">on-package "last inch."</b> This loop goes one layer <i>beneath</i> the transformer — to the <b style="color:#fff">grain-oriented electrical steel (GOES)</b> that makes its magnetic core. GOES is a ~3%-silicon iron whose grain texture is <i>grown</i>, not cast, through a metallurgical process no one can shortcut; it is <b style="color:#fff">~25% of a transformer's cost</b>, China makes <b style="color:#fff">~56%</b> of it, and the US has <b style="color:#fff">exactly one producer</b>. The honest twist this report leads with: the material is genuinely un-bid (the sole US maker is <b style="color:#fff">down ~28% YTD</b>) while the transformer OEMs it feeds are up <b style="color:#fff">+30–64%</b> — because the <b style="color:#fff">scarcity rent settles downstream at the OEM</b>, and the material producers are cheap for structural reasons, not pure neglect.</p>
+    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #27 · v5</div>
+    <h1>The Turbine Blade Chokepoint — who actually owns the scarce link when data centers build their own power plants</h1>
+    <p class="sub">AI power delivery, loop 5. The grid can't connect data centers for <b style="color:#fff">5–7 years</b>, so hyperscalers are self-generating with gas turbines — and turbines are sold out to 2030. The real bottleneck sits <b style="color:#fff">one layer below</b> the turbine maker: the single-crystal <b style="color:#fff">superalloy hot-section castings</b> (blades &amp; vanes) that only a handful of foundries on Earth can make. Two axes, a visual end-to-end supply chain, and a top-3 at <b style="color:#fff">different</b> links — staged on the awareness curve so you can see what's still early vs already priced.</p>
     <div class="gauges">
-      <div class="gge sev"><div class="gl">Chokepoint severity</div><div class="gv num">18<span style="font-size:13px;color:var(--dim)">/20</span></div><div class="gd">GOES material · tight, hard-to-replicate, policy-walled</div></div>
-      <div class="gge asy"><div class="gl">Remaining asymmetry</div><div class="gv num">8<span style="font-size:13px;color:var(--dim)">/20</span></div><div class="gd">higher than recent runs — a genuine laggard exists, but no clean vehicle</div></div>
-      <div class="gge"><div class="gl">Honest read</div><div class="gv" style="font-size:15px;color:var(--txt)">Real but un-capturable</div><div class="gd">rent settles at the OEM (priced); material is cheap &amp; diluted</div></div>
+      <div class="gauge">
+        <div class="gl"><span>Chokepoint severity</span><span class="num">18 / 20</span></div>
+        <div class="track"><div class="fill" style="width:90%;background:var(--choke)"></div></div>
+      </div>
+      <div class="gauge">
+        <div class="gl"><span>Remaining asymmetry (edge left)</span><span class="num">~7 / 20</span></div>
+        <div class="track"><div class="fill" style="width:35%;background:var(--accent)"></div></div>
+      </div>
     </div>
     <div class="meta">
-      <div><div class="k">Date</div><div class="vv num">08 Jul 2026</div></div>
-      <div><div class="k">Chain</div><div class="vv">Si-Fe melt → GOES bell-anneal → domain scribe → core → transformer → grid/DC</div></div>
-      <div><div class="k">Universe</div><div class="vv">Global · US / JP / EU</div></div>
-      <div><div class="k">Top-3</div><div class="vv">CLF · NPSCY/5401 · GEV</div></div>
+      <div><div class="k">Date</div><div class="vv num">18 Jul 2026</div></div>
+      <div><div class="k">Chain path</div><div class="vv">Ni/Co + rhenium → superalloy casting → hot section → turbine → power island → hyperscaler</div></div>
+      <div><div class="k">Universe</div><div class="vv">Global · US / UK / DE / JP</div></div>
+      <div><div class="k">Top-3</div><div class="vv">GEV · HWM · DPC</div></div>
     </div>
-    <div class="asof">Prices = last trade <b style="color:#e7cf9e">~Wed 08 Jul 2026</b> · IBKR read-only (never trade) · multiples are estimates — verify on a terminal · <b style="color:#e7cf9e">personal research, not investment advice</b></div>
+    <p style="font-size:11px;color:var(--dim);margin-top:14px">Personal research for a private knowledge base. <b style="color:var(--mut)">Not investment advice</b>, not a recommendation or solicitation. Estimates marked (est.); prices as-of 18 Jul 2026. Live quotes via IBKR read-only.</p>
   </div>
 </header>
-
-<nav class="toc"><div class="wrap">
-  <a href="#s1">01 Snapshot</a><a href="#s2">02 Framework</a><a href="#s3">03 Metallurgy gallery</a><a href="#s4">04 Steel→core→transformer</a><a href="#s5">05 GO vs NOES trap</a><a href="#s6">06 Supply chain</a><a href="#s7">07 Timeline</a><a href="#s8">08 Chokepoint + severity</a><a href="#s9">09 Awareness + watchlist</a><a href="#s10">10 Top-3 plays</a><a href="#s11">11 Beneficiaries + risks</a><a href="#s12">12 Decision</a>
-</div></nav>
 
 <div class="wrap">
 
 <!-- 1. SNAPSHOT -->
-<section id="s1">
+<section>
   <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">為什麼是現在</span></div>
-  <p class="lead">"AI needs power" is the most-crowded macro trade of 2026: everyone owns the grid, the transformer OEM, the rack power-shelf. Two runs ago we found the binding physical gate of the whole complex is the <b>large power transformer</b> — lead-times of <b>128–144 weeks</b>, stretching to <b>4 years</b> for the biggest units. This report goes one layer <i>beneath</i> it and asks the chokepoint question: what does every transformer need that <b>cannot be ordered into existence</b>? The answer is the <b>grain-oriented electrical steel (GOES)</b> that forms its magnetic core — a material whose grain texture is grown one crystal in a million through a multi-day, ~1200&deg;C anneal that a handful of mills on earth can run. China makes <b>~56%</b> of it; the US has <b>one</b> producer (Cleveland-Cliffs' Butler, PA). The catch, and this report's main idea: the material is <b>un-bid</b> — the sole US maker is at 52-week lows — because the scarcity <b>rent settles at the transformer OEM</b>, not the steelmaker.</p>
+  <p class="lead">The AI power crunch stopped being about the grid and became about <b>who can build a power plant fast</b>. Utility interconnection now runs <b>5–7 years</b> (Columbus, OH quoted at 84 months); a data center must be live in 18–36 months. So hyperscalers are putting generation <b>behind the meter</b> — mostly natural-gas turbines. Turbine OEMs (GE Vernova, Siemens Energy, Mitsubishi) are <b>sold out toward the end of the decade</b> (firm backlog into ~2028–29; slot reservations reaching ~2031). But the binding constraint isn't the turbine assembly floor — it's the <b>hot-section superalloy castings</b> (single-crystal turbine blades &amp; vanes) one layer below, where only ~3 foundries on Earth operate at scale.</p>
   <div class="kpis">
-    <div class="kpi"><div class="v num red">~25%</div><div class="l">Of a transformer's cost is GOES</div><div class="d">core steel + copper &gt; 50–60% of material cost; a ±10–15% GOES move shifts transformer price ±10–15%</div></div>
-    <div class="kpi"><div class="v num amb">~56% / 1</div><div class="l">China share of world GOES / US producers <span style="color:var(--dim)">(est.)</span></div><div class="d">Cleveland-Cliffs Butler PA is the sole US/N-American GOES mill; it meets only ~12–20% of US demand. China ~56% is an aggregator estimate (single-source-cluster)</div></div>
-    <div class="kpi"><div class="v num teal">1-in-10⁶</div><div class="l">Goss grains that "win" the anneal</div><div class="d">a new bell-anneal line costs ~$0.5–0.7B + years + multi-year OEM qualification — supply can't respond before ~2028–29</div></div>
-    <div class="kpi"><div class="v num grn">−28% vs +64%</div><div class="l">CLF (material) vs GEV (OEM) YTD</div><div class="d">the inversion: the sole US GOES maker is at lows while the transformer OEM it feeds is up ~64% — rent settled downstream</div></div>
+    <div class="kpi"><div class="v num red">5–7 yr</div><div class="l">Grid interconnection wait (major US markets)</div><div class="d">vs 18–36 mo build clock → behind-the-meter is now "THE model" (25–35 GW by 2030)</div></div>
+    <div class="kpi"><div class="v num amb">~2030</div><div class="l">Gas-turbine order books sold out toward</div><div class="d">GEV backlog+slot reservations 100→110 GW (firm ~2028–29, slots to 2031); MHI to 2028; SIEG €136B backlog</div></div>
+    <div class="kpi"><div class="v num red">~70–80%</div><div class="l">High-end blade market held by PCC + Howmet (est.)</div><div class="d">PCC is captive inside Berkshire → Howmet is the only scaled listed pure-toll</div></div>
+    <div class="kpi"><div class="v num teal">+195–300%</div><div class="l">Gas-turbine price rise, 3 yr (industry / GEV est.)</div><div class="d">GEV pricing +10–20% per new bid; the rent is being captured, and priced</div></div>
   </div>
 
-  <div style="margin-top:14px;border:1px solid #2c5a40;border-radius:12px;padding:12px 16px;background:rgba(95,201,138,.06)">
-    <p style="font-size:12px;color:var(--mut);line-height:1.55"><b style="color:var(--dacr)">What this run delivers · 先講結論:</b> a <b style="color:var(--txt)">watch-and-wait</b>, not a position. The chokepoint is real and severity-18, but the rent settles downstream (priced) and there is <b style="color:var(--txt)">no clean listed vehicle</b> — so the honest output is a small-size call-option (CLF) + a watch-list + patience, <i>not</i> a "back up the truck" idea. Calibrate accordingly before you read on. This is closer to <b style="color:var(--txt)">"admire, don't own"</b> than to a conviction buy.</p>
-  </div>
-
-  <div style="border:1px solid var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px;background:var(--panel)">
-    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px">EXPLAIN IT SIMPLY · 白話版</div>
-    <p style="font-size:13px;color:var(--mut);line-height:1.6;max-width:940px">A transformer is the machine that steps grid voltage up and down; an AI data-center can't connect to power without a lot of them, and today there's a multi-year queue to buy one. Look <i>inside</i> a transformer and its heart is a stack of thin steel sheets — the "core." That steel isn't ordinary steel: it's <b style="color:var(--txt)">grain-oriented electrical steel (GOES)</b>, iron mixed with about 3% silicon and baked so that its microscopic crystals all line up in one direction, so magnetism flows through it with the least wasted heat. Getting those crystals to line up is freakishly hard — during a days-long bake, only about <b style="color:var(--txt)">one crystal in a million</b> grows the right way and "eats" its neighbours. Only a few factories on earth can do it well, and the United States has <b style="color:var(--txt)">just one</b> (Cleveland-Cliffs, in Butler, Pennsylvania). So GOES is the true bottleneck under the bottleneck. Here's the strange part, and the point of this report: the companies that <i>make</i> this scarce steel are cheap and out of favour (Cleveland-Cliffs is <i>down ~28%</i> this year), while the companies that <i>buy</i> it and sell you the finished transformer (like GE Vernova, up ~64%) have soared — because the transformer makers get to charge more <i>and</i> pass the steel cost on to utilities, while the steelmakers' tiny GOES business is buried inside a big, struggling, ordinary-steel company. Real bottleneck, no clean way to own it.</p>
-  </div>
-
-  <div style="margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--panel2)">
-    <div style="font-size:11px;font-weight:700;color:var(--dout);letter-spacing:.05em;margin-bottom:7px">LAYER KEY · read the chain like a ladder, upstream → downstream</div>
-    <p style="font-size:12px;color:var(--mut);line-height:1.7"><span class="lyr lyu">MELT</span> silicon-iron slab (~3% Si) &nbsp;·&nbsp; <span class="lyr lyc">GOES SHEET</span> cold-roll + multi-day ~1200&deg;C bell anneal that grows the grain texture <span class="chip hot">the chokepoint</span> &nbsp;·&nbsp; <span class="lyr lyp">SCRIBE</span> laser domain-refinement + forsterite/Carlite coating (the premium "HiB" tier) &nbsp;·&nbsp; <span class="lyr ly2">CORE</span> stack/wind the sheet into a transformer core &nbsp;·&nbsp; <span class="lyr ly1">OEM</span> the finished transformer (power / distribution / GSU) — <b>where the rent settles</b> &nbsp;·&nbsp; <span class="lyr ly3">GRID/DC</span> utility + AI data-center that must wait 2–4 years for it</p>
-  </div>
-
-  <div style="margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--panel)">
-    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:7px">6-TERM GLOSSARY</div>
-    <p style="font-size:12px;color:var(--mut);line-height:1.7"><b style="color:var(--txt)">GOES / CRGO</b> grain-oriented (cold-rolled grain-oriented) electrical steel — the transformer-core material · <b style="color:var(--txt)">NOES / CRNGO</b> <i>non</i>-oriented electrical steel — a different product for motors/EV traction, <i>not</i> transformers (the key trap) · <b style="color:var(--txt)">Goss texture</b> the {110}&lt;001&gt; crystal alignment that lets magnetism flow with least loss · <b style="color:var(--txt)">HiB / domain-refined</b> high-permeability GOES, laser-scribed to cut loss further — the premium, scarcest tier · <b style="color:var(--txt)">bell / box anneal</b> the multi-day high-temp bake where the grain texture and glass coating form · <b style="color:var(--txt)">amorphous metal</b> the only substitute core material — but its low saturation excludes it from <i>large power</i> transformers, so it can't relieve the AI/grid segment.</p>
+  <div class="eli">
+    <h4>Explain it simply · 白話版</h4>
+    <p><b>The problem:</b> AI data centers need enormous electricity <i>now</i>, but plugging into the public grid takes 5–7 years. So the big tech companies are building their own gas-fired power plants next to the data center. The core machine is a <b>gas turbine</b> — a giant jet-engine-like device that spins a generator.</p>
+    <p><b>Where it jams:</b> everyone can see turbines are sold out. The hidden jam is <i>inside</i> the turbine: its hottest spinning parts — the <b>blades</b> — run above the melting point of steel, so they're grown as a <b>single crystal of a nickel "superalloy"</b> and poured in special foundries. Only about three companies worldwide can make these at scale. That casting step is the true chokepoint.</p>
+    <p><b>The catch for an amateur:</b> this whole story is now <i>well known</i> — the turbine maker (GE Vernova) and the blade maker (Howmet) have both already doubled or more. The honest edge is (a) a <b>freshly-listed pure-play</b> on the blades — Doncasters (DPC), IPO'd 25-Jun-2026 — that's still un-storied but loss-making/levered, and (b) the cheaper, more-diluted "fast bridge power" names (Caterpillar's engines) the market hasn't fully re-tagged as AI-power.</p>
+    <div class="keydef">
+      <div><b>Single-crystal blade</b> — a turbine blade cast as one continuous metal crystal (no weak grain boundaries) so it survives &gt;1,000 °C. The hardest part to make.</div>
+      <div><b>Superalloy</b> — a nickel/cobalt-based metal that keeps its strength when red-hot. The blade's material.</div>
+      <div><b>Rhenium</b> — a rare metal (2–6%) added to the best single-crystal alloys to slow "creep." Comes only as a by-product of copper-moly mining → scarce.</div>
+      <div><b>Investment casting</b> — the wax-mould pour-and-solidify process that shapes a blade; single-crystal casting is its most demanding form.</div>
+      <div><b>Heavy-duty vs aeroderivative</b> — big "frame" turbines (baseload power) vs jet-engine-derived turbines (smaller, faster to deploy, for bridge power).</div>
+      <div><b>Behind-the-meter (BTM)</b> — generating power on-site, bypassing the utility grid queue.</div>
+    </div>
   </div>
 </section>
 
-<!-- 2. FRAMEWORK -->
-<section id="s2">
-  <div class="sh"><span class="n">02</span><h2>Framework — where power lives × what it's made of</h2><span class="cn">兩軸 MECE</span></div>
-  <p class="lead">The rotation's power runs have walked the voltage ladder from grid to die. The <b>two orthogonal axes</b> are the <b>power domain</b> (where in the chain the conversion happens) and the <b>binding link</b> at each. Prior runs found the chokepoint at the transformer, the rack converter, and the die. This run drops the third column — <b>what the link is physically made of</b> — and finds that at the <i>grid / facility transformer</i> row, the binding material is <b>GOES electrical steel</b>. That is the (domain × material) cell this report drills.</p>
+<!-- 2. FRAMEWORK MATRIX -->
+<section>
+  <div class="sh"><span class="n">02</span><h2>Framework — power path × stack layer (the two axes)</h2><span class="cn">兩軸框架</span></div>
+  <p class="lead">Rows = <b>how a data center gets on-site power</b> (prime / bridge / backup / ultra-fast). Columns = <b>what you're buying at each layer</b> (L1 finished system → L2 hot section → L3 castings &amp; material → who wins). The chokepoint sits at one cell: <b style="color:#eda3a4">L3 hot-section castings × prime &amp; bridge gas power</b> — the only cell every high-efficiency turbine path must pass through.</p>
+  <div class="leg">
+    <span><span class="sw" style="background:var(--dup)"></span>Prime power</span>
+    <span><span class="sw" style="background:var(--dout)"></span>Bridge / fast</span>
+    <span><span class="sw" style="background:var(--dacr)"></span>Backup / peaking</span>
+    <span><span class="sw" style="background:var(--l3)"></span>Ultra-fast / modular</span>
+  </div>
   <table class="matrix">
-    <tr><th style="width:20%">Power domain (row)</th><th style="width:26%">What does the work</th><th style="width:27%">Binding link / constraint</th><th style="width:27%">Who wins &amp; prior run</th></tr>
-    <tr>
-      <td><div class="dom"><span class="sw" style="background:var(--dup)"></span>Die / on-package<small>sub-1V, 1,000–2,000A</small></div></td>
-      <td>Vertical power delivery (VPD), IVR, high-end MLCC</td>
-      <td>Die-side converter IP + power-integrity capacitor</td>
-      <td><b>Vicor · MPS · Murata</b> <span class="chip">Run #15</span></td>
-    </tr>
-    <tr>
-      <td><div class="dom"><span class="sw" style="background:var(--dout)"></span>Board / rack<small>800V → 48V → 12V</small></div></td>
-      <td>Bus converters, PSU/PDB, nanocrystalline cores</td>
-      <td>GaN/SiC + nanocrystalline magnetic core (high-freq)</td>
-      <td><b>Infineon · Delta · Navitas</b> <span class="chip">Run #9</span></td>
-    </tr>
-    <tr style="background:rgba(224,104,106,.05)">
-      <td><div class="dom"><span class="sw" style="background:var(--choke)"></span>Facility / grid transformer<small>medium-voltage ↔ 800V/480V</small></div></td>
-      <td>Power / distribution / GSU transformers — the line-frequency (50/60Hz) core</td>
-      <td><b style="color:var(--choke)">Grain-oriented electrical steel (GOES) — the core lamination</b> <span class="chip hot">THIS RUN</span></td>
-      <td><b>GE Vernova · Hitachi Energy · CLF (material)</b> <span class="chip">Run #3 → #21</span></td>
-    </tr>
-    <tr>
-      <td><div class="dom"><span class="sw" style="background:var(--l3)"></span>Generation / interconnect<small>self-build, BTM</small></div></td>
-      <td>Gas turbines, GSU, switchgear, grid queue</td>
-      <td>Turbine hot-section / interconnection queue (5–7yr)</td>
-      <td><b>GE Vernova · Siemens Energy</b> <span class="chip">future run</span></td>
-    </tr>
+    <thead><tr><th style="width:150px">Power path ↓</th><th>L1 · finished power system</th><th>L2 · hot section (the tech)</th><th>L3 · castings &amp; material (the choke)</th><th>Who wins</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><div class="dom"><span class="sw" style="background:var(--dup)"></span>Prime power<small>baseload, 200 MW+ campuses</small></div></td>
+        <td>Heavy-duty "frame" gas turbine + generator (H/J-class)</td>
+        <td>Single-crystal &amp; DS <b>blades/vanes</b>, TBC-coated combustor</td>
+        <td><span class="chip hot">single-crystal casting ★</span><span class="chip">Ni superalloy + Re</span></td>
+        <td><b>GE Vernova</b>, Siemens Energy, Mitsubishi</td>
+      </tr>
+      <tr>
+        <td><div class="dom"><span class="sw" style="background:var(--dout)"></span>Bridge / fast<small>live in 18–30 mo</small></div></td>
+        <td>Aeroderivative turbine (LM/TM2500) or reciprocating gas genset</td>
+        <td>Aero-grade single-crystal blades; engine hot parts</td>
+        <td><span class="chip hot">single-crystal casting ★</span><span class="chip">forged/cast wheels</span></td>
+        <td>GEV Aero, CAT/Solar, Cummins, INNIO, Wärtsilä</td>
+      </tr>
+      <tr>
+        <td><div class="dom"><span class="sw" style="background:var(--dacr)"></span>Backup / peaking<small>N+1 resilience</small></div></td>
+        <td>Diesel/gas standby gensets</td>
+        <td>Lower-temp parts (less single-crystal content)</td>
+        <td><span class="chip">forgings / castings</span><span class="chip">commodity alloy</span></td>
+        <td>Cummins, Caterpillar, Generac, Rolls-Royce (mtu)</td>
+      </tr>
+      <tr>
+        <td><div class="dom"><span class="sw" style="background:var(--l3)"></span>Ultra-fast / modular<small>live in ~90 days</small></div></td>
+        <td>Solid-oxide fuel cell (SOFC) power block</td>
+        <td>Ceramic stack — <b>no turbine blades at all</b></td>
+        <td><span class="chip">zirconia electrolyte</span><span class="chip">no superalloy</span></td>
+        <td>Bloom Energy (the substitute path)</td>
+      </tr>
+    </tbody>
   </table>
-  <div class="gap"><div class="h">WHY THE MATERIAL, NOT THE MACHINE</div><p>Runs #3/#9/#15 named the <b>machine</b> at each power domain. But the transformer machine is not the scarce thing — dozens of firms wind transformers. The scarce thing is the <b>qualified GOES sheet</b> that goes in the core: it takes a decade of metallurgy know-how, a $0.5–0.7B line, and a multi-year qualification to make, and there is essentially no substitute in <i>large power</i> transformers. The transformer OEM is the <b>rent-capturer</b>; the GOES mill is the <b>chokepoint</b>. This report separates the two — and shows the market has bid the first and ignored the second.</p></div>
+  <p class="cap">The fuel-cell row is the important "escape hatch" — it bypasses the blade chokepoint entirely, which is why it's both a bull for on-site power broadly and a partial bear for the specific turbine-blade scarcity. See §08.</p>
 </section>
 
-<!-- 3. METALLURGY GALLERY -->
-<section id="s3">
-  <div class="sh"><span class="n">03</span><h2>What makes GOES un-shortcuttable — the metallurgy gallery</h2><span class="cn">卡點的物理</span></div>
-  <p class="lead">Six pictures for why "just build more" doesn't work. GOES scarcity is not a factory-count problem you can capex away in 18 months — it is a <b>process-physics</b> problem: the magnetic performance is set by a grain texture that must be <i>grown</i>, gated by nanometre precipitates, over a days-long bake, then locked in by coatings and laser stress-lines. Each stage compounds yield risk, and the know-how is decades-deep and engineer-embodied.</p>
+<!-- 3. COMPONENT GALLERY -->
+<section>
+  <div class="sh"><span class="n">03</span><h2>Component deep-dive — the sub-technologies of a hot section</h2><span class="cn">卡點元件圖解</span></div>
+  <p class="lead">The pieces that make single-crystal blades hard. Each is drawn, with its role and who makes it. The further down this list, the closer to the true scarcity.</p>
   <div class="gal">
 
-    <div class="card"><div class="svgbox">
-      <svg viewBox="0 0 240 130" width="100%" role="img" aria-label="Silicon raises resistivity but embrittles above 3.5%">
-        <text x="12" y="18" style="font-size:10px;font-weight:600" fill="#e8eaf0">Si-Fe at the ~3% ceiling</text>
-        <line x1="24" y1="104" x2="224" y2="104" stroke="#363d4f" stroke-width="1"/>
-        <line x1="24" y1="104" x2="24" y2="24" stroke="#363d4f" stroke-width="1"/>
-        <path d="M24 96 L120 60 L168 46" stroke="#2dd4bf" stroke-width="2" fill="none"/>
-        <rect x="168" y="30" width="56" height="74" fill="rgba(224,104,106,.12)"/>
-        <line x1="168" y1="24" x2="168" y2="104" stroke="#e0686a" stroke-width="1.5" stroke-dasharray="3 3"/>
-        <text x="196" y="20" text-anchor="middle" class="m" style="font-size:8px" fill="#e0686a">brittle</text>
-        <text x="196" y="66" text-anchor="middle" class="m" style="font-size:8px" fill="#e0686a">&gt;3.5% Si</text>
-        <text x="196" y="78" text-anchor="middle" class="m" style="font-size:7.5px" fill="#eda3a4">cracks in</text>
-        <text x="196" y="88" text-anchor="middle" class="m" style="font-size:7.5px" fill="#eda3a4">cold roll</text>
-        <text x="70" y="52" class="m" style="font-size:8px" fill="#9aa3b5">resistivity ↑4–5×</text>
-        <text x="24" y="118" class="svglabel" style="font-size:8px">0% Si</text>
-        <text x="150" y="118" class="svglabel m" style="font-size:8px">~3% (usable)</text>
-      </svg>
-    </div><div class="body">
-      <h4>1 · The silicon ceiling <span class="badge b-hot">HARD LIMIT</span></h4>
-      <p class="role">~3% Si cuts eddy-current loss ~3× — but above ~3.2–3.5% the sheet embrittles and cracks during cold rolling. You can't just add silicon; the physics caps the composition.</p>
-      <p class="who">Sets the material window · <b>all producers</b></p>
-    </div></div>
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 120" width="100%" height="120" role="img" aria-label="Single-crystal turbine blade">
+          <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8b84cf"/><stop offset="1" stop-color="#5b5498"/></linearGradient></defs>
+          <path d="M70 100 L70 40 Q70 24 96 20 Q140 14 150 22 Q140 40 108 44 L88 48 L88 100 Z" fill="url(#g1)" stroke="#aaa3e6" stroke-width="1.2"/>
+          <rect x="60" y="100" width="40" height="12" rx="2" fill="#3a3560" stroke="#5a4a7a"/>
+          <path d="M74 96 L74 50" stroke="#0e1117" stroke-width="1" opacity="0.5"/>
+          <path d="M80 96 L80 50" stroke="#0e1117" stroke-width="1" opacity="0.5"/>
+          <text x="150" y="70" class="m" font-size="8" fill="#9aa3b5">1 crystal</text>
+          <text x="150" y="82" class="m" font-size="8" fill="#eda3a4">no grain</text>
+          <text x="150" y="94" class="m" font-size="8" fill="#eda3a4">boundaries</text>
+          <text x="30" y="60" font-size="8" fill="#697283">cooling</text>
+          <text x="30" y="70" font-size="8" fill="#697283">channels</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Single-crystal blade <span class="badge b-hot">CHOKE</span></h4>
+        <p class="role">Grown as one metal crystal so there are no grain boundaries to fail under creep. Internal air channels keep it below its own melting point. The single hardest hot-section part.</p>
+        <div class="who"><b>PCC · Howmet · Doncasters</b> — ~3 at scale</div>
+      </div>
+    </div>
 
-    <div class="card"><div class="svgbox">
-      <svg viewBox="0 0 240 130" width="100%" role="img" aria-label="Goss texture aligns easy axis with rolling direction">
-        <text x="12" y="18" style="font-size:10px;font-weight:600" fill="#e8eaf0">Goss texture {110}&lt;001&gt;</text>
-        <g stroke="#5b81c4" stroke-width="1.2" fill="none">
-          <rect x="24" y="34" width="26" height="26"/><rect x="56" y="34" width="26" height="26"/><rect x="88" y="34" width="26" height="26"/>
-          <rect x="24" y="66" width="26" height="26"/><rect x="56" y="66" width="26" height="26"/><rect x="88" y="66" width="26" height="26"/>
-        </g>
-        <g stroke="#2dd4bf" stroke-width="2">
-          <line x1="28" y1="47" x2="46" y2="47"/><line x1="60" y1="47" x2="78" y2="47"/><line x1="92" y1="47" x2="110" y2="47"/>
-          <line x1="28" y1="79" x2="46" y2="79"/><line x1="60" y1="79" x2="78" y2="79"/><line x1="92" y1="79" x2="110" y2="79"/>
-        </g>
-        <text x="123" y="52" style="font-size:8px" fill="#9aa3b5">easy axis ‖</text>
-        <text x="123" y="64" style="font-size:8px" fill="#9aa3b5">rolling dir.</text>
-        <path d="M150 79 L200 79" stroke="#2dd4bf" stroke-width="2" marker-end="url(#ar3)"/>
-        <text x="176" y="72" text-anchor="middle" class="m" style="font-size:8px" fill="#2dd4bf">+30% flux</text>
-        <text x="150" y="100" style="font-size:8px" fill="#697283">only along the grain — anisotropic</text>
-        <defs><marker id="ar3" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 z" fill="#2dd4bf"/></marker></defs>
-      </svg>
-    </div><div class="body">
-      <h4>2 · Grain <i>orientation</i> <span class="badge b-now">THE TRICK</span></h4>
-      <p class="role">Align every grain's easy-magnetization axis with the rolling direction and flux density rises ~30% — but only <i>along</i> that direction. That anisotropy is exactly what a transformer core exploits.</p>
-      <p class="who">Why "grain-oriented" · <b>Nippon, Cliffs, Baowu</b></p>
-    </div></div>
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 120" width="100%" height="120" role="img" aria-label="Directional solidification">
+          <rect x="40" y="20" width="120" height="80" rx="6" fill="#141822" stroke="#2f3a52"/>
+          <g stroke="#d2a24a" stroke-width="2">
+            <line x1="60" y1="92" x2="60" y2="34"/><line x1="76" y1="92" x2="76" y2="34"/><line x1="92" y1="92" x2="92" y2="34"/><line x1="108" y1="92" x2="108" y2="34"/><line x1="124" y1="92" x2="124" y2="34"/><line x1="140" y1="92" x2="140" y2="34"/>
+          </g>
+          <rect x="44" y="92" width="112" height="6" fill="#e0686a"/><text x="100" y="112" font-size="8" fill="#eda3a4" text-anchor="middle">chill plate (heat pulled down)</text>
+          <text x="100" y="30" font-size="8" fill="#e3bd76" text-anchor="middle">columnar grains grow up ↑</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Directional solidification <span class="badge b-emrg">DS</span></h4>
+        <p class="role">One step below single-crystal: grains grow in aligned columns (still no weak transverse boundaries). Cheaper, used where the very hottest single-crystal isn't required.</p>
+        <div class="who"><b>Same casting houses</b> · shared furnaces</div>
+      </div>
+    </div>
 
-    <div class="card"><div class="svgbox">
-      <svg viewBox="0 0 240 130" width="100%" role="img" aria-label="Secondary recrystallization: one grain in a million grows">
-        <text x="12" y="18" style="font-size:10px;font-weight:600" fill="#e8eaf0">Secondary recrystallization</text>
-        <g fill="#2a3040" stroke="#363d4f" stroke-width=".5">
-          <rect x="20" y="30" width="10" height="10"/><rect x="31" y="30" width="10" height="10"/><rect x="42" y="30" width="10" height="10"/><rect x="53" y="30" width="10" height="10"/>
-          <rect x="20" y="41" width="10" height="10"/><rect x="42" y="41" width="10" height="10"/><rect x="53" y="41" width="10" height="10"/>
-          <rect x="20" y="52" width="10" height="10"/><rect x="31" y="52" width="10" height="10"/><rect x="53" y="52" width="10" height="10"/>
-        </g>
-        <rect x="31" y="41" width="10" height="10" fill="#2dd4bf"/>
-        <path d="M74 46 L96 46" stroke="#697283" stroke-width="1.5" marker-end="url(#ar4)"/>
-        <text x="85" y="40" text-anchor="middle" style="font-size:7px" fill="#697283">~1200&deg;C</text>
-        <text x="85" y="62" text-anchor="middle" style="font-size:7px" fill="#697283">multi-day</text>
-        <rect x="108" y="30" width="44" height="42" fill="#2dd4bf" opacity=".85"/>
-        <g fill="none" stroke="#0e1117" stroke-width=".6"><rect x="108" y="30" width="44" height="42"/></g>
-        <text x="130" y="88" text-anchor="middle" class="m" style="font-size:8px" fill="#2dd4bf">1-in-10⁶ wins</text>
-        <text x="130" y="100" text-anchor="middle" style="font-size:7.5px" fill="#9aa3b5">eats all its neighbours</text>
-        <text x="168" y="46" style="font-size:8px" fill="#eda3a4">gated by</text>
-        <text x="168" y="58" style="font-size:8px" fill="#eda3a4">MnS / AlN</text>
-        <text x="168" y="70" style="font-size:8px" fill="#eda3a4">precipitates</text>
-        <defs><marker id="ar4" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 z" fill="#697283"/></marker></defs>
-      </svg>
-    </div><div class="body">
-      <h4>3 · The grain is <i>grown</i> <span class="badge b-hot">CHOKEPOINT</span></h4>
-      <p class="role">During the days-long ~1200&deg;C anneal, a tiny ~1-in-10⁶ population of correctly-oriented "Goss" grains grows abnormally and consumes the rest — pinned/released by nanometre inhibitor precipitates (MnS in CGO, AlN in HiB). Miss the thermal profile and the sheet is scrap.</p>
-      <p class="who">The un-shortcuttable step · <b>decades of trade-secret know-how</b></p>
-    </div></div>
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 120" width="100%" height="120" role="img" aria-label="Thermal barrier coating">
+          <rect x="50" y="70" width="100" height="18" fill="#5b5498"/><text x="100" y="83" font-size="8" fill="#fff" text-anchor="middle">superalloy blade</text>
+          <rect x="50" y="58" width="100" height="12" fill="#4faf8e"/><text x="158" y="67" font-size="7.5" fill="#7cc9ad">bond coat</text>
+          <rect x="50" y="44" width="100" height="14" fill="#d2a24a"/><text x="150" y="54" font-size="7" fill="#e3bd76">ceramic TBC</text>
+          <g stroke="#e0686a" stroke-width="1.5"><line x1="65" y1="30" x2="65" y2="44"/><line x1="90" y1="30" x2="90" y2="44"/><line x1="115" y1="30" x2="115" y2="44"/><line x1="140" y1="30" x2="140" y2="44"/></g>
+          <text x="100" y="26" font-size="8" fill="#eda3a4" text-anchor="middle">hot gas &gt;1,400 °C</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Thermal barrier coating <span class="badge b-next">TBC</span></h4>
+        <p class="role">A ceramic "sunscreen" (yttria-stabilized zirconia) sprayed on the blade so gas can run hotter than the metal could bear. Co-binding capacity constraint alongside the casting.</p>
+        <div class="who"><b>Chromalloy (pvt)</b> · Praxair · OEM captive</div>
+      </div>
+    </div>
 
-    <div class="card"><div class="svgbox">
-      <svg viewBox="0 0 240 130" width="100%" role="img" aria-label="Forsterite and Carlite coatings apply tension">
-        <text x="12" y="18" style="font-size:10px;font-weight:600" fill="#e8eaf0">Glass-film + Carlite coating</text>
-        <rect x="30" y="58" width="180" height="16" fill="#5b81c4"/>
-        <rect x="30" y="50" width="180" height="8" fill="#8b84cf"/>
-        <rect x="30" y="74" width="180" height="8" fill="#8b84cf"/>
-        <rect x="30" y="44" width="180" height="6" fill="#c47a9e"/>
-        <rect x="30" y="82" width="180" height="6" fill="#c47a9e"/>
-        <text x="216" y="63" style="font-size:7px" fill="#9aa3b5">Fe-Si</text>
-        <text x="120" y="34" text-anchor="middle" style="font-size:8px" fill="#dba0bf">forsterite Mg₂SiO₄ glass film</text>
-        <text x="120" y="104" text-anchor="middle" style="font-size:8px" fill="#dba0bf">phosphate "Carlite" insulator</text>
-        <g stroke="#e8eaf0" stroke-width="1"><line x1="46" y1="40" x2="46" y2="30" marker-end="url(#arT)"/><line x1="194" y1="40" x2="194" y2="30" marker-end="url(#arT)"/></g>
-        <text x="120" y="118" text-anchor="middle" style="font-size:7.5px" fill="#697283">applies tension → lowers loss + insulates the laminations</text>
-        <defs><marker id="arT" markerWidth="7" markerHeight="7" refX="3.5" refY="1" orient="auto"><path d="M0 6 L3.5 0 L7 6 z" fill="#e8eaf0"/></marker></defs>
-      </svg>
-    </div><div class="body">
-      <h4>4 · Coatings that pull <span class="badge b-emrg">STAGE 2 RENT</span></h4>
-      <p class="role">The high-temp bake grows a forsterite (Mg₂SiO₄) glass film; a phosphate "Carlite" layer is added on top. Both insulate the laminations <i>and</i> put the sheet under tension, lowering loss. Chemistry is proprietary.</p>
-      <p class="who">Part of the premium moat · <b>integrated at the mill</b></p>
-    </div></div>
-
-    <div class="card"><div class="svgbox">
-      <svg viewBox="0 0 240 130" width="100%" role="img" aria-label="Laser domain refinement scribing">
-        <text x="12" y="18" style="font-size:10px;font-weight:600" fill="#e8eaf0">Laser domain scribing (HiB)</text>
-        <rect x="30" y="46" width="180" height="52" fill="#1a1e28" stroke="#363d4f"/>
-        <g stroke="#5b81c4" stroke-width="1" opacity=".5"><line x1="40" y1="52" x2="40" y2="92"/><line x1="70" y1="52" x2="70" y2="92"/><line x1="100" y1="52" x2="100" y2="92"/><line x1="130" y1="52" x2="130" y2="92"/><line x1="160" y1="52" x2="160" y2="92"/><line x1="190" y1="52" x2="190" y2="92"/></g>
-        <g stroke="#e0686a" stroke-width="1.6"><line x1="30" y1="60" x2="210" y2="60"/><line x1="30" y1="72" x2="210" y2="72"/><line x1="30" y1="84" x2="210" y2="84"/></g>
-        <circle cx="150" cy="36" r="4" fill="#e0a458"/>
-        <line x1="150" y1="40" x2="150" y2="58" stroke="#e0a458" stroke-width="1" stroke-dasharray="2 2"/>
-        <text x="176" y="36" style="font-size:7.5px" fill="#e0a458">laser</text>
-        <text x="120" y="116" text-anchor="middle" style="font-size:8px" fill="#9aa3b5">stress lines subdivide magnetic domains → loss −10% to −26%</text>
-      </svg>
-    </div><div class="body">
-      <h4>5 · Laser domain refinement <span class="badge b-emrg">HiB TIER</span></h4>
-      <p class="role">Top grades are laser/plasma-scribed with perpendicular stress lines that subdivide the magnetic domains, cutting loss a further 10–26%. This is the "HiB / domain-refined" premium tier — the scarcest, highest-margin GOES.</p>
-      <p class="who">Where Nippon/Baowu lead · <b>proprietary tooling</b></p>
-    </div></div>
-
-    <div class="card"><div class="svgbox">
-      <svg viewBox="0 0 240 130" width="100%" role="img" aria-label="Amorphous excluded from power transformers by saturation">
-        <text x="12" y="18" style="font-size:10px;font-weight:600" fill="#e8eaf0">Amorphous — bounded substitute</text>
-        <line x1="30" y1="100" x2="30" y2="28" stroke="#363d4f"/>
-        <line x1="30" y1="100" x2="220" y2="100" stroke="#363d4f"/>
-        <rect x="52" y="44" width="34" height="56" fill="#4faf8e"/>
-        <rect x="120" y="70" width="34" height="30" fill="#8b84cf"/>
-        <text x="69" y="38" text-anchor="middle" class="m" style="font-size:8px" fill="#4faf8e">~2.0T</text>
-        <text x="137" y="64" text-anchor="middle" class="m" style="font-size:8px" fill="#8b84cf">~1.56T</text>
-        <text x="69" y="114" text-anchor="middle" style="font-size:7.5px" fill="#9aa3b5">GOES</text>
-        <text x="137" y="114" text-anchor="middle" style="font-size:7.5px" fill="#9aa3b5">amorphous</text>
-        <text x="176" y="52" style="font-size:7.5px" fill="#eda3a4">low Bsat →</text>
-        <text x="176" y="63" style="font-size:7.5px" fill="#eda3a4">excluded from</text>
-        <text x="176" y="74" style="font-size:7.5px" fill="#eda3a4">large power</text>
-        <text x="176" y="85" style="font-size:7.5px" fill="#eda3a4">transformers</text>
-      </svg>
-    </div><div class="body">
-      <h4>6 · The substitute that can't <span class="badge b-next">DEFUSED</span></h4>
-      <p class="role">Amorphous metal has ~70–80% lower no-load loss but saturates at ~1.56T vs GOES ~2.0T — so it needs bigger, heavier cores and is physically excluded from <i>large power</i> transformers. It nibbles the low-flux distribution tail only; the AI/grid segment stays GOES.</p>
-      <p class="who">Metglas (Proterial/Bain, private) · Yunlu (CN)</p>
-    </div></div>
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 120" width="100%" height="120" role="img" aria-label="Superalloy plus rhenium">
+          <circle cx="100" cy="60" r="34" fill="#1b2030" stroke="#5b81c4" stroke-width="1.5"/>
+          <circle cx="88" cy="52" r="7" fill="#5b81c4"/><circle cx="110" cy="50" r="7" fill="#5b81c4"/><circle cx="98" cy="68" r="7" fill="#4faf8e"/><circle cx="116" cy="70" r="6" fill="#4faf8e"/>
+          <circle cx="100" cy="60" r="9" fill="#e0686a"/><text x="100" y="63" class="m" font-size="8" fill="#1c1518" text-anchor="middle" font-weight="700">Re</text>
+          <text x="100" y="108" font-size="8" fill="#9aa3b5" text-anchor="middle">Ni + Co + Cr + Al + <tspan fill="#eda3a4">Re</tspan></text>
+          <text x="30" y="40" font-size="7.5" fill="#8aa7df">Ni base</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Superalloy + rhenium <span class="badge b-hot">MATERIAL</span></h4>
+        <p class="role">The blade's recipe: nickel base + rhenium to slow creep. Rhenium is a by-product of copper-moly mining, concentrated in Chile/Kazakhstan — a material chokepoint with no clean listed vehicle.</p>
+        <div class="who"><b>Cannon-Muskegon · Molymet</b> · revert loops</div>
+      </div>
+    </div>
 
   </div>
-  <p class="cap">Loss/flux figures are directional and mill/generation-dependent; the ~1-in-10⁶ Goss-grain statistic and the Si embrittlement ceiling are textbook metallurgy (Nippon Steel technical report; Wikipedia/ScienceDirect electrical-steel entries), cross-checked ≥2 sources. Nanocrystalline cores (Finemet/Vitroperm — Run #9's chokepoint) are a <i>different, high-frequency</i> material that competes with ferrite, NOT with line-frequency GOES — do not conflate.</p>
 </section>
 
-<!-- 4. STEEL -> CORE -> TRANSFORMER -->
-<section id="s4">
-  <div class="sh"><span class="n">04</span><h2>From sheet to core to transformer (L3 → L2 → L1)</h2><span class="cn">組裝視圖</span></div>
-  <p class="lead">How the scarce sheet becomes the machine the grid waits years for — and where cost accumulates. The GOES sheet is <b>~25% of the finished transformer's cost</b> (higher share of the "active part," diluted by tank/oil/labour at the full-unit level). Core steel + copper windings are &gt;50–60% of material cost, so GOES availability and price transmit <i>directly</i> into transformer price and lead-time.</p>
+<!-- 4. L3->L2->L1 ASSEMBLY -->
+<section>
+  <div class="sh"><span class="n">04</span><h2>From molten metal to a power plant — L3 → L2 → L1</h2><span class="cn">從材料到成品</span></div>
+  <p class="lead">How the scarce castings build up into a finished on-site power block, and what changes at each step. Value migrates toward the step that is hardest to replicate — the pour, not the assembly.</p>
   <div class="svgwide">
-    <svg viewBox="0 0 1120 250" width="100%" role="img" aria-label="Assembly from GOES sheet to transformer core to finished transformer">
-      <!-- stage 1: sheet -->
-      <rect x="20" y="60" width="150" height="120" rx="10" fill="#13161e" stroke="#5a3236" stroke-width="1.5"/>
-      <text x="95" y="50" text-anchor="middle" style="font-size:12px;font-weight:600" fill="#eda3a4">L3 · GOES sheet</text>
-      <g stroke="#8b84cf" stroke-width="1.4"><line x1="40" y1="80" x2="150" y2="80"/><line x1="40" y1="92" x2="150" y2="92"/><line x1="40" y1="104" x2="150" y2="104"/><line x1="40" y1="116" x2="150" y2="116"/><line x1="40" y1="128" x2="150" y2="128"/><line x1="40" y1="140" x2="150" y2="140"/><line x1="40" y1="152" x2="150" y2="152"/></g>
-      <text x="95" y="170" text-anchor="middle" class="m" style="font-size:9px" fill="#9aa3b5">0.18–0.30 mm</text>
-      <text x="95" y="200" text-anchor="middle" style="font-size:10px" fill="#697283">cold-roll · anneal · scribe · coat</text>
-      <text x="95" y="214" text-anchor="middle" style="font-size:9.5px" fill="#eda3a4">Cliffs · Nippon · Baowu</text>
-
+    <svg viewBox="0 0 1120 250" width="100%" height="250" role="img" aria-label="L3 to L1 assembly">
+      <!-- L3 -->
+      <rect x="20" y="40" width="230" height="170" rx="12" fill="#1c1518" stroke="#5a3236" stroke-width="1.4"/>
+      <rect x="34" y="26" width="150" height="20" rx="5" fill="#e0686a"/><text x="109" y="40" font-size="9.5" fill="#1c1518" text-anchor="middle" font-weight="700">L3 · CHOKEPOINT</text>
+      <text x="40" y="66" font-size="13" fill="#e8eaf0" font-weight="600">Superalloy castings</text>
+      <text x="40" y="86" font-size="10.5" fill="#aaa3e6">Melt Ni/Co/Re superalloy →</text>
+      <text x="40" y="102" font-size="10.5" fill="#aaa3e6">grow single crystal in vacuum →</text>
+      <text x="40" y="118" font-size="10.5" fill="#aaa3e6">drill cooling holes → TBC coat</text>
+      <text x="40" y="142" font-size="10" fill="#eda3a4">yields low · furnaces scarce ·</text>
+      <text x="40" y="156" font-size="10" fill="#eda3a4">qualification takes years</text>
+      <text x="40" y="184" class="m" font-size="10" fill="#9aa3b5">PCC · Howmet · Doncasters</text>
+      <text x="40" y="200" class="m" font-size="9.5" fill="#697283">~70–80% PCC+HWM (est.)</text>
       <!-- arrow -->
-      <path d="M175 120 L235 120" stroke="#e0686a" stroke-width="2" marker-end="url(#a4)"/>
-      <text x="205" y="112" text-anchor="middle" style="font-size:8.5px" fill="#eda3a4">slit + stack</text>
-
-      <!-- stage 2: core -->
-      <rect x="245" y="60" width="150" height="120" rx="10" fill="#13161e" stroke="#363d4f"/>
-      <text x="320" y="50" text-anchor="middle" style="font-size:12px;font-weight:600" fill="#e3bd76">L2 · Core</text>
-      <g fill="none" stroke="#d2a24a" stroke-width="2.2"><rect x="275" y="82" width="40" height="76" rx="4"/><rect x="325" y="82" width="40" height="76" rx="4"/></g>
-      <text x="320" y="176" text-anchor="middle" class="m" style="font-size:9px" fill="#9aa3b5">stacked / wound</text>
-      <text x="320" y="200" text-anchor="middle" style="font-size:10px" fill="#697283">step-lap laminations</text>
-      <text x="320" y="214" text-anchor="middle" style="font-size:9.5px" fill="#8aa7df">core assemblers · OEM in-house</text>
-
-      <!-- arrow -->
-      <path d="M400 120 L460 120" stroke="#697283" stroke-width="4" marker-end="url(#a4g)"/>
-      <text x="430" y="112" text-anchor="middle" style="font-size:8.5px" fill="#9aa3b5">+ copper windings</text>
-
-      <!-- stage 3: transformer -->
-      <rect x="470" y="52" width="180" height="136" rx="10" fill="#13161e" stroke="#2c5a40"/>
-      <text x="560" y="42" text-anchor="middle" style="font-size:12px;font-weight:600" fill="#7cc9ad">L1 · Transformer</text>
-      <rect x="500" y="74" width="120" height="92" rx="6" fill="#161a24" stroke="#4faf8e" stroke-width="1.5"/>
-      <g fill="none" stroke="#d2a24a" stroke-width="1.8"><rect x="516" y="88" width="26" height="64" rx="3"/><rect x="578" y="88" width="26" height="64" rx="3"/></g>
-      <g stroke="#c47a9e" stroke-width="4" opacity=".8"><line x1="548" y1="92" x2="548" y2="148"/><line x1="572" y1="92" x2="572" y2="148"/></g>
-      <text x="560" y="182" text-anchor="middle" style="font-size:9px" fill="#697283">tank + oil + bushings</text>
-      <text x="560" y="205" text-anchor="middle" style="font-size:9.5px" fill="#7cc9ad">GE Vernova · Hitachi · Siemens Energy</text>
-
-      <!-- cost stack callout -->
-      <rect x="700" y="52" width="400" height="146" rx="10" fill="#1a1e28" stroke="#363d4f"/>
-      <text x="720" y="76" style="font-size:11px;font-weight:600" fill="#e8eaf0">Where the cost sits (large power unit, est.)</text>
-      <!-- bars -->
-      <g class="m" style="font-size:9px">
-        <rect x="720" y="90" width="130" height="14" fill="#e0686a"/><text x="856" y="101" fill="#eda3a4">GOES core steel ~25%</text>
-        <rect x="720" y="110" width="115" height="14" fill="#c47a9e"/><text x="841" y="121" fill="#dba0bf">copper windings ~22%</text>
-        <rect x="720" y="130" width="150" height="14" fill="#5b81c4"/><text x="876" y="141" fill="#8aa7df">tank/oil/labour ~30%</text>
-        <rect x="720" y="150" width="120" height="14" fill="#4faf8e"/><text x="846" y="161" fill="#7cc9ad">OEM margin + other ~23%</text>
-      </g>
-      <text x="720" y="188" style="font-size:9px" fill="#697283">A ±10–15% GOES price move ≈ ±10–15% on the transformer.</text>
-      <defs>
-        <marker id="a4" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 z" fill="#e0686a"/></marker>
-        <marker id="a4g" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#697283"/></marker>
-      </defs>
+      <line x1="256" y1="125" x2="300" y2="125" stroke="#e0686a" stroke-width="3" marker-end="url(#ar4)"/>
+      <defs><marker id="ar4" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" fill="#e0686a"/></marker>
+      <marker id="at4" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0 1 L9 5 L0 9 Z" fill="#5a6377"/></marker></defs>
+      <!-- L2 -->
+      <rect x="306" y="40" width="230" height="170" rx="12" fill="#141822" stroke="#2a3040"/>
+      <rect x="306" y="40" width="5" height="170" rx="2" fill="#d2a24a"/>
+      <text x="326" y="30" font-size="10" fill="#e3bd76" font-weight="600">L2 · HOT SECTION</text>
+      <text x="326" y="66" font-size="13" fill="#e8eaf0" font-weight="600">Turbine module</text>
+      <text x="326" y="88" font-size="10.5" fill="#9aa3b5">Assemble hundreds of blades</text>
+      <text x="326" y="104" font-size="10.5" fill="#9aa3b5">+ vanes into rotor stages;</text>
+      <text x="326" y="120" font-size="10.5" fill="#9aa3b5">combustor, controls, balance</text>
+      <text x="326" y="144" font-size="10" fill="#697283">OEM-captive + merchant parts</text>
+      <text x="326" y="184" class="m" font-size="10" fill="#9aa3b5">GEV · Siemens · Mitsubishi</text>
+      <line x1="542" y1="125" x2="586" y2="125" stroke="#5a6377" stroke-width="8" marker-end="url(#at4)"/>
+      <!-- L1 -->
+      <rect x="592" y="40" width="230" height="170" rx="12" fill="#141822" stroke="#2a3040"/>
+      <rect x="592" y="40" width="5" height="170" rx="2" fill="#4faf8e"/>
+      <text x="612" y="30" font-size="10" fill="#7cc9ad" font-weight="600">L1 · POWER SYSTEM</text>
+      <text x="612" y="66" font-size="13" fill="#e8eaf0" font-weight="600">Turbine + generator</text>
+      <text x="612" y="88" font-size="10.5" fill="#9aa3b5">Turbine spins generator →</text>
+      <text x="612" y="104" font-size="10.5" fill="#9aa3b5">switchgear, transformer,</text>
+      <text x="612" y="120" font-size="10.5" fill="#9aa3b5">controls = the "power island"</text>
+      <text x="612" y="144" font-size="10" fill="#697283">+ Vertiv/Eaton/Powell BOP</text>
+      <text x="612" y="184" class="m" font-size="10" fill="#9aa3b5">GEV · SIEG · MHI · CAT</text>
+      <line x1="828" y1="125" x2="872" y2="125" stroke="#5a6377" stroke-width="8" marker-end="url(#at4)"/>
+      <!-- END -->
+      <rect x="878" y="40" width="222" height="170" rx="12" fill="#141822" stroke="#2a3040"/>
+      <rect x="878" y="40" width="5" height="170" rx="2" fill="#4faf8e"/>
+      <text x="898" y="30" font-size="10" fill="#7cc9ad" font-weight="600">DEMAND</text>
+      <text x="898" y="66" font-size="13" fill="#e8eaf0" font-weight="600">AI data center</text>
+      <text x="898" y="88" font-size="10.5" fill="#9aa3b5">Behind-the-meter campus,</text>
+      <text x="898" y="104" font-size="10.5" fill="#9aa3b5">200 MW – 1 GW+, live in</text>
+      <text x="898" y="120" font-size="10.5" fill="#9aa3b5">18–36 months</text>
+      <text x="898" y="144" font-size="10" fill="#697283">bypasses 5–7 yr grid queue</text>
+      <text x="898" y="184" class="m" font-size="10" fill="#9aa3b5">MSFT · Google · Meta · Oracle</text>
     </svg>
   </div>
-  <p class="cap">Cost split is an estimate triangulated across Thunder Said Energy, Cleveland-Cliffs' own Section-232 petition ("~25% of a transformer's cost is GOES"), and transformer-pricing trade notes; treat as directional. The active-part (core+copper) is a much higher share of a large power transformer's <i>material</i> cost than the ~25% GOES headline, which is a full-unit figure.</p>
+  <p class="cap">A single H-class turbine holds hundreds of single-crystal blades; each blade takes weeks to cast and can't be rushed. That's why adding "turbine assembly" capacity doesn't fix the shortage — the pour (L3) is the wall.</p>
 </section>
 
-<!-- 5. GO vs NOES TRAP -->
-<section id="s5">
-  <div class="sh"><span class="n">05</span><h2>The trap: "electrical steel" is two different products</h2><span class="cn">GO vs NO 的陷阱</span></div>
-  <p class="lead">The single most important filter in this whole layer — and the fastest way a retail investor gets it wrong. <b>Grain-oriented (GOES/CRGO)</b> goes into <i>transformers</i>. <b>Non-oriented (NOES/CRNGO)</b> goes into <i>motors</i> — EV traction, generators, appliances. They are not substitutes, and <b>most of the headline "electrical steel" capex you read about is NOES for EVs, not transformer GOES.</b> Buying a NOES name "for the AI-power transformer shortage" is a mislabel.</p>
-  <div class="two">
-    <div class="svgwide">
-      <svg viewBox="0 0 520 230" width="100%" role="img" aria-label="GO goes to transformers, NO goes to motors">
-        <!-- GO branch -->
-        <rect x="16" y="16" width="150" height="46" rx="8" fill="rgba(224,104,106,.10)" stroke="#5a3236"/>
-        <text x="91" y="38" text-anchor="middle" style="font-size:12px;font-weight:600" fill="#eda3a4">GOES / grain-oriented</text>
-        <text x="91" y="53" text-anchor="middle" style="font-size:9.5px" fill="#9aa3b5">anisotropic · transformer core</text>
-        <path d="M91 62 L91 96" stroke="#e0686a" stroke-width="2" marker-end="url(#a5r)"/>
-        <rect x="16" y="98" width="150" height="40" rx="8" fill="#13161e" stroke="#363d4f"/>
-        <text x="91" y="123" text-anchor="middle" style="font-size:11px" fill="#e8eaf0">Transformers → GRID / AI DC</text>
-        <text x="91" y="158" text-anchor="middle" style="font-size:9px" fill="#697283">the AI-power shortage lives here</text>
+<!-- 5. DEPLOYMENT MAP -->
+<section>
+  <div class="sh"><span class="n">05</span><h2>How each link serves the on-site power paths</h2><span class="cn">部署映射</span></div>
+  <p class="lead">The same castings feed several deployment paths at different speeds. Prime power (turbines) is the biggest but slowest; bridge power (aeroderivatives + engines) is the "can't-wait" tranche; fuel cells are the escape hatch that skips blades entirely.</p>
+  <div class="svgwide">
+    <svg viewBox="0 0 1120 250" width="100%" height="250" role="img" aria-label="Deployment mapping">
+      <!-- source -->
+      <rect x="20" y="95" width="150" height="60" rx="10" fill="#1c1518" stroke="#5a3236"/>
+      <text x="95" y="120" font-size="11" fill="#eda3a4" text-anchor="middle" font-weight="600">Superalloy</text>
+      <text x="95" y="136" font-size="11" fill="#eda3a4" text-anchor="middle" font-weight="600">castings</text>
+      <defs><marker id="ar5" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" fill="#5a6377"/></marker></defs>
+      <!-- paths -->
+      <line x1="172" y1="110" x2="360" y2="55" stroke="#e0a458" stroke-width="2.5" marker-end="url(#ar5)"/>
+      <line x1="172" y1="122" x2="360" y2="120" stroke="#5aa9e0" stroke-width="2.5" marker-end="url(#ar5)"/>
+      <line x1="172" y1="140" x2="360" y2="190" stroke="#5fc98a" stroke-width="2" marker-end="url(#ar5)"/>
 
-        <!-- NO branch -->
-        <rect x="354" y="16" width="150" height="46" rx="8" fill="rgba(90,169,224,.10)" stroke="#2f4a63"/>
-        <text x="429" y="38" text-anchor="middle" style="font-size:12px;font-weight:600" fill="#8aa7df">NOES / non-oriented</text>
-        <text x="429" y="53" text-anchor="middle" style="font-size:9.5px" fill="#9aa3b5">isotropic · motor laminations</text>
-        <path d="M429 62 L429 96" stroke="#5aa9e0" stroke-width="2" marker-end="url(#a5b)"/>
-        <rect x="354" y="98" width="150" height="40" rx="8" fill="#13161e" stroke="#363d4f"/>
-        <text x="429" y="123" text-anchor="middle" style="font-size:11px" fill="#e8eaf0">EV motors / generators</text>
-        <text x="429" y="158" text-anchor="middle" style="font-size:9px" fill="#697283">a different demand story (EVs)</text>
+      <rect x="365" y="30" width="330" height="52" rx="9" fill="#141822" stroke="#4a3d1c"/>
+      <text x="380" y="52" font-size="12" fill="#e3bd76" font-weight="600">Prime power · heavy-duty turbine</text>
+      <text x="380" y="70" font-size="10" fill="#9aa3b5">200 MW+ baseload · slowest (to 2030) · most blades</text>
 
-        <!-- middle warning -->
-        <rect x="150" y="176" width="220" height="44" rx="8" fill="#1a1e28" stroke="#5a3236"/>
-        <text x="260" y="196" text-anchor="middle" style="font-size:10px;font-weight:600" fill="#eda3a4">Most Asian "electrical steel" capex</text>
-        <text x="260" y="210" text-anchor="middle" style="font-size:10px;font-weight:600" fill="#eda3a4">is NOES — the wrong side of this split</text>
-        <defs>
-          <marker id="a5r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#e0686a"/></marker>
-          <marker id="a5b" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#5aa9e0"/></marker>
-        </defs>
-      </svg>
-      <p class="cap">GOES = transformers (this thesis). NOES = motors (a separate EV story). China dominates both — ~56% of GOES, ~72% of NOES.</p>
-    </div>
-    <div class="panel">
-      <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">Who's actually on-thesis (and who isn't)</h4>
-      <table class="tbl">
-        <tr><th>Headline capex</th><th>Grade</th><th>On GOES thesis?</th></tr>
-        <tr><td><b>Nippon Steel</b> ¥213bn</td><td class="m">NOES</td><td class="dotR">No — EV motors</td></tr>
-        <tr><td><b>POSCO</b> Hyper NO ₩1tn</td><td class="m">NOES</td><td class="dotR">No — motors</td></tr>
-        <tr><td><b>JFE</b> Kurashiki ¥95bn</td><td class="m">NOES</td><td class="dotR">No — EV motors</td></tr>
-        <tr><td><b>ArcelorMittal</b> $1.2B Alabama</td><td class="m">NOES</td><td class="dotR">No — zero US GOES</td></tr>
-        <tr style="background:rgba(95,201,138,.05)"><td><b>JSW–JFE</b> India JV ¥120bn</td><td class="m">GOES</td><td class="dotG">Yes — 350kt/yr by 2030</td></tr>
-        <tr style="background:rgba(95,201,138,.05)"><td><b>Nippon</b> Hirohata + US Big River</td><td class="m">GOES-incl.</td><td class="dotA">Partly — mixed grades</td></tr>
-        <tr style="background:rgba(95,201,138,.05)"><td><b>Baowu</b> +320kt HiB line</td><td class="m">GOES</td><td class="dotG">Yes — but China-locked</td></tr>
-        <tr style="background:rgba(224,104,106,.05)"><td><b>Cleveland-Cliffs</b> Butler exp.</td><td class="m">GOES</td><td class="dotG">Yes — sole US, 2028</td></tr>
-      </table>
-      <p class="cap" style="margin-top:10px">POSCO's "Hyper NO" is explicitly <i>non</i>-oriented — so PKX (−1% YTD) is a NOES/EV-motor + battery-materials story, <b>not</b> a transformer-GOES laggard. Don't put it in the GOES bucket.</p>
-    </div>
+      <rect x="365" y="98" width="330" height="52" rx="9" fill="#141822" stroke="#1f3d52"/>
+      <text x="380" y="120" font-size="12" fill="#8fc7ee" font-weight="600">Bridge / fast · aeroderivative + gas engine</text>
+      <text x="380" y="138" font-size="10" fill="#9aa3b5">live in 18–30 mo · aero-grade blades / cast wheels</text>
+
+      <rect x="365" y="166" width="330" height="52" rx="9" fill="#141822" stroke="#1f4636"/>
+      <text x="380" y="188" font-size="12" fill="#7cc9ad" font-weight="600">Ultra-fast · SOFC fuel cell</text>
+      <text x="380" y="206" font-size="10" fill="#9aa3b5">live in ~90 days · NO turbine blades → skips the choke</text>
+
+      <!-- demand -->
+      <line x1="700" y1="56" x2="900" y2="110" stroke="#5a6377" stroke-width="2" marker-end="url(#ar5)"/>
+      <line x1="700" y1="124" x2="900" y2="124" stroke="#5a6377" stroke-width="2" marker-end="url(#ar5)"/>
+      <line x1="700" y1="192" x2="900" y2="140" stroke="#5a6377" stroke-width="2" marker-end="url(#ar5)"/>
+      <rect x="905" y="92" width="195" height="66" rx="10" fill="#141822" stroke="#2a3040"/>
+      <text x="1002" y="118" font-size="12" fill="#e8eaf0" text-anchor="middle" font-weight="600">Hyperscaler</text>
+      <text x="1002" y="136" font-size="12" fill="#e8eaf0" text-anchor="middle" font-weight="600">data center</text>
+      <text x="1002" y="150" font-size="9" fill="#697283" text-anchor="middle">needs MW now</text>
+    </svg>
   </div>
+  <p class="cap">Two of three paths route through the casting chokepoint; the fuel-cell path does not. The scarcity is thus real but not absolute — it can be partly relieved by demand defecting to fuel cells (Bloom) and by engines that use fewer single-crystal parts.</p>
 </section>
 
 <!-- 6. SUPPLY CHAIN MAP -->
-<section id="s6">
-  <div class="sh"><span class="n">06</span><h2>End-to-end supply chain — where it constricts, where the rent settles</h2><span class="cn">供應鏈全景</span></div>
-  <p class="lead">The centerpiece. Follow the flow left→right: raw silicon-iron widens into abundant slab, then <b>constricts hard</b> at the GOES bell-anneal mill (thin red arrows = the choke), passes the premium scribing tier, and re-widens into transformer cores, OEMs and the grid. The bar chart below reads the two things that matter separately: <b>physical scarcity</b> (tallest at the GOES mill — the chokepoint) versus <b>where the margin/rent actually settles</b> (a second peak at the transformer OEM). That gap <i>is</i> the trade problem.</p>
-  <div class="leg">
-    <span><span class="sw" style="background:var(--choke)"></span>Chokepoint (constricted flow)</span>
-    <span><span class="sw" style="background:#697283"></span>Abundant flow</span>
-    <span><span class="sw" style="background:var(--l1)"></span>Rent pool (margin settles)</span>
-    <span><span class="sw" style="background:var(--dup)"></span>Premium sub-tier</span>
-  </div>
+<section>
+  <div class="sh"><span class="n">06</span><h2>End-to-end supply chain — where the scarcity rent sits</h2><span class="cn">供應鏈全景</span></div>
+  <p class="lead">Upstream material → the casting chokepoint → OEM turbine → power island → developer → hyperscaler. <b style="color:#eda3a4">Thin red arrows</b> mark constricted throughput into and out of the chokepoint; thick grey = ample flow. The bar chart below reads scarcity intensity — <b>tallest at the casting</b>, with a secondary rent pool at the turbine OEM.</p>
   <div class="svgwide">
-    <svg viewBox="0 0 1120 470" width="100%" role="img" aria-label="GOES end-to-end supply chain map with scarcity and rent bars">
-      <!-- stage cards -->
-      <!-- 1 -->
-      <rect x="10" y="30" width="158" height="128" rx="10" fill="#13161e" stroke="#363d4f"/>
-      <text x="89" y="52" text-anchor="middle" style="font-size:11px;font-weight:600" fill="#8aa7df">1 · Si-Fe melt / slab</text>
-      <text x="89" y="72" text-anchor="middle" style="font-size:9.5px" fill="#9aa3b5">iron + ~3% silicon</text>
-      <text x="89" y="86" text-anchor="middle" style="font-size:9.5px" fill="#9aa3b5">hot band</text>
-      <text x="89" y="112" text-anchor="middle" style="font-size:9px" fill="#697283">integrated mills</text>
-      <text x="89" y="128" text-anchor="middle" style="font-size:9px" fill="#697283">(abundant)</text>
-      <text x="89" y="148" text-anchor="middle" style="font-size:9px" fill="#8aa7df">Baowu · Nippon · Cliffs · POSCO</text>
-
-      <!-- 2 CHOKEPOINT -->
-      <rect x="234" y="22" width="168" height="144" rx="10" fill="#1a1216" stroke="#e0686a" stroke-width="2"/>
-      <text x="318" y="44" text-anchor="middle" style="font-size:11.5px;font-weight:700" fill="#eda3a4">2 · GOES bell-anneal mill</text>
-      <text x="318" y="63" text-anchor="middle" style="font-size:9.5px" fill="#d9c4c6">cold-roll → ~1200&deg;C anneal</text>
-      <text x="318" y="77" text-anchor="middle" style="font-size:9.5px" fill="#d9c4c6">grain texture grown here</text>
-      <text x="318" y="100" text-anchor="middle" style="font-size:9px" fill="#eda3a4">~5 mills globally · CN ~56%</text>
-      <text x="318" y="116" text-anchor="middle" style="font-size:9px" fill="#eda3a4">US: Cliffs only · TK idling</text>
-      <text x="318" y="140" text-anchor="middle" style="font-size:9px" fill="#f0a6a7">Cliffs · Nippon · Baowu · JFE</text>
-      <text x="318" y="155" text-anchor="middle" class="m" style="font-size:8.5px" fill="#eda3a4">$0.5–0.7B/line · multi-yr qual</text>
-
-      <!-- 3 -->
-      <rect x="468" y="30" width="158" height="128" rx="10" fill="#13161e" stroke="#3a3320"/>
-      <text x="547" y="52" text-anchor="middle" style="font-size:11px;font-weight:600" fill="#e3bd76">3 · Domain scribe + coat</text>
-      <text x="547" y="72" text-anchor="middle" style="font-size:9.5px" fill="#9aa3b5">laser HiB / domain-refined</text>
-      <text x="547" y="86" text-anchor="middle" style="font-size:9.5px" fill="#9aa3b5">forsterite + Carlite</text>
-      <text x="547" y="112" text-anchor="middle" style="font-size:9px" fill="#697283">premium sub-tier</text>
-      <text x="547" y="128" text-anchor="middle" style="font-size:9px" fill="#697283">(scarcest grades)</text>
-      <text x="547" y="148" text-anchor="middle" style="font-size:9px" fill="#e3bd76">Nippon · Baowu lead</text>
-
-      <!-- 4 -->
-      <rect x="692" y="30" width="150" height="128" rx="10" fill="#13161e" stroke="#363d4f"/>
-      <text x="767" y="52" text-anchor="middle" style="font-size:11px;font-weight:600" fill="#e3bd76">4 · Transformer core</text>
-      <text x="767" y="72" text-anchor="middle" style="font-size:9.5px" fill="#9aa3b5">slit · stack · step-lap</text>
-      <text x="767" y="86" text-anchor="middle" style="font-size:9.5px" fill="#9aa3b5">wound / stacked core</text>
-      <text x="767" y="112" text-anchor="middle" style="font-size:9px" fill="#697283">core assemblers /</text>
-      <text x="767" y="126" text-anchor="middle" style="font-size:9px" fill="#697283">OEM in-house</text>
-      <text x="767" y="148" text-anchor="middle" style="font-size:9px" fill="#8aa7df">Toshiba · Prolec · Toei</text>
-
-      <!-- 5 RENT POOL -->
-      <rect x="908" y="22" width="150" height="144" rx="10" fill="#121a15" stroke="#4faf8e" stroke-width="2"/>
-      <text x="983" y="44" text-anchor="middle" style="font-size:11px;font-weight:700" fill="#7cc9ad">5 · Transformer OEM</text>
-      <text x="983" y="63" text-anchor="middle" style="font-size:9.5px" fill="#b7e0cf">power / distribution / GSU</text>
-      <text x="983" y="86" text-anchor="middle" style="font-size:9px" fill="#7cc9ad">RENT SETTLES HERE</text>
-      <text x="983" y="102" text-anchor="middle" style="font-size:9px" fill="#9aa3b5">margins +670bps, backlog $42B</text>
-      <text x="983" y="118" text-anchor="middle" style="font-size:9px" fill="#9aa3b5">pass GOES cost to utilities</text>
-      <text x="983" y="140" text-anchor="middle" style="font-size:9px" fill="#7cc9ad">GE Vernova · Hitachi · Siemens E.</text>
-      <text x="983" y="155" text-anchor="middle" style="font-size:9px" fill="#7cc9ad">Eaton · Prolec</text>
-
-      <!-- flows -->
-      <!-- 1->2 constrict -->
-      <path d="M168 94 L232 94" stroke="#e0686a" stroke-width="2.5" marker-end="url(#am)"/>
-      <!-- 2->3 constrict out -->
-      <path d="M402 94 L466 94" stroke="#e0686a" stroke-width="2.5" marker-end="url(#am)"/>
-      <!-- 3->4 thick grey -->
-      <path d="M626 94 L690 94" stroke="#697283" stroke-width="7" marker-end="url(#amg)"/>
-      <!-- 4->5 thick grey -->
-      <path d="M842 94 L906 94" stroke="#697283" stroke-width="7" marker-end="url(#amg)"/>
-      <!-- 5-> grid label -->
-      <text x="983" y="184" text-anchor="middle" style="font-size:9px" fill="#697283">→ grid / AI data-center (2–4 yr wait)</text>
-
-      <!-- CHOKEPOINT ribbon -->
-      <rect x="234" y="192" width="168" height="20" rx="4" fill="#e0686a"/>
-      <text x="318" y="206" text-anchor="middle" style="font-size:10px;font-weight:700" fill="#160a0b">◤ CHOKEPOINT ◢</text>
-
-      <!-- BAR CHART -->
-      <text x="20" y="246" style="font-size:11px;font-weight:600" fill="#e8eaf0">Per-stage read — physical scarcity (bars) vs where rent settles (◆)</text>
-      <line x1="40" y1="430" x2="1080" y2="430" stroke="#363d4f"/>
-      <text x="30" y="270" class="svglabel m" style="font-size:8px">100</text>
-      <text x="34" y="350" class="svglabel m" style="font-size:8px">50</text>
-      <line x1="40" y1="266" x2="1080" y2="266" stroke="#1e2430" stroke-dasharray="2 4"/>
-      <line x1="40" y1="348" x2="1080" y2="348" stroke="#1e2430" stroke-dasharray="2 4"/>
-
-      <!-- bars: x centers ~ 130, 320, 547, 767, 983 -->
-      <!-- 1 melt: 30 -->
-      <rect x="92" y="382" width="76" height="48" fill="#5b81c4" opacity=".85"/>
-      <text x="130" y="374" text-anchor="middle" class="m" style="font-size:9px" fill="#8aa7df">30</text>
-      <text x="130" y="446" text-anchor="middle" style="font-size:8.5px" fill="#697283">melt/slab</text>
-      <!-- 2 GOES: 95 CHOKE -->
-      <rect x="280" y="278" width="76" height="152" fill="#e0686a"/>
-      <text x="318" y="270" text-anchor="middle" class="m" style="font-size:10px;font-weight:700" fill="#eda3a4">95</text>
-      <text x="318" y="446" text-anchor="middle" style="font-size:8.5px" fill="#eda3a4">GOES mill ◤</text>
-      <!-- 3 scribe: 78 -->
-      <rect x="509" y="305" width="76" height="125" fill="#d2a24a" opacity=".9"/>
-      <text x="547" y="297" text-anchor="middle" class="m" style="font-size:9px" fill="#e3bd76">78</text>
-      <text x="547" y="446" text-anchor="middle" style="font-size:8.5px" fill="#e3bd76">HiB scribe</text>
-      <!-- 4 core: 40 -->
-      <rect x="729" y="366" width="76" height="64" fill="#5b81c4" opacity=".7"/>
-      <text x="767" y="358" text-anchor="middle" class="m" style="font-size:9px" fill="#8aa7df">40</text>
-      <text x="767" y="446" text-anchor="middle" style="font-size:8.5px" fill="#697283">core</text>
-      <!-- 5 OEM: 45 scarcity but RENT diamond high -->
-      <rect x="945" y="358" width="76" height="72" fill="#4faf8e" opacity=".55"/>
-      <text x="983" y="350" text-anchor="middle" class="m" style="font-size:9px" fill="#7cc9ad">45</text>
-      <text x="983" y="446" text-anchor="middle" style="font-size:8.5px" fill="#7cc9ad">OEM</text>
-      <!-- rent diamonds -->
-      <path d="M318 300 l10 10 l-10 10 l-10 -10 z" fill="#9aa3b5"/>
-      <path d="M983 292 l12 12 l-12 12 l-12 -12 z" fill="#4faf8e"/>
-      <text x="983" y="286" text-anchor="middle" style="font-size:8px;font-weight:600" fill="#7cc9ad">◆ rent</text>
-      <text x="318" y="342" text-anchor="middle" style="font-size:7.5px" fill="#9aa3b5">◆ little rent kept</text>
-
+    <svg viewBox="0 0 1100 500" width="100%" height="500" role="img" aria-label="End to end supply chain map">
       <defs>
-        <marker id="am" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#e0686a"/></marker>
-        <marker id="amg" markerWidth="6" markerHeight="6" refX="4.5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#697283"/></marker>
+        <marker id="aR" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" fill="#e0686a"/></marker>
+        <marker id="aT" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0 1 L9 5 L0 9 Z" fill="#5a6377"/></marker>
       </defs>
+      <text x="22" y="20" font-size="11" fill="#697283" font-weight="600">UPSTREAM</text>
+      <text x="1078" y="20" font-size="11" fill="#697283" font-weight="600" text-anchor="end">DOWNSTREAM</text>
+
+      <!-- flow connectors -->
+      <line x1="180" y1="180" x2="200" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR)"/>
+      <line x1="360" y1="180" x2="380" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR)"/>
+      <line x1="540" y1="180" x2="560" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT)"/>
+      <line x1="720" y1="180" x2="740" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT)"/>
+      <line x1="900" y1="180" x2="920" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT)"/>
+
+      <!-- C1 material -->
+      <rect x="20" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="20" y="40" width="5" height="262" rx="2" fill="#5b81c4"/>
+      <text x="36" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Material</text>
+      <text x="36" y="74" font-size="9" fill="#8aa7df" font-weight="600">UPSTREAM</text>
+      <g font-size="9">
+        <rect x="32" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="98" fill="#fff" font-weight="600">Ni / Co superalloy</text><text x="40" y="110" fill="#9aa3b5">Cannon-Muskegon · VDM</text>
+        <rect x="32" y="122" width="136" height="32" rx="6" fill="#2a1a1f" stroke="#5a3236"/><text x="40" y="136" fill="#fff" font-weight="600">Rhenium</text><text x="40" y="148" fill="#eda3a4">Molymet · Cu-Mo by-product</text>
+        <rect x="32" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="174" fill="#fff" font-weight="600">Revert / scrap</text><text x="40" y="186" fill="#9aa3b5">~60% recycled at HWM</text>
+      </g>
+      <text x="36" y="214" font-size="9" fill="#eda3a4">rhenium supply ≈ fixed</text>
+      <text x="36" y="228" font-size="8.5" fill="#697283">by-product, can't scale</text>
+
+      <!-- C2 CHOKEPOINT -->
+      <rect x="200" y="40" width="160" height="262" rx="10" fill="#1c1518" stroke="#5a3236" stroke-width="1.5"/>
+      <rect x="200" y="40" width="5" height="262" rx="2" fill="#8b84cf"/>
+      <rect x="214" y="26" width="132" height="20" rx="5" fill="#e0686a"/><text x="280" y="40" font-size="9.5" fill="#1c1518" font-weight="700" text-anchor="middle">CHOKEPOINT · L3</text>
+      <text x="216" y="62" font-size="12" fill="#e8eaf0" font-weight="600">Hot-section castings</text>
+      <text x="216" y="76" font-size="9" fill="#aaa3e6" font-weight="600">SINGLE-CRYSTAL BLADES</text>
+      <g font-size="9">
+        <rect x="212" y="86" width="136" height="32" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="220" y="100" fill="#fff" font-weight="700">PCC ★ (captive)</text><text x="220" y="112" fill="#eda3a4">Berkshire — not listed</text>
+        <rect x="212" y="124" width="136" height="32" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="220" y="138" fill="#fff" font-weight="600">Howmet (HWM)</text><text x="220" y="150" fill="#bcb3e6">scaled listed toll</text>
+        <rect x="212" y="162" width="136" height="32" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="220" y="176" fill="#fff" font-weight="600">Doncasters (DPC)</text><text x="220" y="188" fill="#bcb3e6">indep. #3 · new IPO</text>
+      </g>
+      <text x="216" y="216" font-size="9" fill="#eda3a4">everything flows through here</text>
+      <text x="216" y="230" font-size="8.5" fill="#697283">+ TBC coatings co-bind</text>
+
+      <!-- C3 OEM -->
+      <rect x="380" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="380" y="40" width="5" height="262" rx="2" fill="#d2a24a"/>
+      <text x="396" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Turbine OEM</text>
+      <text x="396" y="74" font-size="9" fill="#e3bd76" font-weight="600">2ND RENT POOL</text>
+      <g font-size="9">
+        <rect x="392" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="98" fill="#fff" font-weight="600">GE Vernova</text><text x="400" y="110" fill="#9aa3b5">HA-class · sold to 2030</text>
+        <rect x="392" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="136" fill="#fff" font-weight="600">Siemens Energy</text><text x="400" y="148" fill="#9aa3b5">€136B backlog</text>
+        <rect x="392" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="174" fill="#fff" font-weight="600">Mitsubishi</text><text x="400" y="186" fill="#9aa3b5">JAC · to 2028</text>
+      </g>
+      <text x="396" y="214" font-size="9" fill="#e3bd76">prices +195–300% / 3yr</text>
+      <text x="396" y="228" font-size="8.5" fill="#697283">margins expanding = rent</text>
+
+      <!-- C4 power island -->
+      <rect x="560" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="560" y="40" width="5" height="262" rx="2" fill="#4faf8e"/>
+      <text x="576" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Power island</text>
+      <text x="576" y="74" font-size="9" fill="#7cc9ad" font-weight="600">BALANCE OF PLANT</text>
+      <g font-size="9">
+        <rect x="572" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="98" fill="#fff" font-weight="600">Generator</text><text x="580" y="110" fill="#9aa3b5">OEM + WEG · Nidec</text>
+        <rect x="572" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="136" fill="#fff" font-weight="600">Switchgear</text><text x="580" y="148" fill="#9aa3b5">Eaton · Powell · ABB</text>
+        <rect x="572" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="174" fill="#fff" font-weight="600">Power mgmt</text><text x="580" y="186" fill="#9aa3b5">Vertiv · Schneider</text>
+      </g>
+      <text x="576" y="214" font-size="9" fill="#7cc9ad">covered in Runs #3/#9/#15</text>
+      <text x="576" y="228" font-size="8.5" fill="#697283">also tight, but multi-source</text>
+
+      <!-- C5 developer -->
+      <rect x="740" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="740" y="40" width="5" height="262" rx="2" fill="#4faf8e"/>
+      <text x="756" y="60" font-size="12" fill="#e8eaf0" font-weight="600">EPC / developer</text>
+      <text x="756" y="74" font-size="9" fill="#7cc9ad" font-weight="600">INTEGRATION</text>
+      <g font-size="9">
+        <rect x="752" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="98" fill="#fff" font-weight="600">EPC</text><text x="760" y="110" fill="#9aa3b5">Bechtel · Kiewit</text>
+        <rect x="752" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="136" fill="#fff" font-weight="600">Power-as-a-svc</text><text x="760" y="148" fill="#9aa3b5">VoltaGrid · ProEnergy</text>
+        <rect x="752" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="174" fill="#fff" font-weight="600">Gas supply</text><text x="760" y="186" fill="#9aa3b5">pipelines · LNG</text>
+      </g>
+      <text x="756" y="214" font-size="9" fill="#7cc9ad">packages MW for tenants</text>
+      <text x="756" y="228" font-size="8.5" fill="#697283">books the turbine slots</text>
+
+      <!-- C6 buyers -->
+      <rect x="920" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="920" y="40" width="5" height="262" rx="2" fill="#4faf8e"/>
+      <text x="936" y="60" font-size="12" fill="#e8eaf0" font-weight="600">End buyers</text>
+      <text x="936" y="74" font-size="9" fill="#7cc9ad" font-weight="600">DEMAND</text>
+      <g font-size="9">
+        <rect x="932" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="98" fill="#fff" font-weight="600">Hyperscalers</text><text x="940" y="110" fill="#9aa3b5">MSFT · Google · Meta</text>
+        <rect x="932" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="136" fill="#fff" font-weight="600">Oracle · AWS · xAI</text><text x="940" y="148" fill="#9aa3b5">gas-first campuses</text>
+        <rect x="932" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="174" fill="#fff" font-weight="600">Neoclouds</text><text x="940" y="186" fill="#9aa3b5">CoreWeave · sovereign</text>
+      </g>
+      <text x="936" y="214" font-size="9" fill="#7cc9ad">25–35 GW BTM by 2030</text>
+      <text x="936" y="228" font-size="8.5" fill="#697283">demand visibility = high</text>
+
+      <!-- bar chart -->
+      <line x1="40" y1="432" x2="1080" y2="432" stroke="#2a3040" stroke-width="1"/>
+      <text x="40" y="318" font-size="9" fill="#697283">scarcity / value capture</text>
+      <g>
+        <rect x="80" y="384" width="40" height="48" rx="2" fill="#5b81c4" opacity="0.55"/>
+        <rect x="260" y="338" width="40" height="94" rx="2" fill="#e0686a"/>
+        <rect x="440" y="360" width="40" height="72" rx="2" fill="#d2a24a" opacity="0.85"/>
+        <rect x="620" y="404" width="40" height="28" rx="2" fill="#2dd4bf" opacity="0.45"/>
+        <rect x="800" y="410" width="40" height="22" rx="2" fill="#2dd4bf" opacity="0.4"/>
+        <rect x="980" y="414" width="40" height="18" rx="2" fill="#2dd4bf" opacity="0.3"/>
+      </g>
+      <text x="280" y="330" font-size="9" fill="#eda3a4" text-anchor="middle" font-weight="600">tightest link: the casting</text>
+      <text x="460" y="352" font-size="8.5" fill="#e3bd76" text-anchor="middle">2nd pool: OEM slot</text>
+      <g font-size="8.5" fill="#697283" text-anchor="middle">
+        <text x="100" y="446">material</text><text x="280" y="446">castings</text><text x="460" y="446">turbine OEM</text><text x="640" y="446">power island</text><text x="820" y="446">developer</text><text x="1000" y="446">buyers</text>
+      </g>
+      <text x="550" y="470" font-size="9" fill="#697283" text-anchor="middle">Red arrows = constricted throughput — every advanced turbine waits on the blade pour. The casting is the <tspan fill="#eda3a4">tightest</tspan> link; the OEM currently banks the largest <tspan fill="#e3bd76">absolute</tspan> rent.</text>
+      <text x="550" y="486" font-size="9" fill="#697283" text-anchor="middle">The tension between those two — scarce link vs rent-capturer — is the whole trade (see §08 rent-capture test).</text>
     </svg>
   </div>
-  <p class="cap">Bars = author's qualitative scarcity/value-capture scores (0–100), not a traded index. The story they tell is cross-checked: <b>physical scarcity peaks at the GOES bell-anneal mill</b> (few lines, China ~56%, sole US producer, TK idling), and the premium scribing tier is the secondary tight link — <b>yet the profit "◆ rent" settles at the OEM</b> (GE Vernova Electrification EBITDA margin 17.8%, +670bps YoY; backlog $9B→$42B), because transformers are engineered-to-order with material-escalation pass-through. The GOES maker holds the scarce input but keeps little of the rent — the crux of this report. <b>Caveat on the scarcity story:</b> the single most load-bearing price input — GOES "prices ~doubled since 2020" and the ~3× NA/Asia premium — rests on a <i>paywalled</i> $/t series (businessanalytiq, Jun-2026); it is directionally corroborated but not independently verified with a hard annual series, so treat the price wall as strong-but-soft.</p>
+  <p class="cap">Unusually for this rotation, the scarce link (castings) <b>does</b> capture rent (Howmet 32% EBITDA) — unlike the GOES steel of Run #21 which stayed cheap. The catch: it's therefore already priced, and the tightest incumbent (PCC) is captive.</p>
 </section>
 
 <!-- 7. TIMELINE -->
-<section id="s7">
-  <div class="sh"><span class="n">07</span><h2>Multi-year roadmap — the chokepoint outlasts the headlines</h2><span class="cn">時間軸</span></div>
-  <p class="lead">Rows = the moving parts; columns = 2026 → 2029+. The transformer <i>shortage</i> is already recognised; the point of the grid is that <b>GOES supply cannot respond until ~2028–29</b> (Cliffs' Butler expansion, JSW-JFE India, Baowu lines all land 2027–30), so the material tightness likely <i>outlasts</i> the transformer-shortage narrative — while the DOE-2029 amorphous clock and the trade-safeguard cases are the dated catalysts.</p>
+<section>
+  <div class="sh"><span class="n">07</span><h2>Multi-year evolution — by power path</h2><span class="cn">多年發展時間軸</span></div>
+  <p class="lead">How the on-site power build-out unfolds 2026→2029. <b style="color:#eda3a4">Tinted</b> cells mark supply-stress / catalyst windows where the blade choke bites hardest.</p>
   <div class="tlgrid">
-    <div class="tlhead"><div>Vector</div><div>2026</div><div>2027</div><div>2028</div><div>2029+</div></div>
+    <div class="tlhead"><div>Path ↓ / Year →</div><div>2026</div><div>2027</div><div>2028</div><div>2029</div></div>
     <div class="tlrow">
-      <div class="lab"><span class="sw" style="background:var(--choke)"></span>GOES supply</div>
-      <div class="cell hot"><b>Tight</b>TK idles EU lines; Cliffs sole US, ~12–20% of demand</div>
-      <div class="cell hot"><b>Still tight</b>JSW-JFE India Vijayanagar 100kt ramps; Baowu +320kt HiB</div>
-      <div class="cell"><b>First relief</b>Cliffs Butler expansion completes (DOE-funded)</div>
-      <div class="cell"><b>Rebalancing</b>India JV → 350kt; China exports keep rising</div>
+      <div class="lab"><span class="sw" style="background:var(--dup)"></span>Prime turbine</div>
+      <div class="cell hot"><b>Sold out</b>GEV slots 100→110 GW; prices +10–20%/bid</div>
+      <div class="cell hot"><b>Blade-bound</b>OEM output capped by casting supply</div>
+      <div class="cell"><b>Capacity adds</b>GEV 50→80 units/yr; MHI doubling</div>
+      <div class="cell"><b>Some relief</b>if foundry expansions land on time</div>
     </div>
     <div class="tlrow">
-      <div class="lab"><span class="sw" style="background:var(--dout)"></span>Transformers</div>
-      <div class="cell hot"><b>128–144 wk</b>power/GSU lead-times at records; ~4yr for HV</div>
-      <div class="cell"><b>Peak backlog</b>OEM backlogs at multi-year highs; new US plants break ground</div>
-      <div class="cell"><b>Capacity adds</b>Hitachi VA (largest US LPT), GEV-Prolec, Eaton online</div>
-      <div class="cell"><b>Gap &lt;10%</b>deficit narrows as capacity floods (WoodMac)</div>
+      <div class="lab"><span class="sw" style="background:var(--dout)"></span>Bridge / engines</div>
+      <div class="cell hot"><b>Land grab</b>CAT 2 GW recip order; INNIO 2.3 GW; Wärtsilä 412 MW</div>
+      <div class="cell hot"><b>Engine capacity 3×</b>CAT tripling recip vs 2024; ~24–30 mo lead (reported)</div>
+      <div class="cell"><b>Deliveries ramp</b>2026 orders arrive 2027–28</div>
+      <div class="cell"><b>Normalize</b>bridge rolls to permanent</div>
     </div>
     <div class="tlrow">
-      <div class="lab"><span class="sw" style="background:var(--dacr)"></span>AI / grid demand</div>
-      <div class="cell"><b>Surging</b>DC power ~15%/yr; ~half of US DC projects risk slippage on gear</div>
-      <div class="cell"><b>Rubin ramp</b>800V racks; interconnection queues 5–7yr force self-build</div>
-      <div class="cell hot"><b>Peak strain</b>US DC 325–580 TWh path; grid replacement compounds</div>
-      <div class="cell"><b>~945 TWh</b>global DC power ~doubles vs 2024 (IEA)</div>
+      <div class="lab"><span class="sw" style="background:var(--l3)"></span>Castings (choke)</div>
+      <div class="cell hot"><b>Binding</b>HWM IGT +39%; DPC IPO; PCC buys Morvern</div>
+      <div class="cell hot"><b>Qual bottleneck</b>new foundry lines take years to certify</div>
+      <div class="cell"><b>Re-free alloys</b>low-rhenium recipes reduce material stress</div>
+      <div class="cell"><b>Additive/repair</b>3D-print + repair extend part life</div>
     </div>
     <div class="tlrow">
-      <div class="lab"><span class="sw" style="background:var(--dup)"></span>Policy / trade</div>
-      <div class="cell hot"><b>232 + DPA</b>50% steel-derivative tariff (Aug'25); DPA names "core steel" (Apr'26)</div>
-      <div class="cell"><b>Safeguards</b>EU GOES safeguard probe (opened Mar'26); grid gear 15% transitional</div>
-      <div class="cell"><b>Reshoring</b>domestic-content rules bite; Weirton transformer plant ramps</div>
-      <div class="cell hot"><b>DOE 2029</b>Apr-2029 efficiency compliance — the amorphous-vs-GOES clock</div>
+      <div class="lab"><span class="sw" style="background:var(--dacr)"></span>Fuel cells (escape)</div>
+      <div class="cell hot"><b>Break-out</b>Bloom $25B Brookfield; Oracle 2.8 GW; 90-day installs</div>
+      <div class="cell"><b>Scale-up</b>SOFC share of urgent tranche rises</div>
+      <div class="cell"><b>Cost curve</b>fuel-cell $/kW competes with engines</div>
+      <div class="cell"><b>Steady share</b>fuel cells a durable slice, not a turbine-killer</div>
     </div>
   </div>
-  <p class="cap">Lead-time and capacity dates are triangulated (Wood Mackenzie Q2-2025 survey, company releases, DOE/DPA notices); the exact "gap &lt;10% by 2029/2030" is a WoodMac projection. Note the honest counter: some of the 128-week figure may reflect double/phantom ordering ("self-inflicted crisis"), so treat backlog as partly behavioural.</p>
+  <p class="cap">The window where the blade choke is most binding — and least priced-in for the pure-play (DPC) — is <b>2026–2027</b>, before foundry adds and low-rhenium/additive relief arrive.</p>
 </section>
 
-<!-- 8. CHOKEPOINT + SEVERITY -->
-<section id="s8">
-  <div class="sh"><span class="n">08</span><h2>The chokepoint, scored — and how it could be wrong</h2><span class="cn">卡點評分</span></div>
+<!-- 8. CHOKEPOINT + SEVERITY + VARIANT -->
+<section>
+  <div class="sh"><span class="n">08</span><h2>The chokepoint, scored — and where consensus is wrong</h2><span class="cn">卡點評分</span></div>
   <div class="choke">
     <div class="ttl">
-      <svg width="26" height="26" viewBox="0 0 26 26"><path d="M13 2 L24 22 L2 22 Z" fill="none" stroke="#e0686a" stroke-width="2"/><line x1="13" y1="9" x2="13" y2="16" stroke="#e0686a" stroke-width="2"/><circle cx="13" cy="19" r="1.3" fill="#e0686a"/></svg>
-      <h3>Grain-oriented electrical steel (GOES) — the transformer-core material gate</h3>
+      <svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 2 L20 18 L2 18 Z" fill="none" stroke="#e0686a" stroke-width="1.6"/><line x1="11" y1="8" x2="11" y2="13" stroke="#e0686a" stroke-width="1.6"/><circle cx="11" cy="15.5" r="1" fill="#e0686a"/></svg>
+      <h3>Single-crystal superalloy hot-section castings</h3>
     </div>
-    <p>Every large power transformer needs a GOES core, GOES has essentially no substitute in that segment (amorphous can't reach the flux density), and the material is <b>grown</b> through a process only a handful of mills run well — China holds ~56%, the US has one producer, and Europe's is <i>idling</i>. That is a genuine severity-18 chokepoint. The honest catch, which caps the <i>investable</i> asymmetry: the scarce material is <b>oversupplied at the commodity grade</b> by China (exports +35%/yr), so the tightness is concentrated in the <b>premium HiB tier</b> and enforced by <b>trade walls</b>, not a clean global monopoly — and the equity <b>rent settles downstream</b>, not at the steelmaker.</p>
+    <p>Every high-efficiency gas turbine — and every jet engine — needs single-crystal blades that survive above the melting point of their own metal. Only about three foundries on Earth make them at scale: <b>Precision Castparts (captive at Berkshire)</b>, <b>Howmet</b>, and <b>Doncasters</b> — together with PCC+Howmet at an estimated <b>~70–80% of the high-end blade market</b>. Adding turbine-assembly floor space doesn't help: the pour is a decades-refined, low-yield, years-to-qualify process. That is why turbines are sold out to 2030 while OEMs quietly say "expansion willingness of the two blade giants is insufficient."</p>
     <div class="stats">
-      <div><b class="num">18/20</b><span>Composite severity (supply 5 · lead-time 5 · low-sub 4 · demand 4)</span></div>
-      <div><b class="num">~56%</b><span>China share of world GOES output; ~5 HiB mills globally</span></div>
-      <div><b class="num">~25%</b><span>Of a transformer's cost is GOES core steel</span></div>
-      <div><b class="num">8/20</b><span>Remaining asymmetry — real laggard, but no clean vehicle</span></div>
+      <div><b class="num">~3</b><span>foundries at scale, globally</span></div>
+      <div><b class="num">~70–80%</b><span>PCC + Howmet share (est.)</span></div>
+      <div><b class="num">2–6%</b><span>rhenium in top alloys — no substitute</span></div>
+      <div><b class="num">5–7 yr</b><span>grid queue driving the demand</span></div>
+      <div><b class="num">18/20</b><span>composite severity</span></div>
     </div>
   </div>
 
-  <div class="two" style="margin-top:16px">
-    <div class="gap"><div class="h">VARIANT / DISAGGREGATION — the edge, and the trap inside it</div>
-      <p><b>Consensus</b> bought the transformer OEMs (GE Vernova +64%, Siemens Energy ~2× off its low, Hitachi, Eaton +28%) — the shortage is recognition→euphoria and priced. <b>The variant:</b> the binding <i>material</i> one layer below is un-bid — the sole US GOES maker (CLF) is at 52-week lows, the tech leader (Nippon) is down YTD. But the disaggregation cuts <i>both</i> ways, and honesty demands the second half: the material is cheap for <b>three structural reasons</b>, not pure neglect — (1) GOES is a diluted sliver inside giant commodity-steel P&amp;Ls (CLF ~1.5–3% of shipments); (2) China oversupplies the <i>commodity</i> grade, capping the price curve, so only <i>premium HiB</i> is truly tight; (3) transformers are engineered-to-order with cost pass-through, so the OEM keeps the rent. So the chokepoint is <b>real and durable</b> but there is <b>no clean listed vehicle</b> that captures it — the alpha-and-difficulty gap.</p>
+  <div class="scorecard" style="margin-top:16px">
+    <div class="sc">
+      <h4>4-factor severity — the casting chokepoint <span class="tot num">18 / 20</span></h4>
+      <div class="fac"><div class="fl"><span>Supply concentration</span><b class="num">4 / 5</b></div><div class="ft"><div class="ff" style="width:80%"></div></div></div>
+      <div class="fac"><div class="fl"><span>Lead-time to add capacity</span><b class="num">5 / 5</b></div><div class="ft"><div class="ff" style="width:100%"></div></div></div>
+      <div class="fac"><div class="fl"><span>Low substitutability</span><b class="num">4 / 5</b></div><div class="ft"><div class="ff" style="width:80%"></div></div></div>
+      <div class="fac"><div class="fl"><span>Demand-growth pressure</span><b class="num">5 / 5</b></div><div class="ft"><div class="ff" style="width:100%"></div></div></div>
+      <p style="font-size:11px;color:var(--dim);margin-top:10px">Scope: the L3 single-crystal / DS casting step. Co-binding chokepoints elsewhere: the turbine OEM slot (17), TBC coating capacity, and rhenium supply. Tightness ≠ a good buy — see the asymmetry gauge.</p>
     </div>
-    <div class="panel">
-      <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">Rent-capture test — who keeps the scarcity rent?</h4>
-      <table class="tbl">
-        <tr><th>Link</th><th>Margin / signal</th><th>Rent</th></tr>
-        <tr><td><b>GOES mill</b> (CLF)</td><td>buried in ~3% of a loss-making steel book</td><td class="dotR">Little</td></tr>
-        <tr><td><b>HiB scribe</b> (Nippon)</td><td>premium tier, but swamped by crude steel + US Steel debt</td><td class="dotA">Some</td></tr>
-        <tr><td><b>Transformer OEM</b> (GEV)</td><td>EBITDA margin 17.8% (+670bps), backlog $42B, b:b ~2.5</td><td class="dotG">Most</td></tr>
-      </table>
-      <p class="cap" style="margin-top:9px">Margins <i>expanding</i> at the OEM into a supply-constrained order book = rent captured downstream. If OEMs were absorbing GOES cost, margins would compress; instead they are expanding. Verdict: <b>the toll settles at the machine, not the material.</b></p>
+    <div class="sc">
+      <h4>Per-link severity — reconcilable across plays</h4>
+      <div class="fac"><div class="fl"><span>Hot-section casting (HWM / DPC / PCC)</span><b class="num">18</b></div><div class="ft"><div class="ff" style="width:90%"></div></div></div>
+      <div class="fac"><div class="fl"><span>Turbine OEM slot (GEV / SIEG / MHI)</span><b class="num">17</b></div><div class="ft"><div class="ff" style="width:85%"></div></div></div>
+      <div class="fac"><div class="fl"><span>Superalloy + rhenium material</span><b class="num">15</b></div><div class="ft"><div class="ff" style="width:75%"></div></div></div>
+      <div class="fac"><div class="fl"><span>Reciprocating gas genset (CAT / CMI)</span><b class="num">13</b></div><div class="ft"><div class="ff g" style="width:65%"></div></div></div>
+      <div class="fac"><div class="fl"><span>SOFC fuel cell (Bloom)</span><b class="num">12</b></div><div class="ft"><div class="ff g" style="width:60%"></div></div></div>
+      <p style="font-size:11px;color:var(--dim);margin-top:10px">Engines &amp; fuel cells score lower — many vendors, faster to add — but their <i>existence</i> is what caps the turbine-blade choke at 18, not 20.</p>
     </div>
   </div>
 
-  <div class="panel" style="margin-top:14px">
-    <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">How the thesis could be wrong <span class="cn" style="font-weight:400;color:var(--dim)">反方</span></h4>
-    <ul style="font-size:12px;color:var(--mut);line-height:1.7;margin-left:16px">
-      <li><b>China commodity oversupply is the real price-setter.</b> Baowu alone (~1.16Mt) plus Shougang/Ansteel exceed world demand at the commodity grade; CRGO exports 495kt→666kt→~758kt (2023→25). If the premium/commodity spread compresses, the "tightness" thesis weakens to just the HiB niche.</li>
-      <li><b>"Self-inflicted crisis" / phantom ordering.</b> Part of the 128-week backlog may be utilities double-ordering; a broker cited 12–14-month real delivery once drawings are approved. If backlog is partly behavioural, the material pull is smaller than the headline.</li>
-      <li><b>The material producers are cheap for cause.</b> CLF's GOES is ~1.5–3% of a $18.6B commodity/auto-steel book running a net loss; Nippon is a now-levered US-Steel-integration megacap. You can be right on GOES and still lose on the steel cycle.</li>
-      <li><b>No standing GOES AD/CVD.</b> The 2014 GOES case died on a negative ITC injury finding — protection runs entirely through Section 232 (50%) + the new DPA listing, which a future administration could dilute (the June-2026 restructure already cut grid gear to a 15% transitional rate).</li>
-    </ul>
+  <div class="variant" style="margin-top:16px">
+    <div class="vh">Variant perception — what the Street believes that we're questioning</div>
+    <p><b>Consensus (now fully priced):</b> "buy GE Vernova / Siemens Energy — turbines are sold out through 2030." True, but the OEMs have already re-rated (GEV +59% YTD, Siemens Energy ~4× off its low) and that's the crowded expression.</p>
+    <p><b>The disaggregation:</b> the binding constraint isn't the OEM's assembly floor — it's the <b>hot-section casting one layer below</b>, a durable toll that (a) persists no matter which OEM wins and (b) is simultaneously pulled by the commercial-aero engine super-cycle. But the honest catch that keeps us from a slam-dunk: <b>that link has also run</b> (Howmet near an all-time high, ~55× forward earnings), and the scarcest incumbent (PCC) is captive at Berkshire — so the only genuinely-early listed expression is the freshly-IPO'd <b>Doncasters (DPC, 25-Jun-2026)</b>, which is a real pure-play but <b>loss-making and levered</b>.</p>
+    <p><b>Second disaggregation:</b> "the power bottleneck is bullish gas turbines" under-weights that the <i>urgent</i> tranche is defecting to reciprocating engines (24–30 mo vs turbine 5 yr) and SOFC fuel cells (Bloom, ~90-day installs). Bullish on-site power in aggregate; it spreads the rent and relieves the specific premium-turbine-slot scarcity.</p>
+    <p><b>If we're wrong, it's most likely because:</b> (1) low-/no-rhenium single-crystal alloys + additive repair ease the casting choke faster than expected; (2) castings are long-cycle and order-driven — an AI-capex pause hits blades hardest; (3) fuel cells/engines take more share than modeled, capping premium-blade volume; (4) OEMs/PCC expand or in-source faster than believed.</p>
+  </div>
+
+  <div class="variant" style="margin-top:14px;border-color:#3a3660">
+    <div class="vh">Rent-capture test — margins settle it</div>
+    <p>Does the scarce-link owner keep the rent, or the buyer? Here — unusually — rent is captured at <b>both</b> the OEM and the casting: GE Vernova Power EBITDA margin <b>+470 bps</b> with prices up 195–300%/3yr, and Howmet at <b>32% adj EBITDA</b> raising capex/prices. That's genuine toll capture (unlike GOES steel in Run #21, where the material stayed cheap). The pure-play Doncasters, by contrast, still runs a <b>net loss (−$167M on $886M rev)</b> — rent not yet captured, because of leverage. Reciprocating-engine makers (CAT, Cummins) capture <i>volume</i> at competitive margins. So: OEM (GEV) ≈ scaled casting (HWM) &gt; diversified genset (CAT) &gt; pure-play casting (DPC, unproven) &gt; raw material (no listed vehicle). The problem for an amateur: there is <b>no cheap-and-scarce combo</b> — the scarce link is priced (HWM), the cheap link is unproven (DPC), and the diversified link is diluted (CAT).</p>
   </div>
 </section>
 
-<!-- 9. AWARENESS + WATCHLIST -->
-<section id="s9">
-  <div class="sh"><span class="n">09</span><h2>Awareness curve · leading indicators · still-latent watchlist</h2><span class="cn">意識曲線</span></div>
-  <p class="lead">Where each link sits on the crowd's awareness, what to watch, and the genuinely-early names left of the pack. The dashed marker flags where the <i>next</i> entry hides — left of the earliest listed play, in the illiquid pure-play and the physical supply chain.</p>
+<!-- 9. AWARENESS + DASHBOARD + WATCHLIST -->
+<section>
+  <div class="sh"><span class="n">09</span><h2>Are we early? The awareness curve</h2><span class="cn">現在是早期嗎</span></div>
+  <p class="lead">Horizontal = market awareness (qualitative, by YTD move + coverage); dot height = how much of each story is already in the price. The dashed marker sits <b>left of the earliest name</b> — where the next entry actually hides.</p>
   <div class="svgwide">
-    <svg viewBox="0 0 1120 300" width="100%" role="img" aria-label="Awareness curve staging GOES plays">
-      <path d="M40 250 C300 240 460 210 620 150 C760 98 880 60 1080 46" fill="none" stroke="#2a3040" stroke-width="2"/>
-      <!-- stage zones -->
-      <text x="120" y="278" text-anchor="middle" class="svglabel" style="font-size:9px">LATENT</text>
-      <text x="360" y="278" text-anchor="middle" class="svglabel" style="font-size:9px">EARLY</text>
-      <text x="620" y="278" text-anchor="middle" class="svglabel" style="font-size:9px">RECOGNITION</text>
-      <text x="860" y="278" text-anchor="middle" class="svglabel" style="font-size:9px">EUPHORIA</text>
-      <text x="1040" y="278" text-anchor="middle" class="svglabel" style="font-size:9px">PRICED</text>
-      <line x1="240" y1="40" x2="240" y2="262" stroke="#1e2430"/><line x1="500" y1="40" x2="500" y2="262" stroke="#1e2430"/><line x1="740" y1="40" x2="740" y2="262" stroke="#1e2430"/><line x1="960" y1="40" x2="960" y2="262" stroke="#1e2430"/>
-
+    <svg viewBox="0 0 1080 320" width="100%" height="320" role="img" aria-label="Awareness curve">
+      <path d="M40 250 C 300 250 360 120 560 96 C 760 72 860 60 1030 52" fill="none" stroke="#2a3040" stroke-width="2"/>
+      <text x="48" y="292" font-size="10" fill="#697283">time · market awareness  →</text>
+      <text x="40" y="40" font-size="10" fill="#697283">% of story in the price ↑</text>
+      <!-- stage bands -->
+      <g font-size="9" fill="#4a5265" text-anchor="middle">
+        <text x="150" y="272">Latent</text><text x="360" y="272">Early (alpha)</text><text x="600" y="272">Recognition</text><text x="850" y="272">Euphoria</text><text x="1015" y="272">Priced</text>
+      </g>
       <!-- next-entry marker -->
-      <line x1="150" y1="60" x2="150" y2="250" stroke="#2dd4bf" stroke-width="1.5" stroke-dasharray="4 4"/>
-      <text x="150" y="52" text-anchor="middle" style="font-size:9px;font-weight:600" fill="#2dd4bf">where the next entry hides</text>
+      <line x1="235" y1="70" x2="235" y2="255" stroke="#2dd4bf" stroke-width="1.3" stroke-dasharray="5 4"/>
+      <text x="235" y="62" font-size="9.5" fill="#2dd4bf" text-anchor="middle" font-weight="600">where the next entry hides</text>
+      <text x="235" y="86" font-size="8" fill="#5fae9f" text-anchor="middle">rhenium/superalloy · TBC coaters</text>
+      <text x="235" y="98" font-size="8" fill="#5fae9f" text-anchor="middle">aeroderivative · private casters</text>
 
-      <!-- points -->
-      <!-- Stalprodukt latent -->
-      <circle cx="120" cy="243" r="6" fill="#5aa9e0"/>
-      <text x="120" y="228" text-anchor="middle" style="font-size:9.5px" fill="#8aa7df">Stalprodukt</text>
-      <text x="120" y="216" text-anchor="middle" class="svglabel" style="font-size:8px">STP.WA · purest, illiquid</text>
-      <!-- India JV latent -->
-      <circle cx="200" cy="238" r="6" fill="#5aa9e0"/>
-      <text x="200" y="200" text-anchor="middle" style="font-size:9.5px" fill="#8aa7df">JSW–JFE India</text>
-      <text x="200" y="188" text-anchor="middle" class="svglabel" style="font-size:8px">real GOES growth</text>
-      <!-- CLF early -->
-      <circle cx="360" cy="215" r="7" fill="#5fc98a"/>
-      <text x="360" y="200" text-anchor="middle" style="font-size:10px;font-weight:600" fill="#7cc9ad">CLF</text>
-      <text x="360" y="188" text-anchor="middle" class="svglabel" style="font-size:8px">sole US GOES · −28% YTD</text>
-      <!-- Nippon early-recog -->
-      <circle cx="470" cy="196" r="7" fill="#5fc98a"/>
-      <text x="470" y="181" text-anchor="middle" style="font-size:10px;font-weight:600" fill="#7cc9ad">Nippon/NPSCY</text>
-      <text x="470" y="169" text-anchor="middle" class="svglabel" style="font-size:8px">HiB leader · −12% YTD</text>
-      <!-- GOES narrative recognition -->
-      <circle cx="640" cy="142" r="6" fill="#e0a458"/>
-      <text x="640" y="127" text-anchor="middle" style="font-size:9.5px" fill="#e3bd76">"GOES = the gate" narrative</text>
-      <text x="640" y="115" text-anchor="middle" class="svglabel" style="font-size:8px">specialist analysts only</text>
-      <!-- Eaton euphoria -->
-      <circle cx="860" cy="78" r="6" fill="#e0686a"/>
-      <text x="860" y="63" text-anchor="middle" style="font-size:9.5px" fill="#eda3a4">ETN · Siemens Energy</text>
-      <text x="860" y="51" text-anchor="middle" class="svglabel" style="font-size:8px">+28% / ~2× off low</text>
-      <!-- GEV priced -->
-      <circle cx="1015" cy="52" r="7" fill="#e0686a"/>
-      <text x="1015" y="37" text-anchor="middle" style="font-size:10px;font-weight:600" fill="#eda3a4">GEV</text>
-      <text x="1015" y="72" text-anchor="middle" class="svglabel" style="font-size:8px">OEM · +64% YTD</text>
+      <!-- DPC early -->
+      <circle cx="370" cy="150" r="7" fill="#5aa9e0"/><text x="370" y="138" font-size="10" fill="#8fc7ee" text-anchor="middle" font-weight="600">DPC</text><text x="370" y="170" class="m" font-size="8" fill="#9aa3b5" text-anchor="middle">IPO +40%</text>
+      <!-- CAT recognition (diluted) -->
+      <circle cx="600" cy="118" r="7" fill="#e0a458"/><text x="600" y="106" font-size="10" fill="#e3bd76" text-anchor="middle" font-weight="600">CAT</text><text x="600" y="138" class="m" font-size="8" fill="#9aa3b5" text-anchor="middle">+54% dilut.</text>
+      <!-- HWM recog->euphoria -->
+      <circle cx="770" cy="92" r="7" fill="#8b84cf"/><text x="770" y="80" font-size="10" fill="#aaa3e6" text-anchor="middle" font-weight="600">HWM</text><text x="770" y="112" class="m" font-size="8" fill="#9aa3b5" text-anchor="middle">+33%</text>
+      <!-- GEV euphoria -->
+      <circle cx="900" cy="74" r="7" fill="#e0686a"/><text x="900" y="62" font-size="10" fill="#eda3a4" text-anchor="middle" font-weight="600">GEV</text><text x="900" y="94" class="m" font-size="8" fill="#9aa3b5" text-anchor="middle">+59%</text>
+      <!-- BE euphoria -->
+      <circle cx="990" cy="66" r="6" fill="#5fc98a"/><text x="990" y="54" font-size="9.5" fill="#7cc9ad" text-anchor="middle">BE</text><text x="990" y="86" class="m" font-size="8" fill="#9aa3b5" text-anchor="middle">escape</text>
     </svg>
   </div>
-  <p class="cap">Staged by 2026 YTD move + valuation (IBKR live, 8 Jul 2026). The inversion vs recent runs: here a <b>genuine laggard exists at the material layer</b> (CLF/Nippon down YTD) — but it is left of the crowd for structural reasons, so "early" comes with a dilution tax.</p>
+  <p class="cap" style="margin-top:-2px;margin-bottom:16px">Everything nameable has re-rated — GEV, HWM, CAT, Bloom are Recognition→Euphoria. DPC is the only Early dot, and it's early because it's <i>new</i> (IPO'd 3 weeks ago), not because it's cheap or safe. The genuinely-latent dollar is left of DPC, in links with no clean vehicle.</p>
+
+  <div class="panel" style="margin-top:6px">
+    <div style="font-size:12px;font-weight:600;color:var(--txt);margin-bottom:12px">Leading-indicator dashboard — with where an amateur can actually read it</div>
+    <table class="dash">
+      <thead><tr><th style="width:26%">Signal</th><th style="width:26%">Trigger threshold</th><th style="width:26%">Where to read it (free)</th><th>Reads on</th></tr></thead>
+      <tbody>
+        <tr><td class="sig">GEV gas-turbine slot reservations → firm backlog</td><td>Slots stop converting; backlog growth stalls below ~110 GW</td><td class="src">GE Vernova 8-K / earnings deck (quarterly)</td><td>OEM demand durability</td></tr>
+        <tr><td class="sig">Turbine ASP / pricing per new bid</td><td>Pricing growth drops below ~10% YoY</td><td class="src">GEV call transcript · Utility Dive</td><td>Rent capture rolling over</td></tr>
+        <tr><td class="sig">Howmet IGT segment growth &amp; capex</td><td>IGT growth &lt;~20% or capex guide cut from $500M</td><td class="src">Howmet 8-K / IR (quarterly)</td><td>Casting-toll demand</td></tr>
+        <tr><td class="sig">Doncasters (DPC) backlog &amp; loss trajectory</td><td>Backlog slips below ~$930M or losses widen</td><td class="src">DPC 10-Q (first prints post-IPO)</td><td>Pure-play de-lever thesis</td></tr>
+        <tr><td class="sig">Reciprocating-engine lead times</td><td>Lead times shorten below ~24 mo (capacity catches up)</td><td class="src">CAT / Cummins calls · power-eng.com</td><td>Bridge-power tightness</td></tr>
+        <tr><td class="sig">Rhenium price</td><td>Sustained new highs = alloy stress; sharp drop = demand fade</td><td class="src">USGS Mineral Commodity Summaries</td><td>Material sub-choke</td></tr>
+        <tr><td class="sig">Fuel-cell data-center deal flow (Bloom)</td><td>&gt;$5B/quarter = accelerating substitution of turbines</td><td class="src">Bloom 8-K · DataCenterDynamics</td><td>Escape-hatch share</td></tr>
+        <tr><td class="sig">Interconnection queue wait times</td><td>Falling below ~5 yr = grid relief, BTM urgency eases</td><td class="src">RMI · ISO/RTO queue reports</td><td>The demand driver itself</td></tr>
+      </tbody>
+    </table>
+  </div>
 
   <div class="two" style="margin-top:16px">
     <div class="panel">
-      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Leading-indicator dashboard — and where an amateur can read it</h4>
-      <table class="liw">
-        <tr><th>Signal</th><th>Trigger</th><th>Where to read it (free)</th></tr>
-        <tr><td><b>GOES regional price spread</b></td><td class="dotR">NA/Asia premium widening past ~3×</td><td>businessanalytiq GOES index; MetalMiner notes</td></tr>
-        <tr><td><b>Transformer lead-times</b></td><td class="dotA">holds &gt;128 wk (power) / &gt;4 yr (HV)</td><td>Wood Mackenzie press; POWER Magazine</td></tr>
-        <tr><td><b>OEM margin / backlog</b></td><td class="dotG">GEV Electrification b:b &gt;2, margin &gt;18%</td><td>GEV / Siemens Energy / Eaton 8-K + slides</td></tr>
-        <tr><td><b>Section 232 / DPA scope</b></td><td class="dotA">tariff scope on cores/transformers changes</td><td>CBP / BIS notices; White House actions</td></tr>
-        <tr><td><b>EU GOES safeguard</b></td><td class="dotG">provisional measures on Chinese GOES</td><td>EU DG-Trade news (case opened Mar'26)</td></tr>
-        <tr><td><b>CLF electrical-steel disclosure</b></td><td class="dotG">CLF segments/quantifies GOES + Weirton ramp</td><td>CLF 10-Q/earnings-call transcripts</td></tr>
+      <div style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:10px">Still-latent watchlist — genuinely early, left of the top-3</div>
+      <table class="tbl">
+        <tr><td><b>Rhenium / superalloy material</b><br><span style="font-size:11px;color:var(--dim)">Molymet (pvt) · Cannon-Muskegon · revert loops</span></td><td>Why next: by-product supply ≈ fixed. Trigger: sustained rhenium new highs. <b style="color:#eda3a4">No clean listed vehicle</b> — GOES pattern.</td></tr>
+        <tr><td><b>TBC coatings</b><br><span style="font-size:11px;color:var(--dim)">Chromalloy (pvt) · OEM-captive</span></td><td>Why next: co-binds with casting. Trigger: a coatings capacity deal or spin/IPO.</td></tr>
+        <tr><td><b>Aeroderivative / mobile bridge power</b><br><span style="font-size:11px;color:var(--dim)">GE TM2500 · ProEnergy · VoltaGrid (pvt)</span></td><td>Why next: fastest "can't-wait" MW. Trigger: a listed pure-play or big framework order.</td></tr>
+        <tr><td><b>Cummins (CMI)</b><br><span style="font-size:11px;color:var(--dim)">the laggard genset name</span></td><td>Why next: gensets diluted in a cheaper, de-rated stock (−12% off high). Trigger: power-gen segment disclosure.</td></tr>
       </table>
     </div>
     <div class="panel">
-      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Still-latent watchlist — genuinely early, left of the crowd</h4>
-      <div style="border-left:3px solid var(--dout);padding:8px 12px;margin-bottom:9px;background:var(--panel2);border-radius:0 8px 8px 0">
-        <b style="font-size:12px;color:var(--txt)">1 · Stalprodukt (STP.WA, Warsaw)</b>
-        <p style="font-size:11.5px;color:var(--mut);margin-top:3px;line-height:1.45">The purest <i>listed</i> GOES/transformer-core pure-play (electrical steel is the dominant segment), micro-cap ~$270M, trading <i>below</i> its moving averages while the complex booms. <b>Trigger:</b> EU safeguard provisional duties on Chinese GOES / a European grid-supply contract / GOES export-ASP inflection. <span style="color:var(--dim)">Access: WSE via IBKR; very illiquid (~hundreds of shares/day).</span></p>
-      </div>
-      <div style="border-left:3px solid var(--dout);padding:8px 12px;margin-bottom:9px;background:var(--panel2);border-radius:0 8px 8px 0">
-        <b style="font-size:12px;color:var(--txt)">2 · JSW–JFE India GOES JV (via JFE 5411 / JSW Steel)</b>
-        <p style="font-size:11.5px;color:var(--mut);margin-top:3px;line-height:1.45">The one genuine GOES <i>capacity</i> growth story (¥120bn → 350kt/yr by 2030), localizing behind India's grid build. <b>Trigger:</b> Vijayanagar 100kt full production (2027); India transformer-localization mandates. <span style="color:var(--dim)">Access: diluted via JFE ADR (JFEEY) or JSW Steel (India).</span></p>
-      </div>
-      <div style="border-left:3px solid var(--dup);padding:8px 12px;background:var(--panel2);border-radius:0 8px 8px 0">
-        <b style="font-size:12px;color:var(--txt)">3 · Amorphous / process-moat (the "no clean ticket" finding)</b>
-        <p style="font-size:11.5px;color:var(--mut);margin-top:3px;line-height:1.45">Metglas (Proterial/Bain, private), AT&amp;M (000969.SZ, China-locked), Yunlu — plus the bell-anneal/laser-scribe equipment (SMS, Trumpf — private). <b>Trigger:</b> a listed amorphous pure-play IPO, or the DOE-2029 amorphous-segment clock forcing distribution-transformer conversion. <span style="color:var(--dim)">Documents the honest reality: the moat exists, but there's no reachable pure-play.</span></p>
-      </div>
+      <div style="font-size:12px;font-weight:600;color:var(--dup);margin-bottom:10px">The escape hatch — why it matters</div>
+      <p style="font-size:12.5px;color:var(--mut);line-height:1.55"><b style="color:var(--txt)">Bloom Energy (BE)</b> is the disaggregation risk made investable. SOFC power blocks install in ~90 days and use <b>no turbine blades</b> — bypassing the entire chokepoint. Bloom's $25B Brookfield commitment (Jun-2026) and Oracle's up-to-2.8 GW deal mean the "urgent tranche" of on-site power has a real non-turbine path. It's the strongest argument that the blade choke is severe-but-not-absolute (capped at 18, not 20). But BE itself is in euphoria (52-wk $24→$351) and is a binary single-product story — a watchlist tell, not a top-3.</p>
     </div>
   </div>
 </section>
 
-<!-- 10. TOP-3 -->
-<section id="s10">
-  <div class="sh"><span class="n">10</span><h2>Top-3 plays — three different links on one chain</h2><span class="cn">三檔拆解</span></div>
-  <p class="lead">One name per link: the <b>material</b> (CLF, sole US GOES, un-bid), the <b>technology</b> (Nippon Steel, premium HiB leader, laggard), and the <b>rent-capturer</b> (GE Vernova, the transformer OEM, priced). None is a clean pure-play — that <i>is</i> the finding. Each tab carries the 8-point Chinese-labeled teardown.</p>
-  <div role="tablist" aria-label="Top-3 plays" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:-1px">
-    <button class="tabbtn on" role="tab" id="tab-clf" aria-selected="true" aria-controls="pane-clf" tabindex="0">CLF · Cleveland-Cliffs<small>the material — sole US GOES · EARLY (−28%)</small></button>
-    <button class="tabbtn" role="tab" id="tab-npn" aria-selected="false" aria-controls="pane-npn" tabindex="-1">NPSCY / 5401 · Nippon Steel<small>the technology — HiB leader · EARLY (−12%)</small></button>
-    <button class="tabbtn" role="tab" id="tab-gev" aria-selected="false" aria-controls="pane-gev" tabindex="-1">GEV · GE Vernova<small>the rent-capturer — OEM · PRICED (+64%)</small></button>
+<!-- 10. TOP-3 TABS -->
+<section>
+  <div class="sh"><span class="n">10</span><h2>Top-3 — three different links, staged by remaining asymmetry</h2><span class="cn">三檔標的</span></div>
+  <p class="lead">Ranked by <b>remaining asymmetry</b> (how much is still NOT priced): DPC (early, risky) → HWM (recognition) → GEV (euphoria). Each sits at a <i>different</i> link. Prices as-of 18 Jul 2026; valuations show their denominators.</p>
+  <div class="tabs" role="tablist" aria-label="Top 3 plays">
+    <button class="tab" role="tab" id="tab-dpc" aria-selected="true" aria-controls="p-dpc" tabindex="0">DPC <span class="tk">Doncasters</span></button>
+    <button class="tab" role="tab" id="tab-hwm" aria-selected="false" aria-controls="p-hwm" tabindex="-1">HWM <span class="tk">Howmet</span></button>
+    <button class="tab" role="tab" id="tab-gev" aria-selected="false" aria-controls="p-gev" tabindex="-1">GEV <span class="tk">GE Vernova</span></button>
   </div>
 
-  <!-- CLF PANE -->
-  <div class="panel" role="tabpanel" id="pane-clf" aria-labelledby="tab-clf" tabindex="0" style="border-radius:0 12px 12px 12px">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:6px">
-      <h3 style="font-size:17px;font-weight:600">Cleveland-Cliffs · <span class="num">CLF</span> <span class="stagebadge sg-early">EARLY / LATENT-BY-PRICE</span></h3>
-      <span style="font-size:11.5px;color:var(--dim)">The material chokepoint · sole US/N-American GOES producer (Butler, PA)</span>
+  <!-- DPC -->
+  <div class="panelt" data-active="true" id="p-dpc" role="tabpanel" aria-labelledby="tab-dpc">
+    <div class="vstrip">
+      <div><div class="vv teal">$46.0</div><div class="ll">Price (IBKR close) · IPO $33 on 25-Jun</div></div>
+      <div><div class="vv">~$6.7B</div><div class="ll">Market cap</div></div>
+      <div><div class="vv red">−$167M</div><div class="ll">Net loss (12 mo to Mar-26) on $886M rev</div></div>
+      <div><div class="vv amb">$930M</div><div class="ll">Order backlog (&gt;12 mo of casting output)</div></div>
     </div>
-    <div class="mini">
-      <div><div class="v red num">$9.50</div><div class="l">last · 8 Jul 2026</div></div>
-      <div><div class="v red num">−28%</div><div class="l">YTD 2026</div></div>
-      <div><div class="v num">~$5.4B</div><div class="l">mkt cap · EV ~$14.7B</div></div>
-      <div><div class="v num">$7.74–$16.70</div><div class="l">52-wk (near low)</div></div>
-      <div><div class="v num">HOLD</div><div class="l">~10–20 analysts · PT ~$12.3</div></div>
+    <div class="eight">
+      <div class="e"><div class="eh">① How it makes money<span class="cn">怎麼賺錢</span></div><p>Independent maker of precision superalloy castings and Ni/Co superalloys — aero &amp; IGT turbine airfoils (blades/vanes), structural castings, turbocharger wheels. Sells parts to engine OEMs.</p></div>
+      <div class="e"><div class="eh">② Revenue structure<span class="cn">營收結構</span></div><p>Aerospace + industrial gas turbine + transportation. Revenue ~$886M (12 mo to Mar-26), +~12% YoY; net loss −$167M on heavy post-LBO leverage.</p></div>
+      <div class="e"><div class="eh">③ Growth drivers<span class="cn">成長來源</span></div><p>Commercial-aero recovery + IGT/data-center demand; backlog $725M→$930M (per IPO prospectus). De-leveraging + margin recovery is the equity story.</p></div>
+      <div class="e"><div class="eh">④ End markets<span class="cn">終端市場</span></div><p>Aero engine OEMs, IGT OEMs, turbocharger/transport — the same duopoly-adjacent hot-section demand as Howmet.</p></div>
+      <div class="e"><div class="eh">⑤ Key customers<span class="cn">主要客戶</span></div><p>Aero + IGT engine OEMs (indirect via engine programs). QIA (Qatar sovereign fund) took a $75M anchor stake at IPO.</p></div>
+      <div class="e"><div class="eh">⑥ Moat<span class="cn">護城河</span></div><p>The only independent #3 at the single-crystal casting chokepoint (PCC captive, HWM scaled). Vertically integrated into its own superalloys.</p></div>
+      <div class="e"><div class="eh">⑦ Management outlook<span class="cn">管理層展望</span></div><p>Freshly public (25-Jun-2026); pitch is de-lever + ride aero/IGT demand. No long public track record yet — thesis is unproven.</p></div>
+      <div class="e k"><div class="eh">⑧ Why it's the chokepoint<span class="cn">為何是卡點</span></div><p>Same scarce link as Howmet, but a <b>pure-play</b> — the genuinely-early, un-storied listed expression. Also the riskiest: loss-making, levered, ~180-day lockup overhang.</p></div>
     </div>
-    <div class="mtd">
-      <div class="mtc"><div class="h">① 怎麼賺錢 — how it makes money</div><p>Integrated flat-rolled steelmaker (~$18.6B rev): hot-rolled/coated/cold-rolled carbon steel for <b>autos &amp; construction</b>. Electrical steel (GOES + NOES) is a tiny, high-value slice.</p></div>
-      <div class="mtc"><div class="h">② 營收結構 — revenue mix</div><p>Q1'26 shipments: 44% hot-rolled · 29% coated · 15% cold-rolled · 5% plate · <b>~3% stainless+electrical</b> · 4% other. GOES-only ≈ 1.5% of tonnes — <b>the dilution problem</b>.</p></div>
-      <div class="mtc"><div class="h">③ 成長來源 — growth drivers</div><p>2026 cyclical recovery (Section 232 imports at 2009 lows, auto restock); the <b>GOES optionality</b>: Butler DOE-funded expansion (2028) + Weirton, WV transformer plant ($150M, 2026) forward-integrating into the rent.</p></div>
-      <div class="mtc"><div class="h">④ 終端市場 — end markets</div><p>Autos (largest), construction, appliances; GOES → <b>grid/distribution transformers</b> — the AI-power tie-in, but a small end-market for CLF today.</p></div>
-      <div class="mtc"><div class="h">⑤ 主要客戶 — key customers</div><p>Detroit automakers; steel service centers; transformer/core makers buy Butler GOES. Adding its <i>own</i> transformer output (Weirton).</p></div>
-      <div class="mtc"><div class="h">⑥ 護城河 — moat</div><p><b>Sole US GOES producer</b> — a genuine domestic monopoly on a policy-protected, hard-to-replicate material. But the moat is buried inside a levered, cyclical carbon-steel P&amp;L.</p></div>
-      <div class="mtc"><div class="h">⑦ 管理層展望 — mgmt outlook</div><p>Guides sharp sequential 2026 EBITDA/FCF recovery ("best quarter in ~2 yrs"); applauds Section 232 transformer-derivative coverage; leaning into domestic GOES + transformers.</p></div>
-      <div class="mtc"><div class="h">⑧ 為何是卡點 — why the chokepoint</div><p>Owns the one US link that AI-power reshoring <b>must</b> route through — but at ~1.5–3% of the book, it captures little of the GOES rent today. A call-option on the monopoly, not a pure-play.</p></div>
+    <div class="gap">
+      <div class="gh">Asymmetric info gap</div>
+      <p>Three weeks public, thin analyst coverage, and a <b>messy levered P&amp;L</b> (net loss) that obscures a clean pure-play exposure to the exact chokepoint the whole market is chasing one layer up. The QIA anchor is under-noticed. The gap closes as coverage initiates and the first 10-Q lands.</p>
     </div>
-    <div class="gap" style="margin-top:12px"><div class="h">ASYMMETRIC INFO-GAP</div><p>The market prices CLF as a distressed, levered carbon-steel cyclical (net debt ~$8.1B FY25, GAAP net loss −$1.4B, 13.6% short interest) and <b>ignores the embedded US-GOES monopoly</b> that three independent policy vectors now protect (DOE rule walk-back preserving ~75% GOES demand; 50% Section-232 on cores/transformers; April-2026 DPA naming "electrical core steel" defense-essential). If CLF ever <b>segments/quantifies GOES</b> or the Weirton transformer plant ramps, the option de-buries — but you're buying the steel cycle to get there.</p></div>
-    <div class="bbr">
-      <div class="bl"><b>BULL</b>Steel cycle turns + GOES/transformer optionality gets recognised (Weirton ramps, 232+DPA drive domestic GOES pricing) → re-rate off 52-wk lows.</div>
-      <div class="be"><b>BEAR</b>HRC/auto cycle stays weak, China oversupply caps GOES, ~$8.1B net debt bites; GOES too small (~1.5% tonnes) to move a $18.6B book.</div>
+    <div class="bb">
+      <div class="bull"><b>Bull (+80%, ~25%):</b> de-levers, IGT airfoil demand ramps, sell-side initiates coverage on the "only pure-play blade IPO" — re-rates toward HWM-like multiples.</div>
+      <div class="bear"><b>Bear (−50%, ~35%):</b> lockup supply + widening losses + a cyclical order pause; a newly-public, levered small-cap is the first thing sold in a drawdown. <b>Prob-weighted EV ≈ +3%</b> — fat tails, small size only.</div>
     </div>
-    <div class="panel" style="margin-top:12px;background:var(--panel2)">
-      <h4 style="font-size:12.5px;margin-bottom:4px;font-weight:600">Scenario table — CLF (the lead early pick), ~12–18m <span style="color:var(--dim);font-weight:400;font-size:11px">· illustrative, probabilities are the author's; a high-beta cyclical</span></h4>
-      <table class="scn" style="margin-top:6px">
-        <tr><th>Case</th><th>Prob.</th><th>What happens</th><th>~12–18m</th></tr>
-        <tr class="bull"><td><b>Bull</b></td><td class="num">30%</td><td>Steel cycle turns; GOES/transformer story gets recognised; Weirton + Butler validate the reshoring option</td><td class="num" style="color:var(--dacr)">+70%</td></tr>
-        <tr class="base"><td><b>Base</b></td><td class="num">45%</td><td>Sequential 2026 EBITDA recovery as guided; GOES stays optionality; stock recovers toward PT ~$12–13</td><td class="num" style="color:var(--dup)">+30%</td></tr>
-        <tr class="bear"><td><b>Bear</b></td><td class="num">25%</td><td>HRC/auto weak, China dumps, leverage bites; GOES immaterial; stays a distressed cyclical</td><td class="num" style="color:var(--choke)">−40%</td></tr>
-      </table>
-      <p class="cap" style="margin-top:8px">Prob-weighted EV ≈ 0.30(+70%) + 0.45(+30%) + 0.25(−40%) ≈ <b style="color:var(--txt)">+24.5%</b> — positive, but it is a <b>levered cyclical bet with a GOES call option attached</b>, not a clean chokepoint re-rate. <b>Entry discipline (est.):</b> size small, treat GOES as free optionality; scale only on a confirmed cycle turn. <b>Dated falsifier:</b> if the Q3-2026 print (Oct) misses the guided "best EBITDA/FCF quarter in 2 years" AND GOES stays un-segmented, the thesis is just a failed cyclical bet — reduce.</p>
-    </div>
+    <p style="font-size:11px;color:var(--dim);margin-top:10px"><b>Dated falsifier:</b> the first one or two 10-Qs show backlog slipping below ~$930M or losses widening rather than narrowing → thesis broken, exit. Valuation: ~$6.7B cap on ~$886M sales (~7–8× sales, ex-leverage; EV higher) — an <i>option</i> on a pure-play, not a cash-flow story.</p>
   </div>
 
-  <!-- NIPPON PANE -->
-  <div class="panel" role="tabpanel" id="pane-npn" aria-labelledby="tab-npn" tabindex="0" hidden style="border-radius:0 12px 12px 12px">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:6px">
-      <h3 style="font-size:17px;font-weight:600">Nippon Steel · <span class="num">NPSCY</span> / <span class="num">5401.T</span> <span class="stagebadge sg-early">EARLY / LAGGARD-BY-PRICE</span></h3>
-      <span style="font-size:11.5px;color:var(--dim)">The technology chokepoint · world premium HiB / domain-refined GOES leader</span>
+  <!-- HWM -->
+  <div class="panelt" data-active="false" id="p-hwm" role="tabpanel" aria-labelledby="tab-hwm" hidden>
+    <div class="vstrip">
+      <div><div class="vv teal">$271</div><div class="ll">Price (IBKR close) · YTD +32.4%</div></div>
+      <div><div class="vv">~$109B</div><div class="ll">Market cap</div></div>
+      <div><div class="vv">~55×</div><div class="ll">Fwd P/E on FY26 adj EPS $4.94</div></div>
+      <div><div class="vv grn">32.0%</div><div class="ll">Q1-26 adj EBITDA margin (rent captured)</div></div>
     </div>
-    <div class="mini">
-      <div><div class="v red num">$3.50</div><div class="l">NPSCY ADR · 8 Jul</div></div>
-      <div><div class="v red num">−12%</div><div class="l">YTD 2026 (ADR)</div></div>
-      <div><div class="v num">~15–20%</div><div class="l">est. global GOES share</div></div>
-      <div><div class="v num">~¥10.1T</div><div class="l">FY rev · low P/B</div></div>
-      <div><div class="v num">~$14B</div><div class="l">US Steel deal (levered)</div></div>
+    <div class="eight">
+      <div class="e"><div class="eh">① How it makes money<span class="cn">怎麼賺錢</span></div><p>Hot-section castings (blades/vanes), engineered fasteners, forged aluminum wheels. Engine Products (the castings) is the core and the highest-margin.</p></div>
+      <div class="e"><div class="eh">② Revenue structure<span class="cn">營收結構</span></div><p>Q1-26 revenue $2.31B (+19%); FY26 guide ~$9.65B rev, adj EBITDA $3.06B (31.7%), adj EPS $4.94, FCF $1.75B.</p></div>
+      <div class="e"><div class="eh">③ Growth drivers<span class="cn">成長來源</span></div><p>Commercial-aero build-rate + defense + IGT (+39% in Q1-26). IGT rev ~$1B (2025) → $2B+ in 3–5 yr; raised 2026 capex to $500M for IGT.</p></div>
+      <div class="e"><div class="eh">④ End markets<span class="cn">終端市場</span></div><p>Aero engine OEMs (GE Aerospace, RTX/P&amp;W, Safran, Rolls-Royce), IGT OEMs (GEV/Siemens/Mitsubishi), defense.</p></div>
+      <div class="e"><div class="eh">⑤ Key customers<span class="cn">主要客戶</span></div><p>GE Aerospace, RTX, Safran, GE Vernova, Siemens Energy — plus Boeing/Airbus indirectly through engines.</p></div>
+      <div class="e"><div class="eh">⑥ Moat<span class="cn">護城河</span></div><p>Decades of single-crystal/DS casting know-how; ~60% recycled superalloy revert loop secures scarce material. PCC + Howmet ≈ 70–80% of high-end blades.</p></div>
+      <div class="e"><div class="eh">⑦ Management outlook<span class="cn">管理層展望</span></div><p>Guided FY26 revenue ~$9.65B (~+17% YoY, raised after Q1); IGT a multi-year tailwind; steady buybacks + rising dividend. Confident, disciplined.</p></div>
+      <div class="e k"><div class="eh">⑧ Why it's the chokepoint<span class="cn">為何是卡點</span></div><p>Sits <b>at</b> the binding link — the blades every advanced turbine <i>and</i> jet engine needs; a toll that persists regardless of which OEM wins. But it's fully valued.</p></div>
     </div>
-    <div class="mtd">
-      <div class="mtc"><div class="h">① 怎麼賺錢 — how it makes money</div><p>World top-4 crude-steel maker: autos, construction, energy, plus a premium <b>electrical-steel</b> franchise. Now also owns U.S. Steel (closed 2025).</p></div>
-      <div class="mtc"><div class="h">② 營收結構 — revenue mix</div><p>~¥10T revenue dominated by commodity/auto steel; electrical steel (GO+NO) is high-single-digit % at most, <b>GOES a low-single-digit slice</b> — a crown jewel, financially swamped.</p></div>
-      <div class="mtc"><div class="h">③ 成長來源 — growth drivers</div><p>US Steel/Big River integration ($3B incl. GOES for transformers/motors); Hirohata/Setouchi high-grade electrical-steel expansion; offshore-wind + grid HVDC demand for HiB.</p></div>
-      <div class="mtc"><div class="h">④ 終端市場 — end markets</div><p>Global autos, construction, energy; electrical steel → <b>transformers (GOES)</b> + EV motors (NOES). The premium HiB tier serves grid/HVDC.</p></div>
-      <div class="mtc"><div class="h">⑤ 主要客戶 — key customers</div><p>Global transformer OEMs buy its HiB/domain-refined grades; automakers; now captive US demand via U.S. Steel.</p></div>
-      <div class="mtc"><div class="h">⑥ 護城河 — moat</div><p><b>The deepest GOES metallurgy on earth</b> — domain-refined HiB, decades of inhibitor/anneal know-how. The "own the technology leader" expression, but diluted + now levered.</p></div>
-      <div class="mtc"><div class="h">⑦ 管理層展望 — mgmt outlook</div><p>¥6tn/5-yr domestic capex plan; positioning electrical steel + US expansion as growth; near-term earnings hit by one-offs + integration.</p></div>
-      <div class="mtc"><div class="h">⑧ 為何是卡點 — why the chokepoint</div><p>Makes the scarcest tier (premium HiB) that the West can't; TK's European exit concentrates the rent toward it. But the equity is a steel-cycle + US-Steel-integration call, not a GOES pure-play.</p></div>
+    <div class="gap">
+      <div class="gh">Asymmetric info gap</div>
+      <p>The "AI power" tag is mostly <b>aerospace</b> today — IGT is still only ~$1B of ~$9.65B revenue. The market may be under-appreciating the multi-year IGT ramp (doubling), while the stock already prices the aero super-cycle. Blade-capacity additions are quiet and hard to track.</p>
     </div>
-    <div class="gap" style="margin-top:12px"><div class="h">ASYMMETRIC INFO-GAP</div><p>Nippon is the <i>intellectually correct</i> GOES name — the premium-HiB technology leader whose rent should <i>rise</i> as thyssenkrupp idles Europe's lines. But the market prices it as a Japanese steel megacap now <b>levered by the ~$14B U.S. Steel deal</b>, so the GOES optionality is buried under crude-steel beta + integration risk. The gap: the West's GOES supply is shrinking into Nippon's hands, but you can't isolate that in the P&amp;L.</p></div>
-    <div class="bbr">
-      <div class="bl"><b>BULL</b>TK's European exit + US grid reshoring lift premium-HiB pricing; US Steel integration delivers; JP steel re-rates off low P/B.</div>
-      <div class="be"><b>BEAR</b>China commodity oversupply + weak global steel; US Steel debt/integration drag; GOES too small to move a ¥10T book; FX.</div>
+    <div class="bb">
+      <div class="bull"><b>Bull (+25%, ~30%):</b> IGT doubles as guided, aero build-rates hold, margins compound past 32% — the durable toll keeps re-rating.</div>
+      <div class="bear"><b>Bear (−30%, ~25%):</b> a narrowbody build-rate cut or AI-capex pause rolls the aero + IGT cycle at ~55× earnings. <b>Prob-weighted EV ≈ +1–2%</b> — quality, but priced. Own only on a pullback.</div>
     </div>
-    <p class="cap" style="margin-top:12px"><b>~12–18m (illustrative, author's probabilities):</b> bull +30–45% (JP-steel re-rate off ~0.8× P/B + US-Steel integration delivers · ~30%); base +5–15% (steel cycle muddles, GOES stays optionality · ~45%); bear −20–30% (China oversupply + integration drag · ~25%) → prob-weighted EV ≈ <b style="color:var(--txt)">+9%</b>. A diluted, partly-priced "own the leader" call — real GOES tech, poor purity; the low EV echoes CLF's — <b>depth of teardown ≠ depth of conviction</b>. Access: NPSCY OTC ADR (thin, ~0.8× P/B est.) or 5401.T via IBKR.</p>
+    <p style="font-size:11px;color:var(--dim);margin-top:10px"><b>Dated falsifier:</b> IGT segment growth decelerates below ~20%, or aero OEMs cut build rates, in the next one or two prints. Entry discipline: prefer a pullback toward the low-$200s / mid-40s× before adding. Valuation: ~$109B cap, ~55× fwd P/E, ~36× EV/EBITDA (est.).</p>
   </div>
 
-  <!-- GEV PANE -->
-  <div class="panel" role="tabpanel" id="pane-gev" aria-labelledby="tab-gev" tabindex="0" hidden style="border-radius:0 12px 12px 12px">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:6px">
-      <h3 style="font-size:17px;font-weight:600">GE Vernova · <span class="num">GEV</span> <span class="stagebadge sg-eu">RECOGNITION → EUPHORIA</span></h3>
-      <span style="font-size:11.5px;color:var(--dim)">The rent-capturer · the transformer OEM where the scarcity toll settles</span>
+  <!-- GEV -->
+  <div class="panelt" data-active="false" id="p-gev" role="tabpanel" aria-labelledby="tab-gev" hidden>
+    <div class="vstrip">
+      <div><div class="vv teal">$1,036</div><div class="ll">Price (IBKR close) · YTD +58.8%</div></div>
+      <div><div class="vv">~$284B</div><div class="ll">Market cap</div></div>
+      <div><div class="vv">$163B</div><div class="ll">Total backlog · Power orders +59% org</div></div>
+      <div><div class="vv grn">+470 bps</div><div class="ll">Power EBITDA margin gain (rent captured)</div></div>
     </div>
-    <div class="mini">
-      <div><div class="v grn num">$1,069</div><div class="l">last · 8 Jul 2026</div></div>
-      <div><div class="v red num">+64%</div><div class="l">YTD 2026</div></div>
-      <div><div class="v num">~$290B</div><div class="l">mkt cap</div></div>
-      <div><div class="v num">$42B</div><div class="l">Electrification backlog</div></div>
-      <div><div class="v num">17.8%</div><div class="l">Elec. EBITDA margin (+670bps)</div></div>
+    <div class="eight">
+      <div class="e"><div class="eh">① How it makes money<span class="cn">怎麼賺錢</span></div><p>Sells heavy-duty gas turbines + a long-tail services annuity on the installed base, plus grid Electrification equipment and Wind.</p></div>
+      <div class="e"><div class="eh">② Revenue structure<span class="cn">營收結構</span></div><p>Power (gas) + Electrification (grid) + Wind. Q1-26 Power orders $10B (+59% org), Power revenue $5B; total backlog $163B.</p></div>
+      <div class="e"><div class="eh">③ Growth drivers<span class="cn">成長來源</span></div><p>Behind-the-meter data-center power; turbine ASP +195–300%/3yr and +10–20% per new bid; slot reservations 100→110 GW by YE26.</p></div>
+      <div class="e"><div class="eh">④ End markets<span class="cn">終端市場</span></div><p>Utilities, IPPs, and hyperscalers/neoclouds via developers. ~20% of the 100 GW under contract explicitly supports data centers.</p></div>
+      <div class="e"><div class="eh">⑤ Key customers<span class="cn">主要客戶</span></div><p>Utilities, ProEnergy/VoltaGrid-type developers, sovereigns, and hyperscalers indirectly. $2.4B DC electrification orders in one quarter.</p></div>
+      <div class="e"><div class="eh">⑥ Moat<span class="cn">護城河</span></div><p>3-maker heavy-duty oligopoly (GEV/Siemens/Mitsubishi); decades of installed-base services; slot scarcity to ~2030.</p></div>
+      <div class="e"><div class="eh">⑦ Management outlook<span class="cn">管理層展望</span></div><p>Expects to be sold out through ~2030 by YE26; raised guidance; margins inflecting up. Very bullish tone.</p></div>
+      <div class="e k"><div class="eh">⑧ Why it's the chokepoint<span class="cn">為何是卡點</span></div><p>It <i>is</i> the headline scarce slot — but the true scarcity is one layer below, at the blades it can't get faster. GEV is the <b>rent-capturer</b>, not the chokepoint owner.</p></div>
     </div>
-    <div class="mtd">
-      <div class="mtc"><div class="h">① 怎麼賺錢 — how it makes money</div><p>Power (gas/nuclear turbines), Wind, and <b>Electrification</b> (grid/transformers/switchgear). The transformer &amp; grid-equipment segment is the AI-power engine.</p></div>
-      <div class="mtc"><div class="h">② 營收結構 — revenue mix</div><p>~$36B group; Electrification ~$14–14.5B FY26 guide, the fastest-growing, highest-incremental-margin segment. Bought remaining 50% of <b>Prolec GE</b> (~$5.3B).</p></div>
-      <div class="mtc"><div class="h">③ 成長來源 — growth drivers</div><p>The transformer/grid super-cycle: orders +86% organic, book-to-bill ~2.5, Electrification backlog $9B(2022)→<b>~$42B</b> total segment (~$38.6B equipment per the Q1'26 8-K). Passes GOES cost to utilities + captures scarcity pricing.</p></div>
-      <div class="mtc"><div class="h">④ 終端市場 — end markets</div><p>Utilities, grid operators, and directly the <b>AI data-center</b> buildout (transformers, switchgear). The demand side of the whole report.</p></div>
-      <div class="mtc"><div class="h">⑤ 主要客戶 — key customers</div><p>US + global utilities; hyperscalers via grid interconnect; the datacenter equipment order pace hit ~$2.4B/qtr.</p></div>
-      <div class="mtc"><div class="h">⑥ 護城河 — moat</div><p>One of ~3 Western transformer/grid OEMs at scale, with GOES-secured supply + Prolec footprint. Rent-capture proven in expanding margins.</p></div>
-      <div class="mtc"><div class="h">⑦ 管理層展望 — mgmt outlook</div><p>Raised Electrification guide to 18–20% EBITDA margin; multi-year backlog visibility into 2027+. The most-owned AI-power "pick."</p></div>
-      <div class="mtc"><div class="h">⑧ 為何是卡點 — why the chokepoint</div><p>Not the chokepoint — the <b>rent-capturer downstream of it</b>. Included as the honest comp: this is where the GOES scarcity actually monetises, and it is already priced.</p></div>
+    <div class="gap">
+      <div class="gh">Asymmetric info gap</div>
+      <p>The market treats "110 GW by YE26" as gospel — but the split between firm <b>backlog</b> and softer <b>slot reservations</b> matters, as does how much DC demand is truly contracted vs reserved. Any conversion wobble hits a stock priced for perfection.</p>
     </div>
-    <div class="gap" style="margin-top:12px"><div class="h">ASYMMETRIC INFO-GAP</div><p>There is <b>little</b> gap left — that's the point. GEV is the consensus expression of the transformer super-cycle: +64% YTD, ~40% above its 200-DMA, a $42B backlog and +670bps margins that <i>prove</i> the rent settles here. It is the benchmark against which CLF/Nippon are the asymmetry, not itself a fresh idea. Own only on a meaningful pullback.</p></div>
-    <div class="bbr">
-      <div class="bl"><b>BULL</b>Backlog + margin expansion compound into 2027; grid capex super-cycle runs longer than feared; Prolec accretes.</div>
-      <div class="be"><b>BEAR</b>At ~40% over its 200-DMA the recognition→euphoria multiple de-rates on any order-pace wobble; capacity floods narrow the transformer gap by 2028.</div>
+    <div class="bb">
+      <div class="bull"><b>Bull (+30%, ~30%):</b> backlog stretches to 2031, margins compound as high-price bookings ship, services annuity grows.</div>
+      <div class="bear"><b>Bear (−30%, ~25%):</b> an AI-capex pause or slot-cancellation scare de-rates a ~45–55× multiple. <b>Prob-weighted EV ≈ +4%</b> — thin; the rent is real but in the price.</div>
     </div>
-    <p class="cap" style="margin-top:12px"><b>~12–18m (illustrative, author's probabilities):</b> bull +20–30% (super-cycle + margins persist · ~35%); base flat-to-+10% (fairly priced at ~40% over its 200-DMA · ~40%); bear −25–35% (multiple de-rate on an order-pace wobble / 2028 capacity floods · ~25%) → prob-weighted EV ≈ <b style="color:var(--txt)">+3%</b>. The "what already ran / where rent settled" comp — highest-quality link, lowest remaining asymmetry; own only on a pullback.</p>
+    <p style="font-size:11px;color:var(--dim);margin-top:10px"><b>Dated falsifier:</b> gas-turbine slot reservations stop converting to firm backlog, DC order cadence slows, or pricing growth drops below ~10% in the next one or two prints. Valuation: ~$284B cap, ~mid-40s×+ fwd earnings (est.), rich on any near-term metric.</p>
   </div>
 </section>
 
-<!-- 11. BENEFICIARIES + RISKS -->
-<section id="s11">
-  <div class="sh"><span class="n">11</span><h2>Second-order beneficiaries &amp; risk register</h2><span class="cn">外溢與風險</span></div>
+<!-- 11. DECISION TABLE -->
+<section>
+  <div class="sh"><span class="n">11</span><h2>Decision table</h2><span class="cn">決策表</span></div>
+  <table class="tbl">
+    <thead><tr><th>Name</th><th>Link (chokepoint)</th><th>Sev.</th><th>Stage</th><th>Valuation (est.)</th><th>Asym.</th><th>Author lean</th><th>Trigger</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>Doncasters</b> <span class="lyr ly3">DPC</span></td>
+        <td>Superalloy casting pure-play</td>
+        <td class="num">18</td>
+        <td><span class="lyr lyu">Early</span></td>
+        <td class="num">~7–8× sales, loss-making</td>
+        <td class="num">Highest</td>
+        <td>Small speculative starter; the only early expression</td>
+        <td>First 10-Q backlog + loss trend</td>
+      </tr>
+      <tr>
+        <td><b>Howmet</b> <span class="lyr ly3">HWM</span></td>
+        <td>Scaled hot-section casting toll</td>
+        <td class="num">18</td>
+        <td><span class="lyr lyp">Recog→Euph</span></td>
+        <td class="num">~55× P/E · ~36× EBITDA</td>
+        <td class="num">Low</td>
+        <td>Own quality on a pullback; the durable toll</td>
+        <td>IGT growth &lt;20% / aero build cut</td>
+      </tr>
+      <tr>
+        <td><b>GE Vernova</b> <span class="lyr ly2">GEV</span></td>
+        <td>Turbine OEM slot / rent-capturer</td>
+        <td class="num">17</td>
+        <td><span class="lyr lyp">Euphoria</span></td>
+        <td class="num">~mid-40s×+ earnings</td>
+        <td class="num">Lowest</td>
+        <td>Admire; priced for perfection</td>
+        <td>Slot→backlog conversion; pricing &lt;10%</td>
+      </tr>
+      <tr style="opacity:.85">
+        <td><b>Caterpillar</b> <span class="lyr ly1">CAT</span></td>
+        <td>Reciprocating gensets (bridge)</td>
+        <td class="num">13</td>
+        <td><span class="lyr lyp">Recognition</span></td>
+        <td class="num">~40× P/E; AI-power diluted</td>
+        <td class="num">Medium</td>
+        <td>Under-tagged as AI-power inside a diversified industrial; watchlist hedge</td>
+        <td>Power &amp; Energy segment disclosure</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="eli" style="margin-top:16px">
+    <h4>If you can only do one thing</h4>
+    <p>Recognize that <b>this theme is already found</b> — GEV, HWM, CAT and Bloom have all re-rated, so the honest posture is <b>patience + entry discipline, not chasing</b>. The scarcest link (castings) is real and durable but priced (HWM); the only <i>early</i> listed expression (DPC) is a levered, loss-making IPO that belongs at <b>starter size, with fat tails</b>. If forced to act: a small DPC position as the pure-play option, sized to survive the lockup, and a shopping list to buy HWM on a pullback. The genuinely-early dollar is in links with <b>no clean vehicle</b> (rhenium/superalloy, TBC coaters) — a watch, not a buy.</p>
+  </div>
+</section>
+
+<!-- 12. RISKS + SELF-CRITIQUE -->
+<section>
+  <div class="sh"><span class="n">12</span><h2>Risks &amp; open questions — the honest holes</h2><span class="cn">風險與未解</span></div>
   <div class="two">
     <div class="panel">
-      <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">Beneficiaries &amp; adjacencies</h4>
+      <div style="font-size:12px;font-weight:600;color:var(--txt);margin-bottom:10px">Risk register</div>
       <table class="tbl">
-        <tr><th>Who</th><th>Why they benefit</th><th>Stage</th></tr>
-        <tr><td><b>Transformer OEMs</b> (GEV, Hitachi, Siemens E., Eaton)</td><td>capture the scarcity rent; expanding margins + backlog</td><td><span class="stagebadge sg-eu">PRICED</span></td></tr>
-        <tr><td><b>Premium-HiB mills</b> (Nippon, Baowu)</td><td>TK's EU exit concentrates the scarce tier toward them</td><td><span class="stagebadge sg-recog">RECOG</span></td></tr>
-        <tr><td><b>Sole US producer</b> (CLF)</td><td>policy-blessed domestic monopoly + forward integration</td><td><span class="stagebadge sg-early">EARLY</span></td></tr>
-        <tr><td><b>India GOES</b> (JSW-JFE)</td><td>genuine capacity growth behind India's grid build</td><td><span class="stagebadge sg-latent">LATENT</span></td></tr>
-        <tr><td><b>Core assemblers / laminators</b></td><td>volume with transformer build; low rent</td><td><span class="stagebadge sg-recog">RECOG</span></td></tr>
-        <tr><td><b>Amorphous / equipment</b></td><td>DOE-2029 clock; but no clean listed vehicle</td><td><span class="stagebadge sg-latent">LATENT</span></td></tr>
+        <tr><td><b>Mislocated chokepoint</b></td><td>The OEM slot (17) or TBC coatings could bind tighter than the casting in a given year; rhenium could become the true wall.</td></tr>
+        <tr><td><b>Substitution / tech</b></td><td>Low-/no-rhenium single-crystal alloys, additive manufacturing + blade repair could ease the casting choke faster than modeled.</td></tr>
+        <tr><td><b>Demand cyclicality</b></td><td>Castings are long-cycle, order-driven; an AI-capex pause hits blades hardest and first.</td></tr>
+        <tr><td><b>Escape hatch</b></td><td>Fuel cells (Bloom) + reciprocating engines take more of the urgent MW than expected, capping premium-turbine (and blade) volume.</td></tr>
+        <tr><td><b>Buyers fund supply</b></td><td>OEMs/PCC in-source or expand casting capacity; hyperscaler pre-pays finance new foundries, breaking the choke.</td></tr>
+        <tr><td><b>DPC-specific</b></td><td>Leverage, losses, ~180-day lockup, thin float and coverage — a newly-public small-cap is high-variance.</td></tr>
       </table>
     </div>
-    <div class="panel">
-      <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">Risk register</h4>
-      <table class="tbl">
-        <tr><th>Risk</th><th>Watch</th><th>Sev.</th></tr>
-        <tr><td><b>China commodity oversupply</b></td><td>CRGO export run-rate; premium/commodity spread</td><td class="dotR">High</td></tr>
-        <tr><td><b>Dilution / cycle swamp</b></td><td>CLF &amp; Nippon steel-cycle beta dominates GOES</td><td class="dotR">High</td></tr>
-        <tr><td><b>Phantom-order backlog</b></td><td>real vs quoted transformer delivery times</td><td class="dotA">Med</td></tr>
-        <tr><td><b>Policy reversal</b></td><td>232 scope cut (grid gear already at 15% transitional)</td><td class="dotA">Med</td></tr>
-        <tr><td><b>Capacity floods 2028+</b></td><td>Cliffs/India/Baowu + OEM plants narrow the gap</td><td class="dotA">Med</td></tr>
-        <tr><td><b>Access / liquidity</b></td><td>the purest names (Stalprodukt) are un-buyable at size</td><td class="dotA">Med</td></tr>
-      </table>
+    <div class="selfcrit">
+      <div style="font-size:12px;font-weight:600;color:#e3b3b4;margin-bottom:6px">Self-critique — unresolved</div>
+      <ul>
+        <li><b>Everything ran.</b> Unlike the "scarcest link in the cheapest stock" setups this rotation prizes, here the scarce link (HWM) is <i>not</i> cheap — there's no clean early-and-safe expression. The report leans on a levered IPO (DPC) to satisfy the "be early" mandate, which is honest but uncomfortable.</li>
+        <li><b>PCC+Howmet ~70–80%</b> is an estimate from secondary sources, not a disclosed figure; the true single-crystal share split is opaque (much is captive).</li>
+        <li><b>Rhenium pricing</b> is thinly reported; I did not anchor a reliable $/kg series — treat the material sub-choke qualitatively.</li>
+        <li><b>Scenario probabilities and 12–18m returns are subjective priors</b>, not model output; the thin EVs are the point (discipline), not precision.</li>
+        <li><b>Do heavy-duty frame turbines use as much single-crystal / rhenium as jet engines?</b> The hottest H/J-class stages do, but the intensity vs aero is uncertain — a load-bearing assumption I flag, not resolve.</li>
+        <li><b>The bar chart</b> ranks scarcity <i>intensity</i> (tallest at the casting) while the largest <i>absolute</i> rent sits at the OEM today — a deliberate choice that could mislead a skimmer; the caption reconciles it.</li>
+      </ul>
     </div>
   </div>
 </section>
 
-<!-- 12. DECISION -->
-<section id="s12">
-  <div class="sh"><span class="n">12</span><h2>Decision table &amp; the one-line read</h2><span class="cn">決策表</span></div>
-  <div style="overflow-x:auto">
-  <table class="tbl" style="min-width:940px">
-    <tr><th>Row</th><th>Ticker</th><th>Chokepoint (link)</th><th>Severity</th><th>Awareness stage</th><th>Valuation / YTD</th><th>Remaining asymmetry</th><th>Framework lean</th><th>Key trigger</th></tr>
-    <tr>
-      <td class="num">1</td><td><b>CLF</b> · Cleveland-Cliffs</td><td><span class="lyr lyc">GOES</span> sole US material</td>
-      <td class="num">18/20</td><td><span class="stagebadge sg-early">EARLY</span></td><td class="num">distressed · −28%</td>
-      <td class="dotG">High (but diluted)</td><td><b>The early call-option — size small</b></td><td>Q3'26 EBITDA; GOES segmentation; Weirton ramp</td>
-    </tr>
-    <tr>
-      <td class="num">2</td><td><b>NPSCY/5401</b> · Nippon Steel</td><td><span class="lyr lyp">HiB</span> premium tech</td>
-      <td class="num">17/20</td><td><span class="stagebadge sg-early">EARLY</span></td><td class="num">low P/B · −12%</td>
-      <td class="dotA">Medium (levered)</td><td><b>Own the leader — diluted</b></td><td>TK EU exit; US Steel integration; HiB pricing</td>
-    </tr>
-    <tr>
-      <td class="num">3</td><td><b>GEV</b> · GE Vernova</td><td><span class="lyr ly1">OEM</span> rent-capturer</td>
-      <td class="num">14/20</td><td><span class="stagebadge sg-eu">EUPHORIA</span></td><td class="num">~40% &gt;200-DMA · +64%</td>
-      <td class="dotR">Low</td><td><b>Where rent settled — own on weakness</b></td><td>Elec. b:b &gt;2; backlog conversion; capacity floods</td>
-    </tr>
-  </table>
-  </div>
-  <p class="cap"><b>How each severity is derived</b> (same 0–20 rubric, four factors 0–5: supply concentration · lead-time/hard-to-replicate · low substitutability · demand): <b>CLF/GOES = 18</b> (5 sole-US/China-56% · 5 metallurgy+$0.7B line+qual · 4 amorphous-excluded-from-power but China-commodity-abundant · 4 structural demand). <b>Nippon/HiB = 17</b> (4+5+4+4 — premium tier, deepest know-how). <b>GEV/OEM = 14</b> (3 — ~3 Western OEMs + Asian entrants · 4 backlog · 3 · 4). Severity ranks the <i>links</i>, not a buy order — here the tightest link (GOES) sits in the <i>cheapest, most-diluted</i> stock, and the rent sits in the priced one. <b>"Framework lean" is analysis, not advice, and NO row here is a "buy": the report's own conclusion is that there is no clean listed vehicle</b> — CLF leads the table because it is the earliest <i>link</i>, not the best <i>position</i>.</p>
-
-  <div class="panel" style="margin-top:14px;border-color:#2c5a40;background:rgba(95,201,138,.05)">
-    <div style="font-size:11px;font-weight:700;color:var(--dacr);letter-spacing:.04em;margin-bottom:6px">IF YOU CAN ONLY DO ONE THING · 一件事</div>
-    <p style="font-size:12.5px;color:var(--mut);line-height:1.55"><b style="color:var(--txt)">The disciplined answer here may be to own <i>nothing</i> yet — "admire, don't own."</b> GOES is a <b>real, durable, severity-18 material chokepoint</b> that likely <i>outlasts</i> the transformer-shortage headlines — but the scarcity <b>rent settles at the OEM (already priced)</b>, and the material producers are cheap for structural reasons (dilution, China commodity oversupply, cost pass-through), so <b>there is no clean listed vehicle that captures it</b>. Don't chase the +64% transformer OEM, and don't misread the table below as "buy CLF." If you want exposure, the <i>only</i> honest expression is a <b>small-size call-option on the sole US node — CLF</b> — bought as free GOES optionality layered on a cyclical (so, sized for steel-cycle risk, not GOES conviction) and gated on the Q3-2026 print; the genuine <i>early</i> dollar is a watch-list (illiquid <b>Stalprodukt</b>, <b>JSW-JFE India</b> GOES growth, DOE-2029 amorphous clock). This is a <b>watch-and-wait run</b>: the bottleneck is obvious, the vehicle is not — patience beats a forced position.</p>
-  </div>
-
-  <div class="panel" style="margin-top:14px">
-    <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">Open questions &amp; honest holes <span class="cn" style="font-weight:400;color:var(--dim)">未解之處（非自我表揚）</span></h4>
-    <ul style="font-size:12px;color:var(--mut);line-height:1.7;margin-left:16px">
-      <li><b>The GOES price series is paywalled.</b> "Prices ~doubled since 2020" and the ~3× NA/Asia premium (businessanalytiq, Jun-2026) are directionally corroborated but I could not obtain an independent hard $/t annual series — the single most load-bearing price claim is soft.</li>
-      <li><b>China share (~56%) and global capacity (~2.4–3.1 Mt) trace to a few aggregators</b> (Fastmarkets, market-research firms) that partly recycle each other — treat the exact figures as directional, not audited.</li>
-      <li><b>CLF's GOES economics are not disclosed.</b> The ~1.5–3% mix and the "monopoly is diluted" claim are estimates; CLF does not segment electrical steel. The whole "un-bid GOES option" thesis rests on an undisclosed number.</li>
-      <li><b>The rent-capture conclusion is inferred from margins</b>, not from disclosed GOES pass-through contracts. It's well-corroborated (GEV +670bps into a constrained order book) but not proven contract-by-contract.</li>
-      <li><b>"No clean vehicle" may itself be the alpha</b> — or it may mean the trade is simply un-investable and the honest move is to pass. The report leans "small-size CLF + watch," but a reasonable reader concludes "admire, don't own."</li>
-      <li><b>Severity-18 vs remaining-asymmetry-8 is the tension</b>: the link is very tight, but tightness ≠ a good buy when the rent leaks downstream and the vehicles are diluted. Don't read 18/20 as "buy."</li>
-    </ul>
-  </div>
-</section>
-
-<div class="disc"><b>Not investment advice.</b> Automated personal research for a private knowledge base — idea generation only, not a recommendation or solicitation. Figures from public reporting, company filings, and third-party estimates as of 8 Jul 2026 (prices = last trade ~8 Jul 2026); several are single-source and marked (est.); may contain errors or become stale. Prices via IBKR read-only (never traded). Verify against primary filings and do your own due diligence.</div>
-
+<!-- FOOTER -->
 <footer>
-  <p><b>Sources:</b> Metallurgy — Nippon Steel technical report (n11810); Wikipedia/ScienceDirect/Matmatch electrical-steel; PMC secondary-recrystallization; MDPI/Fraunhofer laser domain scribing; Cleveland-Cliffs product data. Supply/shortage — Wood Mackenzie Q2-2025 survey (power 128wk / GSU 144wk; deficits power 30% / dist 10%); POWER Magazine "Transformers in 2026"; pv-magazine (US lead-times to 4yr); Fastmarkets (China ~56% GOES, ~72% NOES; CRGO exports 495→666→~758kt); Mysteel (Baowu 1.0→1.16Mt +320kt HiB line); businessanalytiq GOES index (NA ~$4,090/t vs NE Asia ~$1,250/t, Jun-2026); Grand View / Mordor / Fact.MR (GOES ~$8.6–9.3B→~$12B by 2030). Demand — IEA Energy &amp; AI (global DC ~415→945 TWh by 2030); LBNL (US 325–580 TWh / 6.7–12% by 2030); Goldman (+165%); DOE LPT Resilience Report (Jul-2024, ~40-yr fleet, ~80% imports). Policy — DOE distribution-transformer final rule (4-Apr-2024, ~75% GOES preserved, Apr-2029 compliance); Section 232 derivatives incl. laminations/cores at 50% (eff. 18-Aug-2025) + June-2026 restructure (grid gear 15% transitional through 2027); White House DPA §303 grid determination (20-Apr-2026, names "electrical core steel"); USITC 2014 GOES negative-injury (no standing AD/CVD); EU GOES safeguard investigation (opened 27-Mar-2026); Cleveland-Cliffs Section-232 / Weirton / Butler releases. Rent-capture — GE Vernova Q1'26 8-K (Electrification EBITDA 17.8% +670bps, orders +86%, b:b ~2.5, backlog $9B→$42B, Prolec ~$5.3B); Hitachi Energy $457M Virginia + $250M shortage releases; Siemens Energy Grid Tech 18–20%; Eaton Q1'26. Producers — JFE/JSW India JV (¥120bn, 350kt/yr by 2030); Nippon Steel Hirohata + Big River ($3B); POSCO Hyper NO = NOES (₩1tn); thyssenkrupp EU idling + India sale; Stalprodukt (STP.WA). IBKR read-only live last-trade: CLF $9.50 (−28% YTD), NPSCY $3.50 (−12%), GEV $1,069 (+64%), PKX $52.12 (−1%), Aperam €45.1 (+30%), voestalpine €43.5 (+15%), ETN $405 (+28%) — 6–8 Jul 2026.</p>
-  <p style="margin-top:10px">Automated AI-Infra workflow · <b>Run #21 · v5</b> · Power Delivery, loop 4 — goes one layer beneath Run #3 (grid transformer), Run #9 (rack HVDC + nanocrystalline magnetics) and Run #15 (on-package last-inch) to the transformer-core <b>material</b>: grain-oriented electrical steel. Cross-reviewed by 2 independent reviewer subagents (objective-fit <b>27/30</b> "fits the objective: QUALIFIED YES"; fact-check <b>0 P0 errors</b>, "holds up remarkably well" — policy timeline + demand/price data verified to exact-match precision, GO-vs-NOES classification correct on every name); recurs every 2 days. Punch-list applied: reframed the "one thing" box + decision table to open with the disconfirmer ("admire, don't own" / no clean vehicle / not a buy) so architecture matches conclusion; added an up-front "watch-and-wait" banner; gave Nippon/GEV parallel scenario EVs (+9% / +3%) so teardown-depth ≠ conviction; corrected CLF analyst count (43→~10–20) and net debt ($7.7B FY24 → ~$8.1B FY25, EV ~$14.7B), GAAP net loss −$1.4B; clarified GEV backlog (~$42B total segment vs ~$38.6B equipment); stamped China ~56% as aggregator-est.; surfaced the paywalled GOES $/t price-series caveat at the §6 bar chart. SVG fonts set via CSS rule (no var-based font attributes); tabs keyboard-accessible (roving tabindex + arrows) + @media print; bar chart tallest at the chokepoint (GOES mill), secondary rent-pool marked at the OEM; per-name severity reconciled to the composite.</p>
+  <p style="margin-bottom:8px"><b>Method:</b> chokepoint-deep-dive v5 — find the scarce link, score severity /20, separate tightness from remaining asymmetry, stage plays on the awareness curve, demand a price + falsifier. Two independent reviewer passes (objective-fit + fact-check); punch-list applied.</p>
+  <p style="margin-bottom:8px"><b>Sources (as-of 18 Jul 2026):</b> GE Vernova Q1-26 8-K &amp; release; Howmet Q1-26 release + 2026 guidance; DPC Holdings / Doncasters 424B4 &amp; S-1 (NYSE IPO 25-Jun-2026); Caterpillar Q1-26 (Power &amp; Energy) &amp; ARS; Bloom Energy 8-K / Brookfield &amp; Oracle releases; Utility Dive, Power-Eng, CNBC, Bloomberg, RMI (interconnection), USGS (rhenium), Renaissance Capital / IPOScoop (DPC). Live quotes: IBKR read-only (GEV $1,036.22 · HWM $271.19 · DPC $46.04, closes) cross-checked vs FMP intraday. Numbers cross-checked ≥2 sources; estimates marked (est.).</p>
+  <p><b>Compliance:</b> Personal research for a private knowledge base. <b>Not investment advice</b>, not a recommendation or solicitation. Author leans are personal opinion. IBKR read-only — never trades. Prices/multiples decay fast; re-verify before acting.</p>
+  <p style="margin-top:10px;color:var(--dim)">AI-Infra Deep-Dive · Run #27 · v5 · Power delivery loop 5 · 18 Jul 2026 · chokepoint: single-crystal superalloy hot-section castings (severity 18/20, remaining asymmetry ~7/20).</p>
 </footer>
 
 </div>
+
 <script>
 (function(){
-  var tabs=[].slice.call(document.querySelectorAll('[role=tab]'));
-  function sel(t){
-    tabs.forEach(function(b){
-      var on=(b===t);
-      b.classList.toggle('on',on);
-      b.setAttribute('aria-selected',on?'true':'false');
-      b.tabIndex=on?0:-1;
-      var p=document.getElementById(b.getAttribute('aria-controls'));
-      if(p){ if(on){p.hidden=false;p.style.display='block';} else {p.hidden=true;p.style.display='none';} }
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+  function select(tab){
+    tabs.forEach(function(t){
+      var sel = t === tab;
+      t.setAttribute('aria-selected', sel ? 'true':'false');
+      t.setAttribute('tabindex', sel ? '0':'-1');
+      var panel = document.getElementById(t.getAttribute('aria-controls'));
+      if(panel){ panel.setAttribute('data-active', sel?'true':'false'); if(sel){panel.removeAttribute('hidden');} else {panel.setAttribute('hidden','');} }
     });
   }
-  tabs.forEach(function(t,i){
-    t.addEventListener('click',function(){sel(t);t.focus();});
-    t.addEventListener('keydown',function(e){
-      var n=null;
-      if(e.key==='ArrowRight'||e.key==='ArrowDown') n=tabs[(i+1)%tabs.length];
-      else if(e.key==='ArrowLeft'||e.key==='ArrowUp') n=tabs[(i-1+tabs.length)%tabs.length];
-      else if(e.key==='Home') n=tabs[0];
-      else if(e.key==='End') n=tabs[tabs.length-1];
-      if(n){e.preventDefault();sel(n);n.focus();}
+  tabs.forEach(function(tab, i){
+    tab.addEventListener('click', function(){ select(tab); tab.focus(); });
+    tab.addEventListener('keydown', function(e){
+      var idx = i;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'){ e.preventDefault(); idx=(i+1)%tabs.length; select(tabs[idx]); tabs[idx].focus(); }
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){ e.preventDefault(); idx=(i-1+tabs.length)%tabs.length; select(tabs[idx]); tabs[idx].focus(); }
+      else if(e.key==='Home'){ e.preventDefault(); select(tabs[0]); tabs[0].focus(); }
+      else if(e.key==='End'){ e.preventDefault(); select(tabs[tabs.length-1]); tabs[tabs.length-1].focus(); }
     });
   });
 })();

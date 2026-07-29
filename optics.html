@@ -3,18 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Infra Run #13 v5 — Optics / CPO External Light Source / merchant CW-DFB Chokepoint</title>
+<title>AI Infra Run #25 v5 — Optics / Optical Isolator / Faraday-Rotator Garnet Chokepoint</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#0b0d12; --panel:#13161e; --panel2:#1a1e28; --panel3:#212634; --line:#2a3040; --line2:#363d4f;
     --txt:#e8eaf0; --mut:#9aa3b5; --dim:#697283;
-    --accent:#2dd4bf;        /* single brand accent (desaturated teal) */
-    --choke:#e0686a;         /* desaturated red */
-    /* categorical: supply layers */
+    --accent:#2dd4bf; --choke:#e0686a;
     --up:#5b81c4; --l3:#8b84cf; --pkg:#c47a9e; --l2:#d2a24a; --l1:#4faf8e;
-    /* categorical: network domains */
     --dup:#e0a458; --dout:#5aa9e0; --dacr:#5fc98a;
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -28,24 +25,27 @@
   .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
   h1{font-size:32px;font-weight:700;letter-spacing:-.6px;line-height:1.12;max-width:940px}
   .sub{font-size:15px;font-weight:400;color:var(--mut);margin-top:12px;max-width:860px}
+  .sub b{color:#fff;font-weight:600}
   .meta{margin-top:20px;display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
   .meta div{padding-right:26px;margin-right:26px;border-right:1px solid var(--line)}
   .meta div:last-child{border:0}
   .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
   .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
-  .asof{margin-top:14px;display:inline-flex;align-items:center;gap:9px;font-size:11.5px;color:#c4ab78;background:rgba(210,162,74,.08);border:1px solid #3a3015;border-radius:9px;padding:7px 13px}
+  .asof{margin-top:16px;display:inline-flex;align-items:center;gap:9px;font-size:11.5px;color:#c4ab78;background:rgba(210,162,74,.07);border:1px solid #3a3015;border-radius:8px;padding:7px 13px}
+  .asof .dot{width:7px;height:7px;border-radius:50%;background:var(--dup);flex:none}
   /* gauges */
-  .gauges{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
-  .gge{border:1px solid var(--line);border-radius:12px;padding:12px 16px;background:var(--panel);min-width:188px}
-  .gge .gl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim)}
-  .gge .gv{font-size:23px;font-weight:600;margin-top:3px}
-  .gge .gd{font-size:10.5px;color:var(--mut);margin-top:3px}
-  .gge.sev .gv{color:var(--choke)}.gge.asy .gv{color:var(--accent)}
+  .gauges{display:flex;gap:14px;margin-top:20px;flex-wrap:wrap}
+  .gg{flex:1;min-width:230px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--panel)}
+  .gg .lab{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);display:flex;justify-content:space-between;align-items:baseline}
+  .gg .lab b{font-family:"JetBrains Mono",monospace;font-size:16px;color:var(--txt)}
+  .gg .bar{height:8px;border-radius:5px;background:var(--panel3);margin-top:9px;overflow:hidden}
+  .gg .fill{height:100%;border-radius:5px}
+  .gg .d{font-size:10.5px;color:var(--dim);margin-top:8px;line-height:1.4}
   /* sticky toc */
-  nav.toc{position:sticky;top:0;z-index:40;background:rgba(11,13,18,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:9px 0;font-size:11.5px}
-  nav.toc .wrap{display:flex;gap:5px;flex-wrap:wrap}
-  nav.toc a{color:var(--mut);text-decoration:none;padding:4px 9px;border-radius:7px;border:1px solid transparent;white-space:nowrap}
-  nav.toc a:hover{color:var(--txt);border-color:var(--line2);background:var(--panel)}
+  .toc{position:sticky;top:0;z-index:40;background:rgba(11,13,18,.93);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin-bottom:6px}
+  .toc .wrap{display:flex;gap:5px;flex-wrap:wrap;padding-top:9px;padding-bottom:9px}
+  .toc a{font-size:11px;color:var(--mut);text-decoration:none;padding:4px 9px;border-radius:6px;border:1px solid transparent;white-space:nowrap}
+  .toc a:hover{color:var(--txt);border-color:var(--line2);background:var(--panel)}
   section{padding:34px 0 2px}
   .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
   .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.05em}
@@ -60,7 +60,20 @@
   .kpi .v{font-size:24px;font-weight:600;letter-spacing:-.5px}
   .kpi .l{font-size:11.5px;color:var(--mut);margin-top:4px}
   .kpi .d{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.4}
-  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}.pur{color:var(--l3)}
+  .ebox{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px;background:var(--panel)}
+  .ebox .t{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px}
+  .ebox p{font-size:13px;color:var(--mut);line-height:1.6;max-width:920px}
+  .ebox p b{color:var(--txt)}
+  .vbox{border:1px solid #3a3f63;border-radius:12px;padding:16px 18px;margin-top:14px;background:linear-gradient(135deg,rgba(139,132,207,.09),transparent 60%),var(--panel)}
+  .vbox .t{font-size:11px;font-weight:700;color:var(--l3);letter-spacing:.05em;margin-bottom:8px}
+  .vbox p{font-size:13px;color:#cdc9e2;line-height:1.6;max-width:920px}
+  .vbox p b{color:#fff}
+  .pills{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+  .pill{font-size:11.5px;padding:6px 12px;border-radius:20px;border:1px solid var(--line2);background:var(--panel2);color:var(--mut)}
+  .pill b{color:var(--txt);font-weight:600}
+  .pill.p1{border-color:#4a5470}.pill.p2{border-color:#3a3f63}.pill.p3{border-color:#5a3236}
+  .note{font-size:11px;color:var(--dim);margin-top:10px;font-style:italic}
   .matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
   .matrix th{background:var(--panel2);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);font-weight:600;padding:12px 14px;text-align:left;border-bottom:1px solid var(--line)}
   .matrix td{padding:14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
@@ -71,31 +84,40 @@
   .matrix td b{color:var(--txt);font-weight:600}
   .chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--panel3);color:var(--mut);margin:2px 4px 2px 0;border:1px solid var(--line2)}
   .chip.hot{background:rgba(224,104,106,.12);border-color:#5a3236;color:#efa0a1}
-  .gal{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
-  @media(max-width:980px){.gal{grid-template-columns:1fr 1fr 1fr}}
-  @media(max-width:620px){.gal{grid-template-columns:1fr 1fr}}
+  .gal{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:900px){.gal{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.gal{grid-template-columns:1fr}}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column}
-  .card .svgbox{background:linear-gradient(180deg,#0e1117,#161a24);padding:12px;border-bottom:1px solid var(--line)}
-  .card .body{padding:13px 14px 15px}
-  .card h4{font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:6px}
-  .card .role{font-size:11.5px;color:var(--mut);margin-top:6px;line-height:1.45}
-  .card .who{font-size:10.5px;color:var(--dim);margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px}
+  .card .svgbox{background:linear-gradient(180deg,#0e1117,#161a24);padding:14px;border-bottom:1px solid var(--line)}
+  .card .body{padding:14px 16px 16px}
+  .card h4{font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .card .role{font-size:12px;color:var(--mut);margin-top:6px;line-height:1.45}
+  .card .who{font-size:11px;color:var(--dim);margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px}
   .card .who b{color:var(--l3)}
-  .badge{font-size:9px;font-weight:600;padding:2px 6px;border-radius:5px;letter-spacing:.03em;flex:none}
+  .badge{font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:5px;letter-spacing:.03em;flex:none}
   .b-hot{background:rgba(224,104,106,.14);color:#eda3a4}
   .b-now{background:rgba(45,212,191,.13);color:var(--accent)}
   .b-next{background:rgba(90,169,224,.14);color:var(--dout)}
   .b-emrg{background:rgba(210,162,74,.14);color:var(--dup)}
   .svgwide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
+  .svgscroll{overflow-x:auto}
   .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
-  .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:2px 0 16px}
-  .leg span{display:flex;align-items:center;gap:7px}
-  .leg .sw{width:11px;height:11px;border-radius:3px}
+  .flow{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+  @media(max-width:900px){.flow{grid-template-columns:1fr 1fr 1fr}}
+  @media(max-width:560px){.flow{grid-template-columns:1fr 1fr}}
+  .st{border:1px solid var(--line);border-radius:11px;padding:12px 11px;background:var(--panel2)}
+  .st.choked{border-color:#5a3236;background:linear-gradient(160deg,rgba(224,104,106,.10),transparent),var(--panel2)}
+  .st h5{font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px;display:flex;align-items:center;gap:6px;color:var(--mut)}
+  .st h5 .sw{width:8px;height:8px;border-radius:50%;flex:none}
+  .st ul{list-style:none;font-size:11.5px}
+  .st li{padding:4px 0;color:var(--mut);border-bottom:1px dashed var(--line2);line-height:1.3}
+  .st li:last-child{border:0}.st li b{color:var(--txt);font-weight:600}
+  .st li .x{color:var(--choke);font-weight:600}
   .tlgrid{border:1px solid var(--line);border-radius:14px;overflow:hidden}
-  .tlhead{display:grid;grid-template-columns:135px repeat(4,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
+  .tlhead{display:grid;grid-template-columns:130px repeat(4,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
   .tlhead div{padding:11px 12px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);border-right:1px solid var(--line)}
   .tlhead div:first-child{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-family:"Space Grotesk",sans-serif;display:flex;align-items:center}
-  .tlrow{display:grid;grid-template-columns:135px repeat(4,1fr);border-bottom:1px solid var(--line)}
+  .tlrow{display:grid;grid-template-columns:130px repeat(4,1fr);border-bottom:1px solid var(--line)}
   .tlrow:last-child{border-bottom:0}
   .tlrow .lab{padding:13px 12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;border-right:1px solid var(--line);background:var(--panel2)}
   .tlrow .lab .sw{width:9px;height:9px;border-radius:3px;flex:none}
@@ -103,80 +125,100 @@
   .tlrow .cell:last-child{border-right:0}
   .tlrow .cell b{color:var(--txt);font-weight:600;display:block;margin-bottom:2px;font-size:11.5px}
   .tlrow .cell.hot{background:rgba(224,104,106,.06)}
-  @media(max-width:780px){.tlhead,.tlrow{grid-template-columns:90px repeat(4,1fr);font-size:10px}.tlrow .cell{font-size:10px}}
+  @media(max-width:780px){.tlhead,.tlrow{grid-template-columns:92px repeat(4,1fr);font-size:10px}.tlrow .cell{font-size:10px}}
   .choke{border:1px solid #5a3236;border-radius:14px;padding:22px 24px;background:
     linear-gradient(135deg,rgba(224,104,106,.10),transparent 55%),var(--panel)}
   .choke .ttl{display:flex;align-items:center;gap:11px;margin-bottom:10px}
-  .choke .ttl svg{flex:none}
   .choke .ttl h3{font-size:17px;font-weight:600;color:var(--choke)}
   .choke p{font-size:13.5px;color:#d9c4c6;max-width:920px}.choke p b{color:#fff}
   .choke .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:18px;border-top:1px solid #4a2c2f;padding-top:16px}
   @media(max-width:780px){.choke .stats{grid-template-columns:1fr 1fr}}
   .choke .stats div{padding-right:18px}
-  .choke .stats b{display:block;font-size:20px;color:var(--choke);font-weight:600}
+  .choke .stats b{display:block;font-size:21px;color:var(--choke);font-weight:600}
   .choke .stats span{font-size:10.5px;color:var(--dim)}
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
-  .two{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
-  @media(max-width:780px){.two{grid-template-columns:1fr}}
+  .scoregrid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:6px}
+  @media(max-width:780px){.scoregrid{grid-template-columns:1fr}}
+  .score .row{margin-bottom:13px}
+  .score .row .t{font-size:12px;color:var(--txt);display:flex;justify-content:space-between;margin-bottom:5px}
+  .score .row .t span:last-child{font-family:"JetBrains Mono",monospace;color:var(--mut)}
+  .score .track{height:9px;background:var(--panel3);border-radius:5px;overflow:hidden}
+  .score .bar{height:100%;border-radius:5px;background:var(--choke)}
+  .td{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:780px){.td{grid-template-columns:1fr}}
+  .tdc{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 17px}
+  .tdc.key{border-color:#5a3236;background:linear-gradient(135deg,rgba(224,104,106,.07),transparent),var(--panel)}
+  .tdc .h{font-size:12.5px;font-weight:600;color:var(--accent);margin-bottom:7px;display:flex;align-items:baseline;gap:8px}
+  .tdc.key .h{color:var(--choke)}
+  .tdc .h .cn{color:var(--dim);font-size:10.5px;font-weight:400}
+  .tdc p{font-size:12.5px;color:var(--mut);line-height:1.5}.tdc p b{color:var(--txt)}
   .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
   .tbl th{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
-  .tbl td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--mut)}
+  .tbl td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
   .tbl td b{color:var(--txt)}
+  .tbl .num{font-family:"JetBrains Mono",monospace}
   .lyr{font-family:"JetBrains Mono",monospace;font-size:10.5px;padding:1px 7px;border-radius:5px;font-weight:600}
   .ly3{background:rgba(139,132,207,.15);color:#aaa3e6}
   .ly2{background:rgba(210,162,74,.15);color:#e3bd76}
   .ly1{background:rgba(79,175,142,.15);color:#7cc9ad}
   .lyu{background:rgba(91,129,196,.15);color:#8aa7df}
   .lyp{background:rgba(196,122,158,.15);color:#dba0bf}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .two{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+  @media(max-width:780px){.two{grid-template-columns:1fr}}
+  .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:2px 0 16px}
+  .leg span{display:flex;align-items:center;gap:7px}
+  .leg .sw{width:11px;height:11px;border-radius:3px}
+  /* tabs */
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .tab{font-size:13px;font-weight:600;padding:9px 15px;border-radius:10px;border:1px solid var(--line2);background:var(--panel2);color:var(--mut);cursor:pointer}
+  .tab[aria-selected="true"]{background:var(--panel3);color:var(--txt);border-color:var(--accent)}
+  .tab .tk{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--dim);margin-left:6px}
+  .tab[aria-selected="true"] .tk{color:var(--accent)}
+  .tabpanel[hidden]{display:none}
+  .valstrip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:11px;overflow:hidden;margin:14px 0}
+  @media(max-width:780px){.valstrip{grid-template-columns:1fr 1fr}}
+  .valstrip div{padding:12px 14px;border-right:1px solid var(--line)}
+  .valstrip div:last-child{border-right:0}
+  .valstrip .v{font-family:"JetBrains Mono",monospace;font-size:17px;font-weight:600}
+  .valstrip .l{font-size:10.5px;color:var(--dim);margin-top:3px}
+  .gap{border:1px solid #3a3f63;border-radius:11px;padding:14px 16px;margin:14px 0;background:linear-gradient(135deg,rgba(139,132,207,.07),transparent)}
+  .gap .t{font-size:11px;font-weight:700;color:var(--l3);letter-spacing:.04em;margin-bottom:6px}
+  .gap p{font-size:12.5px;color:#cdc9e2;line-height:1.55}
+  .bb{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+  @media(max-width:640px){.bb{grid-template-columns:1fr}}
+  .bb .c{border:1px solid var(--line);border-radius:11px;padding:13px 15px;background:var(--panel)}
+  .bb .c.bull{border-color:#2c5a4a}.bb .c.bear{border-color:#5a3236}
+  .bb .c .t{font-size:11px;font-weight:700;letter-spacing:.05em;margin-bottom:7px}
+  .bb .c.bull .t{color:var(--dacr)}.bb .c.bear .t{color:var(--choke)}
+  .bb .c ul{list-style:none;font-size:12px;color:var(--mut);line-height:1.5}
+  .bb .c li{padding:3px 0 3px 14px;position:relative}
+  .bb .c li:before{content:"";position:absolute;left:0;top:9px;width:5px;height:5px;border-radius:50%;background:var(--dim)}
+  .dash{width:100%;border-collapse:collapse;font-size:12px}
+  .dash th{text-align:left;padding:10px 12px;background:var(--panel2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--line)}
+  .dash td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top;line-height:1.4}
+  .dash td b{color:var(--txt)}
+  .dash .sig{color:var(--txt);font-weight:600}
   .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
-  footer{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}
+  .risk{border-left:2px solid var(--choke);padding:11px 0 11px 15px;margin-bottom:13px}
+  .risk .t{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:3px}
+  .risk p{font-size:12px;color:var(--mut);line-height:1.5}
+  .selfq{border:1px dashed var(--line2);border-radius:12px;padding:8px 18px;background:var(--panel)}
+  .selfq details{border-bottom:1px solid var(--line);padding:12px 0}
+  .selfq details:last-child{border-bottom:0}
+  .selfq summary{font-size:13px;font-weight:600;color:var(--txt);cursor:pointer;list-style:none;display:flex;gap:9px;align-items:baseline}
+  .selfq summary::-webkit-details-marker{display:none}
+  .selfq summary .q{color:var(--choke);font-family:"JetBrains Mono",monospace;font-size:11px}
+  .selfq p{font-size:12.5px;color:var(--mut);line-height:1.55;margin-top:9px;padding-left:24px}
+  footer{margin-top:30px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}
   footer b{color:var(--mut)}
-  .axis-zone{font-size:9px;font-family:"JetBrains Mono",monospace;letter-spacing:.04em}
-  .liw{width:100%;border-collapse:collapse;font-size:12px}
-  .liw th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
-  .liw td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
-  .liw td b{color:var(--txt)}
-  .dotR{color:var(--choke);font-weight:600}.dotA{color:var(--dup);font-weight:600}.dotG{color:var(--dacr);font-weight:600}
-  .tabbtn{font-family:"Space Grotesk",sans-serif;background:var(--panel2);border:1px solid var(--line);color:var(--mut);padding:11px 16px;border-radius:10px 10px 0 0;font-size:13px;font-weight:600;cursor:pointer;border-bottom:none;display:flex;flex-direction:column;gap:2px;min-width:175px;text-align:left}
-  .tabbtn small{font-size:10px;font-weight:400;color:var(--dim)}
-  .tabbtn.on{background:var(--panel);color:var(--txt);border-color:var(--line2)}
-  .tabbtn.on small{color:var(--accent)}
-  .tabbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  .stagebadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.04em}
-  .sg-early{background:rgba(95,201,138,.16);color:var(--dacr)}
-  .sg-recog{background:rgba(210,162,74,.16);color:var(--dup)}
-  .sg-eu{background:rgba(224,104,106,.16);color:var(--choke)}
-  .mini{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
-  .mini div{padding:11px 13px;border-right:1px solid var(--line)}
-  .mini div:last-child{border-right:0}
-  .mini .v{font-family:"JetBrains Mono",monospace;font-size:16px;font-weight:600}
-  .mini .l{font-size:10px;color:var(--mut);margin-top:2px}
-  @media(max-width:780px){.mini{grid-template-columns:1fr 1fr 1fr}}
-  .gap{border-left:3px solid var(--accent);background:rgba(45,212,191,.06);border-radius:8px;padding:12px 15px;margin:14px 0}
-  .gap .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:5px}
-  .gap p{font-size:12.5px;color:var(--mut);line-height:1.5}.gap p b{color:var(--txt)}
-  .mtd{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
-  @media(max-width:780px){.mtd{grid-template-columns:1fr}.tabbtn{min-width:0;flex:1}}
-  .mtc{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
-  .mtc .h{font-size:11.5px;font-weight:600;color:var(--accent);margin-bottom:3px}
-  .mtc p{font-size:11.5px;color:var(--mut);line-height:1.45}.mtc p b{color:var(--txt)}
-  .bbr{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
-  .bbr div{border-radius:8px;padding:9px 12px;font-size:11.5px;line-height:1.45;color:var(--mut)}
-  .bbr .bl{border-left:3px solid var(--dacr);background:var(--panel2)}
-  .bbr .be{border-left:3px solid var(--choke);background:var(--panel2)}
-  .bbr b{display:block;font-size:10.5px;margin-bottom:2px}
-  .scn{width:100%;border-collapse:collapse;font-size:12px}
-  .scn th{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em}
-  .scn td{padding:9px 11px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
-  .scn td b{color:var(--txt)}
-  .scn .bull{border-left:3px solid var(--dacr)}.scn .base{border-left:3px solid var(--dup)}.scn .bear{border-left:3px solid var(--choke)}
+  footer a{color:var(--accent);text-decoration:none}
+  .svglabel{font-family:"JetBrains Mono",monospace;font-size:9px;fill:var(--dim)}
   svg text{font-family:"Space Grotesk",sans-serif}
   svg text.m{font-family:"JetBrains Mono",monospace}
-  .svglabel{font-size:9px;fill:var(--dim)}
   @media print{
-    nav.toc{display:none}
-    .tabpane[hidden]{display:block!important}
-    .tabbtn{display:none!important}
+    .toc{display:none}
+    .tab{display:none}
+    .tabpanel[hidden]{display:block!important}
     svg text{fill:#111}
     body{background:#fff;color:#111}
   }
@@ -186,920 +228,873 @@
 
 <header>
   <div class="wrap">
-    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #13 · v5 · Optics (deeper / refresh)</div>
-    <h1>The CPO Laser Chokepoint — the External Light Source, and whether you're still early</h1>
-    <p class="sub">Co-packaged optics can't put the laser on the hot chip, so it pulls the laser <b style="color:#fff">out</b> into an external module. That makes the <b style="color:#fff">merchant high-power CW-DFB laser</b> the scarce link every non-NVIDIA, non-Broadcom CPO program must route through. Two axes (<b style="color:#fff">where</b> light runs × <b style="color:#fff">what</b> generation of source), a visual end-to-end supply chain, and a top-3 at <b style="color:#fff">different</b> links staged on the awareness curve — so you can see what's still early versus already priced.</p>
+    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #25 · Optics loop 5 · v5</div>
+    <h1>The Optical Isolator's Garnet Chokepoint — a one-way valve every laser needs, and whether you're still early</h1>
+    <p class="sub">One cut <b>over</b> the laser (past the EML, InP epitaxy, CPO light source and photonic packaging we've already mapped) to the tiny, invisible <b>optical isolator</b> that protects every laser transmitter — and one layer <b>below</b> it to the binding link: the <b>magneto-optic Faraday-rotator garnet crystal</b>. Two axes, an end-to-end supply map, a four-factor severity score, and a top-3 at <b>different</b> links — staged on the awareness curve so you can see what's still early versus already priced. Spoiler: this is a <b>study/watchlist</b> run, not a monopoly-toll run.</p>
     <div class="gauges">
-      <div class="gge sev"><div class="gl">Chokepoint severity</div><div class="gv num">18<span style="font-size:13px;color:var(--dim)">/20</span></div><div class="gd">merchant ELS CW-DFB link · acute</div></div>
-      <div class="gge asy"><div class="gl">Remaining asymmetry</div><div class="gv num">6–7<span style="font-size:13px;color:var(--dim)">/20</span></div><div class="gd">low — pure-play already ran ~17×</div></div>
-      <div class="gge"><div class="gl">Honest read</div><div class="gv" style="font-size:15px;color:var(--txt)">Mostly priced</div><div class="gd">early dollar is in the latent watchlist</div></div>
+      <div class="gg">
+        <div class="lab"><span>Chokepoint severity — garnet-crystal layer</span><b>14/20</b></div>
+        <div class="bar"><div class="fill" style="width:70%;background:var(--choke)"></div></div>
+        <div class="d">Concentrated (not monopoly) · tacit-knowledge crystal growth · non-substitutable function today, substitutable component long-run. Below the rotation's 18–19 monopolies by design.</div>
+      </div>
+      <div class="gg">
+        <div class="lab"><span>Remaining asymmetry — how much left to earn</span><b>6/20</b></div>
+        <div class="bar"><div class="fill" style="width:30%;background:var(--accent)"></div></div>
+        <div class="d">Un-bid (nobody tags it an "AI stock") but capped by dilution, a small TAM, no clean vehicle, and a real 2028–30 isolator-free disintermediation.</div>
+      </div>
     </div>
     <div class="meta">
-      <div><div class="k">Date</div><div class="vv num">20 Jun 2026</div></div>
-      <div><div class="k">Stack path</div><div class="vv">InP wafer → CW-DFB laser → ELS module → SiPh PIC → CPO switch</div></div>
-      <div><div class="k">Universe</div><div class="vv">Global · US / SE / TW / JP</div></div>
-      <div><div class="k">Top-3</div><div class="vv">COHR · SIVE · ALMU</div></div>
+      <div><div class="k">Date</div><div class="vv num">14 Jul 2026</div></div>
+      <div><div class="k">Stack path</div><div class="vv">rare-earth → garnet crystal → isolator → laser/ELS → module → switch</div></div>
+      <div><div class="k">Universe</div><div class="vv">Global · JP / US / AU / CN</div></div>
+      <div><div class="k">Top-3 (diff. links)</div><div class="vv">COHR · TDK · LYSDY</div></div>
     </div>
-    <div class="asof">Prices = last close <b style="color:#e7cf9e">Fri 19 Jun 2026</b> · IBKR read-only (never trade) · multiples are estimates — verify on a terminal · <b style="color:#e7cf9e">personal research, not investment advice</b></div>
+    <div class="asof"><span class="dot"></span> Prices IBKR read-only + FMP, as-of 14 Jul 2026 (a broad optics/AI selloff on today's tape). Personal research — <b>not investment advice</b>. Estimates hedged; approximations marked (est.).</div>
   </div>
 </header>
 
-<nav class="toc"><div class="wrap">
-  <a href="#s1">01 Snapshot</a><a href="#s2">02 Framework</a><a href="#s3">03 Light-source gallery</a><a href="#s4">04 Chip→module</a><a href="#s5">05 Where it runs</a><a href="#s6">06 Supply chain</a><a href="#s7">07 Timeline</a><a href="#s8">08 Chokepoint + severity</a><a href="#s9">09 Awareness curve</a><a href="#s10">10 Top-3 plays</a><a href="#s11">11 Beneficiaries + risks</a><a href="#s12">12 Decision</a>
-</div></nav>
+<nav class="toc">
+  <div class="wrap">
+    <a href="#s01">01 Snapshot</a>
+    <a href="#s02">02 Framework</a>
+    <a href="#s03">03 Components</a>
+    <a href="#s04">04 Assembly</a>
+    <a href="#s05">05 Deployment</a>
+    <a href="#s06">06 Supply map</a>
+    <a href="#s07">07 Sizing & rent</a>
+    <a href="#s08">08 Severity & variant</a>
+    <a href="#s09">09 Timeline</a>
+    <a href="#s10">10 The plays</a>
+    <a href="#s11">11 Awareness</a>
+    <a href="#s12">12 Indicators</a>
+    <a href="#s13">13 Watchlist</a>
+    <a href="#s14">14 Risks</a>
+    <a href="#s15">15 Decision</a>
+    <a href="#s16">16 Self-critique</a>
+  </div>
+</nav>
 
 <div class="wrap">
 
-<!-- 1. SNAPSHOT -->
-<section id="s1">
+<!-- 01 SNAPSHOT -->
+<section id="s01">
   <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">為什麼是現在</span></div>
-  <p class="lead">Runs #1 and #7 chased the optics chain down to the <b>EML laser</b> and the <b>MOCVD tool that grows it</b>. This refresh follows the 2026 architecture shift those runs foreshadowed: <b>co-packaged optics (CPO)</b>. CPO moves the optical engine onto the switch/GPU package — but a laser can't survive next to a hot ASIC, so it's pulled out into an <b>External Light Source (ELS)</b>. The new bottleneck is the <b>high-power continuous-wave (CW) DFB laser</b> feeding that ELS — and specifically the <b>merchant</b> slice of it, because NVIDIA and Broadcom already locked up or internalised their own supply.</p>
+  <p class="lead">Every AI optical link starts with a laser, and every laser hates its own echo: a sliver of light reflected back from a fiber joint or a photonic chip can make it stutter, spike its noise, or hop modes. The fix is a <b>one-way valve for light</b> — the <b>optical isolator</b>. It's a passive so small and cheap nobody puts it on a slide, yet you need one on every <b>reflection-sensitive laser</b> (CW-DFB / EML / coherent / ELS) — a rising but sub-100% share of all lasers — and those laser counts are exploding with 1.6T and co-packaged optics. The scarce, hard-to-replicate part inside it is a <b>magneto-optic garnet crystal</b> grown by a handful of Japanese (and a few Chinese) crystal houses — and that crystal is what this report follows.</p>
   <div class="kpis">
-    <div class="kpi"><div class="v num teal">~$0.1→20B+</div><div class="l">CPO market, 2025→2036 (est.)</div><div class="d">~$90M (2025) to &gt;$20B (2036), IDTechEx via Nexus; ELS ≈ 10% ≈ ~$2B (est.)</div></div>
-    <div class="kpi"><div class="v num red">~83%</div><div class="l">Merchant CW-DFB fab utilisation</div><div class="d">e-beam tool lead-times 6–12 mo; demand ~2× supply (est., single source)</div></div>
-    <div class="kpi"><div class="v num amb">$4B</div><div class="l">NVIDIA laser lock-up, Mar 2026</div><div class="d">$2B Coherent + $2B Lumentum — taken off the merchant market</div></div>
-    <div class="kpi"><div class="v num grn">~2×→50.7M</div><div class="l">EML+CW-DFB laser units / month in 2026</div><div class="d">capacity ~doubles YoY (TrendForce); CW-DFB the new vector</div></div>
+    <div class="kpi"><div class="v num teal">~1 / CW·EML laser</div><div class="l">Isolators per reflection-sensitive laser</div><div class="d">Attach rate is well below 100% of all lasers — short-reach VCSELs mostly ship isolator-free; CW-DFB / EML / coherent / ELS carry them (est.)</div></div>
+    <div class="kpi"><div class="v num amb">$0.9–1.8B</div><div class="l">Whole optical-isolator market, 2026 (est.)</div><div class="d">Tiny — which is exactly why the crowd ignores it and the crystal hides</div></div>
+    <div class="kpi"><div class="v num red">Apr-2025</div><div class="l">Terbium added to China heavy-REE export controls</div><div class="d">Heavy-REE export volumes fell sharply post-controls (est.); squeezes the garnet material class — TGG far more than datacom Bi:RIG</div></div>
+    <div class="kpi"><div class="v num pur">2028–30</div><div class="l">Isolator-free silicon photonics window</div><div class="d">QD lasers / self-injection-lock could delete the discrete isolator</div></div>
   </div>
 
-  <div style="border:1px solid var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px;background:var(--panel)">
-    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px">EXPLAIN IT SIMPLY · 白話版</div>
-    <p style="font-size:13px;color:var(--mut);line-height:1.6;max-width:920px">A data-center GPU runs so hot that you can't sit a delicate <b style="color:var(--txt)">laser</b> right next to it — it would cook. The newest design, <b style="color:var(--txt)">co-packaged optics (CPO)</b>, solves the speed problem by moving the optics onto the chip's package, but that forces the laser to move <b style="color:var(--txt)">outside</b>, into a little plug-in box called an <b style="color:var(--txt)">External Light Source (ELS)</b>. That box needs a special, powerful, ultra-steady laser (a "CW-DFB"). Very few companies can make it, and the two biggest buyers — <b style="color:var(--txt)">NVIDIA and Broadcom</b> — already grabbed or built their own supply. So the real prize is the small <b style="color:var(--txt)">merchant</b> pool that everyone else has to buy from. The catch this report is honest about: the purest company in that pool already went up about <b style="color:var(--txt)">17× in a year</b> — the secret is out. The job now is spotting where the <i>next</i> one hides.</p>
+  <div class="ebox">
+    <div class="t">EXPLAIN IT SIMPLY · 白話版</div>
+    <p>Picture a laser as a singer who cannot stand hearing an echo of their own voice — even a faint one throws them off pitch. In an AI datacenter there are millions of these tiny laser "singers," and the fibers and chips around them constantly bounce faint echoes back. So next to every <i>reflection-sensitive</i> laser (the single-mode ones — the cheap short-reach VCSELs mostly skip it) sits a microscopic <b>one-way door</b> that lets the singer's voice out but blocks the echo coming back: the <b>optical isolator</b>. The trick that makes the door only open one way is a special <b>magnetic crystal</b> (a "Faraday rotator garnet") that twists light — and only a few companies in the world can grow it well. That crystal is the <b>chokepoint</b>. The catch, and the reason this isn't a slam-dunk: the door is cheap and several firms can assemble it, China just tightened the rare-earth supply for the crystal, and engineers are inventing lasers that <b>don't need the door at all</b>. So the honest question here isn't "which stock to buy" — it's <b>"is there any clean way to own this scarce crystal, and is the crowd early or already elsewhere?"</b></p>
   </div>
+
+  <div class="vbox">
+    <div class="t">VARIANT PERCEPTION · WHAT WE THINK THE STREET IS MISSING</div>
+    <p>Consensus is fighting over two things: <b>CPO timing</b> and <b>laser (EML/InP) supply</b>. Almost nobody is pricing the <b>isolator</b> specifically — it's un-bid because it's invisible and the market is tiny. But there are <b>two</b> off-consensus reads, and they point opposite ways. <b>(1) Bullish, near-term:</b> the same CPO push that everyone loves multiplies <i>lasers</i>, and high-power external-laser CW DFBs are <i>more</i> reflection-sensitive — so isolator (and garnet) demand quietly compounds, and the crystal is a Japanese near-oligopoly. <b>(2) Bearish, longer-term (the disaggregation):</b> that same silicon-photonics integration is racing to make lasers <b>isolator-free</b> (quantum-dot lasers, self-injection-locked DFBs, on-chip garnet) — so CPO is bullish light sources yet potentially <b>bearish the discrete isolator</b> by 2028–30. The edge is holding both at once: a real, un-bid tightness today with a real, un-hedged obsolescence tomorrow. <b>If we're wrong</b>, it's most likely because isolator-free designs mature <i>faster</i> than expected (killing the thesis early) — or because the crystal was never that scarce (several assemblers, a small market that capacity can chase).</p>
+  </div>
+
+  <div class="pills">
+    <span class="pill p1"><b>COHR</b> — own-the-rent, integrated isolator+garnet+laser, but priced (Recognition)</span>
+    <span class="pill p2"><b>TDK / Granopt</b> — the hidden merchant garnet monopoly, but diluted to invisibility</span>
+    <span class="pill p3"><b>LYSDY</b> — the rare-earth upstream, topical but a red herring for optics</span>
+  </div>
+  <p class="note">Leans are the author's personal opinion for a private notebook — not a recommendation or solicitation. Tightness ≠ a good buy.</p>
 </section>
 
-<!-- 2. FRAMEWORK -->
-<section id="s2">
+<!-- 02 FRAMEWORK -->
+<section id="s02">
   <div class="sh"><span class="n">02</span><h2>The framework — two orthogonal axes</h2><span class="cn">MECE 框架</span></div>
-  <p class="lead">Every optical light source lives at one <b>(where it runs × which generation of source)</b> coordinate. The <b>domain</b> says how far the link reaches; the <b>generation</b> says how the light is made and delivered. The chokepoint sits at one cell: <b>Gen-3 CPO/ELS feeding the scale-up &amp; scale-out fabric</b>.</p>
+  <p class="lead">Every optical part lives at one <b>(network domain × stack layer)</b> coordinate. The <b>domain</b> says <i>where</i> the link runs; the <b>layer</b> says <i>what</i> part it is. The isolator sits at the same L3-adjacent slot in all three domains — which is why one small crystal shortage would radiate everywhere at once. The chokepoint cell is <b>(all domains × the garnet crystal one layer below the isolator)</b>.</p>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
     <div class="panel" style="padding:14px 16px">
-      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">THE GENERATION STACK · 分代 (read this first)</div>
-      <div style="font-size:12px;color:var(--mut);line-height:1.85">
-        <span class="lyr ly2">G1</span> <b>EML</b> — laser + modulator on one InP chip, lives inside a pluggable (today's volume) &nbsp;·&nbsp;
-        <span class="lyr ly3">G2</span> <b>CW + SiPh</b> — a plain steady laser feeds a silicon-photonics chip that does the modulating &nbsp;·&nbsp;
-        <span class="lyr ly1">G3</span> <b>CPO + ELS</b> — optics moved onto the package; the laser exits into an external module <span class="chip hot">the chokepoint</span> &nbsp;·&nbsp;
-        <span class="lyr lyu">G4</span> <b>Monolithic</b> — laser grown directly on silicon, no external laser at all (2030+)
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">THE LAYER STACK · 分層 (read this first)</div>
+      <div style="font-size:12px;color:var(--mut);line-height:1.9">
+        <span class="lyr ly1">L1</span> the <b>switch / GPU</b> that sends data &nbsp;·&nbsp;
+        <span class="lyr ly2">L2</span> the plug-in <b>module (transceiver)</b> electrons↔light &nbsp;·&nbsp;
+        <span class="lyr ly3">L3</span> the <b>laser + photonic chip</b> that makes the light &nbsp;·&nbsp;
+        <span class="lyr lyp">ISO</span> the <b>isolator</b> protecting the laser &nbsp;·&nbsp;
+        <span class="lyr lyu">UP</span> the <b>garnet crystal</b> inside the isolator &nbsp;·&nbsp; <span class="lyr lyu">RAW</span> the <b>rare-earths</b> in the crystal.
       </div>
     </div>
     <div class="panel" style="padding:14px 16px">
       <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">6-TERM GLOSSARY · 名詞</div>
-      <div style="font-size:11.5px;color:var(--mut);line-height:1.75">
-        <b>CW-DFB</b> continuous-wave distributed-feedback laser (steady beam) · <b>ELS</b> external light source — the laser box outside the package · <b>SiPh</b> silicon-photonics chip · <b>PIC</b> photonic (light) chip · <b>NPO</b> near-packaged optics (a halfway step, often VCSEL) · <b>merchant</b> supply you can buy vs. <b>captive</b> made in-house
+      <div style="font-size:11.5px;color:var(--mut);line-height:1.7">
+        <b>Isolator</b> one-way valve for light · <b>Faraday rotator</b> magnetic crystal that twists light's polarization · <b>Bi:RIG</b> bismuth iron-garnet film (datacom) · <b>LPE</b> liquid-phase epitaxy (how the film is grown) · <b>TGG</b> terbium gallium garnet (high-power isolators) · <b>ELS</b> external laser source (CPO's off-chip laser box)
       </div>
     </div>
   </div>
   <table class="matrix">
     <tr>
-      <th style="width:170px">Network domain (where)</th>
-      <th style="width:120px">Reach</th>
-      <th>Light source used &amp; where the chokepoint sits</th>
-      <th style="width:230px">Who wins · key players</th>
+      <th style="width:168px">Network domain (where)</th>
+      <th style="width:104px">Reach</th>
+      <th>Why the laser needs an isolator here</th>
+      <th style="width:210px">Isolator intensity · who wins</th>
     </tr>
     <tr>
       <td><div class="dom"><span class="sw" style="background:var(--dup)"></span>Scale-UP<small>GPU↔GPU in a rack/pod</small></div></td>
       <td>&lt; 1 m – 10 m</td>
-      <td><b>Copper today → optical next.</b> CPO/ELS (InP CW) and VCSEL-NPO compete to break the copper wall. <span class="chip hot">CPO/ELS ramp 2026→28</span></td>
-      <td>NVIDIA NVLink/Rubin, Broadcom (VCSEL NPO), <b>Coherent/Sivers (ELS)</b>, Marvell-Celestial</td>
+      <td><b>CPO's external laser source (ELS).</b> High-power CW DFBs sit off-package and feed the silicon-photonic chip — the most reflection-sensitive spot, so isolation matters most. <span class="chip hot">most isolators per watt</span></td>
+      <td>Rising fast · <b>Coherent / Lumentum (ELS)</b>, Broadcom, captive Nvidia</td>
     </tr>
     <tr>
       <td><div class="dom"><span class="sw" style="background:var(--dout)"></span>Scale-OUT<small>rack↔rack across the DC</small></div></td>
       <td>10 m – 2 km</td>
-      <td><b>Where CPO ships first.</b> Pluggable 1.6T (EML) today → CPO scale-out + CW+SiPh; ELS demand begins H2-2026. <span class="chip hot">merchant CW-DFB pinch here</span></td>
-      <td>Coherent, Lumentum, Sivers, GlobalFoundries (SiPh), NVIDIA Spectrum-X Photonics</td>
+      <td><b>The volume engine.</b> 800G/1.6T pluggables — each EML/CW laser lane carries an isolator. Unit driver #1 today. <span class="chip hot">largest absolute isolator volume</span></td>
+      <td>Highest volume · Coherent, Lumentum, InnoLight, Eoptolink, Fabrinet</td>
     </tr>
     <tr>
       <td><div class="dom"><span class="sw" style="background:var(--dacr)"></span>Scale-ACROSS<small>DC↔DC, campus↔region</small></div></td>
       <td>2 km – 1000+ km</td>
-      <td><b>Coherent line-side.</b> Long-reach uses its own CW/tunable lasers; less ELS-exposed but same InP upstream. <span class="chip">DCI, steady</span></td>
-      <td>Coherent, Ciena, Marvell, Cisco/Acacia</td>
+      <td><b>Coherent line-side.</b> Tunable/high-power InP lasers over long fiber demand the highest isolation (often multistage &gt;50 dB). <span class="chip">low volume, high grade</span></td>
+      <td>Highest grade · Ciena, Nokia, Cisco/Acacia, Marvell</td>
     </tr>
   </table>
-  <p class="cap">The merchant CW-DFB pinch originates in scale-out CPO but radiates into scale-up (ELS for in-rack optics). One upstream constraint, two CPO demand pools — and the rent only accrues to whatever supply is <i>not</i> captive to NVIDIA or Broadcom.</p>
+  <p class="cap">One crystal, three demand pools. The isolator is architecture-agnostic across scale-up/out/across — but it is <i>not</i> a monopoly toll, because several firms assemble the finished part and the crystal market is small enough that capacity can chase it. That is the honest ceiling on this thesis.</p>
 </section>
 
-<!-- 3. LIGHT-SOURCE GALLERY -->
-<section id="s3">
-  <div class="sh"><span class="n">03</span><h2>The light sources, by generation</h2><span class="cn">光源元件 · 分代圖解</span></div>
-  <p class="lead">Five ways to put light into an AI link. The industry is migrating left→right; the chokepoint is the <b>Gen-3 ELS</b> — and four of the five still depend on a III-V (InP/GaAs) laser, which is exactly why the bottleneck is structural.</p>
+<!-- 03 COMPONENT GALLERY -->
+<section id="s03">
+  <div class="sh"><span class="n">03</span><h2>What the isolator actually is — illustrated</h2><span class="cn">元件圖解</span></div>
+  <p class="lead">Four pictures. The first three build up the chokepoint (a valve → the crystal that makes it one-way → how it guards a laser). The fourth is the <b>threat</b>: a laser engineered to need no valve at all.</p>
   <div class="gal">
-    <!-- G1 EML -->
+    <!-- 1. isolator -->
     <div class="card">
       <div class="svgbox">
-        <svg viewBox="0 0 190 104" width="100%" height="104" xmlns="http://www.w3.org/2000/svg">
-          <rect x="12" y="32" width="116" height="40" rx="5" fill="#1c2030" stroke="#3a3f55"/>
-          <text x="16" y="26" class="svglabel">InP die</text>
-          <rect x="20" y="44" width="42" height="16" rx="2" fill="#8b84cf"/>
-          <text x="41" y="55" text-anchor="middle" font-size="8" fill="#fff">DFB</text>
-          <rect x="66" y="44" width="54" height="16" rx="2" fill="#3a3f63" stroke="#8b84cf"/>
-          <text x="93" y="55" text-anchor="middle" font-size="7" fill="#cfc9f2">EA mod</text>
-          <line x1="120" y1="52" x2="176" y2="52" stroke="#2dd4bf" stroke-width="2"/>
-          <polygon points="176,52 168,48 168,56" fill="#2dd4bf"/>
-          <text x="16" y="88" class="svglabel">laser + modulator on ONE chip</text>
+        <svg viewBox="0 0 200 120" width="100%" height="120" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="af" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5fc98a"/></marker>
+            <marker id="ar" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e0686a"/></marker>
+          </defs>
+          <!-- input polarizer -->
+          <rect x="26" y="30" width="10" height="44" rx="2" fill="#22283a" stroke="#4a5678"/>
+          <line x1="31" y1="34" x2="31" y2="70" stroke="#7f8db0" stroke-width="1.4"/>
+          <text x="31" y="86" text-anchor="middle" class="svglabel" style="font-size:7px">in-pol</text>
+          <!-- faraday rotator garnet -->
+          <rect x="78" y="34" width="40" height="36" rx="3" fill="#3a3f63" stroke="#8b84cf"/>
+          <text x="98" y="50" text-anchor="middle" font-size="7.5" fill="#cfc9f2">garnet</text>
+          <text x="98" y="60" text-anchor="middle" font-size="7" fill="#aaa3e6">45° twist</text>
+          <text x="98" y="86" text-anchor="middle" class="svglabel" style="font-size:7px">Faraday rotator</text>
+          <!-- analyzer at 45 -->
+          <rect x="160" y="30" width="10" height="44" rx="2" fill="#22283a" stroke="#4a5678"/>
+          <line x1="161" y1="70" x2="169" y2="34" stroke="#7f8db0" stroke-width="1.4"/>
+          <text x="165" y="86" text-anchor="middle" class="svglabel" style="font-size:7px">out-pol 45°</text>
+          <!-- forward beam -->
+          <line x1="8" y1="44" x2="158" y2="44" stroke="#5fc98a" stroke-width="2" marker-end="url(#af)"/>
+          <text x="12" y="40" class="svglabel" style="font-size:7px;fill:#5fc98a">forward → passes</text>
+          <!-- reverse beam blocked -->
+          <line x1="176" y1="60" x2="40" y2="60" stroke="#e0686a" stroke-width="2" marker-end="url(#ar)"/>
+          <circle cx="34" cy="60" r="6" fill="none" stroke="#e0686a" stroke-width="1.6"/>
+          <line x1="30" y1="56" x2="38" y2="64" stroke="#e0686a" stroke-width="1.6"/>
+          <text x="176" y="104" text-anchor="end" class="svglabel" style="font-size:7px;fill:#e0686a">echo ← blocked</text>
         </svg>
       </div>
       <div class="body">
-        <h4>G1 · EML <span class="badge b-emrg">INCUMBENT</span></h4>
-        <p class="role">Electro-absorption modulated laser — the volume source for 800G/1.6T pluggables. ~8 lasers per 800G module (~$80–100 laser BOM). NVIDIA-locked.</p>
-        <p class="who">Volume: <b>Lumentum</b>, Coherent, AAOI</p>
+        <h4>Optical isolator <span class="badge b-hot">CHOKE</span></h4>
+        <div class="role">A one-way valve: light passes forward through polarizer → rotator → analyzer, but a reflected echo gets its polarization twisted a second time and is stopped at the input. &lt;1 dB loss, &gt;30 dB isolation.</div>
+        <div class="who">who: <b>Coherent, Molex/Oplink, Thorlabs, O-Net, Accelink, AC Photonics</b></div>
       </div>
     </div>
-    <!-- G2 CW+SiPh -->
+    <!-- 2. garnet crystal -->
     <div class="card">
       <div class="svgbox">
-        <svg viewBox="0 0 190 104" width="100%" height="104" xmlns="http://www.w3.org/2000/svg">
-          <text x="12" y="26" class="svglabel">CW laser (InP)</text>
-          <rect x="12" y="40" width="36" height="20" rx="3" fill="#6f68b8"/>
-          <text x="30" y="53" text-anchor="middle" font-size="8" fill="#fff">CW</text>
-          <line x1="48" y1="50" x2="66" y2="50" stroke="#2dd4bf" stroke-width="2"/>
-          <rect x="66" y="32" width="110" height="44" rx="5" fill="#11261f" stroke="#3a6b54"/>
-          <text x="121" y="26" class="svglabel" text-anchor="middle">silicon-photonics PIC</text>
-          <circle cx="92" cy="54" r="7" fill="none" stroke="#5fc98a" stroke-width="2"/>
-          <circle cx="118" cy="54" r="7" fill="none" stroke="#5fc98a" stroke-width="2"/>
-          <line x1="66" y1="54" x2="170" y2="54" stroke="#2dd4bf" stroke-width="1.5"/>
-          <text x="138" y="71" text-anchor="middle" font-size="7" fill="#7cc9ad">Si modulators</text>
+        <svg viewBox="0 0 200 120" width="100%" height="120" xmlns="http://www.w3.org/2000/svg">
+          <!-- substrate GGG -->
+          <rect x="40" y="66" width="120" height="16" rx="2" fill="#20283c" stroke="#3a4560"/>
+          <text x="100" y="77" text-anchor="middle" font-size="7.5" fill="#8aa7df">GGG substrate</text>
+          <!-- bi:rig film -->
+          <rect x="40" y="52" width="120" height="14" fill="url(#gfilm)"/>
+          <defs><linearGradient id="gfilm" x1="0" x2="1"><stop offset="0" stop-color="#8b84cf"/><stop offset="1" stop-color="#6f68b8"/></linearGradient></defs>
+          <text x="100" y="62" text-anchor="middle" font-size="7" fill="#fff">Bi:RIG film (LPE)</text>
+          <!-- polarization twist arrows -->
+          <line x1="20" y1="40" x2="34" y2="40" stroke="#5fc98a" stroke-width="2"/>
+          <line x1="27" y1="34" x2="27" y2="46" stroke="#5fc98a" stroke-width="2"/>
+          <text x="27" y="30" text-anchor="middle" class="svglabel" style="font-size:6.5px">in ↕</text>
+          <line x1="168" y1="40" x2="182" y2="34" stroke="#2dd4bf" stroke-width="2"/>
+          <text x="176" y="52" text-anchor="middle" class="svglabel" style="font-size:6.5px">out 45°</text>
+          <path d="M40 40 h120" stroke="#4a5678" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="100" y="102" text-anchor="middle" class="svglabel" style="font-size:7px">grown atom-layer by layer, ~tens of µm thick</text>
         </svg>
       </div>
       <div class="body">
-        <h4>G2 · CW + SiPh <span class="badge b-now">SCALING</span></h4>
-        <p class="role">A steady CW laser feeds a silicon chip that modulates. Only 2–4 CW lasers per module (~$20–40 BOM, <½ of EML). Cuts laser dollars even as it scales.</p>
-        <p class="who">PIC: <b>GlobalFoundries</b>, TSMC COUPE, Tower</p>
+        <h4>Faraday-rotator garnet <span class="badge b-now">the link</span></h4>
+        <div class="role">Bismuth-substituted rare-earth iron garnet (Bi:RIG), a magnetic film grown by liquid-phase epitaxy. Its magnetism twists light one way only — the physics no other cheap material delivers at 1550 nm.</div>
+        <div class="who">who: <b>Granopt (TDK), Coherent (LPE), a few JP/CN crystal houses</b></div>
       </div>
     </div>
-    <!-- G3 ELS CHOKEPOINT -->
-    <div class="card" style="border-color:#5a3236">
-      <div class="svgbox" style="background:linear-gradient(180deg,#1c1417,#241317)">
-        <svg viewBox="0 0 190 104" width="100%" height="104" xmlns="http://www.w3.org/2000/svg">
-          <text x="12" y="22" class="svglabel">ELSFP module</text>
-          <rect x="12" y="28" width="42" height="48" rx="5" fill="#2a1a1f" stroke="#e0686a"/>
-          <rect x="19" y="40" width="28" height="8" rx="2" fill="#e0686a"/>
-          <rect x="19" y="54" width="28" height="8" rx="2" fill="#e0686a"/>
-          <text x="33" y="72" text-anchor="middle" font-size="6.5" fill="#eda3a4">CW array</text>
-          <path d="M54 52 C 84 52, 84 58, 112 58" fill="none" stroke="#e0a458" stroke-width="2"/>
-          <text x="82" y="48" text-anchor="middle" font-size="7" fill="#e0a458">fiber</text>
-          <rect x="112" y="32" width="64" height="44" rx="5" fill="#11261f" stroke="#3a6b54"/>
-          <rect x="123" y="44" width="42" height="22" rx="3" fill="#1c3a2d"/>
-          <text x="144" y="58" text-anchor="middle" font-size="7" fill="#7cc9ad">ASIC+optics</text>
-          <text x="112" y="94" class="svglabel">laser OUTSIDE the hot package</text>
-        </svg>
-      </div>
-      <div class="body">
-        <h4>G3 · CPO + ELS <span class="badge b-hot">CHOKEPOINT</span></h4>
-        <p class="role">For CPO the laser exits into an external module (ELSFP) and pipes 400mW-class CW light in by fiber. Spec is locked into the PIC — you can't swap vendors. Merchant supply is the pinch.</p>
-        <p class="who">Merchant: <b>Sivers</b>, Coherent; captive: NVIDIA/Broadcom</p>
-      </div>
-    </div>
-    <!-- G2.5 VCSEL NPO -->
+    <!-- 3. laser + isolator -->
     <div class="card">
       <div class="svgbox">
-        <svg viewBox="0 0 190 104" width="100%" height="104" xmlns="http://www.w3.org/2000/svg">
-          <text x="12" y="26" class="svglabel">VCSEL array (GaAs)</text>
-          <rect x="20" y="38" width="46" height="34" rx="4" fill="#33302a" stroke="#d2a24a"/>
-          <circle cx="32" cy="50" r="3.5" fill="#e0a458"/><circle cx="44" cy="50" r="3.5" fill="#e0a458"/><circle cx="56" cy="50" r="3.5" fill="#e0a458"/>
-          <circle cx="32" cy="62" r="3.5" fill="#e0a458"/><circle cx="44" cy="62" r="3.5" fill="#e0a458"/><circle cx="56" cy="62" r="3.5" fill="#e0a458"/>
-          <line x1="66" y1="55" x2="176" y2="55" stroke="#e0a458" stroke-width="2" stroke-dasharray="2 3"/>
-          <text x="120" y="48" text-anchor="middle" font-size="7" fill="#e3bd76">multimode fiber</text>
-          <text x="12" y="90" class="svglabel">short-reach scale-up only</text>
+        <svg viewBox="0 0 200 120" width="100%" height="120" xmlns="http://www.w3.org/2000/svg">
+          <defs><marker id="af2" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#2dd4bf"/></marker></defs>
+          <!-- laser -->
+          <rect x="16" y="42" width="40" height="26" rx="3" fill="#8b84cf"/>
+          <text x="36" y="58" text-anchor="middle" font-size="8" fill="#fff">DFB/EML</text>
+          <text x="36" y="82" text-anchor="middle" class="svglabel" style="font-size:7px">laser (CW/ELS)</text>
+          <!-- isolator -->
+          <rect x="78" y="44" width="30" height="22" rx="3" fill="#3a2c2f" stroke="#e0686a"/>
+          <text x="93" y="58" text-anchor="middle" font-size="7" fill="#eda3a4">ISO</text>
+          <text x="93" y="82" text-anchor="middle" class="svglabel" style="font-size:7px">isolator</text>
+          <!-- pic / fiber -->
+          <rect x="130" y="42" width="46" height="26" rx="3" fill="#20283c" stroke="#4a5678"/>
+          <text x="153" y="58" text-anchor="middle" font-size="7.5" fill="#8aa7df">PIC / fiber</text>
+          <text x="153" y="82" text-anchor="middle" class="svglabel" style="font-size:7px">reflection source</text>
+          <!-- beam -->
+          <line x1="56" y1="55" x2="128" y2="55" stroke="#2dd4bf" stroke-width="2" marker-end="url(#af2)"/>
+          <!-- echo stub -->
+          <line x1="128" y1="63" x2="110" y2="63" stroke="#e0686a" stroke-width="1.8"/>
+          <text x="100" y="34" text-anchor="middle" class="svglabel" style="font-size:7px;fill:#eda3a4">echo stopped before it reaches the laser</text>
         </svg>
       </div>
       <div class="body">
-        <h4>G2.5 · VCSEL-NPO <span class="badge b-next">RIVAL PATH</span></h4>
-        <p class="role">Broadcom's near-packaged optics uses GaAs VCSELs over multimode fiber — simpler, no InP CW. Great for short scale-up; limited reach. A rival that bypasses the ELS chokepoint entirely.</p>
-        <p class="who"><b>Broadcom</b> 3.2T NPO (OFC 2026)</p>
+        <h4>Laser + isolator (ELS) <span class="badge b-next">where it sits</span></h4>
+        <div class="role">The isolator lives on the path from laser to fiber/photonic chip. Co-packaged optics pulls the CW laser off-chip (ELS) and runs it hot — the most reflection-sensitive, highest-isolation spot in the system.</div>
+        <div class="who">who: <b>Lumentum, Coherent, Broadcom, captive Nvidia</b></div>
       </div>
     </div>
-    <!-- G4 Monolithic -->
+    <!-- 4. isolator-free -->
     <div class="card">
       <div class="svgbox">
-        <svg viewBox="0 0 190 104" width="100%" height="104" xmlns="http://www.w3.org/2000/svg">
-          <text x="12" y="26" class="svglabel">300mm silicon wafer</text>
-          <rect x="14" y="34" width="162" height="40" rx="5" fill="#11261f" stroke="#3a6b54"/>
-          <rect x="26" y="46" width="26" height="16" rx="2" fill="#8b84cf"/>
-          <text x="39" y="57" text-anchor="middle" font-size="6.5" fill="#fff">III-V</text>
-          <line x1="52" y1="54" x2="92" y2="54" stroke="#2dd4bf" stroke-width="1.6"/>
-          <circle cx="104" cy="54" r="7" fill="none" stroke="#5fc98a" stroke-width="2"/>
-          <line x1="111" y1="54" x2="166" y2="54" stroke="#2dd4bf" stroke-width="1.6"/>
-          <text x="14" y="90" class="svglabel">laser GROWN onto the silicon</text>
+        <svg viewBox="0 0 200 120" width="100%" height="120" xmlns="http://www.w3.org/2000/svg">
+          <defs><marker id="af3" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e0a458"/></marker></defs>
+          <!-- SOI chip -->
+          <rect x="20" y="34" width="160" height="52" rx="5" fill="#1a2230" stroke="#3a4560"/>
+          <text x="100" y="30" text-anchor="middle" class="svglabel" style="font-size:7px">zero-change silicon (SOI) PIC</text>
+          <!-- QD laser -->
+          <rect x="30" y="48" width="42" height="24" rx="3" fill="#c9a24a"/>
+          <text x="51" y="63" text-anchor="middle" font-size="7" fill="#1a1a1a">QD laser</text>
+          <!-- reflection-tolerant loop -->
+          <rect x="92" y="48" width="46" height="24" rx="3" fill="#20283c" stroke="#4a5678"/>
+          <text x="115" y="60" text-anchor="middle" font-size="6.5" fill="#8aa7df">self-inject</text>
+          <text x="115" y="68" text-anchor="middle" font-size="6.5" fill="#8aa7df">lock</text>
+          <!-- no isolator marker -->
+          <circle cx="158" cy="60" r="9" fill="none" stroke="#5fc98a" stroke-width="1.4"/>
+          <text x="158" y="63" text-anchor="middle" font-size="6.5" fill="#5fc98a">no ISO</text>
+          <line x1="72" y1="60" x2="90" y2="60" stroke="#e0a458" stroke-width="2" marker-end="url(#af3)"/>
+          <text x="100" y="104" text-anchor="middle" class="svglabel" style="font-size:7px;fill:#e0a458">tolerates its own echo — deletes the garnet</text>
         </svg>
       </div>
       <div class="body">
-        <h4>G4 · Monolithic <span class="badge b-now">2030+ ESCAPE</span></h4>
-        <p class="role">Grow the III-V laser directly on the silicon photonics wafer — no separate laser, no ELS. The long-run escape that could dissolve the whole chokepoint. Pre-revenue today.</p>
-        <p class="who">Pioneer: <b>Aeluma</b> (III-V on 300mm Si)</p>
+        <h4>Isolator-free laser <span class="badge b-emrg">DISRUPTOR</span></h4>
+        <div class="role">Quantum-dot lasers and self-injection-locked DFBs are being designed to shrug off back-reflections with no isolator — the 2028–30 disintermediation that caps this chokepoint's asymmetry.</div>
+        <div class="who">who: <b>Quintessent, Nexus Photonics, Intel, Nvidia/Broadcom CPO (mostly private/captive)</b></div>
       </div>
     </div>
   </div>
+  <p class="cap">Cards 1–3 are the chokepoint; card 4 is why the severity is 14/20, not 18. Hold both in your head — that tension is the whole report.</p>
 </section>
 
-<!-- 4. CHIP -> MODULE ASSEMBLY -->
-<section id="s4">
-  <div class="sh"><span class="n">04</span><h2>From laser chip to optical engine</h2><span class="cn">晶片如何變成光引擎</span></div>
-  <p class="lead">The same CW-DFB laser ends up in three architectures. Each step <b>removes</b> components to cut power — and concentrates more burden onto the laser and the external module.</p>
-  <div class="svgwide">
-    <svg viewBox="0 0 1060 300" width="100%" xmlns="http://www.w3.org/2000/svg">
+<!-- 04 ASSEMBLY -->
+<section id="s04">
+  <div class="sh"><span class="n">04</span><h2>From rare-earth to running link — the whole build-up</h2><span class="cn">L3→L2→L1 組裝</span></div>
+  <p class="lead">How a pinch of rare-earth oxide becomes a valve guarding a laser inside a switch. Value and difficulty peak at one step: <b>growing the garnet crystal</b>. Everything to its right is assembly the market can multi-source; everything to its left is commodity chemistry — except when China controls it.</p>
+  <div class="svgwide svgscroll">
+    <svg viewBox="0 0 1120 250" width="1120" height="250" xmlns="http://www.w3.org/2000/svg" style="min-width:1000px">
       <defs>
-        <marker id="ar4" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#5a6377"/></marker>
+        <marker id="ch" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#697283"/></marker>
+        <marker id="chr" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#e0686a"/></marker>
       </defs>
-      <rect x="20" y="120" width="120" height="60" rx="8" fill="#2a1a1f" stroke="#e0686a"/>
-      <text x="80" y="146" text-anchor="middle" font-size="12" fill="#eda3a4" font-weight="600">CW-DFB laser</text>
-      <text x="80" y="164" text-anchor="middle" font-size="10" fill="#9aa3b5">merchant ELS chip</text>
-      <line x1="140" y1="150" x2="190" y2="150" stroke="#5a6377" stroke-width="1.5" marker-end="url(#ar4)"/>
-
-      <!-- A pluggable CW+SiPh -->
-      <rect x="200" y="20" width="300" height="78" rx="9" fill="#1a1e28" stroke="#5aa9e0"/>
-      <text x="214" y="40" font-size="11" fill="#8ec4ee" font-weight="600">A · Pluggable CW + SiPh (1.6T)</text>
-      <rect x="214" y="50" width="46" height="34" rx="4" fill="#2a2540" stroke="#8b84cf"/><text x="237" y="71" text-anchor="middle" font-size="8" fill="#cfc9f2">CW×2-4</text>
-      <rect x="266" y="50" width="56" height="34" rx="4" fill="#11261f" stroke="#3a6b54"/><text x="294" y="71" text-anchor="middle" font-size="8" fill="#7cc9ad">SiPh PIC</text>
-      <rect x="328" y="50" width="50" height="34" rx="4" fill="#33302a" stroke="#d2a24a"/><text x="353" y="71" text-anchor="middle" font-size="8" fill="#e3bd76">DSP</text>
-      <rect x="384" y="50" width="102" height="34" rx="4" fill="#1b2030" stroke="#2f3a52"/><text x="435" y="71" text-anchor="middle" font-size="8" fill="#9aa3b5">QSFP/OSFP cage</text>
-      <text x="214" y="96" font-size="8.5" fill="#697283">laser inside the module · front-panel · most power</text>
-
-      <!-- B LPO -->
-      <rect x="200" y="112" width="300" height="76" rx="9" fill="#1a1e28" stroke="#d2a24a"/>
-      <text x="214" y="132" font-size="11" fill="#e3bd76" font-weight="600">B · LPO (linear, DSP removed)</text>
-      <rect x="214" y="142" width="46" height="34" rx="4" fill="#2a2540" stroke="#8b84cf"/><text x="237" y="163" text-anchor="middle" font-size="8" fill="#cfc9f2">CW×2-4</text>
-      <rect x="266" y="142" width="56" height="34" rx="4" fill="#11261f" stroke="#3a6b54"/><text x="294" y="163" text-anchor="middle" font-size="8" fill="#7cc9ad">SiPh PIC</text>
-      <g opacity="0.35"><rect x="328" y="142" width="50" height="34" rx="4" fill="#2a2e38" stroke="#697283" stroke-dasharray="3 3"/><text x="353" y="163" text-anchor="middle" font-size="7.5" fill="#697283">DSP ✕</text></g>
-      <rect x="384" y="142" width="102" height="34" rx="4" fill="#1b2030" stroke="#2f3a52"/><text x="435" y="163" text-anchor="middle" font-size="8" fill="#9aa3b5">pluggable cage</text>
-      <text x="214" y="186" font-size="8.5" fill="#697283">DSP gone → ~50% less power; host SerDes carries it</text>
-
-      <!-- C CPO + ELS -->
-      <rect x="200" y="202" width="300" height="84" rx="9" fill="#1a1e28" stroke="#2dd4bf"/>
-      <text x="214" y="222" font-size="11" fill="#2dd4bf" font-weight="600">C · CPO + external laser (ELS)</text>
-      <rect x="214" y="232" width="120" height="44" rx="5" fill="#11261f" stroke="#3a6b54"/>
-      <rect x="222" y="244" width="44" height="22" rx="3" fill="#1c3a2d"/><text x="244" y="259" text-anchor="middle" font-size="7.5" fill="#7cc9ad">SiPh eng</text>
-      <rect x="276" y="244" width="50" height="22" rx="3" fill="#15302a"/><text x="301" y="259" text-anchor="middle" font-size="7.5" fill="#7cc9ad">switch ASIC</text>
-      <path d="M150 250 C 180 250, 188 254, 214 254" fill="none" stroke="#e0686a" stroke-width="2.4"/>
-      <text x="360" y="250" font-size="8.5" fill="#eda3a4">CW laser stays OUTSIDE by fiber →</text>
-      <text x="360" y="264" font-size="8.5" fill="#697283">optics moved ONTO the package</text>
-      <text x="360" y="278" font-size="8.5" fill="#697283">lowest power · hardest to build · spec-locked</text>
-
-      <text x="540" y="150" font-size="10" fill="#5a6377">power / bit  ↓</text>
-      <line x1="545" y1="60" x2="545" y2="250" stroke="#3a3f55" stroke-width="1.5"/>
-      <polygon points="545,255 541,247 549,247" fill="#3a3f55"/>
-      <text x="560" y="70" font-size="9.5" fill="#8ec4ee">A highest</text>
-      <text x="560" y="160" font-size="9.5" fill="#e3bd76">B medium</text>
-      <text x="560" y="250" font-size="9.5" fill="#2dd4bf">C lowest</text>
-
-      <rect x="660" y="40" width="380" height="220" rx="10" fill="#13161e" stroke="#2a3040"/>
-      <text x="680" y="66" font-size="11" fill="#e8eaf0" font-weight="600">What changes as you go A → B → C</text>
-      <text x="680" y="92" font-size="10.5" fill="#9aa3b5">• DSP is stripped (B), then the whole module</text>
-      <text x="690" y="108" font-size="10.5" fill="#9aa3b5">collapses onto the package (C).</text>
-      <text x="680" y="132" font-size="10.5" fill="#9aa3b5">• Power per bit falls ~30–50% each step —</text>
-      <text x="690" y="148" font-size="10.5" fill="#9aa3b5">the entire reason hyperscalers want CPO.</text>
-      <text x="680" y="172" font-size="10.5" fill="#9aa3b5">• The laser is forced OUT (the ELS) and must</text>
-      <text x="690" y="188" font-size="10.5" fill="#9aa3b5">be higher-power, hotter-rated, spec-locked.</text>
-      <text x="680" y="230" font-size="10.5" fill="#eda3a4">• Net: the CW-DFB laser gets MORE critical and</text>
-      <text x="690" y="246" font-size="10.5" fill="#eda3a4">harder to second-source as CPO scales.</text>
-    </svg>
-  </div>
-  <p class="cap">Assembly view — the CW-DFB laser (left, red) is common to all three; CPO (C) makes it external, scarcer, and impossible to swap once the PIC is designed around it.</p>
-</section>
-
-<!-- 5. DEPLOYMENT -->
-<section id="s5">
-  <div class="sh"><span class="n">05</span><h2>Where it runs — and who feeds the light</h2><span class="cn">部署拓樸</span></div>
-  <p class="lead">Three network domains. CPO/ELS lands first in <b>scale-out</b> (H2-2026) and is the long-game for <b>scale-up</b>; note how the merchant CW-DFB pinch radiates from one place into two demand pools.</p>
-  <div class="svgwide">
-    <svg viewBox="0 0 1060 250" width="100%" xmlns="http://www.w3.org/2000/svg">
-      <text x="40" y="28" font-size="12" fill="#e0a458" font-weight="600">SCALE-UP</text>
-      <text x="40" y="44" font-size="9.5" fill="#697283">GPU↔GPU · &lt;10 m · copper→CPO/NPO</text>
-      <rect x="34" y="58" width="280" height="150" rx="10" fill="#1a160e" stroke="#5a4624"/>
-      <rect x="60" y="80" width="44" height="28" rx="4" fill="#2a2412" stroke="#e0a458"/><text x="82" y="98" text-anchor="middle" font-size="8" fill="#e3bd76">GPU</text>
-      <rect x="60" y="118" width="44" height="28" rx="4" fill="#2a2412" stroke="#e0a458"/><text x="82" y="136" text-anchor="middle" font-size="8" fill="#e3bd76">GPU</text>
-      <rect x="60" y="156" width="44" height="28" rx="4" fill="#2a2412" stroke="#e0a458"/><text x="82" y="174" text-anchor="middle" font-size="8" fill="#e3bd76">GPU</text>
-      <rect x="200" y="80" width="44" height="28" rx="4" fill="#2a2412" stroke="#e0a458"/><text x="222" y="98" text-anchor="middle" font-size="8" fill="#e3bd76">GPU</text>
-      <rect x="200" y="118" width="44" height="28" rx="4" fill="#2a2412" stroke="#e0a458"/><text x="222" y="136" text-anchor="middle" font-size="8" fill="#e3bd76">GPU</text>
-      <rect x="200" y="156" width="44" height="28" rx="4" fill="#2a2412" stroke="#e0a458"/><text x="222" y="174" text-anchor="middle" font-size="8" fill="#e3bd76">GPU</text>
-      <g stroke="#e0a458" stroke-width="1" opacity="0.5">
-        <line x1="104" y1="94" x2="200" y2="94"/><line x1="104" y1="94" x2="200" y2="132"/>
-        <line x1="104" y1="132" x2="200" y2="94"/><line x1="104" y1="132" x2="200" y2="170"/>
-        <line x1="104" y1="170" x2="200" y2="132"/><line x1="104" y1="170" x2="200" y2="170"/>
-      </g>
-      <text x="174" y="200" text-anchor="middle" font-size="8.5" fill="#e0a458">CPO/ELS or VCSEL-NPO (the rivalry)</text>
-
-      <text x="380" y="28" font-size="12" fill="#5aa9e0" font-weight="600">SCALE-OUT</text>
-      <text x="380" y="44" font-size="9.5" fill="#697283">rack↔rack · 10 m–2 km · CPO ships first</text>
-      <rect x="374" y="58" width="280" height="150" rx="10" fill="#0e1722" stroke="#244258"/>
-      <rect x="470" y="74" width="90" height="22" rx="4" fill="#13283a" stroke="#5aa9e0"/><text x="515" y="89" text-anchor="middle" font-size="8" fill="#8ec4ee">CPO switch</text>
-      <rect x="392" y="150" width="54" height="22" rx="4" fill="#13283a" stroke="#5aa9e0"/><text x="419" y="165" text-anchor="middle" font-size="7.5" fill="#8ec4ee">rack</text>
-      <rect x="488" y="150" width="54" height="22" rx="4" fill="#13283a" stroke="#5aa9e0"/><text x="515" y="165" text-anchor="middle" font-size="7.5" fill="#8ec4ee">rack</text>
-      <rect x="584" y="150" width="54" height="22" rx="4" fill="#13283a" stroke="#5aa9e0"/><text x="611" y="165" text-anchor="middle" font-size="7.5" fill="#8ec4ee">rack</text>
-      <g stroke="#5aa9e0" stroke-width="1.6"><line x1="500" y1="96" x2="419" y2="150"/><line x1="515" y1="96" x2="515" y2="150"/><line x1="530" y1="96" x2="611" y2="150"/></g>
-      <rect x="500" y="108" width="30" height="9" rx="2" fill="#e0686a"/><text x="515" y="115.5" text-anchor="middle" font-size="6" fill="#fff">ELS</text>
-      <text x="514" y="200" text-anchor="middle" font-size="8.5" fill="#5aa9e0">NVIDIA Spectrum-X Photonics · merchant CW pinch</text>
-
-      <text x="720" y="28" font-size="12" fill="#5fc98a" font-weight="600">SCALE-ACROSS</text>
-      <text x="720" y="44" font-size="9.5" fill="#697283">DC↔DC · 2–1000+ km · coherent</text>
-      <rect x="714" y="58" width="312" height="150" rx="10" fill="#0e1a14" stroke="#24533c"/>
-      <rect x="736" y="96" width="70" height="74" rx="5" fill="#123124" stroke="#5fc98a"/><text x="771" y="138" text-anchor="middle" font-size="8.5" fill="#7cc9ad">DC A</text>
-      <rect x="934" y="96" width="70" height="74" rx="5" fill="#123124" stroke="#5fc98a"/><text x="969" y="138" text-anchor="middle" font-size="8.5" fill="#7cc9ad">DC B</text>
-      <line x1="806" y1="133" x2="934" y2="133" stroke="#5fc98a" stroke-width="2.4" stroke-dasharray="2 5"/>
-      <circle cx="820" cy="133" r="4" fill="#2dd4bf"/><circle cx="920" cy="133" r="4" fill="#2dd4bf"/>
-      <text x="870" y="124" text-anchor="middle" font-size="8" fill="#5fc98a">coherent ZR+</text>
-      <text x="870" y="200" text-anchor="middle" font-size="8.5" fill="#5fc98a">own tunable lasers · least ELS-exposed</text>
-    </svg>
-  </div>
-  <p class="cap">Topology view — CPO/ELS demand is concentrated in scale-out (now) and scale-up (later); scale-across runs on different (coherent) lasers. The red ELS tab is the link this report tracks.</p>
-</section>
-
-<!-- 6. SUPPLY CHAIN -->
-<section id="s6">
-  <div class="sh"><span class="n">06</span><h2>End-to-end supply chain</h2><span class="cn">上下游全鏈</span></div>
-  <div class="leg">
-    <span><span class="sw" style="background:var(--up)"></span>Upstream materials</span>
-    <span><span class="sw" style="background:var(--l3)"></span>Laser chip (chokepoint)</span>
-    <span><span class="sw" style="background:var(--pkg)"></span>ELS module / packaging</span>
-    <span><span class="sw" style="background:var(--l2)"></span>SiPh PIC / engine</span>
-    <span><span class="sw" style="background:var(--l1)"></span>CPO switch / GPU + buyers</span>
-    <span><span class="sw" style="background:var(--choke)"></span>Chokepoint</span>
-  </div>
-  <div class="svgwide">
-    <svg viewBox="-12 -2 1124 486" width="100%" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <marker id="aT6" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5a6377"/></marker>
-        <marker id="aR6" markerWidth="9" markerHeight="9" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e0686a"/></marker>
-      </defs>
-
-      <text x="22" y="20" font-size="11" fill="#697283" font-weight="600">UPSTREAM</text>
-      <line x1="110" y1="16" x2="980" y2="16" stroke="#2a3040" stroke-width="1"/>
-      <polygon points="982,16 974,12 974,20" fill="#2a3040"/>
-      <text x="1078" y="20" font-size="11" fill="#697283" font-weight="600" text-anchor="end">DOWNSTREAM</text>
-
-      <!-- flow connectors: thin/red into & out of chokepoint (stage 2), thick/grey elsewhere -->
-      <line x1="180" y1="180" x2="200" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR6)"/>
-      <line x1="360" y1="180" x2="380" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR6)"/>
-      <line x1="540" y1="180" x2="560" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
-      <line x1="720" y1="180" x2="740" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
-      <line x1="900" y1="180" x2="920" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
-
-      <!-- C1 Materials -->
-      <rect x="20" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
-      <rect x="20" y="40" width="5" height="262" rx="2" fill="#5b81c4"/>
-      <text x="36" y="60" font-size="12" fill="#e8eaf0" font-weight="600">InP wafer / epi</text>
-      <text x="36" y="74" font-size="9" fill="#8aa7df" font-weight="600">UPSTREAM</text>
-      <g font-size="9">
-        <rect x="32" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="98" fill="#fff" font-weight="600">InP substrate</text><text x="40" y="110" fill="#9aa3b5">Sumitomo · AXT · JX</text>
-        <rect x="32" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="136" fill="#fff" font-weight="600">MOCVD epi tool</text><text x="40" y="148" fill="#9aa3b5">AIXTRON · Veeco</text>
-        <rect x="32" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="174" fill="#fff" font-weight="600">III-V foundry</text><text x="40" y="186" fill="#9aa3b5">WIN Semi (fab-lite)</text>
-      </g>
-      <text x="36" y="214" font-size="9" fill="#eda3a4">6″ InP transition underway</text>
-      <text x="36" y="228" font-size="8.5" fill="#697283">Runs #1 / #7 covered here</text>
-
-      <!-- C2 CHOKEPOINT laser -->
-      <rect x="200" y="40" width="160" height="262" rx="10" fill="#1c1518" stroke="#5a3236" stroke-width="1.5"/>
-      <rect x="200" y="40" width="5" height="262" rx="2" fill="#8b84cf"/>
-      <rect x="206" y="26" width="148" height="20" rx="5" fill="#e0686a"/><text x="280" y="40" font-size="9.5" fill="#1c1518" font-weight="700" text-anchor="middle">CHOKEPOINT · CW-DFB</text>
-      <text x="216" y="62" font-size="12" fill="#e8eaf0" font-weight="600">Merchant ELS laser</text>
-      <text x="216" y="76" font-size="9" fill="#aaa3e6" font-weight="600">400mW CW-DFB</text>
-      <g font-size="9">
-        <rect x="212" y="86" width="136" height="32" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="220" y="100" fill="#fff" font-weight="700">Sivers ★</text><text x="220" y="112" fill="#eda3a4">merchant pure-play</text>
-        <rect x="212" y="124" width="136" height="32" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="220" y="138" fill="#fff" font-weight="600">Coherent</text><text x="220" y="150" fill="#bcb3e6">scaled 2nd source</text>
-        <rect x="212" y="162" width="136" height="32" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="220" y="176" fill="#fff" font-weight="600">NVIDIA / AVGO</text><text x="220" y="188" fill="#bcb3e6">captive (off-market)</text>
-      </g>
-      <text x="216" y="216" font-size="9" fill="#eda3a4">spec-locked into the PIC</text>
-      <text x="216" y="230" font-size="8.5" fill="#697283">merchant pool ~83% utilised</text>
-
-      <!-- C3 ELS module / packaging -->
-      <rect x="380" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
-      <rect x="380" y="40" width="5" height="262" rx="2" fill="#c47a9e"/>
-      <text x="396" y="60" font-size="12" fill="#e8eaf0" font-weight="600">ELS module / pkg</text>
-      <text x="396" y="74" font-size="9" fill="#dba0bf" font-weight="600">ASSEMBLY</text>
-      <g font-size="9">
-        <rect x="392" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="98" fill="#fff" font-weight="600">ELSFP build</text><text x="400" y="110" fill="#9aa3b5">POET · Jabil · O-Net</text>
-        <rect x="392" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="136" fill="#fff" font-weight="600">Photonics pkg</text><text x="400" y="148" fill="#9aa3b5">Fabrinet</text>
-        <rect x="392" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="174" fill="#fff" font-weight="600">isolator / PM fiber</text><text x="400" y="186" fill="#9aa3b5">TDK / JP specialists</text>
-      </g>
-      <text x="396" y="214" font-size="9" fill="#eda3a4">reliability + fiber-attach</text>
-      <text x="396" y="228" font-size="8.5" fill="#697283">secondary bottleneck</text>
-
-      <!-- C4 SiPh PIC -->
-      <rect x="560" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
-      <rect x="560" y="40" width="5" height="262" rx="2" fill="#d2a24a"/>
-      <text x="576" y="60" font-size="12" fill="#e8eaf0" font-weight="600">SiPh PIC / engine</text>
-      <text x="576" y="74" font-size="9" fill="#e3bd76" font-weight="600">2nd RENT POOL</text>
-      <g font-size="9">
-        <rect x="572" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="98" fill="#fff" font-weight="600">SiPh foundry</text><text x="580" y="110" fill="#9aa3b5">GlobalFoundries SCALE</text>
-        <rect x="572" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="136" fill="#fff" font-weight="600">Captive SiPh</text><text x="580" y="148" fill="#9aa3b5">TSMC COUPE</text>
-        <rect x="572" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="174" fill="#fff" font-weight="600">Monolithic (G4)</text><text x="580" y="186" fill="#9aa3b5">Aeluma (2030+)</text>
-      </g>
-      <text x="576" y="214" font-size="9" fill="#e3bd76">modulation value migrates here</text>
-      <text x="576" y="228" font-size="8.5" fill="#697283">volume toll, laser-agnostic</text>
-
-      <!-- C5 CPO switch / GPU -->
-      <rect x="740" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
-      <rect x="740" y="40" width="5" height="262" rx="2" fill="#4faf8e"/>
-      <text x="756" y="60" font-size="12" fill="#e8eaf0" font-weight="600">CPO switch / GPU</text>
-      <text x="756" y="74" font-size="9" fill="#7cc9ad" font-weight="600">CAPTIVE RENT</text>
-      <g font-size="9">
-        <rect x="752" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="98" fill="#fff" font-weight="600">NVIDIA</text><text x="760" y="110" fill="#9aa3b5">Quantum-X · Spectrum-X</text>
-        <rect x="752" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="136" fill="#fff" font-weight="600">Broadcom</text><text x="760" y="148" fill="#9aa3b5">CPO + VCSEL NPO</text>
-        <rect x="752" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="174" fill="#fff" font-weight="600">Marvell</text><text x="760" y="186" fill="#9aa3b5">Celestial CPO</text>
-      </g>
-      <text x="756" y="214" font-size="9" fill="#7cc9ad">internalise their own light</text>
-      <text x="756" y="228" font-size="8.5" fill="#697283">shrink the merchant pool</text>
-
-      <!-- C6 Buyers -->
-      <rect x="920" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
-      <rect x="920" y="40" width="5" height="262" rx="2" fill="#4faf8e"/>
-      <text x="936" y="60" font-size="12" fill="#e8eaf0" font-weight="600">End buyers</text>
-      <text x="936" y="74" font-size="9" fill="#7cc9ad" font-weight="600">DEMAND</text>
-      <g font-size="9">
-        <rect x="932" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="98" fill="#fff" font-weight="600">Hyperscalers</text><text x="940" y="110" fill="#9aa3b5">MSFT · Google · Meta</text>
-        <rect x="932" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="136" fill="#fff" font-weight="600">AMD / Amazon</text><text x="940" y="148" fill="#9aa3b5">Ayar · Trainium 4</text>
-        <rect x="932" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="174" fill="#fff" font-weight="600">AI factories</text><text x="940" y="186" fill="#9aa3b5">Neoclouds · sovereign</text>
-      </g>
-      <text x="936" y="214" font-size="9" fill="#7cc9ad">demand visibility = high</text>
-      <text x="936" y="228" font-size="8.5" fill="#697283">CPO scale-out H2-2026</text>
-
-      <!-- scarcity premium bars (discrete; tallest at chokepoint stage 2) -->
-      <line x1="40" y1="432" x2="1080" y2="432" stroke="#2a3040" stroke-width="1"/>
-      <text x="40" y="326" font-size="9" fill="#697283">value capture / scarcity premium (est.)</text>
+      <!-- boxes -->
       <g>
-        <rect x="80" y="410" width="40" height="22" rx="2" fill="#2dd4bf" opacity="0.3"/>
-        <rect x="260" y="338" width="40" height="94" rx="2" fill="#e0686a"/>
-        <rect x="440" y="404" width="40" height="28" rx="2" fill="#2dd4bf" opacity="0.4"/>
-        <rect x="620" y="380" width="40" height="52" rx="2" fill="#d2a24a" opacity="0.8"/>
-        <rect x="800" y="372" width="40" height="60" rx="2" fill="#5fc98a" opacity="0.75"/>
-        <rect x="980" y="414" width="40" height="18" rx="2" fill="#2dd4bf" opacity="0.3"/>
+        <rect x="10" y="86" width="150" height="70" rx="8" fill="#171b26" stroke="#3a4560"/>
+        <text x="85" y="112" text-anchor="middle" font-size="12" fill="#e8eaf0">Rare-earth +</text>
+        <text x="85" y="128" text-anchor="middle" font-size="12" fill="#e8eaf0">bismuth · GGG</text>
+        <text x="85" y="146" text-anchor="middle" class="svglabel">raw inputs</text>
       </g>
-      <text x="280" y="330" font-size="9" fill="#eda3a4" text-anchor="middle" font-weight="600">rent peaks at the merchant laser</text>
-      <text x="640" y="372" font-size="8.5" fill="#e3bd76" text-anchor="middle">2nd pool: SiPh PIC</text>
-      <text x="820" y="364" font-size="8.5" fill="#7cc9ad" text-anchor="middle">captive: switch/GPU</text>
-      <g font-size="8.5" fill="#697283" text-anchor="middle">
-        <text x="100" y="446">InP/epi</text><text x="280" y="446">CW laser</text><text x="460" y="446">ELS pkg</text><text x="640" y="446">SiPh PIC</text><text x="820" y="446">switch/GPU</text><text x="1000" y="446">buyers</text>
+      <!-- crystal growth CHOKE -->
+      <g>
+        <rect x="212" y="72" width="176" height="98" rx="8" fill="#25161a" stroke="#e0686a" stroke-width="2"/>
+        <rect x="212" y="72" width="176" height="20" rx="8" fill="#e0686a"/>
+        <text x="300" y="86" text-anchor="middle" font-size="11" fill="#160c0e" font-weight="700">CHOKEPOINT</text>
+        <text x="300" y="118" text-anchor="middle" font-size="13" fill="#fff">Garnet crystal</text>
+        <text x="300" y="135" text-anchor="middle" font-size="11" fill="#eda3a4">LPE Bi:RIG film · TGG boule</text>
+        <text x="300" y="156" text-anchor="middle" class="svglabel" style="fill:#c98">Granopt · Coherent</text>
       </g>
-      <text x="550" y="468" font-size="9" fill="#697283" text-anchor="middle">Red arrows = constricted throughput — CPO can't ship until the external laser is qualified. But note the catch: the tallest bar (merchant laser) is also where NVIDIA/Broadcom went captive — so the <tspan fill="#eda3a4">investable</tspan> rent is smaller than the bar.</text>
+      <!-- rotator chip -->
+      <g>
+        <rect x="440" y="86" width="150" height="70" rx="8" fill="#171b26" stroke="#3a4560"/>
+        <text x="515" y="112" text-anchor="middle" font-size="12" fill="#e8eaf0">Faraday-rotator</text>
+        <text x="515" y="128" text-anchor="middle" font-size="12" fill="#e8eaf0">chip (dice+coat)</text>
+        <text x="515" y="146" text-anchor="middle" class="svglabel">thin-film optics</text>
+      </g>
+      <!-- packaged isolator -->
+      <g>
+        <rect x="642" y="86" width="150" height="70" rx="8" fill="#171b26" stroke="#3a4560"/>
+        <text x="717" y="108" text-anchor="middle" font-size="12" fill="#e8eaf0">Packaged</text>
+        <text x="717" y="124" text-anchor="middle" font-size="12" fill="#e8eaf0">isolator</text>
+        <text x="717" y="146" text-anchor="middle" class="svglabel">+ polarizers, magnet</text>
+      </g>
+      <!-- laser sub-assembly -->
+      <g>
+        <rect x="844" y="86" width="132" height="70" rx="8" fill="#171b26" stroke="#3a4560"/>
+        <text x="910" y="108" text-anchor="middle" font-size="12" fill="#e8eaf0">Laser + ISO</text>
+        <text x="910" y="124" text-anchor="middle" font-size="12" fill="#e8eaf0">sub-assembly</text>
+        <text x="910" y="146" text-anchor="middle" class="svglabel">ELS / TOSA</text>
+      </g>
+      <!-- module/switch -->
+      <g>
+        <rect x="1000" y="86" width="110" height="70" rx="8" fill="#141a16" stroke="#3a5648"/>
+        <text x="1055" y="108" text-anchor="middle" font-size="12" fill="#8fdcb8">Module →</text>
+        <text x="1055" y="124" text-anchor="middle" font-size="12" fill="#8fdcb8">switch/GPU</text>
+        <text x="1055" y="146" text-anchor="middle" class="svglabel">end demand</text>
+      </g>
+      <!-- arrows: thin/red into & out of choke, grey elsewhere -->
+      <line x1="160" y1="121" x2="208" y2="121" stroke="#e0686a" stroke-width="1.5" marker-end="url(#chr)"/>
+      <line x1="388" y1="121" x2="436" y2="121" stroke="#e0686a" stroke-width="1.5" marker-end="url(#chr)"/>
+      <line x1="590" y1="121" x2="638" y2="121" stroke="#697283" stroke-width="4" marker-end="url(#ch)"/>
+      <line x1="792" y1="121" x2="840" y2="121" stroke="#697283" stroke-width="4" marker-end="url(#ch)"/>
+      <line x1="976" y1="121" x2="996" y2="121" stroke="#697283" stroke-width="4" marker-end="url(#ch)"/>
+      <text x="184" y="112" text-anchor="middle" class="svglabel" style="fill:#e0686a">thin</text>
+      <text x="820" y="78" text-anchor="middle" class="svglabel">wide flow (multi-sourced)</text>
+      <!-- difficulty caption -->
+      <text x="300" y="196" text-anchor="middle" font-size="11" fill="#eda3a4">tacit-knowledge crystal growth — the hard, concentrated step</text>
+      <text x="820" y="196" text-anchor="middle" font-size="11" fill="#9aa3b5">assembly &amp; integration — several qualified players</text>
+      <line x1="30" y1="214" x2="1090" y2="214" stroke="#2a3040"/>
+      <text x="30" y="234" font-size="10.5" fill="#697283">Constriction (thin/red arrows) marks where supply narrows: light flows freely downstream, but the crystal is a needle's eye upstream.</text>
     </svg>
   </div>
-  <p class="cap">A CPO switch needs the external laser qualified before anything ships — so scarcity rent peaks at the merchant CW-DFB. The honest asterisk: NVIDIA and Broadcom took their slice in-house, so the buyable merchant pool is narrower than the physics implies.</p>
+  <p class="cap">The classic house pattern — value migrating to the narrowest point — but softer here: the needle's eye is a needle, not a monopoly. Note that the biggest <i>dollar</i> rent is captured one box to the right (the integrated laser house), not at the crystal itself (see §07).</p>
 </section>
 
-<!-- 7. TIMELINE -->
-<section id="s7">
-  <div class="sh"><span class="n">07</span><h2>Multi-year evolution — by light-source generation</h2><span class="cn">多年發展時間軸</span></div>
-  <p class="lead">How each source generation migrates 2025→2028. The <b style="color:#eda3a4">tinted</b> cells mark supply-stress / catalyst windows. The hinge is <b>H2-2026</b>, when CPO scale-out revenue and the ELS ramp begin.</p>
-  <div class="tlgrid">
-    <div class="tlhead"><div>Generation ↓ / Year →</div><div>2025</div><div>2026</div><div>2027</div><div>2028</div></div>
-    <div class="tlrow">
-      <div class="lab"><span class="sw" style="background:var(--l2)"></span>G1 EML</div>
-      <div class="cell hot"><b>NVIDIA $4B lock</b>EML capacity reserved; 40–60% short</div>
-      <div class="cell hot"><b>1.6T volume</b>EML still gated; merchant CW gets tight</div>
-      <div class="cell"><b>Mix peak</b>CW+SiPh starts taking share</div>
-      <div class="cell"><b>Plateau</b>EML cedes volume to SiPh</div>
+<!-- 05 DEPLOYMENT -->
+<section id="s05">
+  <div class="sh"><span class="n">05</span><h2>Where the same crystal shows up across the network</h2><span class="cn">部署對照</span></div>
+  <p class="lead">One garnet, three jobs. As you move from short-reach CPO to long-reach coherent, the <b>isolation grade rises</b> and the <b>volume falls</b> — so a crystal squeeze bites the high-volume pluggable pool first, and the high-grade coherent pool worst.</p>
+  <div class="svgwide svgscroll">
+    <svg viewBox="0 0 1120 232" width="1120" height="232" xmlns="http://www.w3.org/2000/svg" style="min-width:960px">
+      <defs><marker id="ad" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#697283"/></marker></defs>
+      <!-- scale up -->
+      <rect x="20" y="24" width="150" height="52" rx="8" fill="#221b12" stroke="#5a4a2c"/>
+      <text x="95" y="46" text-anchor="middle" font-size="12" fill="#e0a458">Scale-UP</text>
+      <text x="95" y="63" text-anchor="middle" class="svglabel">CPO / ELS · &lt;10 m</text>
+      <rect x="20" y="84" width="150" height="52" rx="8" fill="#12202c" stroke="#2c4a5a"/>
+      <text x="95" y="106" text-anchor="middle" font-size="12" fill="#5aa9e0">Scale-OUT</text>
+      <text x="95" y="123" text-anchor="middle" class="svglabel">1.6T pluggable · &lt;2 km</text>
+      <rect x="20" y="144" width="150" height="52" rx="8" fill="#122417" stroke="#2c5a3a"/>
+      <text x="95" y="166" text-anchor="middle" font-size="12" fill="#5fc98a">Scale-ACROSS</text>
+      <text x="95" y="183" text-anchor="middle" class="svglabel">coherent DCI · 1000 km</text>
+      <!-- laser type -->
+      <text x="300" y="40" text-anchor="middle" font-size="11" fill="#9aa3b5">high-power CW DFB (hot)</text>
+      <text x="300" y="100" text-anchor="middle" font-size="11" fill="#9aa3b5">EML / CW per lane</text>
+      <text x="300" y="160" text-anchor="middle" font-size="11" fill="#9aa3b5">tunable InP, long fiber</text>
+      <!-- converge to garnet -->
+      <line x1="380" y1="50" x2="520" y2="105" stroke="#697283" stroke-width="2" marker-end="url(#ad)"/>
+      <line x1="380" y1="110" x2="520" y2="110" stroke="#697283" stroke-width="2" marker-end="url(#ad)"/>
+      <line x1="380" y1="170" x2="520" y2="118" stroke="#697283" stroke-width="2" marker-end="url(#ad)"/>
+      <rect x="524" y="86" width="150" height="52" rx="8" fill="#25161a" stroke="#e0686a" stroke-width="2"/>
+      <text x="599" y="108" text-anchor="middle" font-size="12" fill="#fff">Same garnet</text>
+      <text x="599" y="124" text-anchor="middle" font-size="10.5" fill="#eda3a4">isolator crystal</text>
+      <!-- isolation grade bars -->
+      <text x="820" y="20" text-anchor="middle" font-size="11" fill="#697283">isolation grade needed →</text>
+      <rect x="720" y="34" width="150" height="12" rx="3" fill="#e0a458" opacity="0.8"/>
+      <text x="878" y="44" font-size="10" fill="#9aa3b5" class="m">~30 dB</text>
+      <rect x="720" y="94" width="120" height="12" rx="3" fill="#5aa9e0" opacity="0.8"/>
+      <text x="848" y="104" font-size="10" fill="#9aa3b5" class="m">~30 dB ×many</text>
+      <rect x="720" y="154" width="200" height="12" rx="3" fill="#5fc98a" opacity="0.85"/>
+      <text x="928" y="164" font-size="10" fill="#9aa3b5" class="m">&gt;50 dB multistage</text>
+      <line x1="30" y1="200" x2="1090" y2="200" stroke="#2a3040"/>
+      <text x="30" y="220" font-size="10.5" fill="#697283">Bar length ≈ isolation grade needed. Volume runs the other way — the blue pluggable pool is the biggest unit driver; green is small but most isolator-intensive per link.</text>
+    </svg>
+  </div>
+  <p class="cap">Deployment mapping — the crystal is architecture-agnostic, so isolator-free integration has to beat it in <i>every</i> pool before the chokepoint truly breaks (it will fall in scale-up/CPO first, coherent last).</p>
+</section>
+
+<!-- 06 SUPPLY MAP -->
+<section id="s06">
+  <div class="sh"><span class="n">06</span><h2>End-to-end supply chain — where it constricts</h2><span class="cn">供應鏈全景</span></div>
+  <p class="lead">Six stages from dirt to datacenter. The flow runs freely everywhere the arrows are thick — and pinches at <b>Stage 2, the garnet crystal</b>. Below the map, a bar of scarcity premium per stage: it peaks at the crystal, with a secondary hump where the <b>dollar</b> rent is actually captured (the integrated laser house).</p>
+  <div class="flow">
+    <div class="st">
+      <h5><span class="sw" style="background:var(--up)"></span>1 · Raw inputs</h5>
+      <ul>
+        <li><b>Bismuth, iron oxide</b>, rare-earth oxides (Gd, Yb, Tb)</li>
+        <li><b>GGG</b> substrate wafers</li>
+        <li>China dominant in REE + bismuth</li>
+        <li><span class="x">Lynas</span> = only ex-CN Tb/Dy</li>
+      </ul>
     </div>
-    <div class="tlrow">
-      <div class="lab"><span class="sw" style="background:var(--l3)"></span>G2 CW+SiPh</div>
-      <div class="cell"><b>33%→ rising</b>SiPh transceiver share climbing</div>
-      <div class="cell hot"><b>&gt;50% share</b>LightCounting; CW-DFB the new demand vector</div>
-      <div class="cell hot"><b>LPO + CW scale</b>merchant CW pinch broadens</div>
-      <div class="cell"><b>Mainstream</b>SiPh the default volume engine</div>
+    <div class="st choked">
+      <h5><span class="sw" style="background:var(--choke)"></span>2 · Garnet crystal ◆</h5>
+      <ul>
+        <li><b>Granopt (TDK)</b> — LPE Bi:RIG</li>
+        <li><b>Coherent</b> — LPE garnet (captive+merchant)</li>
+        <li>a few JP / CN crystal houses</li>
+        <li class="x">tacit-knowledge, slow to scale</li>
+      </ul>
     </div>
-    <div class="tlrow">
-      <div class="lab"><span class="sw" style="background:var(--dacr)"></span>G3 CPO+ELS</div>
-      <div class="cell"><b>Quantum-X ships</b>InfiniBand CPO, low volume</div>
-      <div class="cell hot"><b>Scale-out starts</b>Spectrum-X Photonics H2-26; GFS×Sivers SCALE; Coherent 6″ InP</div>
-      <div class="cell hot"><b>Ramp</b>Ayar/Marvell/Jabil qualify; ELS volume builds</div>
-      <div class="cell hot"><b>Feynman CPO</b>scale-up CPO mainstreams; peak ELS demand</div>
+    <div class="st">
+      <h5><span class="sw" style="background:var(--pkg)"></span>3 · Isolator assembly</h5>
+      <ul>
+        <li><b>Coherent, Molex/Oplink</b></li>
+        <li>Thorlabs, O-Net, Accelink</li>
+        <li>AC Photonics, OZ Optics, EOT</li>
+        <li>multi-sourced — commodity-ish</li>
+      </ul>
     </div>
-    <div class="tlrow">
-      <div class="lab"><span class="sw" style="background:var(--dup)"></span>G2.5 / G4 rivals</div>
-      <div class="cell"><b>VCSEL NPO demo</b>Broadcom short-reach path</div>
-      <div class="cell"><b>3.2T VCSEL NPO</b>OFC-26; monolithic R&amp;D (Aeluma)</div>
-      <div class="cell"><b>NPO scale-up</b>VCSEL bites scale-up share</div>
-      <div class="cell hot"><b>Monolithic pilots</b>the disintermediation risk wakes</div>
+    <div class="st">
+      <h5><span class="sw" style="background:var(--l3)"></span>4 · Laser / ELS</h5>
+      <ul>
+        <li><b>Lumentum, Coherent</b></li>
+        <li>Broadcom (VCSEL/NPO)</li>
+        <li>captive Nvidia (ELS)</li>
+        <li>keeps the $ rent</li>
+      </ul>
+    </div>
+    <div class="st">
+      <h5><span class="sw" style="background:var(--l2)"></span>5 · Module / CPO engine</h5>
+      <ul>
+        <li><b>InnoLight, Eoptolink</b></li>
+        <li>Fabrinet, Coherent, Lumentum</li>
+        <li>1.6T pluggable + CPO</li>
+      </ul>
+    </div>
+    <div class="st">
+      <h5><span class="sw" style="background:var(--l1)"></span>6 · Switch / GPU</h5>
+      <ul>
+        <li><b>Nvidia, Broadcom</b></li>
+        <li>hyperscalers (end demand)</li>
+        <li>exploding CW/EML laser count</li>
+      </ul>
     </div>
   </div>
-  <p class="cap">Reading down a column shows what's live that year; reading across a row shows one generation's arc. The ELS chokepoint is tightest 2026–27, then faces two escape routes (VCSEL-NPO, monolithic) into 2028+.</p>
+
+  <div class="svgwide svgscroll" style="margin-top:14px">
+    <svg viewBox="0 0 1120 250" width="1120" height="250" xmlns="http://www.w3.org/2000/svg" style="min-width:920px">
+      <text x="20" y="22" font-size="12" fill="#9aa3b5">Scarcity premium / bargaining power by stage <tspan fill="#697283" font-size="10">(tightness — not the same as who banks the cash)</tspan></text>
+      <!-- baseline -->
+      <line x1="40" y1="200" x2="1100" y2="200" stroke="#2a3040"/>
+      <!-- bars: s1..s6, tallest at s2 -->
+      <!-- s1 -->
+      <rect x="70" y="140" width="120" height="60" rx="3" fill="#5b81c4"/>
+      <text x="130" y="216" text-anchor="middle" class="svglabel">1 raw</text>
+      <text x="130" y="132" text-anchor="middle" font-size="11" fill="#8aa7df" class="m">40</text>
+      <!-- s2 CHOKE tallest -->
+      <rect x="250" y="60" width="120" height="140" rx="3" fill="#e0686a"/>
+      <text x="310" y="216" text-anchor="middle" class="svglabel" style="fill:#eda3a4">2 garnet ◆</text>
+      <text x="310" y="52" text-anchor="middle" font-size="11" fill="#eda3a4" class="m">tallest</text>
+      <!-- s3 low -->
+      <rect x="430" y="168" width="120" height="32" rx="3" fill="#c47a9e"/>
+      <text x="490" y="216" text-anchor="middle" class="svglabel">3 assembly</text>
+      <text x="490" y="160" text-anchor="middle" font-size="11" fill="#c99" class="m">low</text>
+      <!-- s4 secondary hump -->
+      <rect x="610" y="96" width="120" height="104" rx="3" fill="#8b84cf"/>
+      <text x="670" y="216" text-anchor="middle" class="svglabel" style="fill:#aaa3e6">4 laser $</text>
+      <text x="670" y="88" text-anchor="middle" font-size="11" fill="#aaa3e6" class="m">$ rent</text>
+      <!-- s5 -->
+      <rect x="790" y="150" width="120" height="50" rx="3" fill="#d2a24a"/>
+      <text x="850" y="216" text-anchor="middle" class="svglabel">5 module</text>
+      <!-- s6 -->
+      <rect x="970" y="176" width="120" height="24" rx="3" fill="#4faf8e"/>
+      <text x="1030" y="216" text-anchor="middle" class="svglabel">6 switch</text>
+      <!-- annotation -->
+      <path d="M310 60 C 310 40, 670 40, 670 92" fill="none" stroke="#4a5470" stroke-width="1" stroke-dasharray="4 3"/>
+      <text x="490" y="34" text-anchor="middle" font-size="10.5" fill="#9aa3b5">tightness peaks at the crystal, but the cash is banked one hump right</text>
+    </svg>
+  </div>
+  <div class="leg">
+    <span><span class="sw" style="background:var(--choke)"></span>chokepoint (crystal)</span>
+    <span><span class="sw" style="background:var(--l3)"></span>secondary rent pool (integrated laser)</span>
+    <span><span class="sw" style="background:#5b81c4"></span>rare-earth leverage upstream</span>
+  </div>
+  <p class="cap">This is the crux and the catch in one picture: the <i>scarcest</i> link (crystal) and the <i>richest</i> link (integrated laser) are different boxes — so "own the chokepoint" and "own the profits" don't point at the same stock. That gap is why this run ends in a watchlist, not a table-pounder.</p>
 </section>
 
-<!-- 8. CHOKEPOINT + SEVERITY + VARIANT -->
-<section id="s8">
-  <div class="sh"><span class="n">08</span><h2>The chokepoint &amp; the variant view</h2><span class="cn">卡點與變異認知</span></div>
+<!-- 07 SIZING & RENT -->
+<section id="s07">
+  <div class="sh"><span class="n">07</span><h2>Size the prize — and who keeps it</h2><span class="cn">市場規模與租金歸屬</span></div>
+  <p class="lead">The decisive test isn't "is the crystal scarce?" (it is) but "does the <b>crystal owner</b> keep the scarcity rent, or does the <b>buyer</b>?" Here the answer is uncomfortable for the thesis: buyers largely make their own isolators or multi-source them, and the market is too small to move a giant's P&L. Margins settle it.</p>
+  <div class="two">
+    <table class="tbl">
+      <tr><th>Layer</th><th>2026 size (est.)</th><th>Read</th></tr>
+      <tr><td><b>Optical-isolator market</b></td><td class="num">$0.9–1.8B</td><td>Whole finished-part market — tiny; ~4–6% CAGR datacom</td></tr>
+      <tr><td><b>Garnet-crystal slice</b></td><td class="num">a fraction of that</td><td>The scarce link is a sliver of a sliver — invisible in any listed P&L</td></tr>
+      <tr><td>FAU / fiber-array co-link</td><td class="num">~$1.8B</td><td>The neighbouring assembly bottleneck (Run #19), 9.3% CAGR</td></tr>
+      <tr><td>AI optical-transceiver TAM</td><td class="num">$16.5→26B</td><td>2025→2026 (TrendForce) — the pool the isolator rides on</td></tr>
+    </table>
+    <div class="panel">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:9px">RENT-CAPTURE TEST · 誰賺到租金</div>
+      <p style="font-size:12.5px;color:var(--mut);line-height:1.6">The rent settles <b style="color:var(--txt)">downstream and captive</b>, not at the crystal:</p>
+      <ul style="list-style:none;font-size:12px;color:var(--mut);line-height:1.5;margin-top:9px">
+        <li style="padding:5px 0;border-bottom:1px dashed var(--line2)">▸ <b style="color:var(--txt)">Coherent</b> grows its <i>own</i> garnet and builds its <i>own</i> isolators inside its lasers — vertical integration keeps the rent in-house (GM ~40% and rising).</li>
+        <li style="padding:5px 0;border-bottom:1px dashed var(--line2)">▸ <b style="color:var(--txt)">Granopt/TDK</b> is the leading merchant supplier of latching LPE garnet (near-monopoly in that niche, not the whole isolator), but it's a rounding error inside a ¥2T-revenue components giant — a durable toll, not a needle-mover.</li>
+        <li style="padding:5px 0">▸ <b style="color:var(--txt)">Lynas</b> sells the rare-earths, but optics is ~0% of Tb/Dy demand — it banks magnet/defense rent, not optics rent.</li>
+      </ul>
+      <p style="font-size:11.5px;color:var(--dim);margin-top:10px;font-style:italic">Verdict: a real toll, thinly spread. Nobody gets rich purely on isolator garnet — you buy the businesses <i>around</i> it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 08 SEVERITY & VARIANT -->
+<section id="s08">
+  <div class="sh"><span class="n">08</span><h2>Severity score &amp; the disaggregation</h2><span class="cn">卡點評分與變異觀點</span></div>
   <div class="choke">
     <div class="ttl">
-      <svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 2 L22 20 H2 Z" fill="none" stroke="#e0686a" stroke-width="2" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="14" stroke="#e0686a" stroke-width="2"/><circle cx="12" cy="17" r="1.2" fill="#e0686a"/></svg>
-      <h3>The merchant 400mW CW-DFB laser for ELS</h3>
+      <svg width="20" height="20" viewBox="0 0 20 20"><path d="M10 1 L19 17 H1 Z" fill="none" stroke="#e0686a" stroke-width="1.6"/><line x1="10" y1="7" x2="10" y2="12" stroke="#e0686a" stroke-width="1.6"/><circle cx="10" cy="14.5" r="1" fill="#e0686a"/></svg>
+      <h3>Chokepoint: the magneto-optic Faraday-rotator garnet crystal</h3>
     </div>
-    <p>Silicon can't make light, and a laser can't sit on a hot ASIC — so CPO forces the laser out into an external module fed by a <b>high-power CW-DFB laser</b>. That laser is spec-locked into the photonic chip, takes 18–24 months and an InP fab to qualify, and the merchant fab pool runs ~83% utilised. But the decisive twist: <b>NVIDIA ($4B into Coherent + Lumentum) and Broadcom (vertical + VCSEL NPO) took their supply off the merchant market</b>, so the scarcity rent only accrues to the small merchant pool — Sivers plus the GlobalFoundries / Ayar / Marvell-Celestial ecosystem. The physics is acute; the <i>buyable</i> rent is narrow and mostly already discovered.</p>
+    <p>Every reflection-sensitive laser transmitter needs reflection protection, and the only cheap material that provides efficient non-reciprocal Faraday rotation at telecom wavelengths is a <b>bismuth-substituted iron garnet grown by liquid-phase epitaxy</b> (Bi:RIG for datacom; TGG for high-power). The know-how sits with a handful of Japanese houses — <b>Granopt (TDK)</b> and <b>Coherent</b> lead — with a few Chinese entrants. It is genuinely tight and genuinely un-bid. But it is <b>not</b> an Ajinomoto-grade monopoly: the finished isolator is multi-sourced, the market is small enough that capacity can chase it, and isolator-free lasers threaten to delete it. Hence <b>14/20</b>, not 18.</p>
     <div class="stats">
-      <div><b class="num">~83%</b><span>merchant CW-DFB utilisation (est.)</span></div>
-      <div><b class="num">~4×</b><span>ELS power vs standard CW (400mW)</span></div>
-      <div><b class="num">18–24mo</b><span>to qualify a new laser source</span></div>
-      <div><b class="num">$4B</b><span>captive lock by NVIDIA (off-market)</span></div>
-      <div><b class="num">H2-26</b><span>CPO scale-out revenue begins</span></div>
+      <div><b>3/5</b><span>supply concentration — a few crystal houses, not one</span></div>
+      <div><b>3/5</b><span>lead-time — LPE/Czochralski tacit, but small mkt scalable</span></div>
+      <div><b>4/5</b><span>low substitutability — no alt material today...</span></div>
+      <div><b>4/5</b><span>demand — laser count exploding with 1.6T/CPO</span></div>
+      <div><b>14/20</b><span>composite (assembled-isolator layer ~12)</span></div>
     </div>
   </div>
 
-  <!-- severity scorecard -->
-  <div class="panel" style="margin-top:14px">
-    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
-      <h4 style="font-size:13px;font-weight:600">Chokepoint-severity scorecard <span style="color:var(--dim);font-weight:400;font-size:11px">· for the merchant ELS CW-DFB link · 1 = mild, 5 = acute · per-name links scored in §12</span></h4>
-      <div style="text-align:right"><span class="num" style="font-size:26px;font-weight:600;color:var(--choke)">18</span><span class="num" style="font-size:13px;color:var(--dim)">/20</span><div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em">composite · acute</div></div>
+  <div class="scoregrid" style="margin-top:18px">
+    <div class="score">
+      <div class="row"><div class="t"><span>Supply concentration</span><span>3 / 5</span></div><div class="track"><div class="bar" style="width:60%"></div></div></div>
+      <div class="row"><div class="t"><span>Lead-time to add capacity</span><span>3 / 5</span></div><div class="track"><div class="bar" style="width:60%"></div></div></div>
+      <div class="row"><div class="t"><span>Low substitutability</span><span>4 / 5</span></div><div class="track"><div class="bar" style="width:80%"></div></div></div>
+      <div class="row"><div class="t"><span>Demand-growth pressure</span><span>4 / 5</span></div><div class="track"><div class="bar" style="width:80%"></div></div></div>
+      <p class="note">Scope: scored at the <b>garnet-crystal</b> layer. Co-bottlenecks elsewhere: fiber-array/photonic packaging (Run #19), PM-fiber, the GGG substrate. Per-link scores for each play appear in §15.</p>
     </div>
-    <div style="display:grid;gap:11px">
-      <div style="display:grid;grid-template-columns:175px 120px 1fr;gap:14px;align-items:center">
-        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Supply concentration</div>
-        <div style="display:flex;gap:4px">
-          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span>
-          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">5</span>
-        </div>
-        <div style="font-size:11.5px;color:var(--mut)">Merchant ELS DFB = a handful of suppliers; one credible pure-play (Sivers)</div>
-      </div>
-      <div style="display:grid;grid-template-columns:175px 120px 1fr;gap:14px;align-items:center">
-        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Lead time to add capacity</div>
-        <div style="display:flex;gap:4px">
-          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:#3a3040"></span>
-          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">4</span>
-        </div>
-        <div style="font-size:11.5px;color:var(--mut)">InP fab + e-beam DFB grating + qual ≈ 18–24mo; Coherent Sherman 6″ relieves from Q3-26</div>
-      </div>
-      <div style="display:grid;grid-template-columns:175px 120px 1fr;gap:14px;align-items:center">
-        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Low substitutability</div>
-        <div style="display:flex;gap:4px">
-          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:#3a3040"></span>
-          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">4</span>
-        </div>
-        <div style="font-size:11.5px;color:var(--mut)">Silicon can't lase + PIC spec-lock; but CW is more multi-sourceable than EML, and VCSEL-NPO / monolithic loom</div>
-      </div>
-      <div style="display:grid;grid-template-columns:175px 120px 1fr;gap:14px;align-items:center">
-        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Demand-growth pressure</div>
-        <div style="display:flex;gap:4px">
-          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span>
-          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">5</span>
-        </div>
-        <div style="font-size:11.5px;color:var(--mut)">CPO inflection 2026–29; +4× power per laser; "near-zero to $81–91B in 1.5 yrs" (Goldman, est.)</div>
-      </div>
+    <div class="vbox" style="margin-top:0">
+      <div class="t">THE DISAGGREGATION · 拆解</div>
+      <p>The popular trend (silicon-photonics / CPO) is bullish optics in aggregate but points <b>both ways</b> on this one component. It multiplies lasers <b>now</b> (bullish the isolator) while racing to make those lasers <b>isolator-free</b> by 2028–30 (bearish the discrete isolator). So the trade is not "buy the crystal for the AI boom" — it's "the crystal is quietly tight today, quietly obsolescing tomorrow." Own it only where you're paid for the tightness without betting the farm on its permanence.</p>
     </div>
-    <p class="cap" style="margin-top:12px">Severity 18/20 for the link — acute. But pair it with the <b style="color:var(--accent)">remaining-asymmetry gauge of ~6–7/20</b>: the pure-play already ran ~17×, the captives took the biggest rent off-market, and Coherent's own new fab is the thing relieving the choke. <b>Tightness ≠ a good buy.</b></p>
   </div>
 
-  <!-- variant / disaggregation -->
-  <div class="panel" style="margin-top:14px;border-color:#2c5a40;background:rgba(95,201,138,.04)">
-    <h4 style="font-size:13px;margin-bottom:6px;font-weight:600;color:var(--dacr)">The variant perception — a two-part disaggregation <span class="cn" style="font-weight:400;color:var(--dim)">變異認知</span></h4>
-    <p style="font-size:12.5px;color:var(--mut);line-height:1.55">Consensus: <i>"CPO is the next AI-optics wave — buy the optics names."</i> The variant has two layers, and the schematic below shows the first:</p>
-    <div class="svgwide" style="margin:12px 0;background:var(--panel2)">
-      <svg viewBox="0 0 1040 220" width="100%" xmlns="http://www.w3.org/2000/svg">
-        <!-- left: EML world -->
-        <text x="30" y="26" font-size="12" fill="#e3bd76" font-weight="600">G1 today · EML pluggable</text>
-        <rect x="30" y="40" width="440" height="150" rx="10" fill="#1a160e" stroke="#5a4624"/>
-        <g>
-          <rect x="50" y="70" width="34" height="22" rx="3" fill="#8b84cf"/><rect x="92" y="70" width="34" height="22" rx="3" fill="#8b84cf"/>
-          <rect x="134" y="70" width="34" height="22" rx="3" fill="#8b84cf"/><rect x="176" y="70" width="34" height="22" rx="3" fill="#8b84cf"/>
-          <rect x="50" y="100" width="34" height="22" rx="3" fill="#8b84cf"/><rect x="92" y="100" width="34" height="22" rx="3" fill="#8b84cf"/>
-          <rect x="134" y="100" width="34" height="22" rx="3" fill="#8b84cf"/><rect x="176" y="100" width="34" height="22" rx="3" fill="#8b84cf"/>
-        </g>
-        <text x="130" y="142" text-anchor="middle" font-size="9.5" fill="#e3bd76">8× EML per 800G module</text>
-        <text x="130" y="158" text-anchor="middle" font-size="9.5" fill="#9aa3b5" class="m">~$80–100 laser BOM</text>
-        <text x="370" y="100" text-anchor="middle" font-size="11" fill="#eda3a4" font-weight="600">value</text>
-        <text x="370" y="116" text-anchor="middle" font-size="11" fill="#eda3a4" font-weight="600">in the laser</text>
-        <text x="370" y="138" text-anchor="middle" font-size="9" fill="#9aa3b5">(Run #1 thesis)</text>
-
-        <!-- arrow -->
-        <line x1="486" y1="115" x2="556" y2="115" stroke="#5a6377" stroke-width="2"/>
-        <polygon points="558,115 550,111 550,119" fill="#5a6377"/>
-        <text x="521" y="106" text-anchor="middle" font-size="9" fill="#697283">CPO</text>
-
-        <!-- right: CW+SiPh+ELS world -->
-        <text x="572" y="26" font-size="12" fill="#5fc98a" font-weight="600">G3 next · CW + SiPh + ELS</text>
-        <rect x="572" y="40" width="440" height="150" rx="10" fill="#0e1a14" stroke="#24533c"/>
-        <rect x="592" y="84" width="40" height="30" rx="4" fill="#e0686a"/><text x="612" y="103" text-anchor="middle" font-size="7.5" fill="#fff">CW×2-4</text>
-        <text x="612" y="128" text-anchor="middle" font-size="8" fill="#eda3a4" class="m">~$20–40</text>
-        <rect x="660" y="70" width="150" height="60" rx="6" fill="#11261f" stroke="#3a6b54"/>
-        <circle cx="700" cy="100" r="9" fill="none" stroke="#5fc98a" stroke-width="2"/><circle cx="740" cy="100" r="9" fill="none" stroke="#5fc98a" stroke-width="2"/>
-        <text x="735" y="146" text-anchor="middle" font-size="9" fill="#7cc9ad">SiPh PIC does the modulating</text>
-        <text x="900" y="96" text-anchor="middle" font-size="10.5" fill="#7cc9ad" font-weight="600">value splits:</text>
-        <text x="900" y="113" text-anchor="middle" font-size="9" fill="#9aa3b5">fewer, costlier CW</text>
-        <text x="900" y="127" text-anchor="middle" font-size="9" fill="#9aa3b5">+ silicon PIC + ELS</text>
-      </svg>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="mtc"><div class="h">① Architecture disaggregation</div><p style="font-size:11.5px;color:var(--mut)">CPO is bullish the CW-DFB ELS but mix-<b>bearish the EML</b> the incumbent multiples are built on. Laser BOM falls ~$80–100 → ~$20–40; the modulation value migrates onto the <b>silicon PIC</b> (GFS/TSMC) and the merchant CW supplier. The "buy optics" trade can be right on the aggregate and wrong on the EML-levered name.</p></div>
-      <div class="mtc"><div class="h">② Captive-vs-merchant (the real edge)</div><p style="font-size:11.5px;color:var(--mut)">The scarcity rent accrues only to the <b>merchant</b> pool, because NVIDIA + Broadcom took their supply in-house. That pool is tiny (Sivers + GFS/Ayar/Celestial) and mostly priced. <b>How it's wrong:</b> if monolithic (Aeluma) or VCSEL-NPO (Broadcom) leapfrogs the external laser, the chokepoint dissolves before the merchant pool earns the toll — the early play (ALMU) is literally the bear case.</p></div>
-    </div>
-    <p class="cap" style="margin-top:8px">Rent-capture test (margins settle it): captive (NVDA/AVGO, no merchant toll) → scaled merchant laser+fab (<b>Coherent</b>, GM 39.6% and rising) → merchant pure-play (<b>Sivers</b>, still EBITDA-negative — rent unproven) → SiPh foundry (<b>GFS</b>, durable volume toll). Sivers' negative EBITDA is the tell that the merchant premium isn't captured yet. <b style="color:var(--mut)">Confirming tell:</b> Broadcom <i>leads</i> CW-DFB capacity yet is only +14% YTD — its optics are captive and immaterial to a chip giant, so the merchant scarcity never surfaces in its stock. Captive rent ≠ an investable optics play.</p>
+  <div class="svgwide svgscroll" style="margin-top:16px">
+    <svg viewBox="0 0 1120 220" width="1120" height="220" xmlns="http://www.w3.org/2000/svg" style="min-width:900px">
+      <defs>
+        <marker id="ap" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#2dd4bf"/></marker>
+        <marker id="ap2" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e0a458"/></marker>
+      </defs>
+      <!-- LEFT: today -->
+      <rect x="20" y="24" width="520" height="172" rx="10" fill="#13161e" stroke="#2a3040"/>
+      <text x="40" y="48" font-size="12" fill="#e8eaf0">TODAY — discrete isolator (needs the garnet)</text>
+      <rect x="46" y="86" width="70" height="40" rx="4" fill="#8b84cf"/><text x="81" y="110" text-anchor="middle" font-size="9" fill="#fff">laser</text>
+      <rect x="150" y="80" width="26" height="52" rx="3" fill="#22283a" stroke="#4a5678"/><text x="163" y="150" text-anchor="middle" class="svglabel">pol</text>
+      <rect x="190" y="80" width="46" height="52" rx="3" fill="#3a3f63" stroke="#e0686a" stroke-width="1.6"/><text x="213" y="104" text-anchor="middle" font-size="8" fill="#eda3a4">garnet</text><text x="213" y="150" text-anchor="middle" class="svglabel" style="fill:#eda3a4">◆ crystal</text>
+      <rect x="250" y="80" width="26" height="52" rx="3" fill="#22283a" stroke="#4a5678"/><text x="263" y="150" text-anchor="middle" class="svglabel">pol</text>
+      <rect x="292" y="72" width="40" height="24" rx="3" fill="#2a2f3f" stroke="#4a5678"/><text x="312" y="88" text-anchor="middle" font-size="8" fill="#9aa3b5">magnet</text>
+      <rect x="360" y="86" width="150" height="40" rx="4" fill="#20283c" stroke="#4a5678"/><text x="435" y="110" text-anchor="middle" font-size="9" fill="#8aa7df">PIC / fiber</text>
+      <line x1="116" y1="106" x2="148" y2="106" stroke="#2dd4bf" stroke-width="2" marker-end="url(#ap)"/>
+      <line x1="276" y1="106" x2="358" y2="106" stroke="#2dd4bf" stroke-width="2" marker-end="url(#ap)"/>
+      <text x="280" y="184" text-anchor="middle" font-size="10.5" fill="#9aa3b5">6+ parts, free-space alignment, hermetic seal — costly, but the garnet earns its toll</text>
+      <!-- RIGHT: 2028-30 -->
+      <rect x="580" y="24" width="520" height="172" rx="10" fill="#131a15" stroke="#2c4a34"/>
+      <text x="600" y="48" font-size="12" fill="#8fdcb8">2028–30 — isolator-free (deletes the garnet)</text>
+      <rect x="606" y="70" width="470" height="86" rx="8" fill="#10160f" stroke="#2c4a34"/>
+      <text x="841" y="66" text-anchor="middle" class="svglabel">one silicon photonic chip</text>
+      <rect x="628" y="92" width="90" height="42" rx="4" fill="#c9a24a"/><text x="673" y="117" text-anchor="middle" font-size="9" fill="#1a1a1a">QD laser</text>
+      <rect x="740" y="92" width="120" height="42" rx="4" fill="#20283c" stroke="#4a5678"/><text x="800" y="112" text-anchor="middle" font-size="8" fill="#8aa7df">self-injection</text><text x="800" y="124" text-anchor="middle" font-size="8" fill="#8aa7df">lock</text>
+      <rect x="882" y="92" width="120" height="42" rx="4" fill="#20283c" stroke="#4a5678"/><text x="942" y="117" text-anchor="middle" font-size="9" fill="#8aa7df">modulator</text>
+      <line x1="718" y1="113" x2="738" y2="113" stroke="#e0a458" stroke-width="2" marker-end="url(#ap2)"/>
+      <line x1="860" y1="113" x2="880" y2="113" stroke="#e0a458" stroke-width="2" marker-end="url(#ap2)"/>
+      <circle cx="1035" cy="113" r="11" fill="none" stroke="#5fc98a" stroke-width="1.5"/><text x="1035" y="116" text-anchor="middle" font-size="8" fill="#5fc98a">no ◆</text>
+      <text x="841" y="184" text-anchor="middle" font-size="10.5" fill="#8fdcb8">reflection-tolerant by design — no polarizers, no magnet, no garnet</text>
+    </svg>
+    <p class="cap">Component-interaction schematic: the same optical job done two ways. The left needs the chokepoint; the right routes around it. Whoever commercialises the right at scale first sets the clock on the left.</p>
   </div>
 </section>
 
-<!-- 9. AWARENESS CURVE -->
-<section id="s9">
-  <div class="sh"><span class="n">09</span><h2>Are we early? The awareness curve</h2><span class="cn">現在是早期嗎</span></div>
-  <p class="lead">The whole game is owning a chokepoint <b>before</b> the crowd prices it — the way the 2018 MLCC and 2021 CPU/substrate shortages showed in lead-times and pricing <b>before</b> the stocks moved. The hard truth here: nearly the entire ELS complex has <i>already</i> run (Sivers ~+1,700%, AAOI +380%, MRVL +241%, LITE +136%, GFS +131%, Coherent +105% YTD). This section stages the top-3 honestly and points to where the <i>next</i> entry hides.</p>
+<!-- 09 TIMELINE -->
+<section id="s09">
+  <div class="sh"><span class="n">09</span><h2>The multi-year roadmap</h2><span class="cn">多年時間軸</span></div>
+  <p class="lead">The hinge year is <b>2028</b>: that's when CPO volume and isolator-free lasers are both slated to scale. Before it, the crystal tightens; around it, the two forces collide; after it, integration decides whether the discrete isolator fades. Read down a column for "what's stressed this year," across a row for "how this pool evolves."</p>
+  <div class="tlgrid">
+    <div class="tlhead"><div>Domain / force</div><div>2026</div><div>2027</div><div>2028</div><div>2029+</div></div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--dout)"></span>Scale-out pluggable</div>
+      <div class="cell hot"><b>1.6T ramps</b>each lane = 1 isolator; volume peak demand</div>
+      <div class="cell">1.6T mainstream; 3.2T sampling</div>
+      <div class="cell">LPO/CPO nibble pluggable share</div>
+      <div class="cell">pluggables persist for flexible reach</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--dup)"></span>Scale-up CPO / ELS</div>
+      <div class="cell">first CPO switches; ELS lasers grow</div>
+      <div class="cell hot"><b>ELS scale-up</b>hot CW DFBs → most isolation-hungry</div>
+      <div class="cell hot"><b>CPO volume</b>isolator content per system peaks</div>
+      <div class="cell">isolator-free CPO designs appear</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--dacr)"></span>Scale-across coherent</div>
+      <div class="cell">800ZR/ZR+ DCI grows</div>
+      <div class="cell">1600ZR; highest-grade isolators</div>
+      <div class="cell">multi-DC training expands</div>
+      <div class="cell">last pool to go isolator-free</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:#5b81c4"></span>Material / geopolitics</div>
+      <div class="cell hot"><b>Tb export curbs bite</b>China exports down sharply (est.); Lynas Tb starts</div>
+      <div class="cell">ex-China Dy/Tb scales (Lynas, US)</div>
+      <div class="cell">CN crystal houses expand share</div>
+      <div class="cell">REE supply normalises or re-tightens</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--l3)"></span>Isolator-free (threat)</div>
+      <div class="cell">lab demos (QD, self-inject, TFLN)</div>
+      <div class="cell">OFC design-wins; first products</div>
+      <div class="cell hot"><b>hinge</b>isolator-free vs discrete decided per pool</div>
+      <div class="cell">integration erodes discrete-isolator TAM</div>
+    </div>
+  </div>
+  <p class="cap">If the "isolator-free 2028" row slips right, the crystal thesis lives longer and severity holds; if it pulls left, the disintermediation arrives before you're paid. That single row is the thesis's clock — watch OFC 2027–28 (§12).</p>
+</section>
 
-  <div class="svgwide" style="margin-bottom:14px">
-    <svg viewBox="0 0 1060 320" width="100%" xmlns="http://www.w3.org/2000/svg">
-      <defs><linearGradient id="alphaz9" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5fc98a" stop-opacity="0.22"/><stop offset="1" stop-color="#5fc98a" stop-opacity="0"/></linearGradient></defs>
-      <rect x="40" y="40" width="190" height="230" fill="#11141c"/>
-      <rect x="230" y="40" width="200" height="230" fill="url(#alphaz9)" stroke="#2c5a40" stroke-dasharray="3 4"/>
-      <rect x="630" y="40" width="200" height="230" fill="#1a1216" opacity="0.5"/>
-      <text x="135" y="32" text-anchor="middle" class="axis-zone" fill="#697283">LATENT</text>
-      <text x="330" y="32" text-anchor="middle" class="axis-zone" fill="#5fc98a" font-weight="600">EARLY SIGNAL · ALPHA</text>
-      <text x="530" y="32" text-anchor="middle" class="axis-zone" fill="#d2a24a">RECOGNITION</text>
-      <text x="730" y="32" text-anchor="middle" class="axis-zone" fill="#e0686a">EUPHORIA</text>
-      <text x="930" y="32" text-anchor="middle" class="axis-zone" fill="#697283">FULLY PRICED</text>
-      <path d="M40,258 C 260,250 280,205 430,150 C 560,104 640,72 760,62 C 880,56 980,58 1020,58" fill="none" stroke="#4a5570" stroke-width="2.5"/>
-      <text x="48" y="288" font-size="10" fill="#697283">time · market awareness  →</text>
-      <text x="20" y="160" font-size="10" fill="#697283" transform="rotate(-90 20 160)">price / crowding →</text>
+<!-- 10 THE PLAYS -->
+<section id="s10">
+  <div class="sh"><span class="n">10</span><h2>The three plays — at three different links</h2><span class="cn">三個卡點的標的</span></div>
+  <p class="lead">There is <b>no clean listed isolator-garnet pure-play</b>. So the top-3 are deliberately at <b>different</b> links — the integrated rent-capturer, the hidden merchant crystal, and the raw-material upstream — each with a different flaw. Read the flaws as carefully as the theses; this is a "know what you'd be buying" exercise, not a buy list.</p>
+  <div class="tabs" role="tablist" aria-label="the three plays">
+    <button class="tab" role="tab" id="tb-cohr" aria-controls="tp-cohr" aria-selected="true" tabindex="0">Coherent <span class="tk">COHR</span></button>
+    <button class="tab" role="tab" id="tb-tdk" aria-controls="tp-tdk" aria-selected="false" tabindex="-1">TDK / Granopt <span class="tk">6762</span></button>
+    <button class="tab" role="tab" id="tb-lyc" aria-controls="tp-lyc" aria-selected="false" tabindex="-1">Lynas <span class="tk">LYSDY</span></button>
+  </div>
 
-      <!-- ALMU early -->
-      <circle cx="360" cy="178" r="7" fill="#5fc98a" stroke="#0b0d12" stroke-width="2"/>
-      <text x="360" y="166" text-anchor="middle" font-size="11" fill="#7cd6a0" font-weight="700">ALMU</text>
-      <text x="360" y="202" text-anchor="middle" font-size="9" fill="#9aa3b5" class="m">+45% YTD · pre-rev</text>
-      <!-- COHR recognition -->
-      <circle cx="600" cy="96" r="7" fill="#d2a24a" stroke="#0b0d12" stroke-width="2"/>
-      <text x="600" y="84" text-anchor="middle" font-size="11" fill="#e3bd76" font-weight="700">COHR</text>
-      <text x="600" y="122" text-anchor="middle" font-size="9" fill="#9aa3b5" class="m">+105% YTD · ~60×</text>
-      <!-- GFS faint recognition context -->
-      <circle cx="660" cy="80" r="5" fill="#d2a24a" opacity="0.5" stroke="#0b0d12" stroke-width="1.5"/>
-      <text x="672" y="74" text-anchor="start" font-size="8.5" fill="#9aa3b5">GFS +131%</text>
-      <!-- SIVE euphoria -->
-      <circle cx="788" cy="64" r="7" fill="#e0686a" stroke="#0b0d12" stroke-width="2"/>
-      <text x="788" y="52" text-anchor="middle" font-size="11" fill="#eda3a4" font-weight="700">SIVE</text>
-      <text x="800" y="80" text-anchor="start" font-size="9" fill="#9aa3b5" class="m">~+1,700% · ~90× sales</text>
-      <!-- AAOI euphoria context -->
-      <circle cx="858" cy="50" r="5" fill="#e0686a" opacity="0.5" stroke="#0b0d12" stroke-width="1.5"/>
-      <text x="868" y="46" text-anchor="start" font-size="8.5" fill="#9aa3b5">AAOI +380%</text>
+  <!-- COHR -->
+  <div class="tabpanel" role="tabpanel" id="tp-cohr" aria-labelledby="tb-cohr">
+    <div class="valstrip">
+      <div><div class="v teal">$318.5</div><div class="l">price · 14 Jul (intraday)</div></div>
+      <div><div class="v">+72.6%</div><div class="l">YTD · ~28% off $440 high</div></div>
+      <div><div class="v">$84–440</div><div class="l">52-week range</div></div>
+      <div><div class="v">~$49B</div><div class="l">mkt cap · ~8× sales (est.)</div></div>
+    </div>
+    <div class="td">
+      <div class="tdc"><div class="h">① 怎麼賺錢 <span class="cn">how it earns</span></div><p>Picks-and-shovels of AI optics: datacom transceivers, InP lasers, silicon-carbide &amp; crystal <b>materials</b> (including LPE garnet), plus industrial lasers.</p></div>
+      <div class="tdc"><div class="h">② 營收結構 <span class="cn">revenue mix</span></div><p>~$6B rev across Networking (datacom, the AI engine), Materials (SiC + crystals), and Lasers. Isolators/garnet are a <b>tiny sliver</b> of Materials.</p></div>
+      <div class="tdc"><div class="h">③ 成長來源 <span class="cn">growth</span></div><p>800G→1.6T transceiver ramp; its Sherman TX 6″ InP fab; CW-DFB for CPO; datacenter mix-shift lifting margins.</p></div>
+      <div class="tdc"><div class="h">④ 終端市場 <span class="cn">end markets</span></div><p>AI datacenter (fastest), telecom, industrial, semicap.</p></div>
+      <div class="tdc"><div class="h">⑤ 主要客戶 <span class="cn">customers</span></div><p>Nvidia and hyperscalers (reported multiyear laser supply/prepay commitments across Coherent &amp; Lumentum), Cisco, Ciena.</p></div>
+      <div class="tdc"><div class="h">⑥ 護城河 <span class="cn">moat</span></div><p><b>Vertical integration</b> — grows its own InP <i>and</i> its own garnet, builds its own isolators inside its lasers. Few rivals own the whole stack.</p></div>
+      <div class="tdc"><div class="h">⑦ 管理層展望 <span class="cn">outlook</span></div><p>Datacom-led growth, gross-margin expansion, continued deleveraging after the II-VI/Finisar integration.</p></div>
+      <div class="tdc key"><div class="h">⑧ 為何是卡點 <span class="cn">why the choke</span></div><p>The only Western maker that <b>grows the garnet and keeps the isolator rent in-house</b> — and, tellingly, it also funds the isolator-free future, so it's hedged either way. The catch: isolators are immaterial to a ~$6B P&L; you buy the whole optics complex to touch the chokepoint.</p></div>
+    </div>
+    <div class="gap"><div class="t">ASYMMETRIC-INFO GAP</div><p>The tape prices COHR as a transceiver/InP-laser AI beneficiary. What's <b>not</b> in the multiple: its captive garnet+isolator vertical integration (a quiet cost/quality moat) <i>and</i> the fact that it works both sides of the disaggregation — if discrete isolators fade, Coherent's SiPh/QD efforts capture the replacement. That two-sidedness is under-appreciated; the stock isn't cheap, but it's the one name that wins in either branch of §08.</p></div>
+    <div class="bb">
+      <div class="c bull"><div class="t">BULL</div><ul><li>1.6T datacom ramp + margin mix-shift</li><li>captive InP (Sherman) + garnet = supply security others lack</li><li>Nvidia ecosystem anchor (reported multiyear laser commitments)</li></ul></div>
+      <div class="c bear"><div class="t">BEAR</div><ul><li>transceiver cyclicality; CPO-timing air-pocket</li><li>isolator/garnet immaterial to the thesis — you're really buying transceivers at ~8× sales</li><li>post-merger leverage; ~28% already off the high, still +73% YTD</li></ul></div>
+    </div>
+  </div>
 
-      <!-- latent marker -->
-      <circle cx="295" cy="208" r="6" fill="none" stroke="#5fc98a" stroke-width="2" stroke-dasharray="2 2"/>
-      <text x="295" y="230" text-anchor="middle" font-size="9" fill="#7cd6a0">where the NEXT entry hides ↙</text>
-      <text x="330" y="262" text-anchor="middle" font-size="9.5" fill="#5fc98a">↑ you want to enter here</text>
-      <text x="800" y="252" text-anchor="middle" font-size="9.5" fill="#eda3a4">most retail buys here — too late</text>
+  <!-- TDK -->
+  <div class="tabpanel" role="tabpanel" id="tp-tdk" aria-labelledby="tb-tdk" hidden>
+    <div class="valstrip">
+      <div><div class="v teal">¥3,228</div><div class="l">price · Tokyo 6762 (ADR TTDKY $19.77)</div></div>
+      <div><div class="v">+47.5%</div><div class="l">YTD (on non-optics drivers)</div></div>
+      <div><div class="v">¥1,598–4,315</div><div class="l">52-week range</div></div>
+      <div><div class="v">¥6.14T</div><div class="l">mkt cap (~$38B)</div></div>
+    </div>
+    <div class="td">
+      <div class="tdc"><div class="h">① 怎麼賺錢 <span class="cn">how it earns</span></div><p>A passive-components + energy giant: MLCC, inductors, sensors, HDD magnetic heads, and the world's largest smartphone rechargeable-battery business — plus subsidiary <b>Granopt</b>, the garnet Faraday-rotator maker.</p></div>
+      <div class="tdc"><div class="h">② 營收結構 <span class="cn">revenue mix</span></div><p>~¥2.2T rev; Energy Application (batteries) largest, then Passive Components, Sensors, Magnetic. <b>Granopt/isolator ≈ immaterial.</b></p></div>
+      <div class="tdc"><div class="h">③ 成長來源 <span class="cn">growth</span></div><p>AI-server &amp; smartphone batteries, MLCC content growth, sensors. The isolator line is optionality, not a driver.</p></div>
+      <div class="tdc"><div class="h">④ 終端市場 <span class="cn">end markets</span></div><p>Smartphones, EV/auto, AI servers, industrial. Optics is a rounding error.</p></div>
+      <div class="tdc"><div class="h">⑤ 主要客戶 <span class="cn">customers</span></div><p>Apple (batteries), auto tier-1s, electronics OEMs; Granopt sells crystals to the world's isolator/optics assemblers.</p></div>
+      <div class="tdc"><div class="h">⑥ 護城河 <span class="cn">moat</span></div><p>At the group level: MLCC/battery scale. At the link level: <b>Granopt is the merchant Bi:RIG LPE garnet leader</b> — a genuine hidden monopoly.</p></div>
+      <div class="tdc"><div class="h">⑦ 管理層展望 <span class="cn">outlook</span></div><p>AI/datacenter pull on components and batteries; capacity investment. Granopt rarely rates a mention.</p></div>
+      <div class="tdc key"><div class="h">⑧ 為何是卡點 <span class="cn">why the choke</span></div><p>Granopt is arguably the <b>purest scarce-material link</b> in this report — the Ajinomoto pattern (a monopoly hidden in a giant). The problem: it's <i>more</i> diluted than Ajinomoto's ABF ever was. You cannot buy the garnet without buying a ¥6T battery/MLCC conglomerate that has already run +47% on unrelated drivers.</p></div>
+    </div>
+    <div class="gap"><div class="t">ASYMMETRIC-INFO GAP</div><p>"TDK owns the world's leading isolator-garnet business" is a <b>true but investment-irrelevant</b> fact at the group level — and that's precisely the gap. There's real informational edge in <i>knowing</i> Granopt exists (few do), but no clean way to <i>express</i> it, because the exposure is un-sizeable and swamped. The honest use of this name is as a monitor (watch Granopt capacity/commentary as an industry tell), not as the trade.</p></div>
+    <div class="bb">
+      <div class="c bull"><div class="t">BULL</div><ul><li>broad AI pull on MLCC + batteries independent of optics</li><li>Granopt optionality if isolators stay discrete and tighten</li><li>a way to "own the monopoly" without single-point risk</li></ul></div>
+      <div class="c bear"><div class="t">BEAR</div><ul><li>dilution: the isolator is invisible in the P&L</li><li>already +47% YTD on drivers that have nothing to do with the thesis</li><li>JPY translation; you get the conglomerate's risks for a sliver's exposure</li></ul></div>
+    </div>
+  </div>
+
+  <!-- LYNAS -->
+  <div class="tabpanel" role="tabpanel" id="tp-lyc" aria-labelledby="tb-lyc" hidden>
+    <div class="valstrip">
+      <div><div class="v teal">$11.09</div><div class="l">ADR LYSDY (Lynas AU: LYC)</div></div>
+      <div><div class="v">+34.1%</div><div class="l">YTD · on magnets/defense</div></div>
+      <div><div class="v">$6.3–16.2</div><div class="l">52-wk range (ADR; AU line differs)</div></div>
+      <div><div class="v">~$11B</div><div class="l">mkt cap</div></div>
+    </div>
+    <div class="td">
+      <div class="tdc"><div class="h">① 怎麼賺錢 <span class="cn">how it earns</span></div><p>Mines rare-earth ore (Mount Weld) and separates it into oxides — mostly NdPr for magnets, and now the heavy pair <b>dysprosium &amp; terbium</b>.</p></div>
+      <div class="tdc"><div class="h">② 營收結構 <span class="cn">revenue mix</span></div><p>NdPr dominates revenue; the new Malaysia heavy-REE circuit (≤1,500 t/yr) adds Dy/Tb. Optics end-use ≈ <b>0%</b>.</p></div>
+      <div class="tdc"><div class="h">③ 成長來源 <span class="cn">growth</span></div><p>Only scaled <b>ex-China</b> Dy/Tb separation; Pentagon/defense offtake; Western magnet supply-chain de-risking.</p></div>
+      <div class="tdc"><div class="h">④ 終端市場 <span class="cn">end markets</span></div><p>NdFeB magnets — EV motors, wind, defense. Tb/Dy go into magnets, not (materially) into optics.</p></div>
+      <div class="tdc"><div class="h">⑤ 主要客戶 <span class="cn">customers</span></div><p>Magnet makers, US DoD (Pentagon heavy-REE awards), Japanese buyers (JOGMEC-backed). Not optics companies.</p></div>
+      <div class="tdc"><div class="h">⑥ 護城河 <span class="cn">moat</span></div><p>The only scaled separated Dy/Tb producer outside China — a genuine geopolitical moat in <i>magnet</i> metals.</p></div>
+      <div class="tdc"><div class="h">⑦ 管理層展望 <span class="cn">outlook</span></div><p>Heavy-REE ramp, defense demand, price recovery from the 2025 trough.</p></div>
+      <div class="tdc key"><div class="h">⑧ 為何是卡點 <span class="cn">why the choke</span></div><p>Terbium sits in China's export-control net, and the garnet <i>material class</i> depends on rare-earths — so there's a real upstream squeeze. <b>But this is the report's red-herring test:</b> optics is a negligible slice of Tb/Dy demand, so Lynas is a magnets/defense play, <b>not</b> an optics-isolator play. It's here to inoculate you against a tempting-but-wrong "rare-earth + optics" headline trade.</p></div>
+    </div>
+    <div class="gap"><div class="t">ASYMMETRIC-INFO GAP</div><p>The gap here is <b>reasoning, not price</b>: an amateur could see "terbium export controls" + "optics needs garnet" and buy Lynas expecting optics leverage. That inference is wrong — there's essentially no optics signal in Lynas. Owning it means underwriting the magnet/defense cycle (a fine thesis on its own merits), and it should never be counted as isolator-chokepoint exposure.</p></div>
+    <div class="bb">
+      <div class="c bull"><div class="t">BULL (as a rare-earth co.)</div><ul><li>ex-China Dy/Tb monopoly; defense + price tailwind</li><li>strategic Western supply-chain asset</li></ul></div>
+      <div class="c bear"><div class="t">BEAR (for the optics thesis)</div><ul><li>optics ≈ 0% of demand — wrong reason to own it</li><li>commodity-price cyclicality; already +34% YTD</li><li>recycling/substitution + China policy swings</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 AWARENESS CURVE -->
+<section id="s11">
+  <div class="sh"><span class="n">11</span><h2>Awareness curve — early or already elsewhere?</h2><span class="cn">認知曲線</span></div>
+  <p class="lead">The honest picture: all three "plays" are already in <b>Recognition</b> — but each on the <i>wrong</i> thesis (transceivers, batteries, magnets), not on the isolator. So the genuinely-early dollar isn't in the top-3 at all; it sits to the <b>left</b>, in the watchlist. That's rare for this rotation and worth saying plainly.</p>
+  <div class="svgwide svgscroll">
+    <svg viewBox="0 0 1120 300" width="1120" height="300" xmlns="http://www.w3.org/2000/svg" style="min-width:940px">
+      <!-- axis -->
+      <line x1="60" y1="262" x2="1080" y2="262" stroke="#2a3040"/>
+      <!-- stage ticks -->
+      <text x="120" y="284" text-anchor="middle" class="svglabel">Latent</text>
+      <text x="330" y="284" text-anchor="middle" class="svglabel">Early (alpha)</text>
+      <text x="600" y="284" text-anchor="middle" class="svglabel">Recognition</text>
+      <text x="830" y="284" text-anchor="middle" class="svglabel">Euphoria</text>
+      <text x="1020" y="284" text-anchor="middle" class="svglabel">Priced-in</text>
+      <!-- entry zone band -->
+      <rect x="230" y="40" width="180" height="222" fill="rgba(45,212,191,.06)" stroke="#234b45" stroke-dasharray="4 3"/>
+      <text x="320" y="56" text-anchor="middle" font-size="10.5" fill="#2dd4bf">entry zone</text>
+      <!-- S curve -->
+      <path d="M60 256 C 240 252, 320 238, 470 176 C 620 112, 800 66, 1080 58" fill="none" stroke="#4a5470" stroke-width="2.5"/>
+      <!-- where next entry hides marker -->
+      <line x1="300" y1="44" x2="300" y2="262" stroke="#2dd4bf" stroke-width="1.5" stroke-dasharray="5 4"/>
+      <text x="300" y="34" text-anchor="middle" font-size="11" fill="#2dd4bf">where the next entry hides</text>
+      <text x="300" y="234" text-anchor="middle" font-size="9.5" fill="#8fdcb8">watchlist: SiPh isolator-free</text>
+      <text x="300" y="248" text-anchor="middle" font-size="9.5" fill="#8fdcb8">disruptors · CN crystal pure-plays</text>
+      <!-- name markers (all in recognition) -->
+      <g>
+        <circle cx="520" cy="158" r="6" fill="#5fc98a"/><text x="520" y="146" text-anchor="middle" font-size="11" fill="#e8eaf0">Lynas</text><text x="520" y="176" text-anchor="middle" class="svglabel">+34% · magnets thesis</text>
+      </g>
+      <g>
+        <circle cx="600" cy="128" r="6" fill="#8b84cf"/><text x="600" y="116" text-anchor="middle" font-size="11" fill="#e8eaf0">TDK</text><text x="600" y="200" text-anchor="middle" class="svglabel">+47% · batteries thesis</text>
+        <line x1="600" y1="134" x2="600" y2="192" stroke="#363d4f" stroke-width="1" stroke-dasharray="2 2"/>
+      </g>
+      <g>
+        <circle cx="680" cy="104" r="6" fill="#2dd4bf"/><text x="680" y="92" text-anchor="middle" font-size="11" fill="#e8eaf0">COHR</text><text x="680" y="124" text-anchor="middle" class="svglabel">+73% · transceiver thesis</text>
+      </g>
+      <text x="1040" y="250" text-anchor="end" class="svglabel">as-of 14 Jul 2026 · YTD move ≈ awareness proxy</text>
     </svg>
   </div>
-  <p class="cap" style="margin-top:-4px;margin-bottom:14px">Horizontal position = awareness stage (qualitative), not a linear return scale. Dot height = how much of each story is already in the price as of 19 Jun 2026 — ALMU least, SIVE most. Even the "early" pick (ALMU) is pre-revenue optionality, not a sure thing.</p>
-
-  <div class="panel" style="margin-bottom:14px;border-color:#2c5a40;background:rgba(95,201,138,.05)">
-    <h4 style="font-size:13px;margin-bottom:6px;font-weight:600;color:var(--dacr)">Still-latent watchlist — where the NEXT early entry hides <span class="cn" style="font-weight:400;color:var(--dim)">尚未被發現的早期標的</span></h4>
-    <p style="font-size:12px;color:var(--mut);line-height:1.55">The top-3 have all moved. To buy <i>before</i> the crowd — the early-LITE/AXTI setup — watch the links still unpriced and under-covered today. Each below could become the next breakout (or fail — most latent bets do):</p>
-    <table class="tbl" style="margin-top:8px">
-      <tr><th>Latent candidate (link)</th><th>Why it could be next</th><th>Trigger that wakes it · where to track it</th></tr>
-      <tr><td><b>WIN Semiconductors</b> (3105 TT) — the III-V foundry that fabs the merchant lasers</td><td>The picks-and-shovels one layer below the fabless ELS designers (incl. Sivers); earns volume regardless of which laser brand wins</td><td>WIN capacity/utilisation + photonics mix on its monthly sales · TWSE monthly revenue, earnings calls</td></tr>
-      <tr><td><b>Optical isolator / PM-fiber / micro-optics</b> — every ELS needs them at CPO scale</td><td>Unglamorous components scaling with laser count; still priced as commodity; no clean pure-play (TDK / JP specialists buried)</td><td>CPO BOM teardowns; isolator lead-time chatter · OFC notes, supplier calls</td></tr>
-      <tr><td><b>QD Laser</b> (6613 JP) — quantum-dot laser, high-temp-stable</td><td>A 2nd-gen ELS candidate <i>if</i> output scales from ~5–16mW toward the 400mW ELS bar</td><td>QD-laser power milestone / a CPO design-win · company PRs, JP disclosure</td></tr>
-    </table>
-    <p class="cap" style="margin-top:6px"><b style="color:var(--mut)">Access note:</b> the genuinely-early names a US amateur can actually buy are <b>ALMU</b> (the monolithic optionality, in the top-3) and <b>POET</b> (NASDAQ — ELS module integration, +89% and off its highs); the deeper picks-and-shovels (WIN Semi, QD Laser) are TW/JP-listed and harder to reach. Watch-only ideas, not recommendations — most latent bets fail. The discipline: keep scanning <i>here</i> while the crowd buys what has already run.</p>
-  </div>
-
-  <div class="two">
-    <div class="panel">
-      <h4 style="font-size:13px;margin-bottom:4px;font-weight:600">Leading indicators — the early-signal dashboard</h4>
-      <p style="font-size:11px;color:var(--dim);margin-bottom:10px">These move BEFORE reported revenue. Watch them to catch the next leg early.</p>
-      <table class="liw">
-        <tr><th>Signal · trigger</th><th>Where an amateur can actually read it</th></tr>
-        <tr><td><b>Merchant CW-DFB lead-times / utilisation</b><br><span class="dotR" style="font-size:11px">&gt;50wk or &gt;90% util = tight</span></td><td>COHR / LITE earnings-call transcripts ("allocated", lead-times); TrendForce notes</td></tr>
-        <tr><td><b>CPO design-win cadence</b><br><span class="dotG" style="font-size:11px">accel. · each win = ELS demand +</span></td><td>NVIDIA / Broadcom / Marvell / Ayar press releases; OFC &amp; OCP conference notes</td></tr>
-        <tr><td><b>Coherent Sherman 6″ InP ramp</b><br><span class="dotA" style="font-size:11px">on-time Q3-26 = choke relief</span></td><td>COHR 8-K / transcripts; optics.org; Texas CHIPS notices</td></tr>
-        <tr><td><b>Sivers order pipeline → revenue</b><br><span class="dotA" style="font-size:11px">$453M pipeline · conversion to sales</span></td><td>Sivers interim reports (Nasdaq First North); IR deck</td></tr>
-        <tr><td><b>Merchant gross-margin inflection</b><br><span class="dotR" style="font-size:11px">EBITDA turns + = rent captured</span></td><td>Sivers quarterlies (the rent-capture tell); COHR datacom margin line</td></tr>
-        <tr><td><b>Captive lock-ups (pool shrinks)</b><br><span class="dotR" style="font-size:11px">more $ locks = less merchant rent</span></td><td>NVDA / AVGO calls + PRs (new laser supply agreements)</td></tr>
-        <tr><td><b>Disintermediation progress</b><br><span class="dotA" style="font-size:11px">VCSEL-NPO / monolithic milestones</span></td><td>Broadcom OFC; Aeluma PRs; OCP; SemiAnalysis / LightCounting</td></tr>
-      </table>
-      <p style="font-size:10px;color:var(--dim);margin-top:8px">Thresholds are illustrative starting points — calibrate to your own risk. Every signal is readable from <b>free public sources</b> weeks before it shows up in reported revenue.</p>
-    </div>
-    <div class="panel">
-      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">How to be early next time <span class="cn" style="font-weight:400;color:var(--dim)">如何提前布局</span></h4>
-      <div class="mtc" style="margin-bottom:9px"><div class="h">1 · Watch the architecture shift, not the headline</div><p>The ELS chokepoint existed in spec sheets and supply talks <b>18–24 months before</b> the stocks moved. The next one (monolithic? isolators?) is visible the same way today.</p></div>
-      <div class="mtc" style="margin-bottom:9px"><div class="h">2 · Go one layer below the fabless name</div><p>When Sivers ran, the <b>fab that builds its lasers</b> (WIN) and the <b>parts every ELS needs</b> (isolators, PM fiber) stayed cheap. That's the un-bid layer.</p></div>
-      <div class="mtc" style="margin-bottom:9px"><div class="h">3 · Distrust the pure-play after a 17× move</div><p>SIVE at ~90× sales with negative EBITDA is a momentum/binary trade, not an early entry. Own the scaled toll-gate (COHR) for compounding, not the re-rating.</p></div>
-      <div class="mtc"><div class="h">4 · The escape route is also the early bet</div><p>Monolithic (ALMU) is both the genuinely-early call <i>and</i> the bear case for the whole chokepoint — size it as optionality, not conviction.</p></div>
-    </div>
-  </div>
+  <p class="cap">Read it as: nobody is bidding these names <i>for the isolator</i>. The chokepoint itself is still Latent/Early — but the only pure ways to own it (SiPh disruptors, Chinese crystal pure-plays) are private or hard-to-reach. Being "early" here means <b>watching</b>, not buying.</p>
 </section>
 
-<!-- 10. TOP-3 MULTI-TAB -->
-<section id="s10">
-  <div class="sh"><span class="n">10</span><h2>Top-3 chokepoint plays</h2><span class="cn">三大卡點標的 · 分頁</span></div>
-  <p class="lead">Three companies, three <i>different</i> links, spread across the awareness curve — <b>not</b> a quality ranking. Tabs are ordered by how investable each is today (own-it → trade-only → optionality); <b>remaining asymmetry</b> runs the other way (<span class="num">ALMU &gt; COHR &gt; SIVE</span>), because the most-priced names are the best businesses. Use arrow keys to move between tabs.</p>
-
-  <div role="tablist" aria-label="Top-3 plays" style="display:flex;gap:6px;margin-bottom:-1px;flex-wrap:wrap">
-    <button class="tabbtn on" role="tab" id="tab1" aria-controls="t1" aria-selected="true" tabindex="0">① Coherent · COHR<small>Scaled CW-DFB + InP fab · recognition</small></button>
-    <button class="tabbtn" role="tab" id="tab2" aria-controls="t2" aria-selected="false" tabindex="-1">② Sivers · SIVE<small>Merchant ELS pure-play · euphoria</small></button>
-    <button class="tabbtn" role="tab" id="tab3" aria-controls="t3" aria-selected="false" tabindex="-1">③ Aeluma · ALMU<small>Monolithic / Gen-4 · early-latent</small></button>
-  </div>
-
-  <!-- TAB 1 COHR -->
-  <div class="tabpane" id="t1" role="tabpanel" aria-labelledby="tab1" style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
-    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
-      <h3 style="font-size:18px;font-weight:600">Coherent <span style="color:var(--dim);font-weight:400">NYSE: COHR</span></h3>
-      <span class="stagebadge sg-recog">RECOGNITION · own the scarce link</span>
-      <span style="font-size:12px;color:var(--mut)">Chokepoint: <b style="color:var(--txt)">scaled merchant CW-DFB / ELS laser + the 6″ InP fab</b></span>
-    </div>
-    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The scaled, diversified merchant source — NVIDIA-funded ($2B), building the <b>world's first volume 6″ InP fab</b> in Sherman, TX. It owns the scarce link <i>and</i> is the one relieving the choke. Margins are real and rising (the rent-capture tell), but it has already run +105% and trades rich.</p>
-    <div class="mini">
-      <div><div class="v">$378.85</div><div class="l">Last close</div></div>
-      <div><div class="v" style="color:var(--dup)">+105%</div><div class="l">YTD return</div></div>
-      <div><div class="v">~$59B</div><div class="l">Market cap est.</div></div>
-      <div><div class="v" style="color:var(--choke)">~60×</div><div class="l">Fwd P/E est.*</div></div>
-      <div><div class="v" style="color:var(--dacr)">+41%</div><div class="l">DC&amp;Comms rev YoY</div></div>
-    </div>
-    <div class="gap"><div class="h">ASYMMETRIC INFO GAP · 變異認知</div><p>Partly open. Consensus owns COHR as a 1.6T transceiver play. The variant: it is the <b>merchant ELS laser toll-gate</b> for the whole non-Broadcom CPO world, with a US 6″ InP fab that both feeds and defends the position. Residual edge = whether datacom margins keep expanding as 1.6T + ELS mix climbs. Quality high; asymmetry medium-low at ~60× — own for compounding, not a re-rating.</p></div>
-    <div class="mtd">
-      <div class="mtc"><div class="h">① 怎麼賺錢 Business model</div><p>Sells photonic hardware — lasers/EML/CW chips, transceivers, and materials. Owns the InP epitaxy and the fab, so it captures chip <i>and</i> module margin.</p></div>
-      <div class="mtc"><div class="h">② 營收結構 Segments</div><p>Networking (Data Center &amp; Comms) is now the engine — Q3 FY26 DC&amp;Comms $1.36B (+41% YoY) of $1.81B total; plus Materials and Lasers.</p></div>
-      <div class="mtc"><div class="h">③ 成長來源 Growth drivers</div><p>1.6T transceiver ramp; 400mW CW-DFB for SiPh/CPO; 6″ InP (4× output in ~12mo); NVIDIA $2B + multi-year POs.</p></div>
-      <div class="mtc"><div class="h">④ 終端市場 End market</div><p>AI datacenter interconnect (datacom) primarily; telecom/industrial laser tail; coherent line-side for scale-across.</p></div>
-      <div class="mtc"><div class="h">⑤ 主要客戶 Customers</div><p>NVIDIA (customer + $2B investor), hyperscalers, module makers; merchant ELS supply to the broad CPO ecosystem.</p></div>
-      <div class="mtc"><div class="h">⑥ 護城河 Moat</div><p>InP epitaxy + qualified yield + the only volume 6″ InP fab; scale across the whole photonics BOM; NVIDIA capital.</p></div>
-      <div class="mtc"><div class="h">⑦ 管理層展望 Guidance</div><p>Record Q3; Q4 guide $1.91–2.05B rev, $1.52–1.72 non-GAAP EPS; 1.6T carries better early-life margin; Sherman volume Q3-26.</p></div>
-      <div class="mtc"><div class="h">⑧ 為何是卡點 Why chokepoint</div><p>CPO can't ship without a qualified external CW laser; COHR is the scaled merchant source — and the InP fab beneath it.</p></div>
-    </div>
-    <div class="bbr">
-      <div class="bl"><b style="color:var(--dacr)">BULL</b>CPO scale-out ramps on schedule, Sherman 6″ delivers, COHR captures both EML and merchant-ELS rent; datacom margins expand → multiple holds.</div>
-      <div class="be"><b style="color:var(--choke)">BEAR</b>AI-capex pause / CPO slips / 6″ yield issues; ~60× compresses; it is also the choke-breaker, so success caps its own pricing power.</div>
-    </div>
-  </div>
-
-  <!-- TAB 2 SIVE -->
-  <div class="tabpane" id="t2" role="tabpanel" aria-labelledby="tab2" hidden style="display:none;border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
-    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
-      <h3 style="font-size:18px;font-weight:600">Sivers Semiconductors <span style="color:var(--dim);font-weight:400">STO: SIVE</span></h3>
-      <span class="stagebadge sg-eu">EUPHORIA · alpha largely gone</span>
-      <span style="font-size:12px;color:var(--mut)">Chokepoint: <b style="color:var(--txt)">the merchant ELS DFB-array pure-play</b></span>
-    </div>
-    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The purest expression of the thesis — a fab-lite Swedish designer of InP DFB laser arrays that has become the <b>reference light source</b> for the non-NVIDIA/Broadcom CPO ecosystem (GlobalFoundries SCALE, Ayar/AMD, Jabil, POET, O-Net). Structurally it's the tightest link. The catch: <b>SEK 2.85 → 110 in a year</b> (~+1,700% YTD), ~90× trailing sales, still EBITDA-negative, with a restatement flag. The alpha is in the rear-view.</p>
-    <div class="mini">
-      <div><div class="v">SEK 96</div><div class="l">Last (~$10)</div></div>
-      <div><div class="v" style="color:var(--choke)">~+1,700%</div><div class="l">YTD (est.)</div></div>
-      <div><div class="v">~SEK 28B</div><div class="l">Mkt cap (~$3.0B)</div></div>
-      <div><div class="v" style="color:var(--choke)">~90×</div><div class="l">EV/Sales est.*</div></div>
-      <div><div class="v" style="color:var(--choke)">neg.</div><div class="l">Adj. EBITDA</div></div>
-    </div>
-    <div class="gap" style="border-left-color:var(--choke);background:rgba(224,104,106,.06)"><div class="h" style="color:var(--choke)">ASYMMETRIC INFO GAP · 變異認知</div><p>Now mostly <b>closed</b>. The market is fully awake to the merchant-ELS-gatekeeper story. The remaining variant is binary: does the spec-lock <b>hold</b> across the GFS/Ayar ecosystem long enough for revenue to 5–6× into the 2028 SAM ($1.0–1.4B) and margins to inflect — before Coherent's Sherman fab and second-sourcing break it? At ~90× sales with negative EBITDA, this is a momentum/binary trade. Size small, use stops.</p></div>
-    <div class="mtd">
-      <div class="mtc"><div class="h">① 怎麼賺錢 Business model</div><p>Fab-lite: designs InP DFB laser arrays, fabs at WIN Semi + others, controls output via early long-term allocation. Also LiDAR and SATCOM/RF.</p></div>
-      <div class="mtc"><div class="h">② 營收結構 Segments</div><p>2025 rev SEK 304M (~$33M, +25%): photonics (ELS lasers) the thesis leg, plus LiDAR (Q4-26 ramp) and wireless/RF beamformers (the floor).</p></div>
-      <div class="mtc"><div class="h">③ 成長來源 Growth drivers</div><p>CPO/ELS design wins; pipeline $276M→$453M (+64%); GFS SCALE reference; Jabil 1.6T LRO; Ayar SuperNova.</p></div>
-      <div class="mtc"><div class="h">④ 終端市場 End market</div><p>AI datacenter CPO/ELS (primary), automotive LiDAR, SATCOM/defence — diversification that gives a non-CPO floor.</p></div>
-      <div class="mtc"><div class="h">⑤ 主要客戶 Customers</div><p>The merchant CPO ecosystem: GlobalFoundries, Ayar Labs (AMD-backed), Jabil, POET, O-Net/Enablence.</p></div>
-      <div class="mtc"><div class="h">⑥ 護城河 Moat</div><p>Etched-facet / wafer-scale-test process edge + early fab allocation + PIC spec-lock (switching costs). Cornered-resource + process power.</p></div>
-      <div class="mtc"><div class="h">⑦ 管理層展望 Guidance</div><p>CPO SAM guided $1.0–1.4B by 2028; pipeline accelerating; EBITDA still slightly negative — scaling toward profitability.</p></div>
-      <div class="mtc"><div class="h">⑧ 為何是卡點 Why chokepoint</div><p>Every non-captive CPO program appears designed around Sivers' laser spec — you can't swap it without redesigning the PIC.</p></div>
-    </div>
-    <div class="bbr">
-      <div class="bl"><b style="color:var(--dacr)">BULL</b>Spec-lock holds across the GFS/Ayar/Celestial ecosystem; revenue 5–6× by 2028; margins inflect; becomes "the next LITE."</div>
-      <div class="be"><b style="color:var(--choke)">BEAR</b>Multi-sourcing / Coherent break the lock; restatement or dilution; CPO slips; small-cap illiquidity → −50–70% from euphoric levels.</div>
-    </div>
-  </div>
-
-  <!-- TAB 3 ALMU -->
-  <div class="tabpane" id="t3" role="tabpanel" aria-labelledby="tab3" hidden style="display:none;border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
-    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
-      <h3 style="font-size:18px;font-weight:600">Aeluma <span style="color:var(--dim);font-weight:400">NASDAQ: ALMU</span></h3>
-      <span class="stagebadge sg-early">EARLY · optionality (highest risk)</span>
-      <span style="font-size:12px;color:var(--mut)">Chokepoint: <b style="color:var(--txt)">Gen-4 monolithic III-V-on-silicon (the escape route)</b></span>
-    </div>
-    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The genuinely-early call: grow the III-V laser <b>directly on 300mm silicon</b>, so there's no separate laser and no external module at all. If it works at volume, it's the architecture that <b>dissolves</b> the ELS chokepoint — which is why it's simultaneously the early bet <i>and</i> the bear case for the rest of this report. Pre-meaningful-revenue, government-funded, +45% YTD (least-run of the complex).</p>
-    <div class="mini">
-      <div><div class="v">$24.86</div><div class="l">Last close</div></div>
-      <div><div class="v" style="color:var(--dacr)">+45%</div><div class="l">YTD return</div></div>
-      <div><div class="v">~$0.3–0.6B</div><div class="l">Market cap est.</div></div>
-      <div><div class="v" style="color:var(--dim)">pre-rev</div><div class="l">Platform revenue</div></div>
-      <div><div class="v">FY27+</div><div class="l">Inflection (mgmt)</div></div>
-    </div>
-    <div class="gap"><div class="h">ASYMMETRIC INFO GAP · 變異認知</div><p>Wide but unproven. Consensus barely covers it; the market hasn't priced monolithic because it's a 2030+ technology. The variant: if III-V-on-300mm-Si qualifies for on-package optical I/O, it leapfrogs the whole external-laser supply chain. The honest counter: it's <b>pre-revenue, dilution-prone, and may stay 2030+</b> — this is venture-style optionality, not a fundamentals trade. Belongs in the portfolio as a small call option on the next paradigm.</p></div>
-    <div class="mtd">
-      <div class="mtc"><div class="h">① 怎麼賺錢 Business model</div><p>Platform/foundry-style: III-V optoelectronics on mature 300mm Si lines. Today mostly government/defence contracts (DARPA/NASA/Navy/DOE) funding the process.</p></div>
-      <div class="mtc"><div class="h">② 營收結構 Segments</div><p>Early: sensing/defence + R&amp;D contracts. The AI-photonics leg (on-package optical I/O, CPO) is FY27+ optionality, not current revenue.</p></div>
-      <div class="mtc"><div class="h">③ 成長來源 Growth drivers</div><p>Foundry process transfers, customer qualifications, a possible datacenter design-in (a global interconnect maker is named as a Navy subcontractor).</p></div>
-      <div class="mtc"><div class="h">④ 終端市場 End market</div><p>AI interconnect (long-run), plus sensing, quantum, and defence — multiple shots, none yet at volume.</p></div>
-      <div class="mtc"><div class="h">⑤ 主要客戶 Customers</div><p>US government programs today; foundry/interconnect partners under qualification. Customer concentration is a real near-term risk.</p></div>
-      <div class="mtc"><div class="h">⑥ 護城河 Moat</div><p>Founder/IP (Dr. Klamkin) + monolithic process know-how on 300mm — the "holy grail" if yields come; unproven at scale.</p></div>
-      <div class="mtc"><div class="h">⑦ 管理層展望 Guidance</div><p>FY2026 = foundation; FY2027+ = inflection. Watch the qualification / process-transfer milestones on the earnings calls.</p></div>
-      <div class="mtc"><div class="h">⑧ 為何是卡點 Why chokepoint</div><p>It isn't a current chokepoint — it's the <i>escape</i> from one. Owning it is owning the risk that the external-laser toll never gets collected.</p></div>
-    </div>
-    <div class="bbr">
-      <div class="bl"><b style="color:var(--dacr)">BULL</b>Monolithic qualifies, lands an AI-interconnect design-in, re-rates from pre-revenue optionality to platform — multi-bagger.</div>
-      <div class="be"><b style="color:var(--choke)">BEAR</b>Gen-4 stays 2030+, cash burn forces dilution, no volume design-in; the stock halves. Pure venture risk — size accordingly.</div>
-    </div>
-  </div>
-  <p class="cap" style="margin-top:12px">*Valuation multiples are estimates from live price, latest reported revenue/EPS run-rate and approximate share counts; verify on a data terminal before sizing. SIVE shown EV/Sales (negative earnings). SIVE price/cap from public quote (Stockholm feed not on IBKR); YTD est. from a Jun-2026 third-party note.</p>
-</section>
-
-<!-- 11. BENEFICIARY MAP + RISKS -->
-<section id="s11">
-  <div class="sh"><span class="n">11</span><h2>Beneficiary map &amp; key risks</h2><span class="cn">受惠族群與風險</span></div>
-  <div class="two">
-    <div class="panel">
-      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Who benefits — by link</h4>
-      <table class="tbl">
-        <tr><th>Company</th><th>Link</th><th>Angle · YTD</th></tr>
-        <tr><td><b>Coherent</b> · COHR</td><td><span class="lyr ly3">LASER</span></td><td>Scaled merchant CW-DFB + 6″ InP fab · +105%</td></tr>
-        <tr><td><b>Sivers</b> · SIVE</td><td><span class="lyr ly3">LASER</span></td><td>Merchant ELS pure-play / spec ref · ~+1,700%</td></tr>
-        <tr><td><b>Lumentum</b> · LITE</td><td><span class="lyr ly3">LASER</span></td><td>EML+CW, NVIDIA-locked (Run #1) · +136%</td></tr>
-        <tr><td><b>GlobalFoundries</b> · GFS</td><td><span class="lyr ly2">PIC</span></td><td>Merchant SiPh foundry (SCALE CPO) · +131%</td></tr>
-        <tr><td><b>POET</b> · POET</td><td><span class="lyr lyp">PKG</span></td><td>ELS module integrator · +89%</td></tr>
-        <tr><td><b>Aeluma</b> · ALMU</td><td><span class="lyr lyu">G4</span></td><td>Monolithic III-V/Si (the escape) · +45%</td></tr>
-        <tr><td><b>AAOI</b> · Applied Opto</td><td><span class="lyr ly3">LASER</span></td><td>US EML "Buy American" · +380%</td></tr>
-        <tr><td><b>Broadcom / NVIDIA</b></td><td><span class="lyr ly1">L1</span></td><td>Captive CPO + VCSEL NPO · the choke-makers</td></tr>
-      </table>
-      <p class="cap" style="margin-top:10px">Layer key — <span class="lyr lyu">G4</span> monolithic · <span class="lyr ly3">LASER</span> chip · <span class="lyr lyp">PKG</span> ELS module · <span class="lyr ly2">PIC</span> SiPh foundry · <span class="lyr ly1">L1</span> switch/GPU.</p>
-    </div>
-    <div class="panel">
-      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Risks to the thesis</h4>
-      <table class="tbl">
-        <tr><th>Risk</th><th>Watch</th></tr>
-        <tr><td><b>Captive internalisation</b></td><td>NVDA/AVGO shrink the merchant pool further</td></tr>
-        <tr><td><b>Choke-breaker capacity</b></td><td>Coherent Sherman 6″ + 2nd-sourcing relieve it</td></tr>
-        <tr><td><b>CPO timeline slips</b></td><td>Mainstream is a 2027–29 (Feynman) event</td></tr>
-        <tr><td><b>Disintermediation</b></td><td>VCSEL-NPO + monolithic bypass the ELS</td></tr>
-        <tr><td><b>SIVE micro-cap risk</b></td><td>Restatement, dilution, single-fab (WIN/TW)</td></tr>
-        <tr><td><b>Valuation</b></td><td>Complex already +100–1,700% YTD</td></tr>
-      </table>
-    </div>
-  </div>
-</section>
-
-<!-- 12. DECISION -->
+<!-- 12 LEADING INDICATORS -->
 <section id="s12">
-  <div class="sh"><span class="n">12</span><h2>The decision — one table</h2><span class="cn">投資決策總表</span></div>
-  <p class="lead">Everything above reconciled. Rows follow the awareness curve (recognition → euphoria → early), and each name's <b>remaining asymmetry</b> is shown explicitly — it runs <span class="num">ALMU &gt; COHR &gt; SIVE</span>, the reverse of the row order, so this is <b>not</b> a 1-2-3 buy ranking. The one-row read: the best <i>business</i> exposure (COHR) is recognition-priced; the purest <i>link</i> (SIVE) is euphoric and unproven on margins; the only genuinely <i>early</i> dollar (ALMU + the latent watchlist) carries the highest timing risk — and ALMU is itself the bear case for the chokepoint.</p>
-
-  <!-- scenario table for the actionable lead pick -->
-  <div class="panel" style="margin-bottom:14px">
-    <h4 style="font-size:13px;margin-bottom:4px;font-weight:600">Scenario table — COHR (the actionable lead), ~12–18m <span style="color:var(--dim);font-weight:400;font-size:11px">· illustrative, probabilities are the author's</span></h4>
-    <table class="scn" style="margin-top:8px">
-      <tr><th>Case</th><th>Prob.</th><th>What happens</th><th>~12–18m return</th></tr>
-      <tr class="bull"><td><b>Bull</b></td><td class="num">30%</td><td>CPO scale-out ramps on time; Sherman 6″ delivers; datacom margins expand; COHR holds ~60× on higher EPS</td><td class="num" style="color:var(--dacr)">+40%</td></tr>
-      <tr class="base"><td><b>Base</b></td><td class="num">45%</td><td>Solid AI-optics growth but multiple already rich; some normalisation as the choke is relieved</td><td class="num" style="color:var(--dup)">+10%</td></tr>
-      <tr class="bear"><td><b>Bear</b></td><td class="num">25%</td><td>AI-capex pause / CPO slips / 6″ yield wobble; ~60× compresses</td><td class="num" style="color:var(--choke)">−35%</td></tr>
-    </table>
-    <p class="cap" style="margin-top:8px">Probability-weighted EV ≈ 0.30(+40%) + 0.45(+10%) + 0.25(−35%) ≈ <b style="color:var(--txt)">+7.8%</b> — a thin EV that argues for <b>entry discipline</b>, not chasing. Entry-discipline band (est.): start ~$300–340 (~10% pullback / &lt;50× fwd), add &lt;$270, reduce conviction &gt;$440. <b>Dated falsifier:</b> if the next 1–2 prints show datacom gross margin <i>flat-to-down</i> while 1.6T/ELS mix rises, the rent-capture thesis is broken — exit. SIVE falsifier: a credible Coherent/Japanese 2nd-source qualification at a flagship CPO program. ALMU falsifier: FY27 passes with no volume design-in. <b style="color:var(--txt)">SIVE</b> (binary, ~12–18m): bull ~+50–100% if the spec-lock holds and revenue starts converting / bear −50–70% on second-sourcing or a restatement — at ~90× sales the probability-weighted skew is <i>negative</i>; trade-only. <b style="color:var(--txt)">ALMU</b> (optionality): bull is a multi-bagger on a real AI-interconnect design-in / bear ~−50% on dilution with no win — size it as a small call option, not a position.</p>
-  </div>
-
-  <div style="overflow-x:auto">
-  <table class="tbl" style="min-width:920px">
-    <tr><th>Row</th><th>Ticker</th><th>Chokepoint (link)</th><th>Severity</th><th>Awareness stage</th><th>Valuation</th><th>Remaining asymmetry</th><th>Framework lean</th><th>Key trigger to watch</th></tr>
-    <tr>
-      <td class="num">1</td><td><b>COHR</b> · Coherent</td><td><span class="lyr ly3">LASER</span> scaled CW-DFB + InP fab</td>
-      <td class="num">16/20</td><td><span class="stagebadge sg-recog">RECOGNITION</span></td><td class="num">~60× · +105% YTD</td>
-      <td class="dotA">Medium-low</td><td><b>Own quality, don't chase</b></td><td>Datacom gross-margin inflection; Sherman 6″ on-time</td>
-    </tr>
-    <tr>
-      <td class="num">2</td><td><b>SIVE</b> · Sivers</td><td><span class="lyr ly3">LASER</span> merchant ELS pure-play</td>
-      <td class="num">18/20</td><td><span class="stagebadge sg-eu">EUPHORIA</span></td><td class="num">~90× sales · ~+1,700% YTD</td>
-      <td class="dotR">Negative</td><td><b>Trade only / avoid chasing</b></td><td>Spec-lock holding vs 2nd-source; EBITDA turning +</td>
-    </tr>
-    <tr>
-      <td class="num">3</td><td><b>ALMU</b> · Aeluma</td><td><span class="lyr lyu">G4</span> monolithic III-V/Si</td>
-      <td class="num">11/20</td><td><span class="stagebadge sg-early">EARLY</span></td><td class="num">pre-rev · +45% YTD</td>
-      <td class="dotG">Highest (unproven)</td><td><b>Small optionality only</b></td><td>First volume AI-interconnect design-in</td>
-    </tr>
+  <div class="sh"><span class="n">12</span><h2>Leading-indicator dashboard</h2><span class="cn">領先指標</span></div>
+  <p class="lead">Physical signals that move <b>before</b> the print — each with a trigger and, crucially, <b>where an amateur can actually read it for free</b>. The single most important row is the last one: it's the clock on the whole thesis.</p>
+  <table class="dash">
+    <tr><th style="width:22%">Signal</th><th style="width:26%">Trigger threshold</th><th style="width:24%">What it means</th><th style="width:28%">Where an amateur reads it (free)</th></tr>
+    <tr><td class="sig">Granopt / TDK garnet capacity &amp; lead-time</td><td>Capacity expansion announced, or quoted lead-times lengthen</td><td>Crystal tightening — bullish the chokepoint</td><td>TDK IR &amp; earnings decks; Japanese trade press; OFC exhibitor notes</td></tr>
+    <tr><td class="sig">Coherent Materials/Networking margin talk</td><td>Mgmt flags captive isolator/garnet as a supply advantage</td><td>Rent being captured in-house — bullish COHR proxy</td><td>COHR earnings <b>transcripts</b> &amp; 10-Q segment lines (free on IR site)</td></tr>
+    <tr><td class="sig">Terbium / heavy-REE license flow &amp; price</td><td>Tb price spikes or export licenses denied/delayed</td><td>Upstream material squeeze (whole class)</td><td>MOFCOM notices; USGS Mineral Commodity Summaries; Lynas results</td></tr>
+    <tr><td class="sig">ELS laser count per CPO system</td><td>Next-gen ELS modules pack more CW DFBs</td><td>More isolators per system — demand up</td><td>Nvidia/Broadcom CPO disclosures; teardown blogs; OFC papers</td></tr>
+    <tr><td class="sig">FAU / fiber-array order intake (co-link)</td><td>Corning/Fujikura FAU backlog surges</td><td>The neighbouring packaging bottleneck (Run #19) binds first</td><td>Corning &amp; Fujikura earnings calls</td></tr>
+    <tr style="background:rgba(224,104,106,.05)"><td class="sig">Isolator-free design-wins (THE CLOCK)</td><td>A hyperscaler/vendor puts an isolator-free CPO or QD-laser link into <b>volume production</b></td><td>Disintermediation begins — <b>thesis-ending</b></td><td>OFC keynotes/proceedings; SemiAnalysis; Nature Photonics; company blogs</td></tr>
   </table>
-  </div>
-  <p class="cap"><b>How each severity is derived</b> (same 0–20 rubric, four factors each 0–5: supply concentration · lead-time · low substitutability · demand): <b>SIVE = 18</b> (5+4+4+5 — purest/tightest merchant link). <b>COHR = 16</b> (4+4+4+4 — scaled but it is also the choke-breaker, and more diversified). <b>ALMU = 11</b> (3+4+3+1 — low <i>as a current chokepoint</i> by design; it is the future escape, so "demand" today is minimal). The same scarcity logic ranks the <i>links</i>, even though COHR is the better <i>entry</i> and ALMU the better <i>optionality</i> — tightness ≠ a good buy. "Framework lean" is analysis, not advice.</p>
+</section>
 
-  <div class="panel" style="margin-top:14px;border-color:#2c5a40;background:rgba(95,201,138,.05)">
-    <div style="font-size:11px;font-weight:700;color:var(--dacr);letter-spacing:.04em;margin-bottom:6px">IF YOU CAN ONLY DO ONE THING · 一件事</div>
-    <p style="font-size:12.5px;color:var(--mut);line-height:1.55">Don't chase the pure-play after a 17× move. The disciplined read of this layer: the scarcity is real but the <b>investable</b> merchant rent is tiny, contested by Coherent's own new fab and captive integration, and mostly priced. So <b>watch the indicators</b> (merchant CW lead-times, Sivers' EBITDA turn, captive lock-ups), keep the genuinely-early names on a <b>small-size watchlist</b> (WIN Semi, isolators/PM-fiber, QD Laser, ALMU), and treat COHR as the only "own-it" — for compounding, with entry discipline, not a re-rating.</p>
-  </div>
-
-  <!-- open questions / self-critique -->
-  <div class="panel" style="margin-top:14px">
-    <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">Open questions &amp; honest holes <span class="cn" style="font-weight:400;color:var(--dim)">未解之處（非自我表揚）</span></h4>
-    <ul style="font-size:12px;color:var(--mut);line-height:1.7;margin-left:16px">
-      <li>Several load-bearing figures (merchant CW utilisation ~83%, the CPO/ELS TAM split, Sivers' pipeline) trace to <b>one detailed source</b> (a Jun-2026 third-party note) — marked est.; not independently confirmable from filings.</li>
-      <li><b>Rent capture is unproven.</b> Sivers is still EBITDA-negative; the thesis that the merchant ELS toll gets collected (vs competed away) is a forward bet, not a fact.</li>
-      <li><b>SIVE valuation/timing is the weakest part of the trade</b> — ~90× sales after +1,700% with a restatement flag; a retail buyer here is buying euphoria, and this report says so.</li>
-      <li>The "early" pick (ALMU) is <b>pre-revenue venture risk</b> and simultaneously the bear case for the whole chokepoint — an honest tension, not a clean long.</li>
-      <li>Coherent's ~60× P/E and ~$59B cap are <b>estimates</b> from run-rate EPS and an approximate share count — verify before sizing.</li>
-      <li>Retail-access friction: SIVE trades in Stockholm (no clean US line) and ALMU is thin/volatile — real frictions an amateur must weigh.</li>
-    </ul>
+<!-- 13 WATCHLIST -->
+<section id="s13">
+  <div class="sh"><span class="n">13</span><h2>Still-latent watchlist — where to be early</h2><span class="cn">潛伏候選</span></div>
+  <p class="lead">The genuinely-early candidates sit left of all three plays. None is a clean, reachable listed buy today — which is <i>why</i> they're early. Track them; a design-win or a listing is the wake-up.</p>
+  <div class="gal" style="grid-template-columns:repeat(3,1fr)">
+    <div class="card"><div class="body">
+      <h4>SiPh isolator-free disruptors <span class="badge b-emrg">early</span></h4>
+      <div class="role">QD lasers, self-injection-locked DFBs, integrated TFLN isolators, silicon-compatible nanocomposite garnet. Both the platform of the future <i>and</i> the threat to today's crystal.</div>
+      <div class="who"><b>why next:</b> whoever ships isolator-free at scale resets the whole thesis · <b>trigger:</b> OFC production design-win · <b>caveat:</b> mostly private (Quintessent, Nexus Photonics, HyperLight) / captive (Intel, Nvidia, Broadcom)</div>
+    </div></div>
+    <div class="card"><div class="body">
+      <h4>Chinese isolator / crystal pure-plays <span class="badge b-next">early-ish</span></h4>
+      <div class="role">Accelink (002281.SZ), O-Net, CASTECH (crystals) — the <i>purest listed</i> isolator/garnet exposure anywhere.</div>
+      <div class="who"><b>why next:</b> AI-datacom isolator revenue could break out · <b>trigger:</b> segment revenue acceleration · <b>caveat:</b> A-share access friction + they <i>are</i> the CN-substitution bear for the JP monopoly</div>
+    </div></div>
+    <div class="card"><div class="body">
+      <h4>PM-fiber &amp; FAU co-link <span class="badge b-now">priced</span></h4>
+      <div class="role">Fujikura (5803), Corning (GLW), Orbray (private) — the fiber + fiber-array assembly that pigtails laser + isolator + PIC (the Run #19 packaging bottleneck's cousin).</div>
+      <div class="who"><b>why next:</b> CPO fiber-count explosion · <b>trigger:</b> FAU backlog surge · <b>caveat:</b> already run hard — a monitor, not an entry</div>
+    </div></div>
   </div>
 </section>
 
-<div class="disc"><b>Not investment advice.</b> Automated personal research for a private knowledge base — idea generation only, not a recommendation or solicitation. Figures from public reporting, company filings, and third-party estimates as of 20 Jun 2026 (prices = last close 19 Jun 2026); several are single-source and marked (est.); may contain errors or become stale. Prices via IBKR read-only (never traded). Verify against primary filings and do your own due diligence.</div>
+<!-- 14 RISKS -->
+<section id="s14">
+  <div class="sh"><span class="n">14</span><h2>Risk register</h2><span class="cn">風險</span></div>
+  <div style="columns:2;column-gap:26px">
+    <div class="risk"><div class="t">Isolator-free disintermediation (the big one)</div><p>If QD/self-injection lasers reach volume before ~2028, the discrete isolator — and its garnet — start shrinking just as you'd hope to be paid. This single risk caps the asymmetry at 6/20.</p></div>
+    <div class="risk"><div class="t">Mislocated chokepoint</div><p>The neighbouring fiber-array/photonic-packaging step (Run #19) may be the tighter, more investable bottleneck. The isolator could be a co-bottleneck, not <i>the</i> one.</p></div>
+    <div class="risk"><div class="t">Not a monopoly — multi-sourced</div><p>Several firms assemble finished isolators; the crystal has a few makers. Limited pricing power caps the rent even while supply is "tight."</p></div>
+    <div class="risk"><div class="t">No clean vehicle → dilution</div><p>Every listed name touches the chokepoint only through a big, unrelated P&L. You can't isolate the exposure; you buy transceivers, batteries, or magnets to get a sliver.</p></div>
+    <div class="risk"><div class="t">Rare-earth red herring</div><p>The terbium-controls story is real for the material <i>class</i> but weak for datacom Bi:RIG specifically (TGG/high-power is the terbium-heavy grade). Don't over-connect Lynas to optics.</p></div>
+    <div class="risk"><div class="t">China substitution</div><p>Chinese crystal + isolator makers (Accelink, CASTECH) are climbing the grade curve; they could erode the Japanese premium — bear for the JP-monopoly framing, bull for CN pure-plays.</p></div>
+    <div class="risk"><div class="t">Small-TAM trap</div><p>A $0.9–1.8B finished-isolator market simply can't move a $40–50B-cap needle. Even a perfect thesis is financially immaterial to the "plays."</p></div>
+    <div class="risk"><div class="t">Estimate quality</div><p>Shares ("leader"), isolator-per-laser counts, and market sizes are aggregator/estimate-grade — directional, not precise. Treated as (est.) throughout.</p></div>
+  </div>
+</section>
+
+<!-- 15 DECISION -->
+<section id="s15">
+  <div class="sh"><span class="n">15</span><h2>Scenarios &amp; decision</h2><span class="cn">情境與決策</span></div>
+  <p class="lead">Because there's no pure vehicle, the scenario table below prices the <b>cleanest investable proxy</b> (Coherent — the one name that wins in either branch of §08), over ~12–18 months. The thin EV <i>is</i> the finding: it argues for patience and entry discipline, not conviction size.</p>
+  <table class="tbl" style="margin-bottom:16px">
+    <tr><th>Scenario (COHR proxy, 12–18m)</th><th>Prob.</th><th>What happens</th><th>Return (est.)</th></tr>
+    <tr><td><b>Bull</b></td><td class="num">25%</td><td>1.6T datacom ramp + captive InP/garnet supply security + margin mix-shift; isolator-free stays in the lab</td><td class="num" style="color:var(--dacr)">+40%</td></tr>
+    <tr><td><b>Base</b></td><td class="num">50%</td><td>Datacom grows through a cyclical wobble; isolator immaterial either way; multiple holds ~8× sales</td><td class="num">+5%</td></tr>
+    <tr><td><b>Bear</b></td><td class="num">25%</td><td>CPO-timing air-pocket + transceiver down-cycle + isolator-free headlines compress the multiple</td><td class="num" style="color:var(--choke)">−30%</td></tr>
+    <tr><td colspan="3"><b>Probability-weighted EV</b></td><td class="num" style="color:var(--dup)">≈ +5%</td></tr>
+  </table>
+  <p class="note" style="margin-bottom:16px">EV ≈ +5% is thin and is <i>not</i> an isolator bet — it's a transceiver bet with a free option on captive-garnet supply security. Entry discipline (personal view, not advice): I'd personally want to see a pullback toward the 200-day (~$240, est.) before starting, and would treat the isolator angle as an unpriced kicker, not the reason.</p>
+
+  <table class="tbl">
+    <tr><th>Name</th><th>Link</th><th>Sev /20</th><th>Stage</th><th>Valuation (est.)</th><th>Asym.</th><th>Author lean (not advice)</th></tr>
+    <tr><td><b>Coherent</b> <span class="num">COHR</span></td><td>integrated isolator+garnet+laser</td><td class="num">13</td><td>Recognition</td><td class="num">~$49B · ~8× sales</td><td class="num">6</td><td>The only investable proxy; own-it on a pullback, wins either branch</td></tr>
+    <tr><td><b>TDK/Granopt</b> <span class="num">6762</span></td><td>merchant garnet crystal ◆</td><td class="num">14</td><td>Recognition*</td><td class="num">¥6.1T (~$38B)</td><td class="num">5</td><td>Monitor/optionality — the monopoly is real but un-buyable cleanly</td></tr>
+    <tr><td><b>Lynas</b> <span class="num">LYSDY</span></td><td>rare-earth upstream</td><td class="num">10</td><td>Recognition*</td><td class="num">~$11B</td><td class="num">—</td><td><b>Not an optics play</b> — red-herring inoculation only</td></tr>
+    <tr style="background:rgba(45,212,191,.04)"><td><b>Watchlist</b></td><td>SiPh isolator-free / CN pure-plays</td><td class="num">—</td><td>Latent/Early</td><td class="num">private / A-share</td><td class="num">high</td><td>Where the real early dollar is — track, don't chase</td></tr>
+  </table>
+  <p class="note">*Recognition on an unrelated thesis (transceivers / batteries / magnets), not on the isolator. Per-link severity derived from the §08 four factors, re-scored for each link's specifics.</p>
+
+  <div class="ebox" style="border-color:#5a3236;background:linear-gradient(135deg,rgba(224,104,106,.06),transparent),var(--panel)">
+    <div class="t" style="color:var(--choke)">IF YOU CAN ONLY DO ONE THING · 一句話</div>
+    <p>Treat this as a <b>notebook entry, not a table-pounder</b>: a real, invisible, un-bid chokepoint with no clean vehicle and a live obsolescence clock. If you must touch it, do it through <b>Coherent</b> (which wins whether the discrete isolator persists or gets integrated away) with tight entry discipline — and spend most of your attention <b>watching the isolator-free clock</b> at OFC and the Chinese crystal pure-plays.</p>
+    <p style="margin-top:10px"><b style="color:#fff">Dated falsifier:</b> by OFC 2027–28, if a hyperscaler moves an isolator-free CPO/QD-laser link into <b>volume production</b>, the discrete-isolator thesis is broken — avoid/exit. Conversely, if Granopt or Coherent name garnet/isolator supply as a <b>binding constraint on transceiver output</b> on an earnings call, near-term tightness is confirmed and the crystal deserves a closer look.</p>
+  </div>
+</section>
+
+<!-- 16 SELF-CRITIQUE -->
+<section id="s16">
+  <div class="sh"><span class="n">16</span><h2>Open questions — honest self-critique</h2><span class="cn">未解問題</span></div>
+  <div class="selfq">
+    <details><summary><span class="q">Q1</span> Is the terbium/rare-earth squeeze actually relevant to <i>datacom</i> isolators?</summary><p>Only partly, and I've flagged it throughout. Datacom fiber isolators use <b>bismuth</b>-substituted iron garnet (Bi:RIG, LPE); terbium is central to <b>TGG</b> (high-power free-space), a different grade. So the Apr-2025 Tb controls squeeze the material <i>class</i> and high-power isolators more than datacom Bi:RIG. Over-connecting the two would be the report's easiest factual error — hence Lynas is explicitly the red-herring leg.</p></details>
+    <details><summary><span class="q">Q2</span> Is the isolator even the binding link, versus fiber-array/packaging?</summary><p>Genuinely unresolved. Run #19 argued photonic packaging/fiber-attach is the tighter, more investable bottleneck. The isolator may be a <i>co</i>-bottleneck. I've scored it 14/20 (below the rotation's monopolies) partly to acknowledge this.</p></details>
+    <details><summary><span class="q">Q3</span> The "plays" are all sliver-exposure proxies — so why own any?</summary><p>Retail steelman: you probably shouldn't own any of them <i>for the isolator</i>. COHR is defensible only if you like it as a transceiver/materials business anyway (the garnet is a free kicker). TDK and Lynas have no investable isolator exposure. The honest deliverable is education + a watchlist, not a buy.</p></details>
+    <details><summary><span class="q">Q4</span> How firm are the shares and counts?</summary><p>Soft. Granopt/Coherent garnet share isn't disclosed ("leader" is directional); "~1 isolator/laser, 4–8/module" is an estimate that varies by design (some ELS share isolation); market size is an aggregator range ($0.9–1.8B). All marked (est.).</p></details>
+    <details><summary><span class="q">Q5</span> What single thing would most change the conclusion?</summary><p>The isolator-free timeline. If it's 2027 (not 2029–30), the chokepoint is already fading and even COHR's garnet kicker is worthless; if it's 2032+, the tightness compounds and a Chinese pure-play could become a genuine early buy. The entire asymmetry hinges on a date nobody knows — which is why this is a watch, not a position.</p></details>
+  </div>
+</section>
 
 <footer>
-  <p><b>Sources:</b> Nexus Finance — "The Laser Nobody Sees Coming" (ELS thesis, merchant ecosystem, ~83% CW utilisation, Sivers financials, IDTechEx/Goldman TAM) · PhotonCap — "Silicon Photonics Light Source War" (Gen1–4 map, laser BOM, Sivers/QD Laser/Aeluma) · TrendForce via semiconductor-today / EE Times Asia / LEDinside (50.7M/mo EML+CW-DFB capacity, CW-DFB share, Coherent 400mW CW-DFB / 6″ InP) · Futurum / techtimes / aiweekly / optics.org (NVIDIA $4B; Coherent Sherman 6″ InP fab) · PRNewswire / semiconductor-today / barchart (GlobalFoundries × Sivers SCALE CPO, 2 Jun 2026) · SEC 8-K + StockTitan (COHR Q3 FY2026: $1.81B rev, $1.41 non-GAAP EPS, 39.6% GM, DC&amp;Comms $1.36B) · GlobeNewswire / Broadcom blog / iamfabian (Broadcom 3.2T VCSEL NPO OFC-26; Marvell-Celestial) · pratimanagement / aeluma.com (Aeluma monolithic III-V on 300mm Si) · IBKR read-only (live last-close quotes); SIVE price from Morningstar/Yahoo.</p>
-  <p style="margin-top:10px">Automated AI-Infra workflow · <b>Run #13 · v5</b> · Optics, deeper/refresh (Loop 3) — supersedes the Run #1 EML cut and the Run #7 MOCVD cut by going to the 2026 CPO/ELS architecture inflection · cross-reviewed by independent reviewer subagents (objective-fit + fact-check) · recurs every 2 days. Iteration log: v5-r1 draft → reviewer punch-list applied (rent-capture caveat surfaced, SIVE euphoria flagged, single-source figures marked est., per-link severity reconciled, SVG fonts via CSS rule, tabs keyboard-accessible + @media print).</p>
+  <p><b>Method.</b> Chokepoint deep-dive (v5): two-axis MECE → upstream→downstream map → four-factor severity /20 → variant/disaggregation → rent-capture test → awareness staging → scenario/decision. AI-Infra rotation Run #25 (Optics loop 5). Cross-checked ≥2 sources on load-bearing numbers; live quotes IBKR read-only + FMP (<b>no trade placed</b>); prices as-of 14 Jul 2026.</p>
+  <p style="margin-top:8px"><b>Sources (mapped).</b> Optical-isolator market &amp; suppliers: Cognitive/Spherical/MarkWide/imarc (aggregator, est.). Garnet material: Granopt.jp datasheet, Coherent LPE-garnet datasheet, AIP/ScienceDirect Bi:YIG-LPE. Terbium export controls: Holland &amp; Knight (Apr-2025), Pillsbury, Clark Hill, Global Policy Watch. Isolator-free: Nature s41377-026-02290-w, Nature Photonics s41566-026-01850-1, arXiv 2504.06535 &amp; 2212.01945, PMC10396957, phys.org (Jun-2026 nanocomposite garnet). CPO/ELS: APNIC (2025-05-07), Ayar Labs, OZ Optics DTS0016, USPTO 12388534. Lynas: mining.com, mining-technology, metaltechnews (2026-03-25). FAU: dataintelo, Corning OEM. Transceiver TAM: TrendForce (2026-04-20); TechTimes (2026-05-27); Digitimes (2026-05-04, paywalled). Quotes: IBKR (COHR, TDK 6762/TTDKY, LYSDY) + FMP batch.</p>
+  <p style="margin-top:8px" class="disc"><b>Compliance.</b> Personal research for a private knowledge base — <b>not investment advice</b>, not a recommendation or solicitation. The author may hold or trade any security mentioned. Estimates hedged and marked (est.); as-of 14 Jul 2026, and prices/multiples decay fast. IBKR read-only — never trade.</p>
+  <p style="margin-top:10px"><b>Iteration log.</b> v5 · Run #25 · Optics loop 5 · built 2026-07-14 · chokepoint = magneto-optic Faraday-rotator garnet crystal (Bi:RIG/TGG) · severity 14/20, remaining asymmetry ~6/20 · top-3 COHR·TDK·LYSDY (all Recognition on unrelated theses; genuine early dollar in the watchlist) · cross-review applied (see run-log entry #25).</p>
 </footer>
 
 </div>
+
 <script>
 (function(){
-  var tabs=[].slice.call(document.querySelectorAll('[role=tab]'));
-  function sel(t){
-    tabs.forEach(function(b){
-      var on=(b===t);
-      b.classList.toggle('on',on);
-      b.setAttribute('aria-selected',on?'true':'false');
-      b.tabIndex=on?0:-1;
-      var p=document.getElementById(b.getAttribute('aria-controls'));
-      if(p){ if(on){p.hidden=false;p.style.display='block';} else {p.hidden=true;p.style.display='none';} }
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+  function select(tab){
+    tabs.forEach(function(t){
+      var sel = t === tab;
+      t.setAttribute('aria-selected', sel ? 'true' : 'false');
+      t.tabIndex = sel ? 0 : -1;
+      var p = document.getElementById(t.getAttribute('aria-controls'));
+      if(p){ if(sel){ p.removeAttribute('hidden'); } else { p.setAttribute('hidden',''); } }
     });
   }
-  tabs.forEach(function(t,i){
-    t.addEventListener('click',function(){sel(t);t.focus();});
-    t.addEventListener('keydown',function(e){
-      var n=null;
-      if(e.key==='ArrowRight'||e.key==='ArrowDown') n=tabs[(i+1)%tabs.length];
-      else if(e.key==='ArrowLeft'||e.key==='ArrowUp') n=tabs[(i-1+tabs.length)%tabs.length];
-      else if(e.key==='Home') n=tabs[0];
-      else if(e.key==='End') n=tabs[tabs.length-1];
-      if(n){e.preventDefault();sel(n);n.focus();}
+  tabs.forEach(function(tab, i){
+    tab.addEventListener('click', function(){ select(tab); tab.focus(); });
+    tab.addEventListener('keydown', function(e){
+      var idx = i;
+      if(e.key === 'ArrowRight' || e.key === 'ArrowDown'){ idx = (i+1)%tabs.length; }
+      else if(e.key === 'ArrowLeft' || e.key === 'ArrowUp'){ idx = (i-1+tabs.length)%tabs.length; }
+      else if(e.key === 'Home'){ idx = 0; }
+      else if(e.key === 'End'){ idx = tabs.length-1; }
+      else { return; }
+      e.preventDefault(); select(tabs[idx]); tabs[idx].focus();
     });
   });
 })();
 </script>
+
 </body>
 </html>

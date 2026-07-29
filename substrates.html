@@ -3,49 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI-Infra Deep-Dive · Run #24 · v5 — The Substrate Plating-Chemistry Chokepoint</title>
+<title>AI Infra Run #30 v5 — Substrates/Materials · CMP Consumables (Pad + Slurry) Chokepoint</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#0b0d12; --panel:#13161e; --panel2:#1a1e28; --panel3:#212634; --line:#2a3040; --line2:#363d4f;
     --txt:#e8eaf0; --mut:#9aa3b5; --dim:#697283;
     --accent:#2dd4bf;        /* single brand accent (desaturated teal) */
-    --choke:#e0686a;         /* desaturated red */
-    --up:#5b81c4; --l3:#8b84cf; --pkg:#c47a9e; --l2:#d2a24a; --l1:#4faf8e;
-    --dup:#e0a458; --dout:#5aa9e0; --dacr:#5fc98a;
+    --choke:#e0686a;         /* desaturated red — the chokepoint */
+    /* categorical: value-chain stages */
+    --up:#5b81c4; --pad:#8b84cf; --slu:#d2a24a; --tool:#c47a9e; --fab:#4faf8e;
+    --pos:#5fc98a; --neg:#e0686a; --warn:#d2a24a;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px;-webkit-font-smoothing:antialiased}
   .num,.m{font-family:"JetBrains Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
   .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
   a{color:var(--accent);text-decoration:none}
+  /* ---- header ---- */
   header{border-bottom:1px solid var(--line);padding:38px 0 30px;margin-bottom:8px;background:
      radial-gradient(900px 320px at 12% -40%,rgba(45,212,191,.10),transparent 60%),
      radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
   .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
   .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
-  h1{font-size:32px;font-weight:700;letter-spacing:-.6px;line-height:1.12;max-width:960px}
-  .sub{font-size:15px;font-weight:400;color:var(--mut);margin-top:12px;max-width:880px}
-  .sub b{color:#fff;font-weight:500}
-  .gauges{display:flex;gap:14px;margin-top:20px;flex-wrap:wrap}
-  .gauge{border:1px solid var(--line);border-radius:12px;padding:12px 16px;background:var(--panel);min-width:230px}
-  .gauge .gl{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--dim);margin-bottom:8px}
-  .gauge .gv{font-family:"JetBrains Mono",monospace;font-size:20px;font-weight:600}
-  .gauge .track{height:7px;border-radius:4px;background:var(--panel3);margin-top:8px;overflow:hidden}
-  .gauge .fill{height:100%;border-radius:4px}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.6px;line-height:1.12;max-width:940px}
+  .sub{font-size:15px;font-weight:400;color:var(--mut);margin-top:12px;max-width:860px}
   .meta{margin-top:20px;display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
-  .meta div{padding-right:24px;margin-right:24px;border-right:1px solid var(--line);margin-bottom:6px}
+  .meta div{padding-right:26px;margin-right:26px;border-right:1px solid var(--line);margin-bottom:8px}
   .meta div:last-child{border:0}
   .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
   .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
-  .asof{margin-top:14px;font-size:11.5px;color:#c4ab78;background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:9px;padding:9px 13px;display:inline-block}
-  /* sticky toc */
-  .toc{position:sticky;top:0;z-index:20;background:rgba(11,13,18,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:9px 0;font-size:11.5px;margin-bottom:6px}
-  .toc .wrap{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
-  .toc a{color:var(--mut);padding:4px 9px;border-radius:7px;border:1px solid transparent}
-  .toc a:hover{background:var(--panel2);border-color:var(--line);color:var(--txt)}
+  .staleband{margin-top:16px;background:rgba(210,162,74,.08);border:1px solid #3a3015;border-radius:9px;padding:9px 14px;font-size:11.5px;color:#d3b578}
+  .gaugewrap{display:flex;gap:22px;flex-wrap:wrap;margin-top:18px}
+  .gauge{display:flex;align-items:center;gap:12px}
+  .gauge .lab{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);max-width:120px;line-height:1.3}
+  .gauge .val{font-size:23px;font-weight:600}
+  /* ---- sticky toc ---- */
+  nav.toc{position:sticky;top:0;z-index:20;background:rgba(11,13,18,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:9px 0;font-size:11.5px;margin-bottom:6px}
+  nav.toc .wrap{display:flex;gap:16px;flex-wrap:wrap;overflow-x:auto}
+  nav.toc a{color:var(--mut);white-space:nowrap}
+  nav.toc a:hover{color:var(--accent)}
+  /* ---- section ---- */
   section{padding:34px 0 2px}
   .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
   .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.05em}
@@ -53,6 +52,7 @@
   .sh .cn{font-size:13px;color:var(--dim);font-weight:400;margin-left:auto}
   .lead{color:var(--mut);font-size:13.5px;max-width:900px;margin-bottom:18px}
   .lead b{color:var(--txt);font-weight:600}
+  /* ---- KPI strip ---- */
   .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
   @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
   .kpi{padding:18px 20px;border-right:1px solid var(--line)}
@@ -60,17 +60,19 @@
   .kpi .v{font-size:24px;font-weight:600;letter-spacing:-.5px}
   .kpi .l{font-size:11.5px;color:var(--mut);margin-top:4px}
   .kpi .d{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.4}
-  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--slu)}.grn{color:var(--pos)}.pur{color:var(--pad)}
+  /* ---- matrix ---- */
   .matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
   .matrix th{background:var(--panel2);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);font-weight:600;padding:12px 14px;text-align:left;border-bottom:1px solid var(--line)}
-  .matrix td{padding:14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
+  .matrix td{padding:13px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
   .matrix tr:last-child td{border-bottom:0}
-  .matrix .dom{font-weight:600;font-size:14px;color:var(--txt);display:flex;align-items:center;gap:9px}
+  .matrix .dom{font-weight:600;font-size:13.5px;color:var(--txt);display:flex;align-items:center;gap:9px}
   .matrix .dom .sw{width:10px;height:10px;border-radius:3px;flex:none}
   .matrix .dom small{display:block;font-weight:400;font-size:10.5px;color:var(--dim);margin-top:2px}
   .matrix td b{color:var(--txt);font-weight:600}
   .chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--panel3);color:var(--mut);margin:2px 4px 2px 0;border:1px solid var(--line2)}
   .chip.hot{background:rgba(224,104,106,.12);border-color:#5a3236;color:#efa0a1}
+  /* ---- SVG gallery cards ---- */
   .gal{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
   @media(max-width:900px){.gal{grid-template-columns:1fr 1fr}}
   @media(max-width:560px){.gal{grid-template-columns:1fr}}
@@ -80,21 +82,22 @@
   .card h4{font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:8px}
   .card .role{font-size:12px;color:var(--mut);margin-top:6px;line-height:1.45}
   .card .who{font-size:11px;color:var(--dim);margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px}
-  .card .who b{color:var(--l3)}
+  .card .who b{color:var(--pad)}
   .badge{font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:5px;letter-spacing:.03em;flex:none}
   .b-hot{background:rgba(224,104,106,.14);color:#eda3a4}
   .b-now{background:rgba(45,212,191,.13);color:var(--accent)}
-  .b-next{background:rgba(90,169,224,.14);color:var(--dout)}
-  .b-emrg{background:rgba(210,162,74,.14);color:var(--dup)}
+  .b-next{background:rgba(90,169,224,.14);color:#8aa7df}
+  .b-emrg{background:rgba(210,162,74,.14);color:var(--slu)}
+  /* ---- wide svg ---- */
   .svgwide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
   .svgscroll{overflow-x:auto}
   .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
-  .st{border:1px solid var(--line);border-radius:11px;padding:12px 11px;background:var(--panel2)}
+  /* ---- timeline ---- */
   .tlgrid{border:1px solid var(--line);border-radius:14px;overflow:hidden}
-  .tlhead{display:grid;grid-template-columns:130px repeat(4,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
+  .tlhead{display:grid;grid-template-columns:150px repeat(4,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
   .tlhead div{padding:11px 12px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);border-right:1px solid var(--line)}
   .tlhead div:first-child{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-family:"Space Grotesk",sans-serif;display:flex;align-items:center}
-  .tlrow{display:grid;grid-template-columns:130px repeat(4,1fr);border-bottom:1px solid var(--line)}
+  .tlrow{display:grid;grid-template-columns:150px repeat(4,1fr);border-bottom:1px solid var(--line)}
   .tlrow:last-child{border-bottom:0}
   .tlrow .lab{padding:13px 12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;border-right:1px solid var(--line);background:var(--panel2)}
   .tlrow .lab .sw{width:9px;height:9px;border-radius:3px;flex:none}
@@ -102,7 +105,9 @@
   .tlrow .cell:last-child{border-right:0}
   .tlrow .cell b{color:var(--txt);font-weight:600;display:block;margin-bottom:2px;font-size:11.5px}
   .tlrow .cell.hot{background:rgba(224,104,106,.07)}
-  @media(max-width:780px){.tlhead,.tlrow{grid-template-columns:90px repeat(4,1fr);font-size:10px}.tlrow .cell{font-size:10px}}
+  .tlrow .cell.warm{background:rgba(210,162,74,.06)}
+  @media(max-width:780px){.tlhead,.tlrow{grid-template-columns:96px repeat(4,1fr);font-size:10px}.tlrow .cell{font-size:10px}}
+  /* ---- chokepoint ---- */
   .choke{border:1px solid #5a3236;border-radius:14px;padding:22px 24px;background:
     linear-gradient(135deg,rgba(224,104,106,.10),transparent 55%),var(--panel)}
   .choke .ttl{display:flex;align-items:center;gap:11px;margin-bottom:10px}
@@ -111,88 +116,70 @@
   .choke .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:18px;border-top:1px solid #4a2c2f;padding-top:16px}
   @media(max-width:780px){.choke .stats{grid-template-columns:1fr 1fr}}
   .choke .stats div{padding-right:18px}
-  .choke .stats b{display:block;font-size:20px;color:var(--choke);font-weight:600;font-family:"JetBrains Mono",monospace}
+  .choke .stats b{display:block;font-size:20px;color:var(--choke);font-weight:600}
   .choke .stats span{font-size:10.5px;color:var(--dim)}
-  .scorecard{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center}
-  @media(max-width:780px){.scorecard{grid-template-columns:1fr}}
-  .bar{margin-bottom:12px}
-  .bar .bl{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
-  .bar .bl b{color:var(--txt);font-weight:600}.bar .bl .s{font-family:"JetBrains Mono",monospace;color:var(--choke)}
-  .bar .track{height:9px;border-radius:5px;background:var(--panel3);overflow:hidden}
-  .bar .fill{height:100%;border-radius:5px;background:linear-gradient(90deg,#b5484a,#e0686a)}
-  .td{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  @media(max-width:780px){.td{grid-template-columns:1fr}}
-  .tdc{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 17px}
-  .tdc.key{border-color:#5a3236;background:linear-gradient(135deg,rgba(224,104,106,.07),transparent),var(--panel)}
-  .tdc .h{font-size:12.5px;font-weight:600;color:var(--accent);margin-bottom:7px;display:flex;align-items:baseline;gap:8px}
-  .tdc.key .h{color:var(--choke)}
-  .tdc .h .cn{color:var(--dim);font-size:10.5px;font-weight:400}
-  .tdc p{font-size:12.5px;color:var(--mut);line-height:1.5}.tdc p b{color:var(--txt)}
-  .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
-  .tbl th{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
-  .tbl td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--mut)}
-  .tbl td b{color:var(--txt)}
-  .lyr{font-family:"JetBrains Mono",monospace;font-size:10.5px;padding:1px 7px;border-radius:5px;font-weight:600}
-  .ly3{background:rgba(139,132,207,.15);color:#aaa3e6}
-  .ly2{background:rgba(210,162,74,.15);color:#e3bd76}
-  .ly1{background:rgba(79,175,142,.15);color:#7cc9ad}
-  .lyu{background:rgba(91,129,196,.15);color:#8aa7df}
-  .lyp{background:rgba(196,122,158,.15);color:#dba0bf}
+  /* ---- panels ---- */
   .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
-  .two{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   @media(max-width:780px){.two{grid-template-columns:1fr}}
-  .leg{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:2px 0 16px}
+  .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:4px 0 16px}
   .leg span{display:flex;align-items:center;gap:7px}
   .leg .sw{width:11px;height:11px;border-radius:3px}
+  /* ---- tables ---- */
+  .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  .tbl th{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .tbl td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+  .tbl td b{color:var(--txt)}
+  .tbl tr:last-child td{border-bottom:0}
+  /* ---- tabs ---- */
+  .tabbtns{display:flex;gap:6px;margin-bottom:-1px;flex-wrap:wrap}
+  .tabbtn{background:var(--panel2);border:1px solid var(--line2);border-bottom:none;border-radius:9px 9px 0 0;padding:10px 15px;color:var(--mut);font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;text-align:left;line-height:1.25}
+  .tabbtn small{display:block;font-weight:400;font-size:10px;color:var(--dim);margin-top:2px}
+  .tabbtn.on{background:var(--panel);color:var(--txt);border-color:var(--line2)}
+  .tabbtn.on small{color:var(--accent)}
+  .tabpane{border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)}
+  .stagebadge{font-size:10px;font-weight:600;padding:3px 9px;border-radius:6px}
+  .sg-early{background:rgba(95,201,138,.14);color:var(--pos)}
+  .sg-recog{background:rgba(210,162,74,.14);color:var(--slu)}
+  .sg-euph{background:rgba(224,104,106,.14);color:var(--choke)}
+  .mini{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--line);border-radius:11px;overflow:hidden;margin:14px 0}
+  @media(max-width:680px){.mini{grid-template-columns:1fr 1fr}}
+  .mini>div{padding:12px 14px;border-right:1px solid var(--line)}
+  .mini>div:last-child{border-right:0}
+  .mini .v{font-size:17px;font-weight:600;font-family:"JetBrains Mono",monospace}
+  .mini .l{font-size:10px;color:var(--dim);margin-top:3px}
+  .gap{background:rgba(45,212,191,.05);border:1px solid #1c4b46;border-radius:11px;padding:14px 16px;margin:6px 0 14px}
+  .gap .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:6px}
+  .gap p{font-size:12.5px;color:var(--mut);line-height:1.55}.gap p b{color:var(--txt)}
+  .mtd{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 12px}
+  @media(max-width:680px){.mtd{grid-template-columns:1fr}}
+  .mtc{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+  .mtc .h{font-size:11.5px;font-weight:600;color:var(--txt);margin-bottom:4px}
+  .mtc p{font-size:11.5px;color:var(--mut);line-height:1.45}.mtc p b{color:var(--txt)}
+  .bbr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:680px){.bbr{grid-template-columns:1fr}}
+  .bl,.be{border-radius:10px;padding:12px 14px;font-size:12px;color:var(--mut);line-height:1.5}
+  .bl{background:rgba(95,201,138,.06);border:1px solid #23503a}
+  .be{background:rgba(224,104,106,.06);border:1px solid #5a3236}
+  .bl b,.be b{display:block;margin-bottom:4px;font-size:10.5px;letter-spacing:.05em}
+  /* ---- disclaimer ---- */
   .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
   footer{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}
   footer b{color:var(--mut)}
-  .liw{width:100%;border-collapse:collapse;font-size:12px}
-  .liw th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
-  .liw td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
-  .liw td b{color:var(--txt)}
-  .dotR{color:var(--choke);font-weight:600}.dotA{color:var(--dup);font-weight:600}.dotG{color:var(--dacr);font-weight:600}
-  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:0}
-  .tabbtn{font-family:"Space Grotesk",sans-serif;background:var(--panel2);border:1px solid var(--line);color:var(--mut);padding:11px 16px;border-radius:10px 10px 0 0;font-size:13px;font-weight:600;cursor:pointer;border-bottom:none;display:flex;flex-direction:column;gap:2px;min-width:150px;text-align:left}
-  .tabbtn small{font-size:10px;font-weight:400;color:var(--dim)}
-  .tabbtn.on{background:var(--panel);color:var(--txt);border-color:var(--line2)}
-  .tabbtn.on small{color:var(--accent)}
-  .tabbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  .tabpane{background:var(--panel);border:1px solid var(--line2);border-radius:0 12px 12px 12px;padding:20px}
-  .stagebadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.04em}
-  .sg-early{background:rgba(95,201,138,.16);color:var(--dacr)}
-  .sg-recog{background:rgba(210,162,74,.16);color:var(--dup)}
-  .sg-eu{background:rgba(224,104,106,.16);color:var(--choke)}
-  .mini{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
-  @media(max-width:780px){.mini{grid-template-columns:1fr 1fr 1fr}}
-  .mini div{padding:11px 13px;border-right:1px solid var(--line)}
-  .mini div:last-child{border-right:0}
-  .mini .v{font-family:"JetBrains Mono",monospace;font-size:16px;font-weight:600}
-  .mini .l{font-size:10px;color:var(--mut);margin-top:2px}
-  .gap{border-left:3px solid var(--accent);background:rgba(45,212,191,.06);border-radius:8px;padding:12px 15px;margin:14px 0}
-  .gap .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:5px}
-  .gap p{font-size:12.5px;color:var(--mut);line-height:1.5}.gap p b{color:var(--txt)}
-  .mtd{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
-  @media(max-width:780px){.mtd{grid-template-columns:1fr}}
-  .mtc{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
-  .mtc .h{font-size:11.5px;font-weight:600;color:var(--accent);margin-bottom:3px}
-  .mtc p{font-size:11.5px;color:var(--mut);line-height:1.45}.mtc p b{color:var(--txt)}
-  .bbr{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
-  .bbr div{border-radius:8px;padding:9px 12px;font-size:11.5px;line-height:1.45;color:var(--mut)}
-  .bbr .bl2{border-left:3px solid var(--dacr);background:var(--panel2)}
-  .bbr .be{border-left:3px solid var(--choke);background:var(--panel2)}
-  .bbr b{display:block;font-size:10.5px;margin-bottom:2px}
-  .infobox{border:1px solid var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px;background:var(--panel)}
-  .infobox .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px}
-  .infobox p{font-size:13px;color:var(--mut);line-height:1.6;max-width:940px}.infobox p b{color:var(--txt)}
+  /* ---- SVG font rules (CSS, NOT presentation attrs) ---- */
   svg text{font-family:"Space Grotesk",sans-serif}
   svg text.m{font-family:"JetBrains Mono",monospace}
-  .svglabel{font-size:9px;fill:var(--dim)}
+  .svglabel{font-family:"JetBrains Mono",monospace;font-size:9px;fill:var(--dim)}
+  @media(max-width:820px){.mapsvg{min-width:1040px}.tlsvg{min-width:900px}.awsvg{min-width:900px}}
+  /* ---- print ---- */
   @media print{
-    .toc{display:none}
-    .tabs{display:none}
-    .tabpane{display:block!important;border-radius:12px;margin-bottom:12px}
-    svg text{fill:#111}
+    body{background:#fff;color:#111}
+    nav.toc{display:none}
+    .tabbtns{display:none}
+    .tabpane[hidden]{display:block!important}
+    .tabpane{page-break-inside:avoid;margin-bottom:10px}
+    svg text{fill:#222}
+    .panel,.card,.kpis,.matrix,.tlgrid,.choke{border-color:#bbb}
   }
 </style>
 </head>
@@ -200,46 +187,26 @@
 
 <header>
   <div class="wrap">
-    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #24 · v5 · Substrates loop 4</div>
-    <h1>The Substrate Plating-Chemistry Chokepoint — the razor that turns bare film into fine-line copper</h1>
-    <p class="sub">Everyone bids the ABF <b>material</b> (Ajinomoto) and the ABF <b>fab</b> (Ibiden). Between them sits a quieter link the crowd doesn't price as an "AI stock": the <b>metallization / plating chemistry</b> that plates every microvia and every fine line inside the substrate. It's a co-qualified consumable — and its cleanest listed vehicle is the <b>laggard</b> of the group. This report maps the whole substrate-fab line, finds the binding link, scores it, and stages the plays so you can see what's still early versus already priced.</p>
-    <div class="gauges">
-      <div class="gauge">
-        <div class="gl">Chokepoint severity (plating chemistry)</div>
-        <div class="gv red">15<span style="color:var(--dim);font-size:13px"> / 20</span></div>
-        <div class="track"><div class="fill" style="width:75%;background:linear-gradient(90deg,#b5484a,#e0686a)"></div></div>
-      </div>
-      <div class="gauge">
-        <div class="gl">Remaining asymmetry (how much left to earn)</div>
-        <div class="gv amb">~7<span style="color:var(--dim);font-size:13px"> / 20</span></div>
-        <div class="track"><div class="fill" style="width:35%;background:linear-gradient(90deg,#8a6a2e,#e0a458)"></div></div>
-      </div>
+    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #30 · Substrates &amp; Materials · Loop 5 · v5</div>
+    <h1>The polish beneath every chip — CMP pads &amp; slurry, and whether you're still early</h1>
+    <p class="sub">Every advanced chip is planarized <b style="color:#fff">30-plus times</b> by two humble consumables — a polishing <b style="color:#fff">pad</b> and an abrasive <b style="color:#fff">slurry</b>. Hybrid bonding can't happen without them. This is the razor-blade layer one cut <i>below</i> "advanced packaging": who owns the scarce link, and is the shortage still a secret (early) or already in the price (late).</p>
+    <div class="gaugewrap">
+      <div class="gauge"><svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" fill="none" stroke="#242a38" stroke-width="6"/><circle cx="26" cy="26" r="22" fill="none" stroke="#e0686a" stroke-width="6" stroke-dasharray="138.2" stroke-dashoffset="27.6" stroke-linecap="round" transform="rotate(-90 26 26)"/><text class="m" x="26" y="30" text-anchor="middle" font-size="13" fill="#e8eaf0" font-weight="600">16</text></svg><div class="lab">Chokepoint severity<br><b style="color:#e8eaf0" class="m">16 / 20</b></div></div>
+      <div class="gauge"><svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" fill="none" stroke="#242a38" stroke-width="6"/><circle cx="26" cy="26" r="22" fill="none" stroke="#d2a24a" stroke-width="6" stroke-dasharray="138.2" stroke-dashoffset="96.7" stroke-linecap="round" transform="rotate(-90 26 26)"/><text class="m" x="26" y="30" text-anchor="middle" font-size="13" fill="#e8eaf0" font-weight="600">6</text></svg><div class="lab">Remaining asymmetry<br><b style="color:#e8eaf0" class="m">~6 / 20</b> · mostly priced</div></div>
+      <div class="gauge"><div class="lab" style="max-width:230px">Top-3 · <b style="color:#e8eaf0">Q</b> (pad · own-it) · <b style="color:#e8eaf0">ENTG</b> (slurry gate) · <b style="color:#e8eaf0">5384</b> (slurry · euphoria) — all already ran</div></div>
     </div>
     <div class="meta">
-      <div><div class="k">Date</div><div class="vv m">12 Jul 2026</div></div>
-      <div><div class="k">Fab path</div><div class="vv">material → drill → <b style="color:#fff">plate (choke)</b> → image → build-up → package</div></div>
-      <div><div class="k">Universe</div><div class="vv">Global · JP / US / TW</div></div>
-      <div><div class="k">Top-3</div><div class="vv m">JCU · MKSI · 4062</div></div>
-      <div><div class="k">Prices</div><div class="vv">IBKR read-only · never trade</div></div>
+      <div><div class="k">Date</div><div class="vv m">26 Jul 2026</div></div>
+      <div><div class="k">Chain path</div><div class="vv">resin/abrasive → <b style="color:#eda3a4">pad+slurry</b> → CMP tool → fab → hybrid-bond → chip</div></div>
+      <div><div class="k">Universe</div><div class="vv">Global · US / JP / KR / CN</div></div>
+      <div><div class="k">Prices</div><div class="vv">IBKR read-only · last close</div></div>
     </div>
-    <div class="asof">AS OF ~10 Jul 2026 close. Prices &amp; multiples decay fast — treat every number as a snapshot. Personal research, <b>not</b> investment advice.</div>
+    <div class="staleband"><b>As-of 26 Jul 2026.</b> Prices are IBKR read-only last-session closes (US market closed Sun); multiples decay fast — re-check before acting. Personal research for a private knowledge base — <b>not investment advice</b>.</div>
   </div>
 </header>
 
 <nav class="toc"><div class="wrap">
-  <a href="#s1">01 Snapshot</a>
-  <a href="#s2">02 Framework</a>
-  <a href="#s3">03 Process gallery</a>
-  <a href="#s4">04 L3→L1 build-up</a>
-  <a href="#s5">05 Where it runs</a>
-  <a href="#s6">06 Supply chain</a>
-  <a href="#s7">07 Timeline</a>
-  <a href="#s8">08 Chokepoint + severity</a>
-  <a href="#s9">09 Variant</a>
-  <a href="#s10">10 Awareness + watchlist</a>
-  <a href="#s11">11 The plays</a>
-  <a href="#s12">12 Decision</a>
-  <a href="#s13">13 Open questions</a>
+  <a href="#s1">01 Snapshot</a><a href="#s2">02 Framework</a><a href="#s3">03 Components</a><a href="#s4">04 Assembly</a><a href="#s5">05 Deployment</a><a href="#s6">06 Supply chain</a><a href="#s7">07 Severity</a><a href="#s8">08 Variant</a><a href="#s9">09 Timeline</a><a href="#s10">10 Plays</a><a href="#s11">11 Awareness</a><a href="#s12">12 Indicators</a><a href="#s13">13 Risks</a><a href="#s14">14 Decision</a><a href="#s15">15 Open Qs</a>
 </div></nav>
 
 <div class="wrap">
@@ -247,795 +214,781 @@
 <!-- 1. SNAPSHOT -->
 <section id="s1">
   <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">為什麼是現在</span></div>
-  <p class="lead">An AI package substrate is a stack of <b>build-up layers</b>: thin sheets of Ajinomoto film, each drilled with tens of thousands of tiny holes (microvias), then <b>plated with copper</b> to wire the layers together and etched into hair-fine circuits. As GPUs grow (Blackwell &gt;2× Hopper substrate area; <b>Rubin package-substrate area ~+75%</b> again, est., single-source) and lines shrink (mSAP <b>15µm→&lt;10µm</b> on FC-BGA; fan-out RDL to <b>2µm</b> on a different, finer package class — see §2), the number of plating steps and their difficulty rise <b>faster</b> than the substrate count. The scarce, sticky link is the <b>plating chemistry</b> that makes those steps yield.</p>
+  <p class="lead">The AI story everyone trades is packaging — CoWoS, HBM, <b>hybrid bonding</b>. But every one of those stacks is built by depositing a layer, then <b>polishing it flat to the nanometre</b>, over and over. That polishing step (<b>CMP</b>) is done by two consumables that wear out and must be re-bought every wafer: the <b>pad</b> and the <b>slurry</b>. As chips add layers and go 3D, the number of polish steps compounds — and one company quietly owns most of the pads.</p>
   <div class="kpis">
-    <div class="kpi"><div class="v num teal">~50–60%</div><div class="l">Top-5 share of the electroless-Cu chemistry market</div><div class="d">Oligopoly not monopoly — Atotech/MKS, MacDermid, JCU, Uyemura, Dow (IndexBox est.)</div></div>
-    <div class="kpi"><div class="v num amb">$1.2–1.6B</div><div class="l">APAC electroless-Cu chemistry TAM, 2026</div><div class="d">~5.5–7% CAGR → ~$2.0–2.7B by 2035 (IndexBox est.)</div></div>
-    <div class="kpi"><div class="v num red">2µm / 2µm</div><div class="l">Fan-out RDL line/space target</div><div class="d">from mSAP ~15µm today — each shrink is more chemistry-intensive</div></div>
-    <div class="kpi"><div class="v num grn">+44% vs +202%</div><div class="l">JCU YTD vs Ibiden YTD</div><div class="d">the purest chemistry vehicle is the group laggard (IBKR, ~10-Jul)</div></div>
+    <div class="kpi"><div class="v num teal">~30+</div><div class="l">critical CMP steps at the 2nm leading edge</div><div class="d">vs ~15–20 mature; total polish touch-points run higher; +30–50% per node (est.)</div></div>
+    <div class="kpi"><div class="v num red">&gt;50%</div><div class="l">Qnity share of CMP pads</div><div class="d">~60%+ at leading edge (est.); top-3 pad makers ~70–82%</div></div>
+    <div class="kpi"><div class="v num pur">&lt;0.3nm</div><div class="l">Surface roughness hybrid bonding needs</div><div class="d">Cu/dielectric coplanar within 1–2 nm — CMP is the enabling step</div></div>
+    <div class="kpi"><div class="v num grn">~$4–6B</div><div class="l">CMP consumables TAM (est.)</div><div class="d">pad + slurry combined; ~7–8% CAGR, accelerating with 3D/packaging</div></div>
   </div>
 
-  <div class="infobox">
-    <div class="h">EXPLAIN IT SIMPLY · 白話版</div>
-    <p>A chip's "substrate" is the fancy circuit board it sits on — and it's built by <b>gluing on thin plastic film, drilling tiny holes, and then growing copper into those holes and into hair-thin wires</b>. Growing that copper needs special <b>chemical baths</b> (the "plating chemistry"). Think of it as the secret sauce that lets the copper fill perfectly without voids or shorts. The finer the wires get (and AI chips need them very fine), the harder the sauce is to make — and only a handful of firms know the recipe, which they must <b>re-certify with each customer over a year or two</b>, so nobody switches. That certified recipe is the <b>chokepoint</b>. The market is busy buying the film maker (Ajinomoto) and the board maker (Ibiden, up ~200% this year). This report asks the quieter question: <b>who owns the copper-growing chemistry — and is that link still cheap (early) or already expensive (late)?</b> Short answer: the cleanest pure-play (<b>JCU</b>) is up ~44% YTD while the board maker is up ~200% — the scarce recipe sits in the cheaper stock. Honest caveat: JCU is <i>not</i> undiscovered (it's ~+120% over 12 months and a handful of specialist bulls have begun writing it up), so the edge here is <b>relative value versus the priced fab</b>, not virgin discovery.</p>
+  <div style="border:1px solid var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px;background:var(--panel)">
+    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px">EXPLAIN IT SIMPLY · 白話版</div>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6;max-width:940px">A chip is built like a skyscraper — floor by floor. Before you can lay the next floor, the current one has to be sanded perfectly flat. That "sanding" is <b style="color:var(--txt)">CMP</b> (chemical-mechanical planarization): a spinning <b style="color:var(--txt)">pad</b> presses the wafer while a liquid <b style="color:var(--txt)">slurry</b> (tiny abrasive grains + chemistry) grinds it smooth. Modern chips get sanded <b style="color:var(--txt)">30-plus times</b>, and the new "hybrid bonding" that glues chiplets together needs the surface flat to <b style="color:var(--txt)">under a nanometre</b> — impossible without perfect CMP. Pads and slurry wear out, so fabs buy them again and again (a "razor-and-blades" business). The catch: one company — <b style="color:var(--txt)">Qnity</b> (spun out of DuPont) — makes most of the <b style="color:var(--txt)">pads</b>. That's the chokepoint. The question this report answers: who owns it, is the pad safer than the slurry, and — since all the obvious stocks already jumped 60–70% this year — <b style="color:var(--txt)">is there any early money left?</b></p>
   </div>
 </section>
 
 <!-- 2. FRAMEWORK -->
 <section id="s2">
   <div class="sh"><span class="n">02</span><h2>The framework — two orthogonal axes</h2><span class="cn">MECE 框架</span></div>
-  <p class="lead">Every step in substrate-making lives at one <b>(package type × process layer)</b> coordinate. The <b>package type</b> answers <i>what</i> is being built (FC-BGA / high-density RDL / panel fan-out); the <b>process layer</b> answers <i>which</i> physical step it is (material → drill → <b>plate</b> → image → build-up). The chokepoint sits at one cell: the <b>plating</b> step, across <i>all three</i> package types.</p>
+  <p class="lead">CMP happens at many points in chipmaking. The MECE view: rows = <b>where</b> in the flow the polish happens (front-end transistors → interconnect → packaging → memory), columns = <b>what</b> is polished, <b>what wears out</b>, and <b>who wins</b>. The chokepoint isn't any single row — it's the <b>consumable that cuts across every row</b>: the pad (and, more contested, the slurry).</p>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
     <div class="panel" style="padding:14px 16px">
-      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">THE PROCESS STACK · 分層 (read this first)</div>
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">THE LAYER KEY · 分層 (read this first)</div>
       <div style="font-size:12px;color:var(--mut);line-height:1.9">
-        <span class="lyr lyu">UP</span> raw <b>materials</b> — ABF film, glass cloth, copper foil (Run #6 / #18) &nbsp;·&nbsp;
-        <span class="lyr ly3">L3</span> the <b>fab process</b> that patterns copper: drill → plate → image &nbsp;·&nbsp;
-        <span class="lyr ly2">L2</span> the finished <b>substrate</b> (build-up on a core) &nbsp;·&nbsp;
-        <span class="lyr ly1">L1</span> the <b>package</b> (CoWoS + the chip) that buys it.
+        <b style="color:var(--up)">UP</b> raw inputs: polyurethane (pad) + ceria/silica abrasive &amp; chemistry (slurry) &nbsp;·&nbsp;
+        <b style="color:var(--pad)">L3</b> the <b>consumable</b> — the pad &amp; slurry themselves (the chokepoint) &nbsp;·&nbsp;
+        <b style="color:var(--tool)">L2</b> the CMP <b>tool</b> that spins them (AMAT/Ebara) &nbsp;·&nbsp;
+        <b style="color:var(--fab)">L1</b> the <b>fab</b> that runs the step 30-40× per chip.
       </div>
-      <div style="font-size:11px;color:var(--dim);margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px">This report zooms into <b style="color:#efa0a1">L3 · plating</b> — one cut over the materials, inside the fab.</div>
     </div>
     <div class="panel" style="padding:14px 16px">
-      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">GLOSSARY · 名詞</div>
-      <div style="font-size:11.5px;color:var(--mut);line-height:1.75">
-        <b>SAP / mSAP</b> semi-additive process — plate copper up, then flash-etch (makes fine lines) · <b>Electroless Cu</b> a chemical (no electricity) copper seed layer · <b>Via-fill</b> filling a drilled hole with void-free copper · <b>RDL</b> re-distribution layer, the fine wiring · <b>ABF</b> Ajinomoto build-up film, the dielectric · <b>FOPLP</b> fan-out panel-level packaging (rectangular panels, not wafers) · <b>CoWoS</b> chip-on-wafer-on-substrate, the advanced package · <b>OSAT</b> outsourced assembly/test house
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">6-TERM GLOSSARY · 名詞</div>
+      <div style="font-size:11.5px;color:var(--mut);line-height:1.7">
+        <b>CMP</b> polishing a wafer layer flat · <b>Pad</b> grooved polyurethane disc that does the rubbing · <b>Slurry</b> abrasive+chemistry liquid · <b>FEOL/BEOL</b> front-end (transistors) / back-end (wiring) · <b>Hybrid bonding</b> gluing chiplets by direct Cu-to-Cu contact · <b>Co-qual</b> the 12–24-mo certification that locks a consumable into a fab
       </div>
     </div>
   </div>
   <table class="matrix">
     <tr>
-      <th style="width:180px">Package type (what)</th>
-      <th style="width:120px">Fine-line need</th>
-      <th>Where the plating chemistry binds</th>
-      <th style="width:220px">Who builds it · key fabs</th>
+      <th style="width:180px">Where CMP runs (use-case)</th>
+      <th style="width:190px">What's polished / what wears</th>
+      <th>Why it's growing</th>
+      <th style="width:210px">Who wins · key players</th>
     </tr>
     <tr>
-      <td><div class="dom"><span class="sw" style="background:var(--dup)"></span>FC-BGA substrate<small>CPU / GPU / ASIC packages</small></div></td>
-      <td>10–15µm L/S</td>
-      <td><b>The volume engine today.</b> 10–20+ build-up layers, each drilled &amp; via-filled; larger dies = more area to plate. <span class="chip hot">via-fill Cu pinch</span></td>
-      <td>Ibiden, Shinko, Unimicron, AT&amp;S, Nan Ya</td>
+      <td><div class="dom"><span class="sw" style="background:var(--up)"></span>FEOL — transistors<small>STI, poly, gate</small></div></td>
+      <td>Oxide &amp; silicon; <b>silica/ceria slurry</b> + hard pad</td>
+      <td>GAA/2nm adds STI &amp; channel polish steps; tightest defect specs</td>
+      <td><b>Fujimi</b> (~60% FEOL slurry), Qnity pads, Entegris</td>
     </tr>
     <tr>
-      <td><div class="dom"><span class="sw" style="background:var(--dout)"></span>High-density RDL<small>2.3D / chiplet interposers</small></div></td>
-      <td>2–10µm L/S</td>
-      <td><b>The fine-line frontier.</b> Semi-additive RDL on ABF/organic; every shrink raises electroless-seed + pattern-plate difficulty. <span class="chip hot">SAP chemistry-limited</span></td>
-      <td>TSMC (CoWoS-R/L), ASE, Amkor, Ibiden</td>
+      <td><div class="dom"><span class="sw" style="background:var(--pad)"></span>MOL/BEOL — wiring<small>W plug, Cu damascene</small></div></td>
+      <td>Tungsten &amp; copper + barrier; <b>W/Cu slurry</b>, soft+hard pads</td>
+      <td>More metal layers each node; new Co/Ru/Mo metals need new slurry</td>
+      <td>Entegris (Cu/W slurry #1), <b>Qnity pads</b>, Merck</td>
     </tr>
     <tr>
-      <td><div class="dom"><span class="sw" style="background:var(--dacr)"></span>Panel fan-out (FOPLP)<small>2027+ rectangular panels</small></div></td>
-      <td>2–8µm L/S</td>
-      <td><b>The new format.</b> More RDL area per panel → <i>more</i> plating even as it disrupts wafer OSATs. <span class="chip">chemistry wins either way</span></td>
-      <td>Samsung, Amkor, ASE, SEMCO, Innolux</td>
+      <td><div class="dom"><span class="sw" style="background:var(--choke)"></span>Advanced packaging<small>hybrid bonding, RDL</small></div></td>
+      <td>Cu pad + dielectric to <b>&lt;0.3nm Ra</b>; specialty slurry + pad</td>
+      <td><span class="chip hot">the AI accelerator</span> hybrid bonding ~2/3 of adv-pkg slurry (est.); SoIC/HBM4</td>
+      <td>Entegris, Qnity, Fujimi — co-qual per bond recipe</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--fab)"></span>Memory<small>3D-NAND, HBM/TSV</small></div></td>
+      <td>Oxide/W staircase; TSV reveal; <b>SK Hynix pad LTA</b></td>
+      <td>200+ layer NAND + HBM stacks add 10–15% more CMP steps</td>
+      <td>Qnity (SK Hynix pact), Entegris, Fujimi, <b>Anji</b> (CN)</td>
     </tr>
   </table>
-  <p class="cap">The plating chemistry is the one input that binds across all three package types — and panel fan-out, often framed as a threat to wafer OSATs, actually <i>adds</i> plating demand. One scarce link, three demand pools.</p>
+  <p class="cap">Read the matrix top-down: the <i>slurry</i> winner changes by row (Fujimi front-end, Entegris metal, Anji rising in China) — but the <i>pad</i> winner (Qnity) is the same in every row. That invariance is the first clue to where the durable rent sits.</p>
 </section>
 
-<!-- 3. PROCESS GALLERY -->
+<!-- 3. COMPONENT GALLERY -->
 <section id="s3">
-  <div class="sh"><span class="n">03</span><h2>Layer 3 — the fab process, illustrated</h2><span class="cn">製程元件</span></div>
-  <p class="lead">How a bare sheet of ABF film becomes a wired build-up layer, in four steps. Two of the four are <b>chemistry</b> steps — and that is exactly where the bottleneck lives.</p>
+  <div class="sh"><span class="n">03</span><h2>The four pieces of a CMP step, illustrated</h2><span class="cn">CMP 元件</span></div>
+  <p class="lead">A polish step needs four things. Only <b>two</b> of them wear out and get re-bought every wafer (pad, slurry) — and of those, the <b>pad</b> is the hardest to second-source. The tool is a one-time capex; the fab is the buyer.</p>
   <div class="gal">
-    <!-- laser via-drill -->
+    <!-- PAD -->
     <div class="card">
       <div class="svgbox">
         <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
-          <rect x="18" y="60" width="164" height="30" rx="3" fill="#1c2030" stroke="#3a3f55"/>
-          <text x="20" y="54" class="svglabel m">ABF dielectric</text>
-          <!-- laser beam -->
-          <line x1="70" y1="14" x2="70" y2="60" stroke="#e0a458" stroke-width="2"/>
-          <polygon points="70,62 66,54 74,54" fill="#e0a458"/>
-          <line x1="120" y1="14" x2="120" y2="60" stroke="#e0a458" stroke-width="2"/>
-          <polygon points="120,62 116,54 124,54" fill="#e0a458"/>
-          <!-- drilled holes -->
-          <path d="M66,60 L74,60 L72,88 L68,88 Z" fill="#0b0d12" stroke="#5a6377"/>
-          <path d="M116,60 L124,60 L122,88 L118,88 Z" fill="#0b0d12" stroke="#5a6377"/>
-          <text x="94" y="26" text-anchor="middle" font-size="8" fill="#e0a458">CO₂ / UV laser</text>
-          <text x="20" y="104" class="svglabel">microvias drilled through the film</text>
+          <ellipse cx="100" cy="70" rx="80" ry="26" fill="#241f36" stroke="#8b84cf"/>
+          <ellipse cx="100" cy="66" rx="80" ry="26" fill="#2a2440" stroke="#8b84cf"/>
+          <g stroke="#5a4f86" stroke-width="1" fill="none" opacity="0.9">
+            <ellipse cx="100" cy="66" rx="60" ry="19"/><ellipse cx="100" cy="66" rx="40" ry="12.5"/><ellipse cx="100" cy="66" rx="20" ry="6"/>
+          </g>
+          <circle cx="100" cy="40" r="16" fill="#3a3550" stroke="#9a92d6"/>
+          <text x="100" y="43" text-anchor="middle" font-size="8" fill="#cfc9f2">wafer</text>
+          <text x="20" y="20" class="svglabel">grooved polyurethane pad</text>
+          <text x="100" y="104" text-anchor="middle" font-size="7.5" fill="#9aa3b5">grooves carry slurry · wears out in hours</text>
         </svg>
       </div>
       <div class="body">
-        <h4>1 · Laser via-drill <span class="badge b-emrg">CO-BIND</span></h4>
-        <p class="role">A CO₂/UV laser burns tens of thousands of microvias through each ABF layer. Throughput-limited: finer, denser vias need slower, more precise drilling.</p>
-        <p class="who">Tools: <b>Hitachi High-Tech · Mitsubishi · Via Mechanics · MKS/ESI</b></p>
+        <h4>Polishing PAD <span class="badge b-hot">CHOKEPOINT</span></h4>
+        <p class="role">A grooved polyurethane disc pressed on the wafer. The groove pattern + hardness are IP, co-qualified per fab/node for 12–24 months, then sticky for ~a decade. Hardest link to switch.</p>
+        <p class="who">Makers: <b>Qnity (&gt;50%)</b> · Fujibo · JSR</p>
       </div>
     </div>
-    <!-- electroless Cu seed -->
+    <!-- SLURRY -->
     <div class="card">
       <div class="svgbox">
         <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
-          <rect x="18" y="52" width="164" height="34" rx="3" fill="#1c2030" stroke="#3a3f55"/>
-          <path d="M64,52 L76,52 L74,84 L66,84 Z" fill="#0b0d12" stroke="#5a6377"/>
-          <path d="M120,52 L132,52 L130,84 L122,84 Z" fill="#0b0d12" stroke="#5a6377"/>
-          <!-- thin seed coating (red = choke) -->
-          <path d="M18,52 h164 v3 h-164 z" fill="#e0686a"/>
-          <path d="M64,52 L76,52 L74,84 L66,84 Z" fill="none" stroke="#e0686a" stroke-width="1.5"/>
-          <path d="M120,52 L132,52 L130,84 L122,84 Z" fill="none" stroke="#e0686a" stroke-width="1.5"/>
-          <text x="100" y="34" text-anchor="middle" font-size="8" fill="#eda3a4">chemical bath (no current)</text>
-          <text x="100" y="46" text-anchor="middle" class="svglabel m" fill="#eda3a4">deposits thin Cu seed</text>
-          <text x="20" y="104" class="svglabel">conductive seed on film + hole walls</text>
+          <path d="M40 40 h120 v8 l-14 44 a10 8 0 0 1 -8 6 h-68 a10 8 0 0 1 -8 -6 l-14 -44 z" fill="#2c2712" stroke="#d2a24a"/>
+          <path d="M52 66 h96 l-9 32 a8 6 0 0 1 -7 5 h-64 a8 6 0 0 1 -7 -5 z" fill="#3a3216"/>
+          <g fill="#e3bd76"><circle cx="72" cy="80" r="3"/><circle cx="92" cy="88" r="2.4"/><circle cx="112" cy="78" r="3.2"/><circle cx="128" cy="90" r="2.2"/><circle cx="100" cy="96" r="2.6"/><circle cx="84" cy="94" r="2"/></g>
+          <text x="20" y="22" class="svglabel">abrasive + chemistry</text>
+          <text x="100" y="34" text-anchor="middle" font-size="7.5" fill="#e3bd76">nano ceria / silica grains</text>
         </svg>
       </div>
       <div class="body">
-        <h4>2 · Electroless-Cu seed <span class="badge b-hot">CHOKEPOINT</span></h4>
-        <p class="role">A catalytic chemical bath grows a thin, uniform copper seed on the (non-conductive) film and hole walls — the foundation everything else plates onto. Deeply co-qualified; failure = shorts/opens.</p>
-        <p class="who">Chem: <b>Atotech/MKS · MacDermid · JCU · Uyemura · Dow</b></p>
+        <h4>SLURRY <span class="badge b-emrg">CO-BINDING</span></h4>
+        <p class="role">Nanoparticle abrasive (ceria/colloidal silica) + reactive chemistry, tuned per material (oxide, W, Cu, Co/Ru). More contested than pads — several qualified makers + a rising Chinese one.</p>
+        <p class="who">Makers: <b>Entegris (~23%)</b> · Fujimi · Merck · Anji</p>
       </div>
     </div>
-    <!-- dry film + DI -->
+    <!-- TOOL -->
     <div class="card">
       <div class="svgbox">
         <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
-          <rect x="18" y="62" width="164" height="24" rx="3" fill="#1c2030" stroke="#3a3f55"/>
-          <rect x="18" y="55" width="164" height="7" fill="#e0686a" opacity="0.5"/>
-          <!-- resist blocks -->
-          <rect x="30" y="42" width="20" height="13" fill="#5aa9e0" opacity="0.7"/>
-          <rect x="78" y="42" width="20" height="13" fill="#5aa9e0" opacity="0.7"/>
-          <rect x="126" y="42" width="20" height="13" fill="#5aa9e0" opacity="0.7"/>
-          <!-- imaging beam -->
-          <line x1="62" y1="20" x2="62" y2="40" stroke="#2dd4bf" stroke-width="1.5"/>
-          <line x1="110" y1="20" x2="110" y2="40" stroke="#2dd4bf" stroke-width="1.5"/>
-          <text x="100" y="16" text-anchor="middle" font-size="8" fill="#2dd4bf">direct imaging (laser)</text>
-          <text x="20" y="104" class="svglabel">dry-film resist opens the channels</text>
+          <rect x="24" y="70" width="152" height="14" rx="3" fill="#241b28" stroke="#c47a9e"/>
+          <ellipse cx="100" cy="70" rx="62" ry="12" fill="#2e2333" stroke="#c47a9e"/>
+          <rect x="70" y="40" width="60" height="16" rx="4" fill="#3a2b40" stroke="#d79bbd"/>
+          <text x="100" y="52" text-anchor="middle" font-size="7.5" fill="#e6b9d3">carrier head</text>
+          <line x1="100" y1="56" x2="100" y2="70" stroke="#d79bbd" stroke-width="2"/>
+          <circle cx="150" cy="66" r="8" fill="#3a2b40" stroke="#d79bbd"/>
+          <text x="150" y="55" text-anchor="middle" font-size="6.5" fill="#d79bbd">conditioner</text>
+          <text x="20" y="22" class="svglabel">CMP polisher (capex)</text>
+          <text x="100" y="102" text-anchor="middle" font-size="7.5" fill="#9aa3b5">bought once · not a recurring razor</text>
         </svg>
       </div>
       <div class="body">
-        <h4>3 · Dry-film + direct imaging</h4>
-        <p class="role">A photoresist film is laminated, then a maskless laser writes the circuit pattern, opening channels where copper will grow. Finer L/S needs finer resist + higher-resolution imagers.</p>
-        <p class="who">SCREEN · Adtec · Orbotech/KLA · resist: Asahi Kasei · Resonac</p>
+        <h4>CMP TOOL <span class="badge b-next">MACHINE</span></h4>
+        <p class="role">The polisher itself — spins the pad, feeds slurry, re-textures the pad ("conditioning"). Concentrated (AMAT ~70%) but it's <i>capex</i>, not a per-wafer razor, so it captures a secondary, not the peak, rent.</p>
+        <p class="who">Makers: <b>Applied Materials</b> · Ebara</p>
       </div>
     </div>
-    <!-- via-fill + SAP pattern plate -->
+    <!-- HYBRID BOND OUTPUT -->
     <div class="card">
       <div class="svgbox">
         <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
-          <rect x="18" y="60" width="164" height="26" rx="3" fill="#1c2030" stroke="#3a3f55"/>
-          <!-- filled vias -->
-          <path d="M50,60 L62,60 L60,84 L52,84 Z" fill="#e0686a"/>
-          <path d="M128,60 L140,60 L138,84 L130,84 Z" fill="#e0686a"/>
-          <!-- plated lines up -->
-          <rect x="46" y="46" width="20" height="14" fill="#e0686a"/>
-          <rect x="94" y="46" width="20" height="14" fill="#e0686a"/>
-          <rect x="124" y="46" width="20" height="14" fill="#e0686a"/>
-          <text x="100" y="30" text-anchor="middle" font-size="8" fill="#eda3a4">electrolytic bath fills + builds up</text>
-          <text x="100" y="42" text-anchor="middle" class="svglabel m" fill="#eda3a4">void-free via-fill + fine lines</text>
-          <text x="20" y="104" class="svglabel">then flash-etch the seed → SAP lines</text>
+          <rect x="24" y="30" width="152" height="24" rx="3" fill="#12261e" stroke="#4faf8e"/>
+          <rect x="24" y="58" width="152" height="24" rx="3" fill="#12261e" stroke="#4faf8e"/>
+          <g fill="#7cc9ad"><rect x="52" y="50" width="10" height="8"/><rect x="94" y="50" width="10" height="8"/><rect x="136" y="50" width="10" height="8"/></g>
+          <line x1="24" y1="54" x2="176" y2="54" stroke="#2dd4bf" stroke-width="1" stroke-dasharray="2 2"/>
+          <text x="100" y="24" text-anchor="middle" font-size="7.5" fill="#7cc9ad">two dies bonded Cu-to-Cu</text>
+          <text x="20" y="98" class="svglabel">bond surface = CMP output</text>
+          <text x="100" y="106" text-anchor="middle" font-size="7" fill="#9aa3b5">flat to &lt;0.3nm or it won't bond</text>
         </svg>
       </div>
       <div class="body">
-        <h4>4 · Via-fill + SAP plate <span class="badge b-hot">CHOKEPOINT</span></h4>
-        <p class="role">An electrolytic bath fills the vias void-free and builds copper up in the resist channels; a final flash-etch removes the seed, leaving fine SAP lines. Void-free fill at high aspect ratio is the hardest chemistry.</p>
-        <p class="who">Chem: <b>JCU (CU-BRITE) · Atotech/MKS · MacDermid · Dow</b></p>
+        <h4>Hybrid-bond surface <span class="badge b-now">WHY IT MATTERS</span></h4>
+        <p class="role">The reason CMP is now strategic, not commodity: direct Cu-Cu bonding needs the two faces flat to &lt;0.3 nm Ra with Cu dished 1–2 nm. Miss it and the stack fails. Reported shipping in TSMC SoIC-X (Apple M5 Pro teardown, TechInsights).</p>
+        <p class="who">Enabled by: <b>co-qual pad+slurry pairs</b></p>
       </div>
     </div>
   </div>
-  <p class="cap">Steps 2 &amp; 4 are the chemistry. They don't shrink with Moore's law — they get <i>harder</i> as lines shrink and vias multiply, and each recipe is co-qualified per customer/node. That stickiness is the moat.</p>
 </section>
 
-<!-- 4. L3 to L1 build-up -->
+<!-- 4. ASSEMBLY -->
 <section id="s4">
-  <div class="sh"><span class="n">04</span><h2>From process step to finished package</h2><span class="cn">製程 → 成品</span></div>
-  <p class="lead">Repeat the four steps ~10–20 times, layer on layer, on both sides of a core — that's a modern AI substrate. The chemistry razor is consumed on <b>every layer of every panel</b>, which is why demand scales with area × layers × yield-loss, not just unit count.</p>
-  <div class="svgwide">
-    <div class="svgscroll">
-    <svg viewBox="0 0 1040 250" width="100%" style="min-width:840px" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <marker id="ar4" markerWidth="9" markerHeight="9" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5a6377"/></marker>
-      </defs>
-      <!-- L3 single layer -->
-      <rect x="20" y="70" width="150" height="110" rx="10" fill="#141822" stroke="#5a3236"/>
-      <rect x="20" y="70" width="5" height="110" rx="2" fill="#8b84cf"/>
-      <text x="36" y="60" class="m" font-size="11" fill="#aaa3e6">L3 · one build-up layer</text>
-      <rect x="40" y="120" width="110" height="18" fill="#1c2030" stroke="#3a3f55"/>
-      <rect x="40" y="113" width="110" height="7" fill="#e0686a" opacity="0.7"/>
-      <path d="M60,120 l10,0 l-2,18 l-6,0 z" fill="#e0686a"/>
-      <path d="M120,120 l10,0 l-2,18 l-6,0 z" fill="#e0686a"/>
-      <text x="95" y="105" text-anchor="middle" font-size="9" fill="#eda3a4">drill · plate · image · etch</text>
-      <text x="95" y="158" text-anchor="middle" class="svglabel">= 4 steps, 2 are chemistry</text>
-
-      <line x1="176" y1="125" x2="212" y2="125" stroke="#5a6377" stroke-width="3" marker-end="url(#ar4)"/>
-      <text x="194" y="116" text-anchor="middle" class="svglabel">×10–20</text>
-
-      <!-- L2 stack -->
-      <rect x="218" y="55" width="180" height="140" rx="10" fill="#141822" stroke="#2a3040"/>
-      <rect x="218" y="55" width="5" height="140" rx="2" fill="#d2a24a"/>
-      <text x="234" y="46" class="m" font-size="11" fill="#e3bd76">L2 · finished substrate</text>
-      <g>
-        <rect x="250" y="150" width="120" height="10" fill="#2a1a1f"/>
-        <rect x="250" y="138" width="120" height="10" fill="#241d2e"/>
-        <rect x="250" y="120" width="120" height="16" fill="#3a2f18"/>
-        <text x="310" y="132" text-anchor="middle" font-size="8.5" fill="#e3bd76">BT / glass core</text>
-        <rect x="250" y="108" width="120" height="10" fill="#241d2e"/>
-        <rect x="250" y="96" width="120" height="10" fill="#2a1a1f"/>
-      </g>
-      <text x="310" y="182" text-anchor="middle" class="svglabel">build-up · core · build-up</text>
-
-      <line x1="404" y1="125" x2="440" y2="125" stroke="#5a6377" stroke-width="3" marker-end="url(#ar4)"/>
-
-      <!-- L1 package -->
-      <rect x="446" y="55" width="200" height="140" rx="10" fill="#141822" stroke="#2a3040"/>
-      <rect x="446" y="55" width="5" height="140" rx="2" fill="#4faf8e"/>
-      <text x="462" y="46" class="m" font-size="11" fill="#7cc9ad">L1 · package (CoWoS + die)</text>
-      <rect x="478" y="120" width="140" height="14" fill="#2a1a1f" stroke="#5a3236"/>
-      <text x="548" y="130" text-anchor="middle" font-size="8" fill="#eda3a4">ABF substrate</text>
-      <rect x="500" y="98" width="96" height="22" fill="#1b2030" stroke="#3a3f55"/>
-      <text x="548" y="112" text-anchor="middle" font-size="8.5" fill="#cbd3e6">interposer + HBM + GPU</text>
-      <circle cx="500" cy="140" r="3" fill="#7cc9ad"/><circle cx="520" cy="140" r="3" fill="#7cc9ad"/><circle cx="540" cy="140" r="3" fill="#7cc9ad"/><circle cx="560" cy="140" r="3" fill="#7cc9ad"/><circle cx="580" cy="140" r="3" fill="#7cc9ad"/>
-      <text x="548" y="182" text-anchor="middle" class="svglabel">NVIDIA · AMD · Intel · custom ASIC</text>
-
-      <!-- demand callout -->
-      <rect x="686" y="70" width="330" height="110" rx="10" fill="#12161f" stroke="#2a3040"/>
-      <text x="702" y="92" font-size="11" fill="#e8eaf0" font-weight="600">Why chemistry demand out-runs unit count</text>
-      <text x="702" y="114" font-size="10.5" fill="#9aa3b5">• Rubin package-substrate area <tspan class="m" fill="#eda3a4">~+75%</tspan> vs Blackwell (est.)</text>
-      <text x="702" y="132" font-size="10.5" fill="#9aa3b5">• layer counts rising → more plating passes</text>
-      <text x="702" y="150" font-size="10.5" fill="#9aa3b5">• L/S <tspan class="m" fill="#eda3a4">15→&lt;10→2µm</tspan> → harder, lower-yield baths</text>
-      <text x="702" y="168" font-size="10.5" fill="#9aa3b5">• panel fan-out adds RDL area to plate</text>
+  <div class="sh"><span class="n">04</span><h2>From raw material to finished chip — where CMP sits</h2><span class="cn">從原料到晶片</span></div>
+  <p class="lead">Trace the flow. Cheap raw inputs (urethane, silica) become a <b>co-qualified consumable pair</b>, which runs on a tool inside the fab, once per layer — <b>repeated 30-40×</b> — to build the chip and, at the end, the hybrid-bond stack. The recurring per-wafer spend concentrates at the consumable.</p>
+  <div class="svgwide"><div class="svgscroll">
+    <svg viewBox="0 0 1060 240" width="100%" class="mapsvg" xmlns="http://www.w3.org/2000/svg">
+      <defs><marker id="arA" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#5a6377"/></marker></defs>
+      <!-- raw -->
+      <rect x="16" y="86" width="150" height="60" rx="8" fill="#161d2b" stroke="#5b81c4"/>
+      <text x="91" y="110" text-anchor="middle" font-size="12" fill="#c7d3ea" font-weight="600">Raw inputs</text>
+      <text x="91" y="128" text-anchor="middle" font-size="9.5" fill="#9aa3b5">urethane · ceria · silica</text>
+      <line x1="166" y1="116" x2="212" y2="116" stroke="#5a6377" stroke-width="1.5" marker-end="url(#arA)"/>
+      <!-- consumable (choke) -->
+      <rect x="214" y="70" width="170" height="92" rx="8" fill="#1c1518" stroke="#e0686a" stroke-width="1.5"/>
+      <rect x="228" y="58" width="142" height="18" rx="5" fill="#e0686a"/><text x="299" y="71" text-anchor="middle" font-size="9" fill="#1c1518" font-weight="700">THE CONSUMABLE</text>
+      <text x="299" y="98" text-anchor="middle" font-size="12" fill="#f0d4d5" font-weight="600">Pad + Slurry pair</text>
+      <text x="299" y="116" text-anchor="middle" font-size="9.5" fill="#eda3a4">co-qualified 12–24 mo</text>
+      <text x="299" y="134" text-anchor="middle" font-size="9.5" fill="#eda3a4">re-bought every wafer</text>
+      <text x="299" y="151" text-anchor="middle" font-size="9" fill="#9aa3b5">Qnity · Entegris · Fujimi</text>
+      <line x1="384" y1="116" x2="430" y2="116" stroke="#5a6377" stroke-width="1.5" marker-end="url(#arA)"/>
+      <!-- tool -->
+      <rect x="432" y="86" width="150" height="60" rx="8" fill="#231a29" stroke="#c47a9e"/>
+      <text x="507" y="110" text-anchor="middle" font-size="12" fill="#e6b9d3" font-weight="600">CMP tool</text>
+      <text x="507" y="128" text-anchor="middle" font-size="9.5" fill="#9aa3b5">AMAT · Ebara (capex)</text>
+      <line x1="582" y1="116" x2="628" y2="116" stroke="#5a6377" stroke-width="1.5" marker-end="url(#arA)"/>
+      <!-- fab loop -->
+      <rect x="630" y="86" width="160" height="60" rx="8" fill="#12261e" stroke="#4faf8e"/>
+      <text x="710" y="106" text-anchor="middle" font-size="12" fill="#a9e0c9" font-weight="600">Fab · polish 1 layer</text>
+      <text x="710" y="124" text-anchor="middle" font-size="9.5" fill="#9aa3b5">TSMC · Samsung · Micron</text>
+      <path d="M710 146 q0 34 -205 34 q-205 0 -205 -34" fill="none" stroke="#4faf8e" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arA)"/>
+      <text x="505" y="196" text-anchor="middle" font-size="9.5" fill="#7cc9ad" class="m">↺ repeat 30-40× per chip</text>
+      <line x1="790" y1="116" x2="836" y2="116" stroke="#5a6377" stroke-width="1.5" marker-end="url(#arA)"/>
+      <!-- output -->
+      <rect x="838" y="86" width="152" height="60" rx="8" fill="#141822" stroke="#2dd4bf"/>
+      <text x="914" y="106" text-anchor="middle" font-size="12" fill="#bdeee7" font-weight="600">Chip + hybrid bond</text>
+      <text x="914" y="124" text-anchor="middle" font-size="9.5" fill="#9aa3b5">SoIC · HBM · CoWoS</text>
+      <text x="16" y="30" class="svglabel">cost per unit: pennies of raw material →</text>
+      <text x="299" y="40" text-anchor="middle" font-size="9" fill="#eda3a4" font-weight="600">…becomes recurring high-margin spend HERE…</text>
+      <text x="1044" y="30" text-anchor="end" class="svglabel">→ enables a $30k+ AI package</text>
     </svg>
-    </div>
-  </div>
-  <p class="cap">Illustrative. The chemistry is consumed per-layer-per-panel, so its demand compounds with area, layers, and node difficulty — a better volume driver than "number of substrates."</p>
+  </div></div>
+  <p class="cap">The tool is bought once; the fab captures its rent by selling wafers. The <b>consumable</b> is the only link that gets re-bought on <i>every</i> wafer and <i>every</i> layer — which is why the razor, not the razor-handle, is the durable toll.</p>
 </section>
 
-<!-- 5. WHERE IT RUNS -->
+<!-- 5. DEPLOYMENT -->
 <section id="s5">
-  <div class="sh"><span class="n">05</span><h2>Where the chemistry is leveraged — three package types</h2><span class="cn">應用場景</span></div>
-  <p class="lead">The same electroless-seed + via-fill + SAP chemistry serves all three package families. It gets <b>more</b> intensive left-to-right as line/space tightens — which is why the node roadmap is a demand tailwind, not a threat.</p>
-  <div class="svgwide">
-    <div class="svgscroll">
-    <svg viewBox="0 0 1040 210" width="100%" style="min-width:820px" xmlns="http://www.w3.org/2000/svg">
-      <!-- three panels -->
-      <g>
-        <rect x="20" y="40" width="300" height="150" rx="10" fill="#141822" stroke="#2a3040"/>
-        <text x="36" y="64" font-size="12" fill="#e3bd76" font-weight="600">FC-BGA substrate</text>
-        <text x="36" y="82" class="svglabel m" fill="#8aa7df">10–15µm L/S · today's volume</text>
-        <rect x="40" y="98" width="260" height="12" fill="#2a1a1f"/><rect x="40" y="114" width="260" height="12" fill="#241d2e"/><rect x="40" y="130" width="260" height="16" fill="#3a2f18"/>
-        <text x="170" y="141" text-anchor="middle" font-size="8.5" fill="#e3bd76">core</text>
-        <text x="36" y="172" font-size="10" fill="#eda3a4">chemistry load: <tspan class="m">●●●</tspan><tspan fill="#3a4152">●●</tspan></text>
+  <div class="sh"><span class="n">05</span><h2>Which slurry/pad serves which use-case</h2><span class="cn">應用對應</span></div>
+  <p class="lead">The same "CMP" word hides very different chemistries. The point of this map: the <b>slurry</b> franchise fragments by material (that's why no one owns &gt;~23% of slurry) — while the <b>pad</b> is largely material-agnostic, so one maker spans all of it. Concentration is structurally higher for pads.</p>
+  <div class="svgwide"><div class="svgscroll">
+    <svg viewBox="0 0 1060 250" width="100%" class="tlsvg" xmlns="http://www.w3.org/2000/svg">
+      <!-- lanes -->
+      <text x="16" y="24" font-size="11" fill="#697283" font-weight="600">MATERIAL POLISHED</text>
+      <text x="540" y="24" font-size="11" fill="#697283" font-weight="600">SPECIALIST SLURRY</text>
+      <text x="860" y="24" font-size="11" fill="#697283" font-weight="600">PAD (one maker spans all)</text>
+      <!-- rows -->
+      <g font-size="10.5">
+        <!-- oxide -->
+        <rect x="16" y="40" width="200" height="34" rx="7" fill="#161d2b" stroke="#5b81c4"/><text x="30" y="61" fill="#c7d3ea" font-weight="600">Oxide / STI (front-end)</text>
+        <rect x="540" y="40" width="230" height="34" rx="7" fill="#2c2712" stroke="#5a4f2a"/><text x="554" y="61" fill="#e3bd76">colloidal-silica / ceria — <tspan font-weight="600">Fujimi</tspan></text>
+        <!-- tungsten -->
+        <rect x="16" y="82" width="200" height="34" rx="7" fill="#161d2b" stroke="#5b81c4"/><text x="30" y="103" fill="#c7d3ea" font-weight="600">Tungsten plug (MOL)</text>
+        <rect x="540" y="82" width="230" height="34" rx="7" fill="#2c2712" stroke="#5a4f2a"/><text x="554" y="103" fill="#e3bd76">W slurry — <tspan font-weight="600">Entegris / Fujimi</tspan></text>
+        <!-- copper -->
+        <rect x="16" y="124" width="200" height="34" rx="7" fill="#161d2b" stroke="#5b81c4"/><text x="30" y="145" fill="#c7d3ea" font-weight="600">Copper damascene (BEOL)</text>
+        <rect x="540" y="124" width="230" height="34" rx="7" fill="#2c2712" stroke="#5a4f2a"/><text x="554" y="145" fill="#e3bd76">Cu + barrier — <tspan font-weight="600">Entegris</tspan></text>
+        <!-- hybrid -->
+        <rect x="16" y="166" width="200" height="34" rx="7" fill="#1c1518" stroke="#e0686a"/><text x="30" y="187" fill="#f0d4d5" font-weight="600">Hybrid-bond Cu/dielectric</text>
+        <rect x="540" y="166" width="230" height="34" rx="7" fill="#2c1a1e" stroke="#7a3a3e"/><text x="554" y="187" fill="#eda3a4">ultra-low-defect — <tspan font-weight="600">co-qual</tspan></text>
+        <!-- China -->
+        <rect x="16" y="208" width="200" height="30" rx="7" fill="#161d2b" stroke="#5b81c4"/><text x="30" y="227" fill="#c7d3ea" font-weight="600">Mature nodes (China fabs)</text>
+        <rect x="540" y="208" width="230" height="30" rx="7" fill="#2c2712" stroke="#5a4f2a"/><text x="554" y="227" fill="#e3bd76">domestic — <tspan font-weight="600">Anji ↑</tspan></text>
       </g>
-      <g>
-        <rect x="368" y="40" width="300" height="150" rx="10" fill="#141822" stroke="#2a3040"/>
-        <text x="384" y="64" font-size="12" fill="#5aa9e0" font-weight="600">High-density RDL (2.3D)</text>
-        <text x="384" y="82" class="svglabel m" fill="#8aa7df">2–10µm L/S · fine-line frontier</text>
-        <g stroke="#e0686a" stroke-width="1.4">
-          <line x1="390" y1="104" x2="646" y2="104"/><line x1="390" y1="114" x2="646" y2="114"/><line x1="390" y1="124" x2="646" y2="124"/><line x1="390" y1="134" x2="646" y2="134"/>
-        </g>
-        <text x="518" y="156" text-anchor="middle" font-size="8.5" fill="#9aa3b5">semi-additive RDL on ABF</text>
-        <text x="384" y="176" font-size="10" fill="#eda3a4">chemistry load: <tspan class="m">●●●●</tspan><tspan fill="#3a4152">●</tspan></text>
+      <!-- connectors to pad column -->
+      <g stroke="#8b84cf" stroke-width="1.4" fill="none" opacity="0.8">
+        <path d="M770 57 C 820 57, 830 120, 858 120"/>
+        <path d="M770 99 C 820 99, 830 122, 858 122"/>
+        <path d="M770 141 C 820 141, 830 124, 858 124"/>
+        <path d="M770 183 C 820 183, 830 126, 858 126"/>
+        <path d="M770 223 C 820 223, 830 128, 858 128"/>
       </g>
-      <g>
-        <rect x="716" y="40" width="300" height="150" rx="10" fill="#141822" stroke="#2a3040"/>
-        <text x="732" y="64" font-size="12" fill="#5fc98a" font-weight="600">Panel fan-out (FOPLP)</text>
-        <text x="732" y="82" class="svglabel m" fill="#8aa7df">2–8µm L/S · 2027+ format</text>
-        <rect x="736" y="96" width="264" height="60" rx="4" fill="none" stroke="#3a4152" stroke-dasharray="3 3"/>
-        <g fill="#5fc98a" opacity="0.55">
-          <rect x="748" y="106" width="30" height="18"/><rect x="788" y="106" width="30" height="18"/><rect x="828" y="106" width="30" height="18"/><rect x="868" y="106" width="30" height="18"/><rect x="908" y="106" width="30" height="18"/><rect x="948" y="106" width="30" height="18"/>
-          <rect x="748" y="130" width="30" height="18"/><rect x="788" y="130" width="30" height="18"/><rect x="828" y="130" width="30" height="18"/><rect x="868" y="130" width="30" height="18"/><rect x="908" y="130" width="30" height="18"/><rect x="948" y="130" width="30" height="18"/>
-        </g>
-        <text x="732" y="176" font-size="10" fill="#eda3a4">chemistry load: <tspan class="m">●●●●●</tspan> (more area)</text>
-      </g>
+      <rect x="860" y="96" width="184" height="58" rx="9" fill="#241f36" stroke="#8b84cf" stroke-width="1.5"/>
+      <text x="952" y="120" text-anchor="middle" font-size="13" fill="#cfc9f2" font-weight="600">Qnity pad</text>
+      <text x="952" y="138" text-anchor="middle" font-size="10" fill="#aaa3e6">one franchise, every row</text>
+      <text x="952" y="172" text-anchor="middle" font-size="9" fill="#9aa3b5">Fujibo / JSR are the only real alternates</text>
     </svg>
-    </div>
-  </div>
-  <p class="cap">Chemistry-load dots are a qualitative illustration of per-unit plating intensity, not a measured metric. The point: intensity rises as the format moves toward finer lines and larger panels.</p>
+  </div></div>
+  <p class="cap">Slurry is a set of five material-specific franchises (so the leader holds only ~23%); the pad is one franchise that spans all five (so the leader holds &gt;50%). Same "CMP" theme — very different concentration, and therefore very different rent durability.</p>
 </section>
 
-<!-- 6. SUPPLY CHAIN (CENTERPIECE) -->
+<!-- 6. SUPPLY-CHAIN MAP -->
 <section id="s6">
-  <div class="sh"><span class="n">06</span><h2>End-to-end supply chain</h2><span class="cn">上下游全鏈</span></div>
+  <div class="sh"><span class="n">06</span><h2>End-to-end supply chain — the chokepoint flagged</h2><span class="cn">供應鏈全圖</span></div>
   <div class="leg">
-    <span><span class="sw" style="background:var(--up)"></span>Upstream materials</span>
-    <span><span class="sw" style="background:var(--l3)"></span>Fab process (drill / plate / image)</span>
-    <span><span class="sw" style="background:var(--l2)"></span>Substrate fab</span>
-    <span><span class="sw" style="background:var(--l1)"></span>Package + buyers</span>
-    <span><span class="sw" style="background:var(--choke)"></span>Chokepoint</span>
+    <span><span class="sw" style="background:var(--choke)"></span>chokepoint (constricted flow)</span>
+    <span><span class="sw" style="background:#5a6377"></span>ample flow</span>
+    <span><span class="sw" style="background:var(--pad)"></span>pad rent</span>
+    <span><span class="sw" style="background:var(--slu)"></span>slurry / secondary rent</span>
   </div>
-  <div class="svgwide">
-    <div class="svgscroll">
-    <svg viewBox="-12 -2 1124 470" width="100%" style="min-width:1000px" xmlns="http://www.w3.org/2000/svg">
+  <div class="svgwide"><div class="svgscroll">
+    <svg viewBox="0 0 1100 490" width="100%" class="mapsvg" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <marker id="aT6" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5a6377"/></marker>
-        <marker id="aR6" markerWidth="9" markerHeight="9" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e0686a"/></marker>
+        <marker id="aR" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#e0686a"/></marker>
+        <marker id="aT" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#5a6377"/></marker>
       </defs>
+      <!-- direction header -->
       <text x="22" y="20" font-size="11" fill="#697283" font-weight="600">UPSTREAM</text>
       <line x1="110" y1="16" x2="980" y2="16" stroke="#2a3040" stroke-width="1"/>
       <polygon points="982,16 974,12 974,20" fill="#2a3040"/>
       <text x="1078" y="20" font-size="11" fill="#697283" font-weight="600" text-anchor="end">DOWNSTREAM</text>
-
-      <!-- flow connectors -->
-      <line x1="180" y1="175" x2="200" y2="175" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
-      <line x1="360" y1="175" x2="380" y2="175" stroke="#e0686a" stroke-width="3" marker-end="url(#aR6)"/>
-      <line x1="540" y1="175" x2="560" y2="175" stroke="#e0686a" stroke-width="3" marker-end="url(#aR6)"/>
-      <line x1="720" y1="175" x2="740" y2="175" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
-      <line x1="900" y1="175" x2="920" y2="175" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
-
-      <!-- C1 materials -->
-      <rect x="20" y="40" width="160" height="272" rx="10" fill="#141822" stroke="#2a3040"/>
-      <rect x="20" y="40" width="5" height="272" rx="2" fill="#5b81c4"/>
-      <text x="36" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Materials</text>
-      <text x="36" y="74" font-size="9" fill="#8aa7df" font-weight="600">UPSTREAM (Run #6/#18)</text>
+      <!-- flow connectors: red thin into/out of choke (stage2), grey thick elsewhere -->
+      <line x1="180" y1="180" x2="200" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR)"/>
+      <line x1="360" y1="180" x2="380" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR)"/>
+      <line x1="540" y1="180" x2="560" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT)"/>
+      <line x1="720" y1="180" x2="740" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT)"/>
+      <line x1="900" y1="180" x2="920" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT)"/>
+      <!-- C1 raw -->
+      <rect x="20" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="20" y="40" width="5" height="262" rx="2" fill="#5b81c4"/>
+      <text x="36" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Raw materials</text>
+      <text x="36" y="74" font-size="9" fill="#8aa7df" font-weight="600">UPSTREAM</text>
       <g font-size="9">
-        <rect x="32" y="84" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="98" fill="#fff" font-weight="600">ABF film</text><text x="40" y="109" fill="#9aa3b5">Ajinomoto ~95%</text>
-        <rect x="32" y="118" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="132" fill="#fff" font-weight="600">glass cloth · foil</text><text x="40" y="143" fill="#9aa3b5">Nittobo · Mitsui</text>
-        <rect x="32" y="152" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="166" fill="#fff" font-weight="600">Cu anode · salts</text><text x="40" y="177" fill="#9aa3b5">commodity feed</text>
+        <rect x="32" y="84" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="97" fill="#fff" font-weight="600">Ceria / silica abrasive</text><text x="40" y="108" fill="#9aa3b5">Fuso · Admatechs · AGC</text>
+        <rect x="32" y="120" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="133" fill="#fff" font-weight="600">Polyurethane (pad)</text><text x="40" y="144" fill="#9aa3b5">cast resin feedstock</text>
+        <rect x="32" y="156" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="169" fill="#fff" font-weight="600">Process chemistry</text><text x="40" y="180" fill="#9aa3b5">oxidizers · inhibitors</text>
       </g>
-      <text x="36" y="206" font-size="9" fill="#8aa7df">the material monopolies</text>
-      <text x="36" y="220" font-size="8.5" fill="#697283">already mapped + priced</text>
-
-      <!-- C2 laser drill -->
-      <rect x="200" y="40" width="160" height="272" rx="10" fill="#141822" stroke="#2a3040"/>
-      <rect x="200" y="40" width="5" height="272" rx="2" fill="#8b84cf"/>
-      <text x="216" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Laser via-drill</text>
-      <text x="216" y="74" font-size="9" fill="#aaa3e6" font-weight="600">CO-BINDING TOOL</text>
+      <text x="36" y="216" font-size="9" fill="#9aa3b5">commodity-ish, multi-sourced</text>
+      <text x="36" y="230" font-size="8.5" fill="#697283">ceria feed = a China watch-item</text>
+      <!-- C2 CONSUMABLE CHOKEPOINT -->
+      <rect x="200" y="40" width="160" height="262" rx="10" fill="#1c1518" stroke="#5a3236" stroke-width="1.5"/>
+      <rect x="200" y="40" width="5" height="262" rx="2" fill="#8b84cf"/>
+      <rect x="212" y="26" width="136" height="20" rx="5" fill="#e0686a"/><text x="280" y="40" font-size="9.5" fill="#1c1518" font-weight="700" text-anchor="middle">CHOKEPOINT</text>
+      <text x="216" y="62" font-size="12" fill="#e8eaf0" font-weight="600">CMP consumables</text>
+      <text x="216" y="76" font-size="9" fill="#aaa3e6" font-weight="600">PAD + SLURRY</text>
       <g font-size="9">
-        <rect x="212" y="84" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="220" y="98" fill="#fff" font-weight="600">CO₂ / UV drills</text><text x="220" y="109" fill="#9aa3b5">Hitachi HT ~18%</text>
-        <rect x="212" y="118" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="220" y="132" fill="#fff" font-weight="600">#2 Mitsubishi</text><text x="220" y="143" fill="#9aa3b5">Via Mechanics</text>
-        <rect x="212" y="152" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="220" y="166" fill="#fff" font-weight="600">MKS / ESI</text><text x="220" y="177" fill="#9aa3b5">Geode CO₂ laser</text>
+        <rect x="212" y="86" width="136" height="34" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="220" y="100" fill="#fff" font-weight="700">Pad  ★ tightest</text><text x="220" y="112" fill="#eda3a4">Qnity &gt;50% · Fujibo · JSR</text>
+        <rect x="212" y="126" width="136" height="34" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="220" y="140" fill="#fff" font-weight="600">Slurry (contested)</text><text x="220" y="152" fill="#bcb3e6">Entegris 23 · Fujimi · Anji</text>
+        <rect x="212" y="166" width="136" height="30" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="220" y="179" fill="#fff" font-weight="600">Conditioners / brushes</text><text x="220" y="190" fill="#bcb3e6">3M · Saesol</text>
       </g>
-      <text x="216" y="206" font-size="9" fill="#aaa3e6">reported ~18-mo backlog</text>
-      <text x="216" y="220" font-size="8.5" fill="#697283">(est. — capacity-gated)</text>
-
-      <!-- C3 CHOKEPOINT plating -->
-      <rect x="380" y="40" width="160" height="272" rx="10" fill="#1c1518" stroke="#5a3236" stroke-width="1.5"/>
-      <rect x="380" y="40" width="5" height="272" rx="2" fill="#e0686a"/>
-      <rect x="392" y="26" width="140" height="20" rx="5" fill="#e0686a"/><text x="462" y="40" font-size="9.5" fill="#1c1518" font-weight="700" text-anchor="middle">CHOKEPOINT · L3</text>
-      <text x="396" y="62" font-size="12" fill="#e8eaf0" font-weight="600">Plating chemistry</text>
-      <text x="396" y="76" font-size="9" fill="#eda3a4" font-weight="600">METALLIZATION RAZOR</text>
+      <text x="216" y="216" font-size="9" fill="#eda3a4">every wafer × every layer</text>
+      <text x="216" y="230" font-size="8.5" fill="#697283">co-qual = decade lock-in</text>
+      <!-- C3 tool -->
+      <rect x="380" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="380" y="40" width="5" height="262" rx="2" fill="#c47a9e"/>
+      <text x="396" y="60" font-size="12" fill="#e8eaf0" font-weight="600">CMP tools</text>
+      <text x="396" y="74" font-size="9" fill="#dba0bf" font-weight="600">CAPEX · MACHINE</text>
       <g font-size="9">
-        <rect x="392" y="86" width="136" height="30" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="400" y="100" fill="#fff" font-weight="700">electroless Cu ★</text><text x="400" y="111" fill="#eda3a4">Atotech/MKS · JCU</text>
-        <rect x="392" y="120" width="136" height="30" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="400" y="134" fill="#fff" font-weight="700">via-fill Cu ★</text><text x="400" y="145" fill="#eda3a4">JCU CU-BRITE</text>
-        <rect x="392" y="154" width="136" height="30" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="400" y="168" fill="#fff" font-weight="700">SAP pattern plate</text><text x="400" y="179" fill="#eda3a4">MacDermid · Dow · Uyemura</text>
+        <rect x="392" y="84" width="136" height="34" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="98" fill="#fff" font-weight="600">Polishers ~70%</text><text x="400" y="110" fill="#9aa3b5">Applied Materials</text>
+        <rect x="392" y="124" width="136" height="34" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="138" fill="#fff" font-weight="600">#2 polisher</text><text x="400" y="150" fill="#9aa3b5">Ebara</text>
+        <rect x="392" y="164" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="177" fill="#fff" font-weight="600">Metrology</text><text x="400" y="188" fill="#9aa3b5">post-CMP inspection</text>
       </g>
-      <text x="396" y="206" font-size="9" fill="#eda3a4">every layer flows through here</text>
-      <text x="396" y="220" font-size="8.5" fill="#697283">top-5 ~50–60% · co-qualified</text>
-
-      <!-- C4 imaging -->
-      <rect x="560" y="40" width="160" height="272" rx="10" fill="#141822" stroke="#2a3040"/>
-      <rect x="560" y="40" width="5" height="272" rx="2" fill="#c47a9e"/>
-      <text x="576" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Pattern / image</text>
-      <text x="576" y="74" font-size="9" fill="#dba0bf" font-weight="600">FINE-LINE</text>
+      <text x="396" y="216" font-size="9" fill="#dba0bf">concentrated but one-time</text>
+      <text x="396" y="230" font-size="8.5" fill="#697283">secondary rent pool</text>
+      <!-- C4 fab -->
+      <rect x="560" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="560" y="40" width="5" height="262" rx="2" fill="#4faf8e"/>
+      <text x="576" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Wafer fabs</text>
+      <text x="576" y="74" font-size="9" fill="#7cc9ad" font-weight="600">THE BUYER</text>
       <g font-size="9">
-        <rect x="572" y="84" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="98" fill="#fff" font-weight="600">dry-film resist</text><text x="580" y="109" fill="#9aa3b5">Asahi Kasei · Resonac</text>
-        <rect x="572" y="118" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="132" fill="#fff" font-weight="600">direct imaging</text><text x="580" y="143" fill="#9aa3b5">SCREEN · Adtec</text>
-        <rect x="572" y="152" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="166" fill="#fff" font-weight="600">flash etch</text><text x="580" y="177" fill="#9aa3b5">MacDermid · Atotech</text>
+        <rect x="572" y="84" width="136" height="34" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="98" fill="#fff" font-weight="600">Leading-edge logic</text><text x="580" y="110" fill="#9aa3b5">TSMC · Samsung · Intel</text>
+        <rect x="572" y="124" width="136" height="34" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="138" fill="#fff" font-weight="600">Memory</text><text x="580" y="150" fill="#9aa3b5">SK Hynix · Micron · Samsung</text>
+        <rect x="572" y="164" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="177" fill="#fff" font-weight="600">China fabs</text><text x="580" y="188" fill="#9aa3b5">SMIC · CXMT · YMTC</text>
       </g>
-      <text x="576" y="206" font-size="9" fill="#dba0bf">resolution co-limits SAP</text>
-      <text x="576" y="220" font-size="8.5" fill="#697283">secondary bottleneck</text>
-
-      <!-- C5 substrate fab -->
-      <rect x="740" y="40" width="160" height="272" rx="10" fill="#141822" stroke="#2a3040"/>
-      <rect x="740" y="40" width="5" height="272" rx="2" fill="#d2a24a"/>
-      <text x="756" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Substrate fab</text>
-      <text x="756" y="74" font-size="9" fill="#e3bd76" font-weight="600">LAYER 2 · RENT SETTLES</text>
+      <text x="576" y="216" font-size="9" fill="#7cc9ad">runs CMP 30-40× / chip</text>
+      <text x="576" y="230" font-size="8.5" fill="#697283">funds 2nd-source to break locks</text>
+      <!-- C5 packaging -->
+      <rect x="740" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="740" y="40" width="5" height="262" rx="2" fill="#d2a24a"/>
+      <text x="756" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Adv. packaging</text>
+      <text x="756" y="74" font-size="9" fill="#e3bd76" font-weight="600">DEMAND ACCELERATOR</text>
       <g font-size="9">
-        <rect x="752" y="84" width="136" height="30" rx="6" fill="#231a10" stroke="#6b5626"/><text x="760" y="98" fill="#fff" font-weight="600">Ibiden ~35%</text><text x="760" y="109" fill="#e3bd76">+202% YTD · priced</text>
-        <rect x="752" y="118" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="132" fill="#fff" font-weight="600">Shinko · Unimicron</text><text x="760" y="143" fill="#9aa3b5">AT&amp;S · Nan Ya</text>
-        <rect x="752" y="152" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="166" fill="#fff" font-weight="600">20–28wk lead</text><text x="760" y="177" fill="#9aa3b5">back in shortage H1-26</text>
+        <rect x="752" y="84" width="136" height="34" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="98" fill="#fff" font-weight="600">Hybrid bonding</text><text x="760" y="110" fill="#9aa3b5">TSMC SoIC · Intel</text>
+        <rect x="752" y="124" width="136" height="34" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="138" fill="#fff" font-weight="600">HBM / TSV</text><text x="760" y="150" fill="#9aa3b5">SK Hynix · Micron</text>
+        <rect x="752" y="164" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="177" fill="#fff" font-weight="600">OSAT / RDL</text><text x="760" y="188" fill="#9aa3b5">ASE · Amkor</text>
       </g>
-      <text x="756" y="206" font-size="9" fill="#e3bd76">biggest $ rent — but priced</text>
-      <text x="756" y="220" font-size="8.5" fill="#697283">Ibiden ¥500B capex</text>
-
-      <!-- C6 package + buyers -->
-      <rect x="920" y="40" width="160" height="272" rx="10" fill="#141822" stroke="#2a3040"/>
-      <rect x="920" y="40" width="5" height="272" rx="2" fill="#4faf8e"/>
-      <text x="936" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Package + buyers</text>
-      <text x="936" y="74" font-size="9" fill="#7cc9ad" font-weight="600">LAYER 1</text>
+      <text x="756" y="216" font-size="9" fill="#e3bd76">~2/3 of adv-pkg slurry (est.)</text>
+      <text x="756" y="230" font-size="8.5" fill="#697283">the AI growth kicker</text>
+      <!-- C6 buyers -->
+      <rect x="920" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="920" y="40" width="5" height="262" rx="2" fill="#4faf8e"/>
+      <text x="936" y="60" font-size="12" fill="#e8eaf0" font-weight="600">End buyers</text>
+      <text x="936" y="74" font-size="9" fill="#7cc9ad" font-weight="600">DEMAND</text>
       <g font-size="9">
-        <rect x="932" y="84" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="98" fill="#fff" font-weight="600">TSMC CoWoS</text><text x="940" y="109" fill="#9aa3b5">ASE · Amkor OSAT</text>
-        <rect x="932" y="118" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="132" fill="#fff" font-weight="600">NVIDIA · AMD</text><text x="940" y="143" fill="#9aa3b5">Intel · custom ASIC</text>
-        <rect x="932" y="152" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="166" fill="#fff" font-weight="600">Rubin +75% (est.)</text><text x="940" y="177" fill="#9aa3b5">pkg-area demand pull</text>
+        <rect x="932" y="84" width="136" height="34" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="98" fill="#fff" font-weight="600">AI silicon</text><text x="940" y="110" fill="#9aa3b5">Nvidia · AMD · Apple</text>
+        <rect x="932" y="124" width="136" height="34" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="138" fill="#fff" font-weight="600">Hyperscalers</text><text x="940" y="150" fill="#9aa3b5">MSFT · Google · Meta</text>
+        <rect x="932" y="164" width="136" height="30" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="177" fill="#fff" font-weight="600">AI factories</text><text x="940" y="188" fill="#9aa3b5">neoclouds · sovereign</text>
       </g>
-      <text x="936" y="206" font-size="9" fill="#7cc9ad">funds the whole chain</text>
-      <text x="936" y="220" font-size="8.5" fill="#697283">buyers can pre-pay/fund supply</text>
-
-      <!-- per-stage bar chart -->
-      <text x="20" y="344" font-size="11" fill="#9aa3b5" font-weight="600">Durable scarcity-rent intensity by stage <tspan fill="#697283" font-weight="400">(margin durability × concentration; est., not absolute $)</tspan></text>
-      <!-- axis -->
-      <line x1="20" y1="440" x2="1080" y2="440" stroke="#2a3040"/>
-      <!-- bars: material, drill, PLATING(tallest), image, fab(2nd), package -->
-      <rect x="60" y="380" width="90" height="60" fill="#5b81c4" opacity="0.8"/><text x="105" y="372" text-anchor="middle" class="svglabel m" fill="#8aa7df">material</text><text x="105" y="456" text-anchor="middle" class="svglabel">Ajinomoto*</text>
-      <rect x="240" y="398" width="90" height="42" fill="#8b84cf" opacity="0.8"/><text x="285" y="390" text-anchor="middle" class="svglabel m" fill="#aaa3e6">drill</text><text x="285" y="456" text-anchor="middle" class="svglabel">tools</text>
-      <rect x="420" y="356" width="90" height="84" fill="#e0686a"/><text x="465" y="348" text-anchor="middle" class="m" font-size="10" fill="#eda3a4">PLATING ★</text><text x="465" y="456" text-anchor="middle" class="svglabel" fill="#eda3a4">chemistry</text>
-      <rect x="600" y="410" width="90" height="30" fill="#c47a9e" opacity="0.8"/><text x="645" y="402" text-anchor="middle" class="svglabel m" fill="#dba0bf">image</text><text x="645" y="456" text-anchor="middle" class="svglabel">resist/DI</text>
-      <rect x="780" y="372" width="90" height="68" fill="#d2a24a" opacity="0.85"/><text x="825" y="364" text-anchor="middle" class="svglabel m" fill="#e3bd76">fab (2nd)</text><text x="825" y="456" text-anchor="middle" class="svglabel">Ibiden — priced</text>
-      <rect x="960" y="414" width="90" height="26" fill="#4faf8e" opacity="0.8"/><text x="1005" y="406" text-anchor="middle" class="svglabel m" fill="#7cc9ad">package</text><text x="1005" y="456" text-anchor="middle" class="svglabel">buyers</text>
+      <text x="936" y="216" font-size="9" fill="#7cc9ad">demand visibility = high</text>
+      <text x="936" y="230" font-size="8.5" fill="#697283">pays for it all</text>
+      <!-- scarcity premium bars -->
+      <line x1="40" y1="432" x2="1080" y2="432" stroke="#2a3040" stroke-width="1"/>
+      <text x="40" y="326" font-size="9" fill="#697283">value capture / scarcity premium (est.)</text>
+      <g>
+        <rect x="80" y="410" width="40" height="22" rx="2" fill="#2dd4bf" opacity="0.3"/>
+        <rect x="260" y="340" width="40" height="92" rx="2" fill="#e0686a"/>
+        <rect x="440" y="376" width="40" height="56" rx="2" fill="#c47a9e" opacity="0.8"/>
+        <rect x="620" y="388" width="40" height="44" rx="2" fill="#5fc98a" opacity="0.7"/>
+        <rect x="800" y="384" width="40" height="48" rx="2" fill="#d2a24a" opacity="0.7"/>
+        <rect x="980" y="412" width="40" height="20" rx="2" fill="#2dd4bf" opacity="0.3"/>
+      </g>
+      <text x="280" y="332" font-size="9" fill="#eda3a4" text-anchor="middle" font-weight="600">rent peaks at the consumable</text>
+      <text x="460" y="368" font-size="8.5" fill="#dba0bf" text-anchor="middle">2nd pool: the tool</text>
+      <g font-size="8.5" fill="#697283" text-anchor="middle">
+        <text x="100" y="446">raw</text><text x="280" y="446">pad+slurry</text><text x="460" y="446">CMP tool</text><text x="640" y="446">fab</text><text x="820" y="446">packaging</text><text x="1000" y="446">buyers</text>
+      </g>
+      <text x="550" y="470" font-size="9" fill="#697283" text-anchor="middle">Red arrows = constricted throughput into &amp; out of the consumable — a co-qual gate everything must pass. The pad sub-link (Qnity &gt;50%) is the tallest, most durable slice of that bar.</text>
     </svg>
-    </div>
-  </div>
-  <p class="cap">Thin red arrows constrict into &amp; out of the plating stage; grey/thick elsewhere. Bars show <b>durable</b> rent intensity (sticky margin × concentration) — tallest at the plating chemistry. *The material bar (Ajinomoto) is the tightest of all but was mapped in Run #6. The <b>fab</b> earns the biggest absolute dollars (2nd bar) but it is cyclical, multi-sourced, and already priced (+202% YTD) — which is why the fresh, un-bid edge sits at the chemistry.</p>
+  </div></div>
+  <p class="cap">Unlike a raw-material chokepoint (one scarce mine), this is a <b>qualification</b> chokepoint: the barrier is the 12–24-month recipe certification that locks a specific pad+slurry into a fab, then holds for ~a decade. That's why the rent is recurring, and why the pad — hardest to re-qualify — captures the most durable slice.</p>
 </section>
 
-<!-- 7. TIMELINE -->
+<!-- 7. SEVERITY -->
 <section id="s7">
-  <div class="sh"><span class="n">07</span><h2>Three-year evolution — by package type</h2><span class="cn">技術時程</span></div>
-  <p class="lead">Red cells = where plating chemistry is the stressed link. The hinge is <b>2027</b>: fine-line RDL nodes tighten, panel fan-out reaches pilot volume, and substrate capacity floods in — the year that decides whether the shortage digests or the chemistry razor keeps compounding.</p>
-  <div class="tlgrid">
-    <div class="tlhead"><div>Package type</div><div>2026</div><div>2027</div><div>2028</div><div>2029+</div></div>
-    <div class="tlrow">
-      <div class="lab"><span class="sw" style="background:var(--dup)"></span>FC-BGA</div>
-      <div class="cell hot"><b>Back in shortage</b>20–28wk lead; larger dies (Rubin) = more area to plate</div>
-      <div class="cell hot"><b>Capacity floods</b>Ibiden Kawama-6, Unimicron/Kinsus add; chemistry demand still rising</div>
-      <div class="cell"><b>Digest?</b>supply catches unit demand; area/layers keep chemistry busy</div>
-      <div class="cell"><b>Mature growth</b>content per package the driver, not units</div>
-    </div>
-    <div class="tlrow">
-      <div class="lab"><span class="sw" style="background:var(--dout)"></span>HD RDL (2.3D)</div>
-      <div class="cell"><b>10→5µm</b>CoWoS-L/R fine-line ramps</div>
-      <div class="cell hot"><b>5→2µm push</b>electroless-seed + fill difficulty step-up = chemistry-limited</div>
-      <div class="cell hot"><b>2µm volume</b>each node re-qualifies chemistry (12–24mo lock-in)</div>
-      <div class="cell"><b>sub-2µm R&amp;D</b>hybrid organic/RDL</div>
-    </div>
-    <div class="tlrow">
-      <div class="lab"><span class="sw" style="background:var(--dacr)"></span>Panel FOPLP</div>
-      <div class="cell"><b>Pilot lines</b>Samsung/Amkor/SEMCO qualifying</div>
-      <div class="cell hot"><b>First AI volume</b>more RDL area/panel → chemistry pull even as it disrupts wafer OSATs</div>
-      <div class="cell hot"><b>Ramp</b>panel plating uniformity = new chemistry challenge</div>
-      <div class="cell"><b>Scale</b>cost crossover vs wafer fan-out</div>
-    </div>
-    <div class="tlrow">
-      <div class="lab"><span class="sw" style="background:var(--choke)"></span>Chemistry supply</div>
-      <div class="cell hot"><b>Tight, co-qual</b>Atotech +cap (Guangzhou); Element→Solstice deal signed</div>
-      <div class="cell hot"><b>CN 2nd-source</b>domestic chemistries qualify in mid-tier — watch leading nodes</div>
-      <div class="cell"><b>Consolidation</b>Solstice/Element close; scale race</div>
-      <div class="cell"><b>Verdict</b>durable toll or commoditized?</div>
-    </div>
-  </div>
-  <p class="cap">The bull case needs the chemistry to stay hard (fine-line + panel) faster than Chinese 2nd-sources qualify at leading nodes. 2027 is the tell on both.</p>
-</section>
-
-<!-- 8. CHOKEPOINT + SEVERITY -->
-<section id="s8">
-  <div class="sh"><span class="n">08</span><h2>The chokepoint &amp; severity scorecard</h2><span class="cn">卡點評分</span></div>
-  <div class="choke">
-    <div class="ttl">
-      <svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 2 L22 20 H2 Z" fill="none" stroke="#e0686a" stroke-width="2" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="14" stroke="#e0686a" stroke-width="2"/><circle cx="12" cy="17" r="1.2" fill="#e0686a"/></svg>
-      <h3>Plating / metallization chemistry — the co-qualified razor</h3>
-    </div>
-    <p>Every microvia filled and every fine line grown inside an AI substrate passes through a handful of <b>co-qualified chemical baths</b>. The recipe is certified per customer and per node over 12–24 months, then supplies a decade-long consumable stream at above-corporate margins — a genuine toll. But it is an <b>oligopoly, not a monopoly</b> (top-5 ~50–60%; Atotech/MKS, MacDermid, JCU, Uyemura, Dow), with rising Chinese domestic suppliers 10–20% cheaper — so severity lands at <b>15/20</b>, below the 18–19 Ajinomoto/GOES monopolies of earlier runs. Tightness is real; it is not absolute.</p>
-    <div class="stats">
-      <div><b>15/20</b><span>chokepoint severity</span></div>
-      <div><b>~50–60%</b><span>top-5 chemistry share</span></div>
-      <div><b>12–24mo</b><span>co-qualification lock-in</span></div>
-      <div><b>2µm</b><span>RDL L/S target (harder chem)</span></div>
-      <div><b>~7/20</b><span>remaining asymmetry</span></div>
-    </div>
-  </div>
-
-  <div style="height:16px"></div>
-  <div class="scorecard">
-    <div>
-      <div class="bar"><div class="bl"><b>Supply concentration</b><span class="s m">3 / 5</span></div><div class="track"><div class="fill" style="width:60%"></div></div></div>
-      <div class="bar"><div class="bl"><b>Lead-time to add (qualification)</b><span class="s m">4 / 5</span></div><div class="track"><div class="fill" style="width:80%"></div></div></div>
-      <div class="bar"><div class="bl"><b>Low substitutability</b><span class="s m">3 / 5</span></div><div class="track"><div class="fill" style="width:60%"></div></div></div>
-      <div class="bar"><div class="bl"><b>Demand-growth pressure</b><span class="s m">5 / 5</span></div><div class="track"><div class="fill" style="width:100%"></div></div></div>
-    </div>
-    <div class="panel">
-      <div style="font-size:12px;color:var(--mut);line-height:1.6">
-      <b style="color:var(--txt)">Scope &amp; co-bottlenecks.</b> The 15/20 scores the <b>chemistry consumable</b>. Two links score <i>higher</i> on paper but are worse buys: the <b>substrate fab</b> (lead-time 5/5 — a fab takes 2–3 yrs + ¥500B — but it is priced at ~72× and multi-sourced across 5 players), and the <b>ABF film</b> (Ajinomoto ~95%, severity 18 — but mapped &amp; priced in Run #6). The <b>laser via-drill</b> is a real co-binding capacity gate (reported ~18-mo backlog, est.) but is capex-cyclical, not a razor.
-      <br><br><b style="color:var(--txt)">Tightness ≠ a good buy.</b> Severity says the link is hard to replace; remaining asymmetry (~7/20) says most of the easy money in the <i>obvious</i> vehicles is gone. The edge is buying the durable toll where it is still cheap — not the tightest link at any price.
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- 9. VARIANT -->
-<section id="s9">
-  <div class="sh"><span class="n">09</span><h2>Variant perception — the disaggregation</h2><span class="cn">認知差</span></div>
-  <p class="lead">The substrate trade is really <b>two stacked shortages</b> the Street already bids — the ABF <b>material</b> (Ajinomoto) and the ABF <b>fab</b> (Ibiden, +202%). Between them sits a third link the crowd doesn't tag as an "AI stock": the <b>plating chemistry</b> that turns bare film into fine-line copper. Its cleanest vehicle (JCU) is up only +44%.</p>
-
+  <div class="sh"><span class="n">07</span><h2>Severity scorecard — how tight is the pad?</h2><span class="cn">卡點強度</span></div>
+  <p class="lead">Scoring the <b>pad</b> (the binding sub-link) on the standard four factors, each 0–5. It lands at <b>16/20</b> — a strong, structurally-growing chokepoint, but a notch below the rotation's tightest monopolies (Ajinomoto ABF ~95% scored 18–19) because pads are a <b>concentrated oligopoly, not a sole source</b>, and capacity can be added.</p>
   <div class="two">
-    <div class="panel">
-      <div style="font-size:11px;font-weight:700;color:var(--choke);letter-spacing:.04em;margin-bottom:8px">CONSENSUS</div>
-      <p style="font-size:12.5px;color:var(--mut);line-height:1.6">"Buy the AI substrate shortage." → Ibiden +202% at ~72×, or "buy AI advanced packaging" → MKS +131%. The material (Ajinomoto) and the fab (Ibiden) are both priced. The plating chemistry is treated as a boring industrial input, not part of the AI trade.</p>
-    </div>
-    <div class="panel" style="border-color:#2c5048;background:linear-gradient(135deg,rgba(45,212,191,.06),transparent),var(--panel)">
-      <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:8px">OUR VARIANT</div>
-      <p style="font-size:12.5px;color:var(--mut);line-height:1.6">The <b style="color:var(--txt)">durable</b> rent sits one layer below the fab, in the co-qualified plating chemistry — a razor that gets <i>harder</i> (2µm, panel) as AI scales, sold by a top-5 oligopoly. And <b style="color:var(--txt)">panel fan-out is bullish the chemistry even though it threatens wafer OSATs</b> — more RDL area to plate. The purest vehicle (JCU) is the laggard.</p>
-    </div>
-  </div>
-
-  <div class="gap">
-    <div class="h">THE DISAGGREGATION</div>
-    <p>"AI substrates" is bullish the <b>aggregate</b> but the crowd buys the <i>fab</i> (priced). Disaggregate the fab line and the un-bid, most-durable link is the <b>metallization chemistry</b> — and within chemistry, the <b>pure-play (JCU)</b> is bullish while the diluted proxies (MKS at 3 divisions; Uyemura at ENIG-heavy mix) share it. The strategic tell: <b>Solstice is paying $14.5B for Element Solutions/MacDermid</b> (6-Jul-2026) explicitly for electronics/packaging chemistry — a buyer validating the chokepoint while removing a listed vehicle (the Alphawave→Qualcomm, CoolIT→Ecolab pattern again).</p>
-  </div>
-
-  <div class="two" style="margin-top:14px">
-    <div class="panel">
-      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:10px">Subtractive etch vs SAP — why chemistry intensity rises</div>
-      <div class="svgscroll">
-      <svg viewBox="0 0 520 190" width="100%" style="min-width:460px" xmlns="http://www.w3.org/2000/svg">
-        <!-- left: subtractive -->
-        <text x="20" y="20" font-size="11" fill="#9aa3b5" font-weight="600">Subtractive (old, coarse)</text>
-        <rect x="20" y="40" width="220" height="14" fill="#e0686a" opacity="0.5"/>
-        <text x="20" y="70" class="svglabel">1 · start with thick Cu foil</text>
-        <rect x="20" y="80" width="220" height="14" fill="#1c2030" stroke="#3a3f55"/>
-        <rect x="40" y="80" width="34" height="14" fill="#e0686a" opacity="0.6"/><rect x="120" y="80" width="34" height="14" fill="#e0686a" opacity="0.6"/><rect x="200" y="80" width="24" height="14" fill="#e0686a" opacity="0.6"/>
-        <text x="20" y="110" class="svglabel">2 · etch most of it away → wide lines</text>
-        <text x="20" y="140" class="svglabel m" fill="#8aa7df">limit ~ 20µm+ · little plating chem</text>
-        <!-- right: SAP -->
-        <text x="290" y="20" font-size="11" fill="#eda3a4" font-weight="600">SAP / mSAP (fine, chem-heavy)</text>
-        <rect x="290" y="40" width="210" height="6" fill="#e0686a"/>
-        <text x="290" y="62" class="svglabel">1 · thin electroless seed (chem)</text>
-        <rect x="300" y="74" width="16" height="16" fill="#e0686a"/><rect x="340" y="74" width="16" height="16" fill="#e0686a"/><rect x="380" y="74" width="16" height="16" fill="#e0686a"/><rect x="420" y="74" width="16" height="16" fill="#e0686a"/><rect x="460" y="74" width="16" height="16" fill="#e0686a"/>
-        <text x="290" y="108" class="svglabel">2 · pattern-plate up in resist (chem)</text>
-        <text x="290" y="130" class="svglabel">3 · flash-etch seed → fine lines</text>
-        <text x="290" y="152" class="svglabel m" fill="#eda3a4">reaches 2µm · 2 chemistry steps</text>
+    <div class="svgwide">
+      <svg viewBox="0 0 560 250" width="100%" xmlns="http://www.w3.org/2000/svg">
+        <g font-size="11">
+          <!-- factor 1 -->
+          <text x="10" y="30" fill="#e8eaf0">Supply concentration</text>
+          <rect x="220" y="20" width="250" height="14" rx="4" fill="#20232e"/>
+          <rect x="220" y="20" width="200" height="14" rx="4" fill="#e0686a"/>
+          <text class="m" x="484" y="31" fill="#eda3a4">4/5</text>
+          <text x="220" y="48" font-size="8.5" fill="#697283">Qnity &gt;50%, top-3 ~80% — not a sole source</text>
+          <!-- factor 2 -->
+          <text x="10" y="86" fill="#e8eaf0">Lead-time to add supply</text>
+          <rect x="220" y="76" width="250" height="14" rx="4" fill="#20232e"/>
+          <rect x="220" y="76" width="150" height="14" rx="4" fill="#d2a24a"/>
+          <text class="m" x="484" y="87" fill="#e3bd76">3/5</text>
+          <text x="220" y="104" font-size="8.5" fill="#697283">12–24mo co-qual, but capacity IS expandable</text>
+          <!-- factor 3 -->
+          <text x="10" y="142" fill="#e8eaf0">Low substitutability</text>
+          <rect x="220" y="132" width="250" height="14" rx="4" fill="#20232e"/>
+          <rect x="220" y="132" width="200" height="14" rx="4" fill="#e0686a"/>
+          <text class="m" x="484" y="143" fill="#eda3a4">4/5</text>
+          <text x="220" y="160" font-size="8.5" fill="#697283">decade-sticky lock-in; few qualified pad houses</text>
+          <!-- factor 4 -->
+          <text x="10" y="198" fill="#e8eaf0">Demand-growth pressure</text>
+          <rect x="220" y="188" width="250" height="14" rx="4" fill="#20232e"/>
+          <rect x="220" y="188" width="250" height="14" rx="4" fill="#5fc98a"/>
+          <text class="m" x="500" y="199" fill="#7cd6a0">5/5</text>
+          <text x="220" y="216" font-size="8.5" fill="#697283">+30–50% CMP steps/node · 3D · hybrid-bond · AI</text>
+          <!-- total -->
+          <line x1="10" y1="232" x2="510" y2="232" stroke="#2a3040"/>
+          <text x="10" y="248" fill="#e8eaf0" font-weight="600">Total</text>
+          <text class="m" x="548" y="248" text-anchor="end" fill="#e0686a" font-weight="600" font-size="14">16 / 20</text>
+        </g>
       </svg>
-      </div>
     </div>
     <div class="panel">
-      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:10px">How our variant could be WRONG</div>
-      <div style="font-size:12px;color:var(--mut);line-height:1.65">
-        <b style="color:#eda3a4">1 · China substitution.</b> Domestic chemistries (Guangzhou Sanfu, Shenzhen Jufeng) price 10–20% under. They bite hardest in the <b>mid/value tier</b>; leading-node via-fill stays stickier — but JCU's 25% China book skews toward that contested mid-tier (est.), so it sells into the same market that could displace it. The falsifier: a top fab qualifying a CN chemistry at a <i>leading</i> node.<br><br>
-        <b style="color:#eda3a4">2 · Small-dollar link.</b> Chemistry TAM (~$1.2–1.6B APAC) is tiny vs the fab; the big rent may simply stay at Ibiden, and JCU's +44% may already price the AI mix.<br><br>
-        <b style="color:#eda3a4">3 · Scale beats pure-play.</b> Atotech (MKS) and MacDermid (Solstice) out-invest the small pure-play at leading nodes.<br><br>
-        <b style="color:#eda3a4">4 · Wrong link.</b> The via-drill equipment (backlog) may bind tighter than the chemistry.
-      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">PER-LINK SEVERITY (derived, not asserted)</div>
+      <table class="tbl">
+        <tr><th>Link</th><th>Supply</th><th>Lead</th><th>Sub</th><th>Dem</th><th>Σ/20</th></tr>
+        <tr><td><b>Qnity — pad</b></td><td class="m">4</td><td class="m">3</td><td class="m">4</td><td class="m">5</td><td class="m red">16</td></tr>
+        <tr><td><b>Entegris — slurry+filt</b></td><td class="m">3</td><td class="m">3</td><td class="m">3</td><td class="m">5</td><td class="m amb">14</td></tr>
+        <tr><td><b>Fujimi — slurry</b></td><td class="m">3</td><td class="m">3</td><td class="m">2</td><td class="m">5</td><td class="m amb">13</td></tr>
+        <tr><td><b>Anji — CN slurry</b></td><td class="m">2</td><td class="m">2</td><td class="m">2</td><td class="m">5</td><td class="m">11</td></tr>
+      </table>
+      <p style="font-size:11.5px;color:var(--mut);margin-top:10px;line-height:1.5"><b style="color:var(--txt)">Tightness ≠ a good buy.</b> Severity measures how constrained the link is, not how much return is left. The remaining-asymmetry gauge (~6/20) is separate and low — because the whole complex re-rated +60–72% YTD in 2026. Scope note: this scores the pad; co-binding constraints sit at the <b>slurry</b> (China-exposed) and, if you disagree, at the <b>CMP tool</b> (AMAT) — but the tool is capex, not a recurring razor.</p>
     </div>
   </div>
 </section>
 
-<!-- 10. AWARENESS + WATCHLIST -->
-<section id="s10">
-  <div class="sh"><span class="n">10</span><h2>Are we early? Awareness curve + what to watch</h2><span class="cn">覺察曲線</span></div>
-  <p class="lead">All three named plays have moved — but by very different amounts. The purest chokepoint vehicle (JCU chemistry) is the <b>least</b> advanced on the curve; the fab (Ibiden) is in euphoria. The genuinely-early dollar is left of JCU, in the still-latent watchlist.</p>
-  <div class="svgwide">
-    <div class="svgscroll">
-    <svg viewBox="0 0 1040 300" width="100%" style="min-width:840px" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="scurve" x1="0" x2="1"><stop offset="0" stop-color="#5fc98a"/><stop offset="0.5" stop-color="#e0a458"/><stop offset="1" stop-color="#e0686a"/></linearGradient>
-      </defs>
-      <!-- zone labels -->
-      <text x="70" y="30" text-anchor="middle" class="axis-zone" fill="#5fc98a" font-size="9">LATENT</text>
-      <text x="290" y="30" text-anchor="middle" class="axis-zone" fill="#5fc98a" font-size="9">EARLY (alpha)</text>
-      <text x="560" y="30" text-anchor="middle" class="axis-zone" fill="#e0a458" font-size="9">RECOGNITION</text>
-      <text x="830" y="30" text-anchor="middle" class="axis-zone" fill="#e0686a" font-size="9">EUPHORIA</text>
-      <text x="990" y="30" text-anchor="middle" class="axis-zone" fill="#e0686a" font-size="9">PRICED</text>
-      <!-- S curve -->
-      <path d="M40,250 C240,248 300,235 430,180 C560,125 660,70 1000,58" fill="none" stroke="url(#scurve)" stroke-width="3"/>
-      <!-- entry zone band -->
-      <rect x="150" y="45" width="230" height="215" fill="rgba(95,201,138,.06)" stroke="#2e5a44" stroke-dasharray="4 4"/>
-      <text x="265" y="252" text-anchor="middle" class="axis-zone" fill="#5fc98a" font-size="8.5">entry-discipline zone</text>
-      <!-- next-entry marker (left of JCU) -->
-      <line x1="200" y1="60" x2="200" y2="235" stroke="#5fc98a" stroke-width="1.5" stroke-dasharray="5 4"/>
-      <text x="200" y="80" text-anchor="middle" font-size="9" fill="#8fdcae">where the next</text>
-      <text x="200" y="92" text-anchor="middle" font-size="9" fill="#8fdcae">entry hides →</text>
-      <text x="200" y="104" text-anchor="middle" class="svglabel">Uyemura · drills · resist</text>
-
-      <!-- JCU -->
-      <circle cx="360" cy="197" r="7" fill="#5fc98a"/><text x="360" y="184" text-anchor="middle" font-size="11" fill="#e8eaf0" font-weight="600">JCU</text>
-      <text x="360" y="220" text-anchor="middle" class="svglabel m" fill="#9aa3b5">+44% · chem pure-play</text>
-      <!-- MKSI -->
-      <circle cx="620" cy="120" r="7" fill="#e0a458"/><text x="620" y="107" text-anchor="middle" font-size="11" fill="#e8eaf0" font-weight="600">MKSI</text>
-      <text x="620" y="143" text-anchor="middle" class="svglabel m" fill="#9aa3b5">+131% · diluted gate</text>
-      <!-- Ibiden -->
-      <circle cx="850" cy="78" r="7" fill="#e0686a"/><text x="850" y="65" text-anchor="middle" font-size="11" fill="#e8eaf0" font-weight="600">Ibiden</text>
-      <text x="850" y="101" text-anchor="middle" class="svglabel m" fill="#9aa3b5">+202% · 72× · fab</text>
-
-      <text x="1020" y="285" text-anchor="end" class="svglabel">y = crowding / valuation · x = awareness · as of ~10-Jul-2026</text>
+<!-- 8. VARIANT -->
+<section id="s8">
+  <div class="sh"><span class="n">08</span><h2>The variant view — pad vs slurry, and the China cut</h2><span class="cn">變異認知 / 拆解</span></div>
+  <p class="lead">Consensus post-spin bought "<b>Qnity = an AI-materials winner</b>" as one blob (+70% YTD). The disaggregation that actually matters: <b>the pad and the slurry are different businesses with different defensibility</b> — and the single biggest risk to CMP rent, Chinese substitution, hits the slurry hard and the pad barely at all.</p>
+  <div class="svgwide" style="margin-bottom:14px"><div class="svgscroll">
+    <svg viewBox="0 0 1040 230" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <!-- LEFT: pad -->
+      <rect x="20" y="30" width="480" height="180" rx="12" fill="#1a1622" stroke="#5a4a7a"/>
+      <text x="40" y="58" font-size="14" fill="#cfc9f2" font-weight="600">THE PAD — a durable near-monopoly</text>
+      <g font-size="11" fill="#bcb3e6">
+        <circle cx="52" cy="86" r="4" fill="#8b84cf"/><text x="66" y="90">Qnity <tspan font-weight="600" fill="#fff">&gt;50%</tspan> share, one franchise spans all materials</text>
+        <circle cx="52" cy="114" r="4" fill="#8b84cf"/><text x="66" y="118">Groove IP + mechanical co-qual = hard to copy</text>
+        <circle cx="52" cy="142" r="4" fill="#8b84cf"/><text x="66" y="146"><tspan font-weight="600" fill="#7cd6a0">No credible Chinese pad champion</tspan> yet</text>
+        <circle cx="52" cy="170" r="4" fill="#8b84cf"/><text x="66" y="174">GM ~46% — rent is real and China-resistant</text>
+      </g>
+      <rect x="360" y="150" width="120" height="44" rx="8" fill="#221c2e" stroke="#8b84cf"/><text x="420" y="170" text-anchor="middle" font-size="10" fill="#aaa3e6">rent durability</text><text class="m" x="420" y="187" text-anchor="middle" font-size="15" fill="#cfc9f2" font-weight="600">HIGH</text>
+      <!-- RIGHT: slurry -->
+      <rect x="540" y="30" width="480" height="180" rx="12" fill="#221d10" stroke="#5a4f2a"/>
+      <text x="560" y="58" font-size="14" fill="#e3bd76" font-weight="600">THE SLURRY — a contested oligopoly</text>
+      <g font-size="11" fill="#d8c48f">
+        <circle cx="572" cy="86" r="4" fill="#d2a24a"/><text x="586" y="90">Fragments by material — leader (Entegris) only <tspan font-weight="600" fill="#fff">~23%</tspan></text>
+        <circle cx="572" cy="114" r="4" fill="#d2a24a"/><text x="586" y="118">Fujimi, Merck, Resonac, Fujifilm all real</text>
+        <circle cx="572" cy="142" r="4" fill="#d2a24a"/><text x="586" y="146"><tspan font-weight="600" fill="#eda3a4">Anji (China) 7%→11%</tspan>, state-backed, +43% rev</text>
+        <circle cx="572" cy="170" r="4" fill="#d2a24a"/><text x="586" y="174">Qualified at SMIC/YMTC/CXMT at mature nodes</text>
+      </g>
+      <rect x="880" y="150" width="120" height="44" rx="8" fill="#2c2712" stroke="#d2a24a"/><text x="940" y="170" text-anchor="middle" font-size="10" fill="#e3bd76">rent durability</text><text class="m" x="940" y="187" text-anchor="middle" font-size="15" fill="#e3bd76" font-weight="600">MEDIUM</text>
     </svg>
+  </div></div>
+  <div class="panel" style="border-color:#1c4b46;background:rgba(45,212,191,.05)">
+    <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px">VARIANT PERCEPTION · what I think the Street is under-weighting</div>
+    <p style="font-size:12.5px;color:var(--mut);line-height:1.6"><b style="color:var(--txt)">Consensus:</b> "CMP is a nice AI-materials growth basket; buy Qnity/Entegris/Fujimi, they all ride hybrid bonding." <b style="color:var(--txt)">Variant:</b> the <b style="color:var(--txt)">pad and slurry are not the same trade</b>. The pad is a &gt;50%, one-franchise, China-resistant near-monopoly whose rent compounds with CMP-step intensity; the slurry is a five-way material-specific fight that China is actively entering from the bottom. So within the same theme, <b style="color:var(--txt)">Qnity's pad rent is structurally safer than Entegris/Fujimi's slurry rent</b> — yet the market prices Qnity as "a spin-off" and hasn't fully separated the monopoly pad P&L from the more ordinary interconnect/slurry parts. <b style="color:var(--txt)">How it's wrong:</b> if a Chinese or Korean pad house (or a fab-funded 2nd-source) qualifies at leading edge, or if hybrid-bonding volume slips, the pad's premium compresses toward the slurry's — and both are already priced for good news (+60–70% YTD).</p>
+  </div>
+</section>
+
+<!-- 9. TIMELINE -->
+<section id="s9">
+  <div class="sh"><span class="n">09</span><h2>Multi-year roadmap — when each driver bites</h2><span class="cn">多年時間軸</span></div>
+  <p class="lead">Rows = demand drivers; columns = this year → +3y. The hinge is <b>2027</b>: hybrid bonding goes from Apple-scale to broad logic + HBM4, and China's slurry qualification climbs the node ladder. Tinted cells = stress / catalyst.</p>
+  <div class="tlgrid">
+    <div class="tlhead"><div>Driver</div><div>2026</div><div>2027</div><div>2028</div><div>2029+</div></div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--up)"></span>Node CMP steps</div>
+      <div class="cell"><b>N2 ramps</b>~28+ steps; +30–50% vs N5</div>
+      <div class="cell hot"><b>N2 volume + A16</b>backside power adds polish steps</div>
+      <div class="cell hot"><b>A16/A14</b>step count keeps climbing</div>
+      <div class="cell">Angstrom nodes — CMP intensity structural</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--choke)"></span>Hybrid bonding</div>
+      <div class="cell warm"><b>Apple M5 Pro</b>SoIC-X in a consumer part (reported)</div>
+      <div class="cell hot"><b>Broad logic + HBM4</b>bond-surface CMP scales</div>
+      <div class="cell hot"><b>Sub-µm pitch</b>even tighter Ra spec</div>
+      <div class="cell">wafer-on-wafer volume; CMP is gating</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--fab)"></span>Memory 3D/HBM</div>
+      <div class="cell"><b>HBM3E/4</b>+10–15% steps; SK Hynix pad LTA</div>
+      <div class="cell warm"><b>400+ layer NAND</b>staircase CMP grows</div>
+      <div class="cell"><b>HBM4E</b>hybrid-bond memory begins</div>
+      <div class="cell">custom-HBM base-die CMP</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--slu)"></span>China substitution</div>
+      <div class="cell"><b>Anji ~11%</b>mature-node slurry qualified</div>
+      <div class="cell warm"><b>Climbs to ≤14nm</b>slurry share pressure builds</div>
+      <div class="cell hot"><b>Pad attempt?</b>the key bear tell to watch</div>
+      <div class="cell">domestic pad qual = thesis breaker</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--accent)"></span>The stocks</div>
+      <div class="cell"><b>All +60–72% YTD</b>re-rated; asymmetry thin</div>
+      <div class="cell"><b>Earnings must deliver</b>multiples need the growth</div>
+      <div class="cell">CMP-intensity compounding shows in mix</div>
+      <div class="cell">winner = whoever holds pad share</div>
+    </div>
+  </div>
+  <p class="cap">The bullish structural driver (CMP-step intensity) is durable and multi-year; the bearish one (China pad qualification) is the single dated tell that would break the pad-monopoly thesis — watch 2027–28.</p>
+</section>
+
+<!-- 10. PLAYS -->
+<section id="s10">
+  <div class="sh"><span class="n">10</span><h2>The plays — three links, three awareness stages</h2><span class="cn">三檔標的</span></div>
+  <p class="lead">Three names at <i>different</i> links of the CMP chain, ranked by <b>remaining asymmetry</b> (how much is still NOT priced). Honest headline: all three already ran hard in 2026, so this is about <b>quality + entry discipline</b>, not a hidden gem. The pad owner (Qnity) is the highest-quality, most China-resistant link; the slurry names carry the China risk.</p>
+  <div class="tabbtns" role="tablist" aria-label="CMP plays">
+    <button class="tabbtn on" role="tab" id="tab1" aria-controls="t1" aria-selected="true" tabindex="0">① Qnity · Q<small>Pad chokepoint · own-it</small></button>
+    <button class="tabbtn" role="tab" id="tab2" aria-controls="t2" aria-selected="false" tabindex="-1">② Entegris · ENTG<small>Slurry+filtration gate</small></button>
+    <button class="tabbtn" role="tab" id="tab3" aria-controls="t3" aria-selected="false" tabindex="-1">③ Fujimi · 5384<small>Slurry pure-play · euphoria</small></button>
+  </div>
+
+  <!-- TAB 1 -->
+  <div class="tabpane" id="t1" role="tabpanel" aria-labelledby="tab1">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">Qnity Electronics <span style="color:var(--dim);font-weight:400">NYSE: Q</span></h3>
+      <span class="stagebadge sg-recog">RECOGNITION · most asymmetry of the three</span>
+      <span style="font-size:12px;color:var(--mut)">Chokepoint: <b style="color:var(--txt)">CMP polishing pad (&gt;50% share)</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The <b>pad near-monopoly</b>, spun out of DuPont on 1-Nov-2025. The most durable, most China-resistant link in CMP — one pad franchise spans every material and node, locked in by decade-long co-qual, GM ~46%. But it's not a secret: +70% YTD, ~35× forward. Own it as a quality compounder on pullbacks, not for a re-rating from here.</p>
+    <div class="mini">
+      <div><div class="v">$138.66</div><div class="l">Last (IBKR, 26 Jul)</div></div>
+      <div><div class="v" style="color:var(--slu)">+70%</div><div class="l">YTD 2026</div></div>
+      <div><div class="v">~$29B</div><div class="l">Market cap</div></div>
+      <div><div class="v" style="color:var(--slu)">~35x</div><div class="l">Fwd P/E (FY26 guide)*</div></div>
+      <div><div class="v" style="color:var(--pos)">~46%</div><div class="l">Gross margin</div></div>
+    </div>
+    <div class="gap"><div class="h">ASYMMETRIC INFO GAP · 變異認知</div><p>Qnity trades as "the DuPont electronics spin-off" — a broad semi+interconnect materials story. The under-appreciated piece is that inside it sits a <b>&gt;50% CMP-pad monopoly</b> with razor-blade economics that <b>compound with CMP-step intensity</b> (+30–50%/node) and are <b>structurally China-resistant</b> (no Chinese pad champion). If the market ever re-segments Qnity to value the pad P&L on its own monopoly merits, there's upside the blob multiple misses. Offsetting it: at ~35× forward with +70% already banked, near-term skew is modest.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢 Business model</div><p>Sells consumable CMP <b>pads</b> (+ slurries, and broad semi/interconnect materials). Razor-blades: re-bought every wafer, every layer. Recurring, high-margin, specified-in.</p></div>
+      <div class="mtc"><div class="h">② 營收結構 Segments</div><p>FY25 rev <b>$4.75B</b>: Semiconductor Technologies ~56% ($2.64B, incl. CMP), Interconnect Solutions ~44% ($2.11B).</p></div>
+      <div class="mtc"><div class="h">③ 成長來源 Growth drivers</div><p>CMP-step intensity (nodes/3D), hybrid-bonding surface polish, HBM (SK Hynix pad LTA), new Emblem &amp; Optivision Max pad platforms.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場 End markets</div><p>Leading-edge logic (TSMC/Samsung/Intel) + memory (SK Hynix/Micron) + advanced packaging; broad electronics via Interconnect.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶 Customers</div><p>Every leading fab. <b>SK Hynix</b> signed a long-term CMP-pad supply pact (Oct-2025) — an HBM anchor. Diversified, sticky, co-qualified.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河 Moat</div><p>&gt;50% pad share, 30+ yr brands (IKONIC/IC1000), groove IP, decade co-qual lock-in, no credible Chinese pad rival. GM ~46%.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望 Guidance</div><p>FY26 guide: rev <b>$5.23–5.38B</b>, adj-op-EBITDA $1.54–1.63B, adj EPS <b>$3.80–4.14</b> (~11–13% rev growth).</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點 Why chokepoint</div><p>Nothing gets planarized without a pad; the pad can't be swapped without re-qualifying — and one company makes most of them, across every node.</p></div>
+    </div>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--pos)">BULL</b>Pad monopoly + CMP-intensity compounding + HBM pad LTAs; market re-rates the pad P&L; ~$200 (+45%).</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>Semi-capex pause + multiple de-rate from ~35×; a leading-edge pad 2nd-source qualifies; ~$97 (−30%).</div>
     </div>
   </div>
 
-  <div style="height:18px"></div>
-  <div class="two">
-    <div>
-      <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px">LEADING-INDICATOR DASHBOARD</div>
-      <table class="liw">
-        <tr><th>Signal</th><th>Trigger threshold</th><th>Where an amateur reads it (free)</th></tr>
-        <tr><td><b>JCU electronics-chem sales</b></td><td class="dotG">accel &gt; +15% YoY = bullish</td><td>JCU quarterly briefing (IR PDF, TSE)</td></tr>
-        <tr><td><b>Fine-line node ramp</b></td><td class="dotG">CoWoS-L 5→2µm on schedule</td><td>TSMC earnings calls; OFC/ECTC papers</td></tr>
-        <tr><td><b>China 2nd-source qual</b></td><td class="dotR">top fab qualifies CN chem at leading node = bearish</td><td>Digitimes / TrendForce notes; MOFCOM</td></tr>
-        <tr><td><b>Substrate lead-time</b></td><td class="dotA">&gt;24wk = tight; &lt;16wk = easing</td><td>Ibiden/Unimicron guidance; TrendForce</td></tr>
-        <tr><td><b>Panel FOPLP orders</b></td><td class="dotG">Samsung/Amkor AI panel wins</td><td>company PRs; SEMICON session notes</td></tr>
-        <tr><td><b>MKS Materials (Atotech) mix</b></td><td class="dotA">MSD rev + margin trend</td><td>MKS 10-Q segment table (SEC)</td></tr>
-      </table>
+  <!-- TAB 2 -->
+  <div class="tabpane" id="t2" role="tabpanel" aria-labelledby="tab2" hidden>
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">Entegris <span style="color:var(--dim);font-weight:400">NASDAQ: ENTG</span></h3>
+      <span class="stagebadge sg-recog">RECOGNITION · de-rated, relative-value only</span>
+      <span style="font-size:12px;color:var(--mut)">Chokepoint: <b style="color:var(--txt)">CMP slurry #1 (~23%) + filtration</b></span>
     </div>
-    <div>
-      <div style="font-size:12px;font-weight:700;color:var(--dacr);margin-bottom:8px">STILL-LATENT WATCHLIST · be-early</div>
-      <table class="liw">
-        <tr><th>Candidate</th><th>Why next · trigger that wakes it</th></tr>
-        <tr><td><b>Uyemura (4966.T)</b></td><td>ENIG-finish leader + electroless-Cu + expanding into TSV/pillar plating for 2.5D/3D; a 2nd listed chemistry pure-play. <span class="m">~¥24,740 · ~¥398B cap · ~13% off high</span> — already re-rated (recognition, not early). Wakes on AI-mix segment disclosure or a TSV design-win.</td></tr>
-        <tr><td><b>Laser via-drill</b></td><td>Via Mechanics (private) / Mitsubishi (diluted) / MKS-ESI; wakes if backlog + a listed pure-play emerges.</td></tr>
-        <tr><td><b>Dry-film resist</b></td><td>Asahi Kasei · Resonac — fine-line resist razor; wakes on 2µm RDL volume.</td></tr>
-        <tr><td><b>Direct imaging</b></td><td>SCREEN (7735) · Adtec; resolution co-limits SAP. Wakes on fab capex cycle.</td></tr>
-        <tr><td><b>Element / MacDermid</b></td><td>being absorbed by Solstice ($14.5B) — the tell; watch the combined platform post-close (H1-27).</td></tr>
-      </table>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The <b>diversified consumables gate</b>: #1 in CMP slurry (via the $6.5B CMC Materials/Cabot deal) plus filtration and fluid-handling — content on nearly every advanced wafer. More exposed to Chinese slurry substitution than the pad, and carries ~$4B of deal debt. Volatile: +53–61% YTD but −25% in the past month.</p>
+    <div class="mini">
+      <div><div class="v">~$129–135</div><div class="l">Jul-24 / IBKR last</div></div>
+      <div><div class="v" style="color:var(--slu)">~+55%</div><div class="l">YTD 2026</div></div>
+      <div><div class="v">~$20B</div><div class="l">Market cap</div></div>
+      <div><div class="v" style="color:var(--slu)">~7x</div><div class="l">EV/sales (est.)*</div></div>
+      <div><div class="v">~27–28%</div><div class="l">Adj EBITDA margin</div></div>
+    </div>
+    <div class="gap"><div class="h">ASYMMETRIC INFO GAP · 變異認知</div><p>Entegris is the <b>breadth</b> play — you own CMP slurry <i>and</i> filtration <i>and</i> fluid handling, so you don't have to pick the winning slurry chemistry. The gap: the market oscillates between "AI-materials compounder" and "over-levered, China-exposed, growth-only-+5%" (Q1'26 rev +5% YoY; GuruFocus flags overvalued vs ~$102 fair value). The debt (~$4B) amplifies both directions. Relative-value only on a real pullback — the slurry rent is genuine but less defensible than the pad.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢 Business model</div><p>Sells consumable slurries, filters, and fluid-handling to fabs — razor-blades + content-per-wafer growth. Integrated CMP: slurry + some pads + post-CMP clean.</p></div>
+      <div class="mtc"><div class="h">② 營收結構 Segments</div><p>Materials Solutions (CMP slurry, incl. CMC) + Microcontamination Control (filtration) + Advanced Materials Handling. Q1'26 rev <b>$811.9M</b>.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源 Growth drivers</div><p>Content-per-wafer at advanced logic (~40% of rev), hybrid-bonding slurry, filtration for new chemistries, fab construction capex.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場 End markets</div><p>Leading-edge logic + memory + advanced packaging worldwide; heavy exposure to the AI capex cycle.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶 Customers</div><p>Broad fab base (TSMC, Samsung, Intel, Micron, SK Hynix). Diversified — no single dominant customer.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河 Moat</div><p>#1 slurry share (~23%), integrated CMP + filtration + handling, qualified-in stickiness. Weaker than a pad monopoly; China nibbling.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望 Guidance</div><p>Q2'26 rev $815–845M, adj-EBITDA margin ~27–28%; deleveraging + content-growth the multi-year story.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點 Why chokepoint</div><p>Slurry + filtration are consumed on essentially every advanced wafer; qualification lock-in — but slurry is a five-way fight, not a monopoly.</p></div>
+    </div>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--pos)">BULL</b>AI-materials re-accelerate; content-per-wafer + filtration compound; deleveraging; ~$185 (+40%).</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>+5% growth persists, China slurry share loss + debt weigh, multiple de-rates to fair value; ~$95 (−30%).</div>
+    </div>
+  </div>
+
+  <!-- TAB 3 -->
+  <div class="tabpane" id="t3" role="tabpanel" aria-labelledby="tab3" hidden>
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">Fujimi Incorporated <span style="color:var(--dim);font-weight:400">TSE: 5384</span></h3>
+      <span class="stagebadge sg-euph">EUPHORIA · ran hardest, offshore</span>
+      <span style="font-size:12px;color:var(--mut)">Chokepoint: <b style="color:var(--txt)">FEOL transistor slurry (~60%)</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The <b>slurry pure-play</b>: #2 overall (~15–20%) but ~<b>60% of front-end transistor-formation slurry</b>, where the toughest defect specs live, with TSMC as ~16% of sales. Purest CMP exposure of the three — but smallest, most China-exposed on mature nodes, ran the hardest (+72% YTD), and carries JP-listing access friction for a US amateur.</p>
+    <div class="mini">
+      <div><div class="v">¥4,030</div><div class="l">Last (IBKR, 26 Jul)</div></div>
+      <div><div class="v" style="color:var(--choke)">+72%</div><div class="l">YTD 2026</div></div>
+      <div><div class="v">~¥62.5B</div><div class="l">FY25 sales (+22%)</div></div>
+      <div><div class="v" style="color:var(--pos)">~19%</div><div class="l">Operating margin</div></div>
+      <div><div class="v">TSMC 16%</div><div class="l">Top customer</div></div>
+    </div>
+    <div class="gap"><div class="h">ASYMMETRIC INFO GAP · 變異認知</div><p>Fujimi is the cleanest way to own CMP slurry as a <i>franchise</i> — dominant where it matters most (front-end, where a defect kills a whole wafer). The gap the crowd underweights: front-end slurry is <b>stickier and higher-spec than metal slurry</b>, so Fujimi's ~60% FEOL share is more defensible than a headline "15% overall" suggests. But it cuts both ways — small-cap, single-country listing, and it has <b>already run +72%</b>, so the asymmetry is the thinnest of the three. This is the "euphoria" corner of the awareness curve.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢 Business model</div><p>Sells CMP slurries + precision surface-finishing materials (also wafer-polishing). Razor-blades tied to wafer starts × front-end steps.</p></div>
+      <div class="mtc"><div class="h">② 營收結構 Segments</div><p>Abrasives/CMP dominant; FY25 sales <b>¥62.5B (+21.6%)</b>; H1 FY26 ¥33.5B (+8.9%), OP ¥6.47B (+13.4%).</p></div>
+      <div class="mtc"><div class="h">③ 成長來源 Growth drivers</div><p>N2/GAA front-end step growth, TSMC advanced-node ramp, new-material (Co/Ru/Mo) slurry, wafer-polishing demand.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場 End markets</div><p>Leading-edge foundry/logic front-end primarily; some memory + industrial surface-finishing.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶 Customers</div><p><b>TSMC ~16% of sales</b> (concentration risk + a leading-edge endorsement); other global fabs.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河 Moat</div><p>~60% FEOL transistor slurry — highest-spec, stickiest sub-segment; deep process co-development. Small scale is the vulnerability.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望 Guidance</div><p>Steady front-end-led growth; margins expanding with mix; watch mature-node/China pricing at the low end.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點 Why chokepoint</div><p>Front-end transistor CMP has zero defect tolerance; Fujimi's qualified slurry is co-developed with the fab — hard to displace at the leading edge.</p></div>
+    </div>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--pos)">BULL</b>N2 ramp + FEOL step growth + TSMC mix; ~¥5,440 (+35%).</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>Small-cap unwind after +72%, China/mature-node slurry pricing, FX; ~¥2,620 (−35%).</div>
     </div>
   </div>
 </section>
 
-<!-- 11. THE PLAYS -->
+<!-- 11. AWARENESS + WATCHLIST -->
 <section id="s11">
-  <div class="sh"><span class="n">11</span><h2>The three plays — different links, staged honestly</h2><span class="cn">三檔標的</span></div>
-  <p class="lead">Each sits at a <b>different</b> link: the chemistry razor (JCU), the integrated equipment+chemistry gate (MKS), and the fab where the rent settles (Ibiden). Read the stage badge before the story — <b>tightness ≠ a good buy</b>.</p>
-  <div class="tabs" role="tablist" aria-label="The three plays">
-    <button class="tabbtn on" role="tab" id="tab-jcu" aria-controls="pane-jcu" aria-selected="true" tabindex="0" onclick="showTab('jcu',this)">JCU<small>4975.T · chemistry razor</small></button>
-    <button class="tabbtn" role="tab" id="tab-mksi" aria-controls="pane-mksi" aria-selected="false" tabindex="-1" onclick="showTab('mksi',this)">MKS Instruments<small>MKSI · equip+chem gate</small></button>
-    <button class="tabbtn" role="tab" id="tab-ibiden" aria-controls="pane-ibiden" aria-selected="false" tabindex="-1" onclick="showTab('ibiden',this)">Ibiden<small>4062.T · the fab</small></button>
-  </div>
+  <div class="sh"><span class="n">11</span><h2>Are we early? The awareness curve</h2><span class="cn">現在是早期嗎</span></div>
+  <p class="lead">Honest answer: <b>no — the listed plays already ran.</b> Qnity and Entegris sit in Recognition, Fujimi in Euphoria. The genuinely-early money is <i>left of the earliest name</i>, in links that are still un-bid and mostly hard for a US amateur to buy — which is the whole point of watching them now.</p>
+  <div class="svgwide" style="margin-bottom:14px"><div class="svgscroll">
+    <svg viewBox="0 0 1060 320" width="100%" class="awsvg" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="alphaz" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5fc98a" stop-opacity="0.22"/><stop offset="1" stop-color="#5fc98a" stop-opacity="0"/></linearGradient></defs>
+      <rect x="40" y="40" width="190" height="230" fill="#11141c"/>
+      <rect x="230" y="40" width="200" height="230" fill="url(#alphaz)" stroke="#2c5a40" stroke-dasharray="3 4"/>
+      <rect x="630" y="40" width="200" height="230" fill="#1a1216" opacity="0.5"/>
+      <text x="135" y="32" text-anchor="middle" font-size="10" fill="#697283">LATENT</text>
+      <text x="330" y="32" text-anchor="middle" font-size="10" fill="#5fc98a" font-weight="600">EARLY · ALPHA</text>
+      <text x="530" y="32" text-anchor="middle" font-size="10" fill="#d2a24a">RECOGNITION</text>
+      <text x="730" y="32" text-anchor="middle" font-size="10" fill="#e0686a">EUPHORIA</text>
+      <text x="930" y="32" text-anchor="middle" font-size="10" fill="#697283">FULLY PRICED</text>
+      <path d="M40,258 C 260,250 280,205 430,150 C 560,104 640,78 760,70 C 880,64 980,64 1020,64" fill="none" stroke="#4a5570" stroke-width="2.5"/>
+      <text x="48" y="288" font-size="10" fill="#697283">time · market awareness  →</text>
+      <text x="20" y="150" font-size="10" fill="#697283" transform="rotate(-90 20 150)">price / crowding →</text>
+      <!-- ENTG (recognition) -->
+      <circle cx="520" cy="116" r="7" fill="#d2a24a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="520" y="104" text-anchor="middle" font-size="11" fill="#e3bd76" font-weight="700">ENTG</text>
+      <text class="m" x="516" y="138" text-anchor="middle" font-size="9" fill="#9aa3b5">+55% YTD · ~7x EV/S</text>
+      <!-- Q (recognition, further along on larger YTD, higher quality) -->
+      <circle cx="580" cy="104" r="7" fill="#2dd4bf" stroke="#0b0d12" stroke-width="2"/>
+      <text x="580" y="92" text-anchor="middle" font-size="11" fill="#5fe0d0" font-weight="700">Q</text>
+      <text class="m" x="584" y="126" text-anchor="middle" font-size="9" fill="#9aa3b5">+70% · ~35x</text>
+      <!-- Fujimi (euphoria) -->
+      <circle cx="742" cy="74" r="7" fill="#e0686a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="742" y="62" text-anchor="middle" font-size="11" fill="#eda3a4" font-weight="700">5384</text>
+      <text class="m" x="756" y="88" text-anchor="start" font-size="9" fill="#9aa3b5">+72% YTD</text>
+      <!-- latent marker -->
+      <circle cx="300" cy="200" r="6" fill="none" stroke="#5fc98a" stroke-width="2" stroke-dasharray="2 2"/>
+      <text x="300" y="188" text-anchor="middle" font-size="9" fill="#7cd6a0">where the NEXT entry hides ↙</text>
+      <text x="300" y="216" text-anchor="middle" font-size="8.5" fill="#697283">Anji · Fujibo · ceria upstream</text>
+      <text x="330" y="262" text-anchor="middle" font-size="9.5" fill="#5fc98a">↑ you want to enter here</text>
+      <text x="775" y="250" text-anchor="middle" font-size="9.5" fill="#eda3a4">most retail buys here — too late</text>
+    </svg>
+  </div></div>
+  <p class="cap" style="margin-top:-4px;margin-bottom:14px">Horizontal = awareness stage (qualitative). Dot height ≈ how much is already in the price as-of 26 Jul 2026. Q and ENTG both sit in <b>Recognition</b> (Q a touch further along on its larger YTD), 5384 in <b>Euphoria</b> — all three are past the early-alpha zone. The genuinely-early money is the dashed marker on the left.</p>
 
-  <!-- JCU -->
-  <div class="tabpane" id="pane-jcu" role="tabpanel" aria-labelledby="tab-jcu">
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px">
-      <h3 style="font-size:17px">JCU Corporation <span class="m" style="color:var(--dim);font-size:13px">4975.T · Tokyo</span></h3>
-      <span class="stagebadge sg-early">EARLY → RECOGNITION</span>
-      <span style="font-size:12px;color:var(--mut)">the purest chokepoint vehicle · the group laggard</span>
-    </div>
-    <div class="mini">
-      <div><div class="v teal">¥7,000</div><div class="l">price (~10-Jul)</div></div>
-      <div><div class="v">+44%</div><div class="l">YTD</div></div>
-      <div><div class="v">¥172B</div><div class="l">mkt cap (~$1.15B)</div></div>
-      <div><div class="v">¥28.4B</div><div class="l">revenue</div></div>
-      <div><div class="v">~13%</div><div class="l">off 52wk high</div></div>
-    </div>
-    <div class="mtd">
-      <div class="mtc"><div class="h">① 怎麼賺錢 — how it earns</div><p>Sells proprietary surface-treatment <b>chemistry</b> (baths, additives) to PCB/substrate/semiconductor makers; flagship <b>CU-BRITE</b> via-fill copper + <b>TIPHARES</b> semiconductor line. High-margin consumable + technical service.</p></div>
-      <div class="mtc"><div class="h">② 營收結構 — revenue mix</div><p>By industry: electronics ~45% · auto ~30% · machinery ~15% · other ~10%. Geo: Japan ~40% · China ~25% · US ~20%. Semiconductor is a growing <i>sub-slice</i> of electronics.</p></div>
-      <div class="mtc"><div class="h">③ 成長來源 — growth</div><p>2.5D/3D + larger substrates + finer L/S multiply via counts and plating passes; AI-datacenter capex is the volume driver for the high-margin via-fill line.</p></div>
-      <div class="mtc"><div class="h">④ 終端市場 — end market</div><p>HDI boards, IC package substrates, semiconductor packaging — for smartphones, PCs and, increasingly, AI servers.</p></div>
-      <div class="mtc"><div class="h">⑤ 主要客戶 — customers</div><p>PCB &amp; substrate fabricators across Japan, Greater China and Taiwan (via distributors + direct technical qualification).</p></div>
-      <div class="mtc"><div class="h">⑥ 護城河 — moat</div><p><b>Co-qualification lock-in</b>: a via-fill recipe is certified per customer/node over 12–24mo, then sticky for a decade. Margin is the tell — <b>~¥2.5B net income last quarter on ~¥28.4B annual revenue</b> with a net-cash balance sheet = high-margin, high-ROIC (rent captured, not competed away).</p></div>
-      <div class="mtc"><div class="h">⑦ 管理層展望 — outlook</div><p>Management flags strong China demand for high-performance PWB/substrate chemistry; disciplined capital allocation. Next print 12-May-2026.</p></div>
-      <div class="mtc"><div class="h">⑧ 為何是卡點 — why the chokepoint</div><p>It <i>is</i> the metallization razor — the least-substitutable, most-durable link, and the only <b>clean listed pure-play</b> for it. And it's the laggard.</p></div>
-    </div>
-    <div class="gap"><div class="h">ASYMMETRIC INFO GAP</div><p>The market prices JCU as a sleepy Japanese specialty-chemical small-cap (auto + machinery drag the multiple), not as the pure-play on the AI-substrate plating chokepoint. The AI mix is buried inside "electronics." If semiconductor-chemistry sales keep accelerating, the mix re-rates the whole company.</p></div>
-    <div class="bbr">
-      <div class="bl2"><b style="color:var(--dacr)">BULL</b>AI mix + panel RDL + node transitions lift the semiconductor slice; laggard re-rates toward the group; pristine BS supports buybacks. ~+40–60%.</div>
-      <div class="be"><b style="color:var(--choke)">BEAR</b>Chinese domestic chemistry displaces it in the 25% China book; auto/machinery drag; +44% already prices the AI story. ~−20–30%.</div>
-    </div>
-  </div>
-
-  <!-- MKSI -->
-  <div class="tabpane" id="pane-mksi" role="tabpanel" aria-labelledby="tab-mksi" hidden>
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px">
-      <h3 style="font-size:17px">MKS Instruments <span class="m" style="color:var(--dim);font-size:13px">MKSI · Nasdaq</span></h3>
-      <span class="stagebadge sg-recog">RECOGNITION</span>
-      <span style="font-size:12px;color:var(--mut)">the US-listed way to own it — but diluted &amp; levered</span>
-    </div>
-    <div class="mini">
-      <div><div class="v teal">$368.78</div><div class="l">price (~10-Jul)</div></div>
-      <div><div class="v">+131%</div><div class="l">YTD</div></div>
-      <div><div class="v">$24.9B</div><div class="l">mkt cap</div></div>
-      <div><div class="v">~$4.07B</div><div class="l">TTM revenue</div></div>
-      <div><div class="v">~3.5×</div><div class="l">net leverage</div></div>
-    </div>
-    <div class="mtd">
-      <div class="mtc"><div class="h">① 怎麼賺錢 — how it earns</div><p>Three divisions: Vacuum (semi WFE), Photonics (Newport lasers/optics), and <b>Materials (Atotech)</b> — plating chemistry + equipment + the ESI laser-drill systems. The AI-substrate exposure is Atotech + ESI.</p></div>
-      <div class="mtc"><div class="h">② 營收結構 — revenue mix</div><p>Materials/Atotech <i>division</i> ≈ ~$1.4–1.5B of ~$4B total (est.); the disclosed AI-relevant <b>Electronics &amp; Packaging</b> cut is smaller still (~$1B/yr run-rate, +~22% YoY, est.) — Atotech also does auto/decorative/industrial. Heavily diluted.</p></div>
-      <div class="mtc"><div class="h">③ 成長來源 — growth</div><p>The "chemistry-equipment flywheel": sell the plating line/laser tool → high attach rate for proprietary chemistry → decade of consumable revenue at above-corporate margin. AI advanced-packaging is the tailwind.</p></div>
-      <div class="mtc"><div class="h">④ 終端市場 — end market</div><p>Semiconductor fab + advanced packaging + advanced PCB; plus industrial/analytical. Broad cyclical exposure.</p></div>
-      <div class="mtc"><div class="h">⑤ 主要客戶 — customers</div><p>OSATs + substrate makers (TW/KR/CN/JP) for Atotech; chipmakers for Vacuum; broad base for Photonics.</p></div>
-      <div class="mtc"><div class="h">⑥ 護城河 — moat</div><p>Integrated <b>tool + chemistry</b> qualification (G-Plate PTH &lt;5/5µm, Geode CO₂ laser) → sticky attach. But it competes head-on with MacDermid/JCU in chemistry.</p></div>
-      <div class="mtc"><div class="h">⑦ 管理層展望 — outlook</div><p>Q1-2026 beat (+15% YoY), raised dividend, net leverage improving to ~3.5×; expanding Atotech capacity (Guangzhou +$25M). AI-driven demand across all segments.</p></div>
-      <div class="mtc"><div class="h">⑧ 為何是卡點 — why the chokepoint</div><p>Owns the <b>Atotech</b> chemistry gate <i>and</i> the ESI laser-drill tool — the one-stop tollbooth on the fab line. But you buy it wrapped in two other divisions + Atotech acquisition debt.</p></div>
-    </div>
-    <div class="gap"><div class="h">ASYMMETRIC INFO GAP</div><p>MKS re-rated +131% YTD as the market woke to the AI-packaging content — so the easy discovery is gone. The residual gap: how much durable, high-margin <b>consumable chemistry annuity</b> the flywheel is compounding beneath the cyclical equipment optics, and whether de-leveraging frees a re-rate. Read the MSD segment margin trend.</p></div>
-    <div class="bbr">
-      <div class="bl2"><b style="color:var(--dacr)">BULL</b>Chemistry annuity compounds; de-levering below 3×; AI packaging content per tool rises; a cleaner AI-materials multiple. ~+25–40%.</div>
-      <div class="be"><b style="color:var(--choke)">BEAR</b>WFE/industrial cyclicality drags the other two divisions; +131% already prices it; leverage limits the multiple; chemistry share contested. ~−25–35%.</div>
-    </div>
-  </div>
-
-  <!-- Ibiden -->
-  <div class="tabpane" id="pane-ibiden" role="tabpanel" aria-labelledby="tab-ibiden" hidden>
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px">
-      <h3 style="font-size:17px">Ibiden <span class="m" style="color:var(--dim);font-size:13px">4062.T · Tokyo</span></h3>
-      <span class="stagebadge sg-eu">EUPHORIA / PRICED</span>
-      <span style="font-size:12px;color:var(--mut)">own the rent — but the rent is fully valued</span>
-    </div>
-    <div class="mini">
-      <div><div class="v teal">¥20,300</div><div class="l">price (~10-Jul)</div></div>
-      <div><div class="v">+202%</div><div class="l">YTD</div></div>
-      <div><div class="v">~72×</div><div class="l">trailing P/E</div></div>
-      <div><div class="v">¥416B</div><div class="l">FY26 revenue</div></div>
-      <div><div class="v">+89%</div><div class="l">EPS YoY</div></div>
-    </div>
-    <div class="mtd">
-      <div class="mtc"><div class="h">① 怎麼賺錢 — how it earns</div><p>Builds the finished high-layer-count <b>ABF/FC-BGA substrate</b> (~35% share) + ceramic auto parts. It's where the substrate scarcity rent lands — sold-out capacity, rising prices.</p></div>
-      <div class="mtc"><div class="h">② 營收結構 — revenue mix</div><p>Electronics (IC package substrates) is the AI engine + a legacy ceramics segment. FY26 revenue ¥416B (+13%), EPS +89% YoY — margins expanding into the shortage.</p></div>
-      <div class="mtc"><div class="h">③ 成長來源 — growth</div><p>Rubin package-substrate area ~+75% (est.), higher layer counts, ¥500B FY26–28 capex (2.5× capacity by 2028; Ono, Kawama-6).</p></div>
-      <div class="mtc"><div class="h">④ 終端市場 — end market</div><p>AI GPU/CPU/ASIC packages — NVIDIA, Intel, AMD.</p></div>
-      <div class="mtc"><div class="h">⑤ 主要客戶 — customers</div><p>NVIDIA (GPU packages), Intel, AMD; deep multi-year qualification.</p></div>
-      <div class="mtc"><div class="h">⑥ 護城河 — moat</div><p><b>Qualification + capex scale</b>: a top-layer substrate fab takes 2–3 yrs and ¥100Bs; only 5 players qualify. But it <b>buys</b> its scarcest inputs (near-monopoly ABF film + oligopoly plating chemistry) — a price-taker on the links below it.</p></div>
-      <div class="mtc"><div class="h">⑦ 管理層展望 — outlook</div><p>Largest capacity expansion in its history; confident on multi-year AI substrate upcycle. Consensus PT roughly at spot (~¥20.7k) — little upside baked.</p></div>
-      <div class="mtc"><div class="h">⑧ 為何是卡點 — why the chokepoint</div><p>It's the <i>visible</i> bottleneck (lead-time 5/5) — but priced at ~72× and multi-sourced. The tightness is real; the asymmetry is gone.</p></div>
-    </div>
-    <div class="gap"><div class="h">ASYMMETRIC INFO GAP</div><p>Almost none left at the headline — Ibiden is the consensus AI-substrate long at ~72× with the PT at spot. The only residual: if the 2027 gap exceeds ~20–26% and high-end capacity stays scarcest, pricing/margins overshoot the model. High bar.</p></div>
-    <div class="bbr">
-      <div class="bl2"><b style="color:var(--dacr)">BULL</b>Shortage persists through 2027; high-end mix + pricing overshoot; capacity ramps on time into unabated demand. ~+20–30%.</div>
-      <div class="be"><b style="color:var(--choke)">BEAR</b>~72× + PT-at-spot leaves no cushion; capacity flood digests the shortage; any AI-capex wobble de-rates hard. ~−30–45%.</div>
-    </div>
+  <div class="panel" style="border-color:#2c5a40;background:rgba(95,201,138,.05)">
+    <h4 style="font-size:13px;margin-bottom:6px;font-weight:600;color:var(--pos)">Still-latent watchlist — where the NEXT early entry hides <span class="cn" style="font-weight:400;color:var(--dim)">尚未被發現的早期標的</span></h4>
+    <p style="font-size:12px;color:var(--mut);line-height:1.55">The listed top-3 already moved. To be genuinely early you have to watch links that are still un-bid and under-covered — accepting that most are offshore, private, or state-tangled (harder to buy). Each below could become the next re-rating:</p>
+    <table class="tbl" style="margin-top:8px">
+      <tr><th>Latent candidate (link)</th><th>Why it could be next</th><th>Trigger that wakes it up · where to watch</th></tr>
+      <tr><td><b>Anji Microelectronics</b><br><span style="color:var(--dim)">SHA: 688019 · CN slurry</span></td><td>7%→11% global slurry share; H1'25 rev +43%, NP +60%; state-backed at SMIC/YMTC/CXMT. The bear <i>and</i> the early name.</td><td>Qualification at ≤14nm or at a hybrid-bond line; STAR-market filings / SMIC calls. (STAR-market access friction.)</td></tr>
+      <tr><td><b>Fujibo Holdings</b><br><span style="color:var(--dim)">TSE: 3104 · pad #2</span></td><td>The #2 pad maker hidden inside a textiles/paper conglomerate — the "hidden monopoly in a boring P&L" (Ajinomoto) pattern.</td><td>Any pad-share disclosure or an AI-CMP segment call-out; JP filings. (Diluted parent, JP listing.)</td></tr>
+      <tr><td><b>Upstream abrasive</b><br><span style="color:var(--dim)">Fuso 4368 · Admatechs · AGC</span></td><td>High-purity ceria / colloidal-silica feed for slurry — the layer below the slurry, exposed to China rare-earth/ceria policy.</td><td>Ceria export controls (MOFCOM notices) or a slurry-maker supply-pact; JP filings.</td></tr>
+      <tr><td><b>KCTech</b><br><span style="color:var(--dim)">KRX: 281820 · slurry+tool</span></td><td>Korea slurry + CMP-equipment; leverage to Samsung/SK Hynix advanced packaging.</td><td>Hybrid-bond CMP wins at KR memory; KRX filings. (KR listing.)</td></tr>
+      <tr><td><b>JSR (pad #3)</b><br><span style="color:var(--dim)">de-listed 2024 (JIC)</span></td><td>Was the #3 pad house — taken private by Japan Investment Corp. A "removed vehicle" tell (cf. CMC→Entegris, Alphawave→Qualcomm).</td><td>Any JIC re-IPO chatter; a marker that the whole layer is being consolidated off-market.</td></tr>
+    </table>
   </div>
 </section>
 
-<!-- 12. DECISION -->
+<!-- 12. LEADING INDICATORS -->
 <section id="s12">
-  <div class="sh"><span class="n">12</span><h2>The decision — one table</h2><span class="cn">決策表</span></div>
+  <div class="sh"><span class="n">12</span><h2>Leading-indicator dashboard</h2><span class="cn">領先指標</span></div>
+  <p class="lead">Physical signals that move <b>before</b> the print — with a trigger threshold and, crucially, <b>where an amateur can actually read each one for free</b>. Each row's bull/bear is about one thing.</p>
   <table class="tbl">
-    <tr><th>Name</th><th>Link (chokepoint)</th><th>Per-link sev.</th><th>Stage</th><th>Valuation (est.)</th><th>Remaining asym.</th><th>Author lean*</th></tr>
-    <tr>
-      <td><b>JCU</b> <span class="m" style="color:var(--dim)">4975.T</span></td>
-      <td>plating chemistry razor <span class="lyr ly3">L3</span></td>
-      <td class="m">15/20</td>
-      <td><span class="stagebadge sg-early" style="font-size:9px">EARLY→REC</span></td>
-      <td class="m">¥172B · +44% YTD</td>
-      <td class="dotG">~7/20</td>
-      <td><b style="color:var(--dacr)">own-it / relative-value</b> — the cheapest pure-play on the durable toll</td>
-    </tr>
-    <tr>
-      <td><b>MKS</b> <span class="m" style="color:var(--dim)">MKSI</span></td>
-      <td>equip+chemistry gate <span class="lyr ly3">L3</span></td>
-      <td class="m">14/20</td>
-      <td><span class="stagebadge sg-recog" style="font-size:9px">RECOGNITION</span></td>
-      <td class="m">$24.9B · +131% · 3.5× lev</td>
-      <td class="dotA">~5/20</td>
-      <td><b style="color:var(--dup)">US-listed proxy</b> — diluted; own on a de-lever + pullback</td>
-    </tr>
-    <tr>
-      <td><b>Ibiden</b> <span class="m" style="color:var(--dim)">4062.T</span></td>
-      <td>substrate fab / rent <span class="lyr ly2">L2</span></td>
-      <td class="m">16/20</td>
-      <td><span class="stagebadge sg-eu" style="font-size:9px">EUPHORIA</span></td>
-      <td class="m">~72× · +202% YTD</td>
-      <td class="dotR">~3/20</td>
-      <td><b style="color:var(--choke)">admire / own-the-rent only on a real pullback</b></td>
-    </tr>
+    <tr><th style="width:20%">Signal</th><th style="width:20%">Trigger threshold</th><th>Bullish / bearish read</th><th style="width:26%">Where to read it (free)</th></tr>
+    <tr><td><b>Qnity CMP-pad revenue growth</b></td><td class="m">&gt;15% YoY = tight; &lt;10% = de-rate risk</td><td>Pad growth &gt; wafer-start growth confirms CMP-intensity compounding; slowing = the razor is just tracking units.</td><td>Qnity (Q) quarterly release + 10-Q, earnings-call transcript (IR site, free)</td></tr>
+    <tr><td><b>Advanced-packaging / hybrid-bond ramp</b></td><td class="m">TSMC CoWoS/SoIC wafer starts ↑; HBM4 timing</td><td>More hybrid bonding = more &lt;0.3nm-Ra CMP steps = more consumable demand. A slip is bearish the growth kicker.</td><td>TSMC earnings call + capex line; TechInsights teardown blogs (free tier)</td></tr>
+    <tr><td><b>Anji share &amp; node qualification</b></td><td class="m">Any qual ≤14nm or on a hybrid-bond line</td><td>Slurry-share loss bearish Entegris/Fujimi; a <i>pad</i> qual would be the pad-thesis breaker for Qnity.</td><td>Anji (688019) filings; SMIC/CXMT commentary; SEMI China notes</td></tr>
+    <tr><td><b>Node CMP-step intensity</b></td><td class="m">N2/A16 volume; +30–50% steps/node</td><td>Each new node multiplies CMP passes — structurally bullish consumables regardless of unit growth.</td><td>TSMC/Intel/Samsung node roadmaps; earnings calls</td></tr>
+    <tr><td><b>Ceria / rare-earth &amp; export policy</b></td><td class="m">China ceria/rare-earth export controls</td><td>Abrasive-feed disruption bullish upstream (Fuso), a cost risk to slurry makers; a supply-security tell.</td><td>MOFCOM / BIS notices; company supply-chain disclosures</td></tr>
+    <tr><td><b>Semi-cap / WFE capex cycle</b></td><td class="m">WFE growth turning negative</td><td>A capex pause hits CMP consumables via lower wafer starts — the cyclical bear that would de-rate all three.</td><td>ASML/AMAT/Lam calls; SEMI WFE forecast (press releases)</td></tr>
   </table>
-  <p class="cap">*Personal opinion for a private research log — <b>not</b> advice or a recommendation. Per-link severity is the 4-factor sum for that specific link; higher severity ≠ better buy (see Ibiden).</p>
-
-  <div class="panel" style="margin-top:16px;border-color:#2c5048;background:linear-gradient(135deg,rgba(45,212,191,.05),transparent),var(--panel)">
-    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px">IF YOU CAN ONLY DO ONE THING</div>
-    <p style="font-size:13px;color:var(--mut);line-height:1.6">Watch <b style="color:var(--txt)">JCU</b> as the one clean, cheap vehicle on the durable plating-chemistry toll — but size it as an <b style="color:var(--txt)">entry-discipline</b> position, not a fat pitch: probability-weighted EV ≈ <b style="color:var(--txt)">+17%</b> over 12–18m (bull +50% ×30% · base +15% ×50% · bear −25% ×20%), and the China-substitution risk is real. <b style="color:var(--txt)">Dated falsifier:</b> if the next 1–2 JCU prints show electronics/semiconductor chemistry sales <i>not</i> accelerating, or a leading substrate fab qualifies a Chinese domestic chemistry at a top node, the thesis breaks — exit. The genuinely-early dollar is one step left, in the latent watchlist (Uyemura, dry-film, drills).</p>
-  </div>
 </section>
 
-<!-- 13. OPEN QUESTIONS -->
+<!-- 13. RISKS -->
 <section id="s13">
-  <div class="sh"><span class="n">13</span><h2>Open questions &amp; honest holes</h2><span class="cn">自我批判</span></div>
-  <div class="td">
-    <div class="tdc key"><div class="h">Unproven rent capture</div><p>The thesis assumes the chemistry keeps a durable, high-margin toll. But the <b>big absolute rent visibly settles at the fab</b> (Ibiden's +89% EPS) — the chemistry is a small-dollar link. If pricing power stays downstream, JCU is just a nice compounder, not a chokepoint winner.</p></div>
-    <div class="tdc key"><div class="h">China substitution is the swing factor</div><p>The single biggest hole: Chinese domestic chemistries at −10–20% are qualifying up-tier, and JCU earns 25% in China. I can't yet prove leading-node fabs will <i>not</i> qualify them — that's the falsifier to watch.</p></div>
-    <div class="tdc"><div class="h">Estimated shares</div><p>"Top-5 ~50–60%", the ~18-mo drill backlog, FC-BGA fab shares, and the Atotech ~$1.4–1.5B split are all triangulated estimates from market-report aggregators, not audited disclosures. Treat as directional.</p></div>
-    <div class="tdc"><div class="h">Denominators &amp; dilution</div><p>MKS's AI-substrate chemistry is a <i>fraction of a fraction</i> of a ~$4B revenue base; JCU's semiconductor slice is buried inside "electronics" (~45%). Neither is a clean read — both need segment disclosure I don't fully have.</p></div>
-    <div class="tdc"><div class="h">Wrong-link risk</div><p>I feature the chemistry, but the via-drill equipment (backlog) or the dry-film/DI could bind tighter at 2µm. If test/imaging is the real gate, the trade migrates to SCREEN/Adtec/resist.</p></div>
-    <div class="tdc"><div class="h">Retail steelman of the bear</div><p>"JCU is up 44% in a year of AI mania on a business that's 45% non-electronics; Ibiden already <i>is</i> the substrate trade; and if I want chemistry I can buy MKS in USD. Why reach for an illiquid ¥172B Tokyo small-cap?" — a fair challenge; the answer is purity + price, but it requires conviction the AI mix re-rates it.</p></div>
+  <div class="sh"><span class="n">13</span><h2>Risk register</h2><span class="cn">風險</span></div>
+  <div class="two">
+    <div class="panel">
+      <table class="tbl">
+        <tr><th>Risk</th><th>Who it hits</th></tr>
+        <tr><td><b>Mislocated chokepoint</b> — the CMP <i>tool</i> (AMAT ~70%) or the <i>fab</i>'s co-qual leverage captures more durable rent than the consumable.</td><td>thesis-wide</td></tr>
+        <tr><td><b>China substitution</b> — Anji/domestic slurry climbs the node ladder faster than expected; the top structural bear.</td><td>ENTG, 5384</td></tr>
+        <tr><td><b>Buyer funds new supply</b> — a fab qualifies a 2nd-source pad (KR/CN) to break the lock-in; the pad-monopoly breaker.</td><td>Qnity</td></tr>
+        <tr><td><b>Customer concentration</b> — Fujimi TSMC ~16%; Qnity SK-Hynix pad LTA; a single roadmap shift stings.</td><td>5384, Q</td></tr>
+      </table>
+    </div>
+    <div class="panel">
+      <table class="tbl">
+        <tr><th>Risk</th><th>Who it hits</th></tr>
+        <tr><td><b>Already priced</b> — all three +55–72% YTD; the re-rating happened, so a growth miss de-rates hard.</td><td>all three</td></tr>
+        <tr><td><b>Cyclicality</b> — a WFE/wafer-start pause cuts consumable volume even with the structural step-count tailwind intact.</td><td>all three</td></tr>
+        <tr><td><b>Leverage / FX</b> — Entegris ~$4B deal debt amplifies a downturn; Fujimi is a small-cap JPY name (FX + access friction).</td><td>ENTG, 5384</td></tr>
+        <tr><td><b>ASP / mix deflation</b> — mature-node slurry pricing pressure from Chinese entrants compresses the low end.</td><td>ENTG, 5384</td></tr>
+      </table>
+    </div>
   </div>
 </section>
 
-<div class="disc">
-  <b>Method &amp; sources.</b> Chokepoint deep-dive v5 (find the scarce link, price the asymmetry; two-axis MECE, severity /20, awareness staging, rent-capture test). Sources cross-checked ≥2 where load-bearing: MKS IR/SEC + Atotech (chemistry-equipment flywheel, Atotech scale, Guangzhou capex); IndexBox / valuates (electroless-Cu market size + top-5 share); JCU IR briefing + datainsightsmarket (CU-BRITE/TIPHARES, rev/geo mix); Uyemura (4966 profile); researchandmarkets / Mitsubishi (laser-drill shares + backlog, est.); marketgrowthreports / Digitimes / datagravity (FC-BGA shares, Rubin area, lead-times, Ibiden ¥500B); ipcb.co / SemiEngineering (SAP/mSAP L/S roadmap, 2µm RDL); Solstice/Element SEC 8-K/425 + PRs (the $14.5B absorption); prices IBKR read-only + FMP (~10-Jul-2026). Full immutable capture: <span class="m">01 Sources/2026-07-12-ai-substrate-metallization-plating-chemistry-chokepoint.md</span>.
-  <br><br><b>Compliance.</b> Personal research for a private knowledge base — <b>not</b> investment advice, not a recommendation or solicitation. Estimates marked (est.); prices decay fast (as-of ~10-Jul-2026). IBKR read-only; never trade. One correction worth flagging: several AI-scraped market reports state "Atotech is part of MacDermid Alpha" — this is wrong. Atotech = MKS Instruments; MacDermid Alpha = Element Solutions (being acquired by Solstice). They are separate competitors.
-</div>
+<!-- 14. DECISION -->
+<section id="s14">
+  <div class="sh"><span class="n">14</span><h2>Scenario &amp; decision table</h2><span class="cn">情境與決策</span></div>
+  <div class="panel" style="margin-bottom:14px">
+    <table class="tbl">
+      <tr><th>Name</th><th>Bull (12–18m)</th><th>Base</th><th>Bear</th><th>Prob-weighted EV*</th><th>Dated falsifier</th></tr>
+      <tr><td><b>Qnity · Q</b></td><td class="grn">+45% ~$200 (p25)</td><td class="m">+10% ~$150 (p50)</td><td class="red">−30% ~$97 (p25)</td><td class="m grn"><b>~+9%</b></td><td>Next 1–2 prints: pad rev &lt;10% YoY, or a leading-edge pad 2nd-source qual</td></tr>
+      <tr><td><b>Entegris · ENTG</b></td><td class="grn">+40% ~$185 (p25)</td><td class="m">+5% ~$140 (p45)</td><td class="red">−30% ~$95 (p30)</td><td class="m amb"><b>~+3%</b></td><td>By FY26 prints: China slurry share loss visible in CN rev + margin</td></tr>
+      <tr><td><b>Fujimi · 5384</b></td><td class="grn">+35% ~¥5,440 (p25)</td><td class="m">0% ~¥4,030 (p45)</td><td class="red">−35% ~¥2,620 (p30)</td><td class="m red"><b>~−2%</b></td><td>FEOL slurry ASP/mix deflates, or a CN FEOL qual at a leading fab</td></tr>
+    </table>
+    <p style="font-size:10.5px;color:var(--dim);margin-top:8px">*Illustrative, author's subjective probabilities — not a forecast. Thin/negative EVs are the finding, not a failure: they say <b style="color:var(--mut)">tightness is real but already priced</b> → demand entry discipline.</p>
+  </div>
+  <div class="panel">
+    <table class="tbl">
+      <tr><th>Ticker</th><th>Chokepoint link</th><th>Severity</th><th>Stage</th><th>Valuation (est.)</th><th>Asymmetry</th><th>Entry-discipline band</th><th>Lean*</th></tr>
+      <tr><td><b>Q</b></td><td>CMP pad (&gt;50%)</td><td class="m">16/20</td><td class="amb">Recognition</td><td class="m">~35x fwd</td><td class="m">~7/20</td><td class="m">start &lt;$125 · add &lt;$105</td><td class="grn">own-it (quality)</td></tr>
+      <tr><td><b>ENTG</b></td><td>Slurry #1 + filtration</td><td class="m">14/20</td><td class="amb">Recognition</td><td class="m">~7x EV/S</td><td class="m">~6/20</td><td class="m">start &lt;$110 · add &lt;$90</td><td class="amb">relative-value</td></tr>
+      <tr><td><b>5384</b></td><td>FEOL slurry (~60%)</td><td class="m">13/20</td><td class="red">Euphoria</td><td class="m">mid-cyc</td><td class="m">~4/20</td><td class="m">start &lt;¥3,200 · small</td><td class="red">watch/patience</td></tr>
+    </table>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:12px;line-height:1.55"><b style="color:var(--txt)">If you can only do one thing:</b> treat <b style="color:var(--txt)">Qnity</b> as the own-it — it holds the tightest, most China-resistant link (the pad), with razor-blade economics that compound with CMP-step intensity — but <b style="color:var(--txt)">buy it on pullbacks, not here</b>. At +70% YTD and ~35× the near-term skew is only ~+9% EV; the durable edge is patience plus watching the still-latent list (Anji, Fujibo, ceria) for the genuinely-early entry the crowd hasn't found yet. Be honest that <b style="color:var(--txt)">no clean, accessible, still-early pure-play exists</b> — the genuinely-early links are offshore/STAR-listed (Anji, Fujibo); the accessible expressions are quality-on-pullback (Q) or the de-rated relative-value (ENTG). <b style="color:var(--txt)">Tightness ≠ a buy.</b></p>
+  </div>
+  <p style="font-size:11px;color:var(--dim);margin-top:8px">*Personal opinion for a private research vault — <b>not advice</b>, not a recommendation or solicitation.</p>
+</section>
+
+<!-- 15. OPEN QUESTIONS -->
+<section id="s15">
+  <div class="sh"><span class="n">15</span><h2>Open questions &amp; honest self-critique</h2><span class="cn">未解問題</span></div>
+  <div class="panel">
+    <p style="font-size:12.5px;color:var(--mut);line-height:1.6">
+    <b style="color:var(--txt)">Unresolved holes (not a victory lap):</b><br>
+    • <b>The exact pad share is estimated.</b> "&gt;50%, ~60% advanced" comes from market-report + industry commentary, not a disclosed number; Qnity doesn't break out CMP-pad revenue, so the monopoly-rent P&L is inferred, not proven. Fujibo/JSR splits are directional.<br>
+    • <b>TAM figures diverge widely</b> (slurry $2–3.5B, pad $1.2–4B across sources) — I hedged to ~$4–6B combined; treat as order-of-magnitude, not precise.<br>
+    • <b>Rent-capture is asserted, not audited.</b> Qnity GM ~46% is company-wide, not pad-specific; the claim that the pad captures the most durable rent rests on concentration + qual-stickiness logic, not a segment margin disclosure.<br>
+    • <b>The "China can't do pads" claim is a point-in-time read.</b> If a Chinese/Korean pad house qualifies at leading edge (watch 2027–28), the central pad-vs-slurry disaggregation weakens materially.<br>
+    • <b>Retail steelman of the bear:</b> "You're telling me to admire a &gt;50%-share monopoly that's already up 70% at 35× — where's my edge? The slurry names carry China risk, the pad name isn't cheap, and the only genuinely-early links are a Shanghai STAR stock I can't easily buy and a Japanese textile conglomerate. So the honest trade is a watch-list, not a buy." — <i>That is largely correct, and it's why the leans are own-on-pullback / watch, not chase.</i><br>
+    • <b>Entegris price/volatility:</b> IBKR read-only last print ($135.30) is a touch stale vs the 24-Jul public close ($129.15) after a −4.5% day and −25% month — the stock is whippy; the YTD is quoted as a range (+53–61%).
+    </p>
+  </div>
+</section>
+
+<div class="disc"><b>Compliance / disclaimer.</b> Personal research for a private knowledge base — <b>not investment advice</b>, not a recommendation or solicitation to buy or sell any security. Figures are estimates (marked <b>est.</b>) cross-checked across ≥2 public sources where possible; market-report TAM/share numbers are third-party and directional. Prices are <b>IBKR read-only</b> last-session closes as-of 26 Jul 2026 and decay quickly — verify before acting. The author may hold no position; nothing here accounts for your circumstances. IBKR used read-only; <b>never trade</b> from this document.</div>
 
 <footer>
-  <b>AI-Infra Deep-Dive · Run #24 · v5</b> — Substrates &amp; materials, loop 4 → the substrate metallization / plating-chemistry chokepoint. Built 2026-07-12. Chokepoint severity 15/20 · remaining asymmetry ~7/20. Top-3: JCU (early, own-it) · MKSI (recognition, diluted US gate) · Ibiden (euphoria, priced). Iteration log: v5.0 (2026-07-12) — end-to-end fab-line supply-chain map + per-stage durable-rent bars (tallest at plating); SAP-vs-subtractive disaggregation schematic; awareness curve JCU/MKSI/Ibiden. Cross-review: 2 independent agents — analyst/fact-check <b>27/30 "QUALIFIED YES"</b> (0 clean numeric P0; only fix = Rubin +75%) + viz-QA/compliance (0 P0, bars confirmed tallest-at-chokepoint, tabs a11y + print clean). Punch-list applied: P0 Rubin +75% re-tagged as package-substrate-area/single-source/est. across all 3 callouts; tempered the JCU "undiscovered" framing (+~120% 1yr, nascent bull chorus → relative-value not virgin discovery); added JCU margin datapoint (~¥2.5B NI/qtr, net-cash) to prove the toll; reconciled MKS Materials-division vs Electronics&amp;Packaging denominator; sized the China-substitution bear (mid-tier vs leading-node); deepened Uyemura watchlist with live anchor; fixed §5 FOPLP label overflow; reconciled JCU asymmetry 7↔8; softened Ibiden "monopoly inputs"→oligopoly; +CoWoS/OSAT glossary.
+  <b>AI-Infra Deep-Dive · Run #30 · v5</b> — Substrates &amp; Materials (Loop 5) · CMP consumables (pad + slurry) chokepoint · built 26 Jul 2026.<br>
+  <b>Method:</b> chokepoint-deep-dive skill (v5 standard) — find the scarce link, price the asymmetry, stage on the awareness curve. Two-axis MECE · end-to-end supply map · 4-factor severity /20 · variant/disaggregation · multi-year timeline · top-3 at different links · leading indicators · latent watchlist · decision table · mandatory self-critique + independent cross-review.<br>
+  <b>Sources (mapped):</b> CMP-step counts &amp; hybrid-bond spec — JEES/semiconductor-process analyses, TechInsights (Apple M5 Pro SoIC-X teardown, Jun-2026). Pad shares — Persistence/Valuates/Mordor CMP-pad reports; DuPont/Qnity materials; Qnity–SK Hynix pad LTA (Oct-2025). Slurry shares — FactMR/Fortune BI; Fujimi FY25/H1-FY26 results; Anji disclosures. Financials/valuation — Qnity 10-12B/A + FY26 8-K guidance, Entegris Q1'26 transcript, stockanalysis/GuruFocus/SimplyWallSt. Live quotes — IBKR read-only (Q 824788107, ENTG 9653775, Fujimi 5384@TSEJ).<br>
+  <b>Iteration log:</b> v5 build 26-Jul-2026 — corrected the Qnity spin to a <i>completed</i> event (1-Nov-2025, ticker Q) not a future catalyst; framed pad as a concentrated oligopoly (&gt;50%), not a sole-source monopoly; separated pad (China-resistant) from slurry (China-exposed) as the core disaggregation; per-link severity derived; thin/negative EVs surfaced as the honest finding; two independent reviewers (objective-fit 26/30; domain SOUND-with-fixes, 0 P0) — punch-list applied: reconciled the CMP-step ladder to a monotonic ~30+ at 2nm (was a non-monotonic 50–70@3nm), un-clipped the severity 16/20 label, refreshed defunct "Versum"→Merck, softened absolutist "China-proof" wording to "China-resistant" + the Apple M5 present-tense claim, hedged the ~2/3 adv-pkg-slurry figure, fixed the awareness-curve ordering (Q right of ENTG), ENTG to ~7x EV/S, and stated plainly that no clean accessible early pure-play exists.
 </footer>
 
 </div>
 
 <script>
 (function(){
-  window.showTab=function(id,btn){
-    document.querySelectorAll('.tabpane').forEach(function(p){p.hidden=true;});
-    var el=document.getElementById('pane-'+id); if(el){el.hidden=false;}
-    document.querySelectorAll('.tabbtn').forEach(function(b){b.classList.remove('on');b.setAttribute('aria-selected','false');b.tabIndex=-1;});
-    if(btn){btn.classList.add('on');btn.setAttribute('aria-selected','true');btn.tabIndex=0;}
-  };
-  var tablist=document.querySelector('[role=tablist]');
-  if(tablist){
-    var tabs=Array.prototype.slice.call(tablist.querySelectorAll('[role=tab]'));
-    tablist.addEventListener('keydown',function(e){
-      var i=tabs.indexOf(document.activeElement);
-      if(i<0)return;
-      var n=null;
-      if(e.key==='ArrowRight'||e.key==='ArrowDown')n=(i+1)%tabs.length;
-      else if(e.key==='ArrowLeft'||e.key==='ArrowUp')n=(i-1+tabs.length)%tabs.length;
-      else if(e.key==='Home')n=0;
-      else if(e.key==='End')n=tabs.length-1;
-      if(n!==null){e.preventDefault();tabs[n].focus();tabs[n].click();}
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+  function select(tab){
+    tabs.forEach(function(t){
+      var sel = t === tab;
+      t.setAttribute('aria-selected', sel ? 'true':'false');
+      t.setAttribute('tabindex', sel ? '0':'-1');
+      t.classList.toggle('on', sel);
+      var panel = document.getElementById(t.getAttribute('aria-controls'));
+      if(panel){ if(sel){ panel.removeAttribute('hidden'); } else { panel.setAttribute('hidden',''); } }
     });
   }
+  tabs.forEach(function(tab, i){
+    tab.addEventListener('click', function(){ select(tab); tab.focus(); });
+    tab.addEventListener('keydown', function(e){
+      var idx = i;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'){ idx=(i+1)%tabs.length; e.preventDefault(); }
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){ idx=(i-1+tabs.length)%tabs.length; e.preventDefault(); }
+      else if(e.key==='Home'){ idx=0; e.preventDefault(); }
+      else if(e.key==='End'){ idx=tabs.length-1; e.preventDefault(); }
+      else { return; }
+      select(tabs[idx]); tabs[idx].focus();
+    });
+  });
 })();
 </script>
 </body>

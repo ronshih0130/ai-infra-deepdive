@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GOOGL 全公司拆解 × 供應鏈分析 · 2026-07-17 · v1 (PAPER)</title>
+<style>
+:root{--bg:#0b0d12;--panel:#13161e;--panel2:#1a1e28;--line:#2a3040;--line2:#363d4f;--txt:#e8eaf0;--mut:#9aa3b5;--dim:#697283;--accent:#2dd4bf;--choke:#e0686a;--gold:#d2a24a;--bull:#4faf8e;--blu:#5b81c4;--pur:#8b84cf}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px}
+.wrap{max-width:1240px;margin:0 auto;padding:0 26px}
+.m{font-family:"JetBrains Mono",ui-monospace,monospace}
+header{border-bottom:1px solid var(--line);padding:30px 0 20px;margin-bottom:22px;background:linear-gradient(180deg,#0e1117,var(--bg))}
+.kick{color:var(--accent);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:8px}
+h1{font-size:26px;font-weight:600}h1 .zh{color:var(--mut);font-size:15.5px;font-weight:400;display:block;margin-top:4px}
+.badge{display:inline-block;font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--line2);color:var(--mut);margin:10px 6px 0 0}
+.badge.paper{border-color:var(--choke);color:var(--choke)}.badge.acc{border-color:var(--accent);color:var(--accent)}
+h2{font-size:18px;margin:34px 0 6px}h2 .k{color:var(--accent);font-size:11px;letter-spacing:.2em;display:block;text-transform:uppercase;margin-bottom:4px}
+.sub{color:var(--mut);font-size:13px;margin-bottom:12px;max-width:1000px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:12px 0}
+.explain{border-left:3px solid var(--accent)}.explain b{color:var(--accent)}
+.decision{border:1px solid rgba(45,212,191,.35);background:linear-gradient(120deg,#10201d,#13161e)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{color:var(--dim);text-align:left;font-weight:500;font-size:11px;letter-spacing:.07em;text-transform:uppercase;padding:7px 9px;border-bottom:1px solid var(--line2)}
+td{padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+.small{font-size:11px;color:var(--dim)}.mut{color:var(--mut)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr}}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:13px 15px}
+.card h3{font-size:13px;color:var(--accent);margin-bottom:6px}.card p{font-size:12.6px}
+.tag{display:inline-block;font-size:10.5px;padding:2px 9px;border-radius:12px;font-weight:700;white-space:nowrap}
+.t-early{background:rgba(45,212,191,.14);color:var(--accent);border:1px solid rgba(45,212,191,.4)}
+.t-rec{background:rgba(210,162,74,.14);color:var(--gold);border:1px solid rgba(210,162,74,.4)}
+.t-priced{background:rgba(154,163,181,.12);color:var(--mut);border:1px solid rgba(154,163,181,.35)}
+.t-neg{background:rgba(224,104,106,.13);color:var(--choke);border:1px solid rgba(224,104,106,.4)}
+.t-watch{background:rgba(139,132,207,.14);color:var(--pur);border:1px solid rgba(139,132,207,.4)}
+.prov{font-size:10.5px;color:var(--dim);border-top:1px dashed var(--line);margin-top:8px;padding-top:6px}
+svg text{font-family:"Space Grotesk","PingFang TC",sans-serif;fill:var(--txt)}
+svg text.m{font-family:"JetBrains Mono",monospace}
+svg text.dim{fill:var(--dim)}svg text.mut{fill:var(--mut)}svg text.acc{fill:var(--accent)}svg text.red{fill:var(--choke)}svg text.gold{fill:var(--gold)}
+footer{margin-top:44px;border-top:1px solid var(--line);padding-top:16px;color:var(--dim);font-size:11.5px}
+footer p{margin-bottom:6px}
+@media print{body{background:#fff;color:#111}.panel,.card{background:#fff;border-color:#ccc}}
+</style></head>
+<body>
+<header><div class="wrap">
+<div class="kick">SINGLE-NAME TEARDOWN × SUPPLY-CHAIN · 個股拆解 × 供應鏈</div>
+<h1>Alphabet (GOOGL) — 全公司拆解、TPU 供應鏈、與研究傾向（PAPER 研究情境）
+<span class="zh">use case: single_name_teardown + thematic hybrid · as of 2026-07-17 · price ref $346.77（K3 衝擊日盤中）· 12-18m · benchmark QQQ</span></h1>
+<span class="badge paper">PAPER · 生命週期上限 · compiler action = NO_CHANGE（fail-closed）</span>
+<span class="badge acc">Plan cross-review: Codex gpt-5.5 xhigh ×4 輪（P0 全數關閉）</span>
+<span class="badge">IBKR read-only · NOT investment advice</span>
+</div></header>
+<div class="wrap">
+
+<div class="panel decision">
+<h3 style="color:var(--accent);font-size:13px;letter-spacing:.05em;margin-bottom:8px">DECISION DELTA · 決策摘要（讀這一段就夠）</h3>
+<table>
+<tr><th style="width:170px">項目</th><th>內容</th></tr>
+<tr><td><b>生命週期 / 行動</b></td><td class="m">PAPER · NO_CHANGE — 本報告是 producer forecast（研究），行動權在 Portfolio Decision Compiler；信任執行邊界未實作 → 上限 PAPER，缺閘門一律 fail-closed</td></tr>
+<tr><td><b>核心判讀</b></td><td>GOOGL 整體處於 <span class="tag t-rec">RECOGNITION</span>（52 週 +91.5% 已跑過一段）；<b>殘餘不對稱集中在一條窄縫</b>：2027 共識 EPS 只長 +3.7%（street 重壓 D&amp;A 拖累），而雲端 +63%、backlog $462B 翻倍、折舊基期效應會退 — 這條「2027 EPS/FCF 預期差」是 EARLY 的部分</td></tr>
+<tr><td><b>期望值（淨成本後）</b></td><td class="m">EV 12-18m ≈ <b>+6.2%</b>（bull 0.40×+24.4% / base 0.45×+1.3% / bear 0.15×−26.0%）· 敏感度 ±10pp bull → +4.1%~+8.7% · p10 −26% / p50 +3% / p90 +25% · P[≤−25%] ≈ 13%（無條件基率 9.1%）· 20% 資本利得稅情境 EV ≈ +5.0%</td></tr>
+<tr><td><b>觸發（typed）</b></td><td class="m">7/22 財報（官方日期，call 1:30pm PT）：2027 capex 定調 ≥ +25% 且 合併 RPO YoY ≥ capex YoY → 論點確認；共識基線凍結截止 7/21 收盤；同儕 CSP（MSFT/META/AMZN）7/28-8/1 為次要對照；參考帶（context，非進場指令）= 20 週均線區</td></tr>
+<tr><td><b>證偽（typed）</b></td><td class="m">同一財報（7/22）：capex 定調 &lt; +15% 或 RPO YoY &lt; capex YoY → 敘事腿 FALSIFIED · 技術出場 context：週收 &lt; 40w MA 且 RS&lt;30wMA(RS) ×2 週 · 到期 2027-01-31</td></tr>
+<tr><td><b>供應鏈表達</b></td><td>MRVL <span class="tag t-watch">WATCH</span>（正式簽約=觸發）· AMKR <span class="tag t-watch">WATCH</span>（單源需第二源）· TSM <span class="tag t-rec">RECOGNITION</span> hold-context · AVGO <span class="tag t-neg">NEGATIVE-TILT</span>（多元化侵蝕份額）· 電力/光通訊 = watchlist-only</td></tr>
+<tr><td><b>組合影響</b></td><td class="m">全部屬同一 AI-compute 相關叢集（上限 15%）；單名上限 5%；本輪 paper 單向周轉 &lt;10% 對 200%/yr 預算 · 對照基線：no-trade、QQQ passive、等權 CSP、等權 TPU 鏈、SMH 動能、+5d 延遲進場</td></tr>
+<tr><td><b>證據時序（誠實）</b></td><td class="m">本論點的承重證據（RPO/capex, 1Q26）在假說宣告（7/17）<b>之前</b>已公布 — 屬回溯性研究證據，非 setup 確認；前瞻性隊列只從 7/22 財報（官方日期）起算。EV 建立在「已公布數據 + 預期差」上，<b>不依賴任何確認階段</b>（binding limit per plan）</td></tr>
+<tr><td><b>閘門狀態</b></td><td class="m">gate_result.json：authenticated_execution=false · review 進行中 · 矛盾未解（readiness POST_HOC vs 財務預期差 PRESENT — 記錄不粉飾）→ derived_state PAPER</td></tr>
+</table>
+</div>
+
+<div class="panel explain"><p><b>白話版：</b>Google 一年漲了九成，「便宜的巨頭」已經不便宜了——所以這份報告不是喊「早期大機會」。真正剩下的機會是一個<b>會計時間差</b>：市場給 2027 年的 EPS 幾乎零成長（因為 capex 太兇、折舊會吃掉獲利），但雲端在 +63% 成長、簽約未認列的訂單（backlog）一季內近乎翻倍到 $462B、而且有一半在 24 個月內變成收入。如果 7 月底財報證明「訂單成長 &gt; capex 成長」，street 的 2027 模型就得上修。供應鏈那邊：幫 Google 做晶片的公司（AVGO→MTK→MRVL 三供化）故事很好，但股價多半跑過了——誠實分級，別把「論點對」當成「還能買」。</p></div>
+
+<h2><span class="k">① - ⑧ · 八點拆解</span>Company Teardown — 8 點框架</h2>
+<div class="grid2">
+<div class="card"><h3>① 怎麼賺錢 How it earns</h3><p>廣告（Search+YouTube ~75% 營收）付現金養 AI；Cloud（1Q26 $20B/季、+63% YoY）是成長引擎；TPU 自研把「買 NVDA 稅」轉成內部成本優勢——每查詢成本下降是 AI 時代的核心單位經濟。<span class="prov">1Q26 print 2026-04-29 · CNBC/tech-insider 兩源 ✓</span></p></div>
+<div class="card"><h3>② 營收結構 Mix</h3><p>1Q26 合併營收 $109.9B（+22%）：廣告主體 + Cloud $20B（佔 ~18%、比重持續上升）+ 訂閱/硬體/其他。Cloud 是估值敘事的邊際決定者。<span class="prov">同上，兩源 ✓</span></p></div>
+<div class="card"><h3>③ 成長來源 Growth</h3><p>(a) Cloud/AI 算力出租 — backlog $462B、&gt;50% 於 24m 內認列；(b) Gemini 生態的 serving 量；(c) TPU 自供給的成本曲線；(d) K3 事件後：開源前沿模型讓「分發+算力」比「閉源模型費」更值錢 — Google 兩者都有。<span class="prov">backlog：XBRL $467.6B（合併 RPO）+ 電話會 $462B（Cloud）兩源 ✓；K3 影響 = 分析判斷（est.）</span></p></div>
+<div class="card"><h3>④ 終端市場 End market</h3><p>全球廣告（成熟、現金牛）× 企業雲/AI infra（高成長）× 消費 AI（訂閱化中）。AI capex 週期是它的「原料市場」：2026 guide $180-190B、2027「significantly increase」。<span class="prov">公司指引 4/29 + press 兩源 ✓</span></p></div>
+<div class="card"><h3>⑤ 主要客戶 Customers</h3><p>廣告主（極度分散）+ 雲端大客戶（含 AI labs：Anthropic 等大型算力合約 — backlog 跳增的來源之一）。集中度風險低於任何供應鏈環節。<span class="prov">backlog 組成：管理層稱多數為一般 GCP 合約（call）；大合約占比未逐一揭露（est.）</span></p></div>
+<div class="card"><h3>⑥ 護城河 Moat</h3><p>分發（Search/Android/YouTube/Workspace）× 資料 × 自研矽（TPU 是唯一規模化的非 NVDA 訓練+推理堆疊）× 全球 DC/海纜。K3 類開源浪潮攻擊的是「模型層溢價」，不是分發與算力——Google 的租金在後兩者。<span class="prov">結構性判斷（框架），非單一數字</span></p></div>
+<div class="card"><h3>⑦ 管理層展望 Mgmt outlook</h3><p>「需求超過我們上線容量的速度」（供給受限）；2026 capex $180-190B（上修）；2027 顯著增加；TPU 對外可用性擴大（Cloud 上的 TPU v6/v7 商用）。執行風險=電力與資料中心交付。<span class="prov">1Q26 call 語言，兩源 ✓</span></p></div>
+<div class="card"><h3>⑧ 為何是卡點 Why chokepoint</h3><p>GOOGL 本身不是供應鏈卡點——它是<b>需求端的租金收集者</b>。真正的卡點在它的鏈上：先進封裝（TSM CoWoS/CoPoS）、客製矽設計權（AVGO→三供化）、電力。對投資人：買「鏈上的稀缺」要跟買「需求端的複利」分開定價。<span class="prov">框架判斷；各環節嚴重度見供應鏈圖</span></p></div>
+</div>
+
+<h2><span class="k">財務鏡頭 · 領先線</span>The Leading Line — RPO vs Capex（本論點的心臟）</h2>
+<p class="sub">合併 RPO（XBRL，含 Cloud 為主的簽約未認列收入）對上季度 capex。<b>RPO YoY +406% vs capex YoY +107%</b> — CK 的輪動條件（訂單成長 &gt; 資本支出成長）在已公布數據裡大幅成立。折舊（$6.5B/季）遠低於 capex（$35.7B/季）= 未來 D&amp;A 壓力是 street 打平 2027 EPS 的理由；變數在「認列速度 vs 折舊速度」。</p>
+<div class="panel">
+<svg viewBox="0 0 1180 300" width="100%" role="img" aria-label="RPO vs capex quarterly">
+<text x="20" y="22" font-size="12.5" class="acc">合併 RPO（teal 曲線，B$，尺度 y=270−v/2）vs 季度 capex（藍柱，B$，尺度 4×）· 雙尺度為呈現用，數字以標籤為準 · 2024Q2 → 2026Q1</text>
+<!-- capex bars: 13.2 13.1 14.3 17.2 22.4 24.0 27.9 35.7 ; x start 80 step 130; scale capex 4x -->
+<g>
+<rect x="90" y="217" width="52" height="53" fill="#5b81c4" opacity=".8"/><text x="92" y="210" class="m" font-size="10.5">13.2</text>
+<rect x="220" y="218" width="52" height="52" fill="#5b81c4" opacity=".8"/><text x="222" y="211" class="m" font-size="10.5">13.1</text>
+<rect x="350" y="213" width="52" height="57" fill="#5b81c4" opacity=".8"/><text x="352" y="206" class="m" font-size="10.5">14.3</text>
+<rect x="480" y="201" width="52" height="69" fill="#5b81c4" opacity=".8"/><text x="482" y="194" class="m" font-size="10.5">17.2</text>
+<rect x="610" y="180" width="52" height="90" fill="#5b81c4" opacity=".8"/><text x="612" y="173" class="m" font-size="10.5">22.4</text>
+<rect x="740" y="174" width="52" height="96" fill="#5b81c4" opacity=".8"/><text x="742" y="167" class="m" font-size="10.5">24.0</text>
+<rect x="870" y="158" width="52" height="112" fill="#5b81c4" opacity=".8"/><text x="872" y="151" class="m" font-size="10.5">27.9</text>
+<rect x="1000" y="127" width="52" height="143" fill="#5b81c4"/><text x="1002" y="120" class="m" font-size="10.5">35.7</text>
+</g>
+<!-- RPO line: 78.8 86.8 93.2 92.4 108.2 157.7 242.8 467.6 mapped y=270-(v/2) -->
+<polyline points="116,231 246,227 376,223 506,224 636,216 766,191 896,149 1026,36" fill="none" stroke="#2dd4bf" stroke-width="3"/>
+<g font-size="10" class="dim">
+<text x="1105" y="270">RPO 0</text><text x="1105" y="170">200</text><text x="1105" y="70">400 B$</text>
+<line x1="1096" y1="266" x2="1100" y2="266" stroke="#697283"/><line x1="1096" y1="166" x2="1100" y2="166" stroke="#697283"/><line x1="1096" y1="66" x2="1100" y2="66" stroke="#697283"/>
+</g>
+<g font-size="10.5"><rect x="850" y="14" width="10" height="10" fill="#5b81c4"/><text x="864" y="23" class="dim">capex B$/季（柱，4×尺度）</text><rect x="1010" y="14" width="10" height="4" fill="#2dd4bf"/><text x="1024" y="23" class="dim">RPO B$（線）</text></g>
+<g class="m" font-size="11">
+<text x="98" y="246" class="acc">78.8</text><text x="618" y="203" class="acc">108.2</text><text x="748" y="178" class="acc">157.7</text><text x="864" y="136" class="acc">242.8</text><text x="985" y="28" class="acc">467.6</text>
+</g>
+<g font-size="10.5" class="dim">
+<text x="100" y="288">2Q24</text><text x="360" y="288">4Q24</text><text x="620" y="288">2Q25</text><text x="880" y="288">4Q25</text><text x="1008" y="288">1Q26</text>
+</g>
+<text x="20" y="270" class="mut" font-size="10.5">provenance: EDGAR XBRL RevenueRemainingPerformanceObligation（合併）+ PaymentsToAcquirePropertyPlantAndEquipment（YTD 差分）· call 口徑 Cloud backlog $462B · as-of 2026-03-31 · 兩源 ✓</text>
+</svg>
+</div>
+<div class="grid3">
+<div class="card"><h3>2027 EPS 預期差（變異認知的核心）</h3><p class="m">共識（FMP 凍結 7/17）：2026 EPS $14.27 → 2027 $14.79（<b>+3.7%</b>）· 營收卻 +20%/yr — street 在 2027 模型裡塞滿 D&amp;A 拖累。變異：認列的 backlog + 折舊基期效應退場 → bull 2027 EPS $17.25（+17% vs 共識）。<span class="prov">FMP analyst-estimates 凍結快照 (keyed-source) · 交叉：公司 2027 capex 語言 + D&amp;A/capex 軌跡（EDGAR，免費）</span></p></div>
+<div class="card"><h3>價格隱含（reverse view）</h3><p class="m">$346.77 = 24.3× 2026E / 23.4× 2027E 共識。持有它不需要英雄假設；<b>需要的只是 street 2027 錯在保守側</b>。若 2027 EPS 只符合共識 → 回報 ≈ 0-2%（base）。倍數不擴張是基本假設。</p></div>
+<div class="card"><h3>成本 / 稅（generic 情境）</h3><p class="m">點差 ~1bp + 佣金 $0.0035/股 → 回合成本 ~0.1-0.2%；股息 ~0.4%×30% 預扣；EV_net ≈ +6.2% · 20% 資本利得情境 ≈ +5.0%。非稅務建議。</p></div>
+</div>
+
+<h2><span class="k">情境樹 · 機率有算式</span>Scenarios — probability-weighted EV</h2>
+<div class="panel">
+<table>
+<tr><th>情境</th><th>P</th><th>2027 EPS × 倍數</th><th>目標/回報</th><th>關鍵假設</th></tr>
+<tr><td><b>Bull</b></td><td class="m">0.40</td><td class="m">$17.25 × 25x</td><td class="m">$431 · +24.4%</td><td>橋：營收 2027 $600B(+23%) → Cloud OM +250bp → D&A $34B/yr 增幅被認列增速吸收 → EPS $17.25 → 25x（動能 regime 上緣）→ $431。錨定：capex 8/8 季加速 + 「2027 顯著增加」語言 + RPO 覆蓋；因共識-渠道分歧 + readiness POST_HOC 壓 15pp → 0.40</td></tr>
+<tr><td><b>Base</b></td><td class="m">0.45</td><td class="m">$15.20 × 23x</td><td class="m">$350 · +1.3%</td><td>橋：營收 $583B（共識）→ margin 持平 → D&A 依 street 假設 → EPS $15.20（+2.8% vs 共識）→ 23x → $350；股息 0.4%</td></tr>
+<tr><td><b>Bear</b></td><td class="m">0.15</td><td class="m">$13.50 × 19x</td><td class="m">$257 · −26.0%</td><td>橋：營收 $560B → Cloud 價格戰 −150bp → D&A 全額拖累 → EPS $13.50 → 19x（無 Fed put 壓縮）→ $257。通道：capex ROI 質疑 + K3 serving 降價 + 反壟斷升級；基率：18m ≤−25% 為 9.1%、期中 ≥25% 回檔 65%</td></tr>
+</table>
+<p class="small" style="margin-top:8px">EV = 0.40×24.4 + 0.45×1.3 + 0.15×(−26.0) = <span class="m">+6.4%</span>（毛）→ <span class="m">+6.2%</span> 淨成本 · 敏感度：bull ±10pp → <span class="m">+8.7% / +4.1%</span> · 機率法固定於 plan §4（不是拍腦袋圓整數）· 供應鏈單源數字（TPU 10M 顆、+12% 共識 capex）已依 P0 硬規則<b>排除在 EV 之外</b>（情境樹不依賴它們）。</p>
+</div>
+
+<div class="panel">
+<h3 style="color:var(--accent);font-size:13px;margin-bottom:8px">對照基線（誠實的一張表）· After-cost EV vs simple baselines, 12-18m</h3>
+<table>
+<tr><th>路徑</th><th>期望（est.）</th><th>備註</th></tr>
+<tr><td class="m">GOOGL（本 forecast）</td><td class="m">+6.2% net</td><td>bull 0.40 情境樹；p10 −26%</td></tr>
+<tr><td class="m">No-trade（現金/短債）</td><td class="m">~+4-5%</td><td>12m 短債殖利率近似（est.）</td></tr>
+<tr><td class="m">QQQ passive</td><td class="m">~+8-10%</td><td>長期年化近似（過去 2 年 +42% 非常態、不可外推）</td></tr>
+<tr><td class="m">等權 CSP 籃</td><td class="m">≈ QQQ ± 叢集風險</td><td>52w 等權 −0.1%（GOOGL 是唯一大贏家 — 分散反而稀釋論點）</td></tr>
+<tr><td class="m">等權 TPU 鏈籃</td><td class="m">高波動、擁擠 71-74</td><td>13w −18.3% unwind 中；震出旗標</td></tr>
+<tr><td class="m">SMH 動能 / +5d 延遲</td><td class="m">前瞻登記</td><td>ablation 表 QUALITATIVE-PROSPECTIVE，樣本累積中</td></tr>
+</table>
+<p class="small" style="margin-top:6px"><b>誠實結論（log 基準）：</b>EV_net +6.2% ≈ +6.0% log；QQQ 被動長期 log 期望 ~+8%/12-18m；保守界（bull−10pp）+4.1% 低於基線 — GOOGL 的 +6.2% EV_net 並未清楚壓過 QQQ 被動基線 — 這正是 verdict 停在 WATCH/accumulate-context、以 7/22 catalyst 為分水嶺的原因；預期差兌現（bull）才有 +24% 的超額路徑。</p>
+</div>
+
+<h2><span class="k">產業鏡頭 · 供應鏈圖</span>Google Compute Supply Chain — 誰握住稀缺、誰已定價</h2>
+<div class="panel">
+<svg viewBox="0 0 1180 330" width="100%" role="img" aria-label="Google TPU supply chain">
+<g font-size="12">
+<!-- stage cards -->
+<rect x="20" y="40" width="170" height="96" rx="9" fill="#1a1e28" stroke="#363d4f"/>
+<text x="32" y="62" class="acc" font-size="11.5">設計/客製矽 DESIGN</text>
+<text x="32" y="82">AVGO（現主力）</text><text x="32" y="100">MTK（二供·成本）</text><text x="32" y="118">MRVL（三供·洽談中）</text>
+<rect x="215" y="40" width="170" height="96" rx="9" fill="#1a1e28" stroke="#e0686a" stroke-width="1.6"/>
+<text x="227" y="62" class="red" font-size="11.5">晶圓/先進封裝 ★卡點</text>
+<text x="227" y="82">TSM N3/CoWoS/CoPoS</text><text x="227" y="100">EMIB-T = 可信替代</text><text x="227" y="118">AMKR OSAT</text>
+<rect x="410" y="40" width="170" height="96" rx="9" fill="#1a1e28" stroke="#363d4f"/>
+<text x="422" y="62" class="acc" font-size="11.5">記憶體 MEMORY</text>
+<text x="422" y="82">HBM（SK/三星/MU）</text><text x="422" y="100">客製 HBM（MRVL 路線）</text><text x="422" y="118">DRAM 池化（CXL）</text>
+<rect x="605" y="40" width="170" height="96" rx="9" fill="#1a1e28" stroke="#363d4f"/>
+<text x="617" y="62" class="acc" font-size="11.5">資料中心 DC BUILD</text>
+<text x="617" y="82">電力/PPA（缺口 2027）</text><text x="617" y="100">VRT/ETN·BTM 發電</text><text x="617" y="118">光互聯 ICI+OCS</text>
+<rect x="800" y="40" width="170" height="96" rx="9" fill="#1a1e28" stroke="#363d4f"/>
+<text x="812" y="62" class="acc" font-size="11.5">跨 DC / DCI</text>
+<text x="812" y="82">NOK（Google 標案 60%）</text><text x="812" y="100">CIEN·相干光</text><text x="812" y="118">scale-across 需求腿</text>
+<rect x="995" y="40" width="165" height="96" rx="9" fill="#10201d" stroke="#2dd4bf" stroke-width="1.6"/>
+<text x="1007" y="62" class="acc" font-size="11.5">SERVING · 租金端</text>
+<text x="1007" y="82">Gemini / Cloud</text><text x="1007" y="100">backlog $462B</text><text x="1007" y="118">每查詢成本 ↓</text>
+<!-- arrows -->
+<line x1="190" y1="88" x2="215" y2="88" stroke="#e0686a" stroke-width="2.2"/>
+<line x1="385" y1="88" x2="410" y2="88" stroke="#e0686a" stroke-width="2.2"/>
+<line x1="580" y1="88" x2="605" y2="88" stroke="#697283" stroke-width="4"/>
+<line x1="775" y1="88" x2="800" y2="88" stroke="#697283" stroke-width="4"/>
+<line x1="970" y1="88" x2="995" y2="88" stroke="#697283" stroke-width="4"/>
+</g>
+<!-- severity bars /20 -->
+<g font-size="11">
+<text x="20" y="176" class="mut">各環節 4 因子嚴重度 /20（供給集中 · 交期 · 低替代性 · 需求）— 高 ≠ 可買，分級才是</text>
+<rect x="20" y="190" width="120" height="16" fill="#d2a24a" opacity=".75"/><text x="145" y="203" class="m">13 設計權（三供化進行中 → 稀缺遞減）</text>
+<rect x="20" y="212" width="160" height="16" fill="#e0686a" opacity=".85"/><text x="185" y="225" class="m">17 先進封裝（CoWoS/CoPoS 分配 = 綁定約束）</text>
+<rect x="20" y="234" width="130" height="16" fill="#d2a24a" opacity=".75"/><text x="155" y="247" class="m">14 HBM/記憶體（SCA 制度化中）</text>
+<rect x="20" y="256" width="140" height="16" fill="#d2a24a" opacity=".8"/><text x="165" y="269" class="m">15 電力（2027 餘裕轉負 — 結構性、但監測示警擁擠）</text>
+<rect x="20" y="278" width="100" height="16" fill="#5b81c4" opacity=".8"/><text x="125" y="291" class="m">11 DCI/光（需求腿低認知，但個股已大漲）</text>
+<text x="20" y="318" class="dim" font-size="10.5">provenance: 嚴重度 = 本 run 綜合評分（框架，est.）；事實層：MRVL 洽談 = 多源公開報導 2026-04 ✓；EMIB-T = SA ECTC 07-02（敘事引用）；NOK 標案 = CK 03-17 + CIEN 06-08 印證（敘事引用）；電力缺口 = SA 06-25（敘事引用）</text>
+</g>
+</svg>
+<table style="margin-top:10px">
+<tr><th>環節</th><th>供給集中</th><th>交期</th><th>低替代性</th><th>需求</th><th>/20</th></tr>
+<tr><td>設計/客製矽</td><td class="m">3（三供化中）</td><td class="m">4</td><td class="m">3</td><td class="m">3</td><td class="m"><b>13</b></td></tr>
+<tr><td>先進封裝（CoWoS/CoPoS）</td><td class="m">5（TSM 獨大）</td><td class="m">4</td><td class="m">4（EMIB-T 可信但落後）</td><td class="m">4</td><td class="m"><b>17</b></td></tr>
+<tr><td>HBM/記憶體</td><td class="m">4</td><td class="m">3</td><td class="m">3</td><td class="m">4</td><td class="m"><b>14</b></td></tr>
+<tr><td>電力</td><td class="m">3</td><td class="m">5（GSU/渦輪 3-4 年）</td><td class="m">4</td><td class="m">3</td><td class="m"><b>15</b></td></tr>
+<tr><td>DCI/光</td><td class="m">3</td><td class="m">3</td><td class="m">2</td><td class="m">3</td><td class="m"><b>11</b></td></tr>
+</table>
+<p class="small">各因子 0-5，框架評分（est.）；「嚴重度高 ≠ 可買」— 對應分級見拆解矩陣。</p>
+</div>
+
+<h2><span class="k">拆解矩陣 · 一份證據只算一次</span>Disaggregation — TPU/capex 加速對每一行的意義</h2>
+<div class="panel" style="overflow-x:auto">
+<table>
+<tr><th>Row</th><th>營收效果</th><th>利潤率效果</th><th>估值/已定價？</th><th>本 run 立場</th></tr>
+<tr><td><b>GOOGL·Search/YouTube</b></td><td>中性（現金牛供血）</td><td>AI Overviews 成本 ↑ 但貨幣化守住（1Q26 廣告 +低雙位數）</td><td>已定價（成熟倍數）</td><td>供血引擎，非論點</td></tr>
+<tr><td><b>GOOGL·Cloud</b></td><td>+63% YoY、backlog 覆蓋 → 高能見度</td><td>規模化中（正向）</td><td><b>2027 認列速度未入共識 EPS</b></td><td><span class="tag t-early">論點核心</span></td></tr>
+<tr><td><b>GOOGL·Other Bets</b></td><td>選擇權（Waymo）</td><td>虧損收斂</td><td>未定價亦未計價</td><td>免費選擇權</td></tr>
+<tr><td><b>AVGO</b></td><td>TPU 主力份額但被三供化稀釋</td><td>70-80% 毛利=Google 削減目標</td><td>2027 共識仍給 ~60% 份額</td><td><span class="tag t-neg">論點反向行</span>（證明拆解是真的）</td></tr>
+<tr><td><b>MRVL</b></td><td>洽談中（推理 TPU+MPU；未簽約）</td><td>客製毛利低於 AVGO</td><td>+80%/季已把「洽談」當「贏了」計價</td><td><span class="tag t-priced">近端 PRICED</span> / FY29 才有肉</td></tr>
+<tr><td><b>TSM</b></td><td>capex $220-230B 26-28 的直接受益</td><td>GM 69% 渠道 vs 67% 共識</td><td>buyside 門檻已在 69-70%；K3 日 −7% on beat</td><td><span class="tag t-rec">RECOGNITION</span> hold-context</td></tr>
+<tr><td><b>AMKR</b></td><td>TPU/Vera OSAT 外溢（CK 單源）</td><td>OSAT 毛利結構低</td><td>~16x 2026E 未反映 AI 拉貨</td><td><span class="tag t-watch">WATCH</span>：等第二源</td></tr>
+<tr><td><b>電力鏈 VRT/ETN/CEG</b></td><td>結構性需求（2027 餘裕轉負）</td><td>定價權強</td><td>監測：late-cycle + 最擁擠 → ride-only</td><td>watchlist-only</td></tr>
+<tr><td><b>光/DCI NOK/CIEN</b></td><td>scale-across 需求腿</td><td>標案毛利中等</td><td>光通訊 13w −44.6%（大幅回檔中）</td><td>watchlist-only（模型過期）</td></tr>
+</table>
+</div>
+
+<h2><span class="k">機構/籌碼 + 技術/位置</span>Positioning &amp; Regime</h2>
+<div class="grid2">
+<div class="card"><h3>INSTITUTIONAL（POSITIONING_CONTEXT，非確認證據）</h3>
+<p class="m" style="font-size:12.2px">GOOGL Form 4：90 天 45 筆；方向樣本僅 12 筆解析（10 買:2 賣）— 樣本小、含計劃性交易未逐筆分類 → <b>UNKNOWN 傾向，不構成 cluster-buy 訊號</b>；13F 12 檔案（45 天滯後 LAGGING）；13D/G 6 件無 activist 型 · 13F：12 檔案（45 天滯後 — LAGGING，非即時）· 空單：來源不可用 → UNKNOWN（不是零）· 選擇權偏斜：PROXY context。<br>擁擠度（自建 gauge 7/16）：CLOUD-CSP <b>53.8</b>（不擁擠、Stage 4 tape = 反向腿）vs SEMI-EQUIP 71.2 / MEM 73.5（鏈上名字帶震出旗標）。</p></div>
+<div class="card"><h3>TECHNICAL（週線、close 基準）</h3>
+<p class="m" style="font-size:12.2px">GOOGL：52w <b>+91.5%</b> · 13w +3.7% · 距 52w 高 −11.6% · 年化波動 31.5% · regime MOMENTUM（Hurst .78 / VR8 1.27）· <b>RS vs QQQ 13w −4.6%（落後中）</b> — 大漲後盤整，尚無 RS 反轉確認。<br>Segments 13w：TPU 鏈 −18.3%（unwind）· 光/DCI −44.6% · CSP 等權 −6.3%（52w 持平 — GOOGL 是 CSP 裡唯一大贏家）。參考帶 context = 20w MA ≈ $346；stop 帶 = 40w MA ≈ $326 — 自現價 $346.77 觸及即 −6.0%（paper context，非指令）。</p></div>
+</div>
+
+<h2><span class="k">SETUP READINESS · fail-closed 的誠實面板</span>Narrative-Confirmation Facets（derived, context-only）</h2>
+<div class="panel">
+<table>
+<tr><th>Facet</th><th>Status</th><th>意義</th></tr>
+<tr><td>narrative_hypothesis</td><td class="m">POST_HOC</td><td>假說在 K3 與 1Q26 print 之後才正式宣告 → 前瞻性隊列從現在起算；<b>不假裝自己早就押中</b></td></tr>
+<tr><td>catalyst_observed</td><td class="m">PRESENT</td><td>RPO/capex 證據已公布且兩源（但屬回溯觀察）；前瞻催化劑 = 7/22（官方）· 同儕 7/28-8/1 次要</td></tr>
+<tr><td>group_confirmation</td><td class="m">ABSENT</td><td>前瞻催化劑未發生，無群組反應可量</td></tr>
+<tr><td>technical_confirmation</td><td class="m">ABSENT</td><td>RS 未反轉——依自建回測，等確認會讓掉第一段；此欄不阻擋研究、只誠實記錄</td></tr>
+<tr><td>regime_context</td><td class="m">UNKNOWN（指標欄位不合 schema → fail-closed）</td><td>宏觀敘述另見：無 Fed put + 融資餘額新高 + K3 落在擁擠半導體上</td></tr>
+</table>
+<p class="small" style="margin-top:6px">derived by derive_setup_readiness.py（PASS, PAPER context）· independent_family_count=1 · 此面板永不映射為買賣或倉位；binding limit：本 run 不得以任何確認階段作為進場/加碼理由。</p>
+</div>
+
+<h2><span class="k">覺察曲線 · 分級視覺</span>Awareness Staging</h2>
+<div class="panel">
+<svg viewBox="0 0 1180 240" width="100%" role="img" aria-label="awareness curve">
+<path d="M 60 200 C 300 196, 420 188, 560 152 C 700 116, 780 72, 900 50 C 990 34, 1080 27, 1140 26" fill="none" stroke="#363d4f" stroke-width="2.5"/>
+<g font-size="11">
+<text x="60" y="228" class="dim">LATENT</text><text x="330" y="228" class="acc">EARLY</text><text x="640" y="228" class="gold">RECOGNITION</text><text x="920" y="228" class="dim">EUPHORIA</text><text x="1075" y="228" class="dim">PRICED</text>
+</g>
+<g font-size="12" class="m">
+<circle cx="395" cy="186" r="6" fill="#2dd4bf"/><text x="330" y="171">GOOGL·2027 EPS 縫</text>
+<circle cx="430" cy="182" r="6" fill="#2dd4bf"/><text x="424" y="205">AMKR*</text>
+<circle cx="700" cy="118" r="6" fill="#d2a24a"/><text x="660" y="103">GOOGL 整體</text>
+<circle cx="760" cy="86" r="6" fill="#d2a24a"/><text x="753" y="110">TSM</text>
+<circle cx="1010" cy="31" r="6" fill="#697283"/><text x="960" y="56">MRVL 近端</text>
+<circle cx="1075" cy="27" r="6" fill="#e0686a"/><text x="1040" y="52" class="red">AVGO（反向）</text>
+</g>
+<line x1="300" y1="40" x2="300" y2="205" stroke="#2dd4bf" stroke-dasharray="5 5" stroke-width="1.3"/>
+<text x="306" y="52" class="acc" font-size="11">下一個進場藏在這裡 ←（AMKR 第二源、MRVL 簽約回檔、電力/光的 Google-連結 run）</text>
+<text x="60" y="30" class="mut" font-size="11">同一家公司可以同時在兩個位置：GOOGL 整體 RECOGNITION、其 2027 EPS 預期差 EARLY。AMKR* = 單源、待第二源。</text>
+</svg>
+<p class="small" style="margin-top:4px"><b>六詞速查：</b>RPO=已簽約未認列收入 · backlog=RPO 的口語（call 用 Cloud 口徑）· D&amp;A=折舊攤銷 · CoWoS/CoPoS=台積電先進封裝（晶圓/面板級）· OSAT=委外封測（AMKR）· serving=模型推理算力出租。</p>
+</div>
+
+<h2><span class="k">研究傾向 · PAPER（非行動指令）</span>Research Leans — producer view, compiler-gated</h2>
+<div class="panel">
+<table>
+<tr><th>名字</th><th>分級</th><th>研究傾向（非指令）</th><th>Typed trigger / falsifier</th></tr>
+<tr><td><b>GOOGL</b></td><td><span class="tag t-rec">RECOGNITION</span>（EARLY 窄縫=2027 EPS 差）</td><td>研究上的首選表達（非進場指令）。EV_net +6.2% 僅小幅高於被動基線 → 支持 WATCH/accumulate-context 而非 ADD；催化劑相依：7/22 是決勝點（5 個交易日內）。價位 context：20w MA ≈ $346、40w MA ≈ $326（7/16 週線）；earliest executable = 報告核可後下一個常規開盤（paper）</td><td class="m">T: capex ≥+25% ∧ RPO YoY ≥ capex YoY · F: capex &lt;+15% ∨ RPO&lt;capex · exp 2027-01-31</td></tr>
+<tr><td><b>MRVL</b></td><td><span class="tag t-watch">WATCH</span></td><td>洽談→簽約是分水嶺；近端 +80%/季已定價，FY2029 才是上修循環（CK）。不追；正式award 或回到 FY27 支撐位再評</td><td class="m">T: 簽約揭露（8-K/call）by 12/31 · F: 談判破局/AVGO 獨供回歸</td></tr>
+<tr><td><b>AMKR</b></td><td><span class="tag t-watch">WATCH</span>（單源）</td><td>估值未反映 AI 拉貨（~16x 2026E），但 Vera/TPU OSAT 連結是 CK 單源 → 依規則不得進推薦路徑；第二源出現即升級複審</td><td class="m">T: 任何第二公開源證實先進封裝 award · F: OSAT 排除於 TPU 鏈</td></tr>
+<tr><td><b>TSM</b></td><td><span class="tag t-rec">RECOGNITION</span></td><td>鏈的萬能鑰匙、兩源基本面，但 buyside 門檻高 + 擁擠 71.2 + K3 日 −7% on beat 示範了位置風險。hold-context，非新倉理由</td><td class="m">F: N2/CoPoS 交付語言轉弱；capex 指引下修</td></tr>
+<tr><td><b>AVGO</b></td><td><span class="tag t-neg">NEGATIVE-TILT</span></td><td>本論點的反向行：三供化+毛利壓縮方向公開印證中。不做空建議（無空方 forecast）；作為多頭迴避 context</td><td class="m">反轉條件: Google BOM 份額語言重新集中於 AVGO</td></tr>
+</table>
+<p class="small" style="margin-top:6px">電力（VRT/ETN/CEG）與光/DCI（NOK/CIEN）依 plan 的 recommendable-set 規則為 watchlist-only：需自己的 run（positioning + 兩源 Google 連結 + 分級）才可升級。所有行動語言均屬 compiler 職權；此表為 producer 研究傾向。</p>
+</div>
+
+<h2><span class="k">領先指標看板</span>Leading-Indicator Watchlist — 報告歸檔後怎麼追</h2>
+<div class="panel" style="overflow-x:auto">
+<table>
+<tr><th>訊號</th><th>Lead/Lag</th><th>量化門檻</th><th>免費來源</th><th>Lead time</th></tr>
+<tr><td>合併 RPO YoY vs capex YoY</td><td class="m">LEAD</td><td class="m">RPO YoY − capex YoY &gt; 0（現：+406% vs +107%）</td><td>10-Q RPO note（EDGAR）</td><td class="m">2-4 季</td></tr>
+<tr><td>D&amp;A/capex 收斂路徑</td><td class="m">LEAD（機械）</td><td class="m">D&amp;A 成長 &lt; capex 成長（現：6.5 vs 35.7 B$/q）</td><td>10-K PP&amp;E note</td><td class="m">12m</td></tr>
+<tr><td>客製加速器軌跡（TPU 公開代理）</td><td class="m">LEAD</td><td class="m">Alphabet capex YoY ≥ +60% ∧ AVGO+MRVL 客製營收指引隱含 CY27 ≥ +45%（TrendForce 交叉）</td><td>EDGAR + 免費 transcripts + TrendForce PR</td><td class="m">9-15m</td></tr>
+<tr><td>MRVL 簽約揭露</td><td class="m">LEAD</td><td class="m">具名 award（8-K/call）</td><td>EDGAR 8-K</td><td class="m">12m+</td></tr>
+<tr><td>2027 共識 EPS 修正寬度</td><td class="m">LEAD</td><td class="m">4 週淨上修 &gt; +20%</td><td>FMP grades PIT（keyed 標註）＋print 時 press 共識</td><td class="m">1-2 季</td></tr>
+<tr><td>GOOGL RS vs QQQ 反轉</td><td class="m">LEAD-ish</td><td class="m">RS 週收 &gt; 30wMA(RS) ×2 週</td><td>Yahoo 週線</td><td class="m">0-3m</td></tr>
+<tr><td>擁擠度 gauge（鏈上名字）</td><td class="m">CONTEXT（已驗證=震出風險）</td><td class="m">≥85 = 停止加碼該段</td><td>自建面板（每日重建）</td><td class="m">0-60d</td></tr>
+</table>
+</div>
+
+<h2><span class="k">風險 · 未解問題</span>Open Questions &amp; What Kills This</h2>
+<div class="grid2">
+<div class="card"><h3>已知未解（不粉飾）</h3><p style="font-size:12.4px">(1) RPO 合併口徑 vs Cloud-only 的認列時程差；(2) backlog 中大額 AI-lab 合約的信用/集中度（Anthropic 等）未逐一揭露；(3) K3 對 Gemini API 定價的實際壓力 9/30 前追蹤；(3b) 7/22 前不足 5 個交易日 — 凍結包 7/21 收盤前完成，逾期依規則降級 CONTEXT；(4) 反壟斷 remedy 的終局範圍；(5) TPU 對外租用的毛利結構未披露。</p></div>
+<div class="card"><h3>殺死論點的路徑</h3><p style="font-size:12.4px">7/22 財報 capex 定調 &lt;+15% 或 RPO 動能斷裂（直接 falsify）；serving 價格戰把 Cloud 毛利拐點推遲 12 個月；電力交付缺口讓 backlog 認列低於 50%/24m 口徑；宏觀：無 Fed put 之下的估值壓縮（bear 19x 假設可能還不夠低）。</p></div>
+</div>
+
+<h2><span class="k">FACT LEDGER · 可稽核事實帳</span>Appendix — every load-bearing number</h2>
+<div class="panel" style="overflow-x:auto">
+<table>
+<tr><th>#</th><th>數字/主張</th><th>來源 1</th><th>來源 2 / 交叉</th><th>as-of</th><th>狀態</th></tr>
+<tr><td class="m">F1</td><td class="m">RPO $467.6B（合併）</td><td>EDGAR XBRL companyfacts CIK0001652044 (data.sec.gov/api/xbrl/companyfacts/CIK0001652044.json) tag RevenueRemainingPerformanceObligation</td><td>1Q26 call「Cloud backlog $462B」· cnbc.com/2026/04/29/alphabet-googl-q1-2026-earnings.html · tech-insider.org/alphabet-q1-2026-earnings-109-billion-google-cloud-surge/</td><td class="m">2026-03-31</td><td>✓ 兩源（口徑差已註明）</td></tr>
+<tr><td class="m">F2</td><td class="m">RPO YoY +406%</td><td>同 F1 計算（92.4→467.6）</td><td>press「nearly doubled sequentially」方向一致</td><td class="m">2026-03-31</td><td>✓ 計算可重現</td></tr>
+<tr><td class="m">F3</td><td class="m">季 capex $35.7B、YoY +107%、8/8 季加速</td><td>EDGAR XBRL（YTD 差分法，附 scenario_anchors.json）</td><td>公司 FY26 指引 $180-190B 相容</td><td class="m">2026-03-31</td><td>✓ 兩源</td></tr>
+<tr><td class="m">F4</td><td class="m">FY26 capex 指引 $180-190B（上修）· 2027「significantly increase」</td><td>1Q26 call</td><td>heygotrade/Futurum 報導</td><td class="m">2026-04-29</td><td>✓ 兩源</td></tr>
+<tr><td class="m">F5</td><td class="m">1Q26 營收 $109.9B（+22%）· Cloud $20B（+63%）</td><td>1Q26 release</td><td>CNBC + tech-insider</td><td class="m">2026-04-29</td><td>✓ 兩源</td></tr>
+<tr><td class="m">F6</td><td class="m">季折舊 $6.5B</td><td>EDGAR XBRL Depreciation</td><td>—</td><td class="m">2026-03-31</td><td>✓ 官方申報（單欄位）</td></tr>
+<tr><td class="m">F7</td><td class="m">共識 2026 EPS $14.27 / 2027 $14.79（+3.7%）</td><td>FMP analyst-estimates 凍結 7/17（keyed-source）</td><td>print 時以 press 共識複核（登記）</td><td class="m">2026-07-17</td><td>keyed — 不用於 falsifier</td></tr>
+<tr><td class="m">F8</td><td class="m">價 $346.77 / mcap $4.19T</td><td>FMP quote 7/17</td><td>週線收 354.46（7/16, Yahoo/快取）— 盤中差異已註明</td><td class="m">2026-07-17</td><td>✓ 兩源（時點差標示）</td></tr>
+<tr><td class="m">F9</td><td class="m">Google-Marvell 洽談（推理 TPU+MPU；未簽約）</td><td>thenextweb.com/news/google-marvell-ai-chips-inference-tpu-broadcom（2026-04）</td><td>mlq.ai / 247wallst / Data Gravity</td><td class="m">2026-04-14</td><td>✓ 多源（狀態=洽談）</td></tr>
+<tr><td class="m">F10</td><td class="m">AVGO ~60% / MRVL ~25% 客製加速器份額（2027 投影）</td><td>Counterpoint（press 轉引）</td><td>—</td><td class="m">2026</td><td>單源投影（context）</td></tr>
+<tr><td class="m">F11</td><td class="m">GOOGL 52w +91.5% · RS 13w −4.6% · 20w $346 / 40w $326</td><td>metrics.json（Yahoo/快取週線, close 基準）</td><td>可由公開週線重現</td><td class="m">2026-07-16</td><td>✓ 可重現</td></tr>
+<tr><td class="m">F12</td><td class="m">基率：18m ≤−25% 9.1% · 期中 ≥25% 回檔 65%</td><td>自建 7 年 CSP 面板（scenario_anchors.json）</td><td>可由公開日線重現</td><td class="m">2019-2026</td><td>✓ 可重現（樣本偏牛市）</td></tr>
+<tr><td class="m">F13</td><td class="m">TPU 10M/4.6M 顆 · 「+12% 共識 capex」</td><td>CK 3Q26 直播（訂閱敘事）</td><td>無第二源</td><td class="m">2026-06-29</td><td><b>UNVERIFIED — 排除於 EV</b></td></tr>
+<tr><td class="m">F14</td><td class="m">Form 4 90d 45 筆、方向樣本 10:2</td><td>EDGAR Form 4（positioning_fetch）</td><td>openinsider（ok）</td><td class="m">2026-07-17</td><td>✓ 兩源 · 樣本小、非訊號</td></tr>
+<tr><td class="m">F15</td><td class="m">擁擠度 CLOUD-CSP 53.8 / SEMI-EQUIP 71.2 / MEM 73.5</td><td>自建 crowding gauge 7/16</td><td>方法+回測公開於 KB（每日重建）</td><td class="m">2026-07-16</td><td>✓ 可重現（KEPT: 震出風險 context）</td></tr>
+</table>
+</div>
+
+<footer>
+<p><b>Compliance：</b>個人研究（PAPER / research context）· 非投資建議 · action_gate_eligible=false — 所有行動經 Portfolio Decision Compiler 與 fail-closed 行動閘門 · IBKR read-only · 訂閱來源（CK/SA）依 2026-07-15 政策以敘事/框架引用並標註，未整段轉載；凡單源者已標示且排除於 EV 路徑。</p>
+<p><b>Sources &amp; provenance：</b>EDGAR XBRL companyfacts（RPO/capex/D&amp;A/PP&amp;E，免費）· Alphabet 1Q26 call + CNBC/tech-insider/Futurum（backlog $462B、capex $180-190B、2027「significantly increase」）· FMP 凍結快照 7/17（quote/estimates，keyed 標註）· 多源新聞（Google-Marvell 洽談 2026-04；Counterpoint 60/25 份額投影）· 自建：metrics.json（Yahoo/快取週線）、positioning_fetch（EDGAR）、crowding gauge、7 年基率面板 · KB 敘事層：CK 3Q26 直播/全文庫、SA digests（標註）。全部 as-of 2026-07-17。</p>
+<p><b>誠實聲明：</b>GOOGL 52w +91.5% — 本報告拒絕「早期大機會」框架；EARLY 只適用於 2027 EPS 預期差這一窄縫。readiness 面板 POST_HOC/ABSENT 如實展示。TPU 單位數（10M/4.6M）與「+12% 共識 capex」維持 UNVERIFIED_HYPOTHESIS、不入 EV。期中 ≥25% 回檔基率 65% — 走完這條路大概率要先挨一次打。</p>
+<p class="small">GOOGL-Teardown-SupplyChain · v1.5 · built 2026-07-17 · plan review CONVERGED (Codex gpt-5.5 xhigh, r4+r5 fits=true) · report review BOUNDED at r5 (r2 fits=true; catalyst-date P0 caught & fixed in-loop; final-round P1 residuals carried to Gate C — see decision_manifest.review_status) · run root: notes/googl-supplychain-teardown/</p>
+</footer>
+</div></body></html>

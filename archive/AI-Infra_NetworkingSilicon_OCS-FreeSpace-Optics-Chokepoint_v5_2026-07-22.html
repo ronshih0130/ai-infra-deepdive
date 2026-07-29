@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-Infra Run #29 — Networking L5: The OCS Free-Space Optics Chokepoint (DRY RUN)</title>
+<style>
+  :root{
+    --bg:#16181d; --bg2:#1c1f26; --card:#21252e; --card2:#262b36;
+    --ink:#e8eaed; --ink2:#9aa3b2; --ink3:#6b7283;
+    --teal:#2dd4bf; --teal2:#14b8a6; --tealdim:#134e4a;
+    --red:#e07a6a; --reddim:#4a2620; --amber:#d4a72c;
+    --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+    --sans:'Space Grotesk','Helvetica Neue',Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;padding:0 0 80px}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+  header{background:linear-gradient(180deg,#1a2b2a 0%,var(--bg) 100%);border-bottom:1px solid #2a2f3a;padding:38px 0 26px;margin-bottom:30px}
+  h1{font-size:27px;font-weight:700;letter-spacing:-.5px}
+  h1 .accent{color:var(--teal)}
+  h2{font-size:19px;font-weight:700;margin:42px 0 14px;color:var(--teal);letter-spacing:-.2px;border-bottom:1px solid #2a2f3a;padding-bottom:8px}
+  h3{font-size:15.5px;font-weight:600;margin:20px 0 8px;color:var(--ink)}
+  p{margin:0 0 12px;color:var(--ink)}
+  .sub{color:var(--ink2);font-size:13.5px;margin-top:8px}
+  .num,td.num,.mono{font-family:var(--mono)}
+  .badge{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 9px;border-radius:3px;letter-spacing:.5px;vertical-align:middle}
+  .b-dry{background:var(--reddim);color:var(--red);border:1px solid var(--red)}
+  .b-teal{background:var(--tealdim);color:var(--teal)}
+  .b-watch{background:#3a3320;color:var(--amber)}
+  .b-hypo{background:#2a2f3a;color:var(--ink2)}
+  .b-avoid{background:var(--reddim);color:var(--red)}
+  .card{background:var(--card);border:1px solid #2a2f3a;border-radius:8px;padding:20px 22px;margin:14px 0}
+  .card.red{border-left:3px solid var(--red)}
+  .card.teal{border-left:3px solid var(--teal)}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.5px}
+  th{text-align:left;color:var(--ink2);font-weight:600;font-size:12px;letter-spacing:.4px;text-transform:uppercase;padding:8px 10px;border-bottom:1px solid #343a47}
+  td{padding:8px 10px;border-bottom:1px solid #262b36;vertical-align:top}
+  td.num{white-space:nowrap}
+  .up{color:var(--teal)} .dn{color:var(--red)} .amb{color:var(--amber)}
+  .small{font-size:12.5px;color:var(--ink2)}
+  .cite{font-family:var(--mono);font-size:10.5px;color:var(--teal2);vertical-align:super}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:800px){.grid2{grid-template-columns:1fr}}
+  svg text{font-family:var(--sans)} svg .m{font-family:var(--mono)}
+  /* tabs */
+  .tabs{margin:16px 0}
+  .tabs input[type=radio]{position:absolute;opacity:0}
+  .tabbar{display:flex;gap:6px;flex-wrap:wrap}
+  .tabbar label{background:var(--card);border:1px solid #2a2f3a;border-radius:6px 6px 0 0;padding:9px 18px;cursor:pointer;font-size:13.5px;color:var(--ink2)}
+  .tabs input:checked+.tabpanelwrap{display:block}
+  .tabpanelwrap{display:none;background:var(--card);border:1px solid #2a2f3a;border-radius:0 8px 8px 8px;padding:20px 22px}
+  #t1:checked~.tabbar label[for=t1],#t2:checked~.tabbar label[for=t2],#t3:checked~.tabbar label[for=t3]{background:var(--card2);color:var(--teal);border-bottom-color:var(--card2)}
+  .cn{color:var(--teal);font-weight:600}
+  ul{margin:0 0 12px 20px} li{margin-bottom:5px}
+  .kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:14px 0}
+  .kpi>div{background:var(--card2);border-radius:6px;padding:12px 14px}
+  .kpi .v{font-family:var(--mono);font-size:20px;color:var(--teal);font-weight:600}
+  .kpi .v.r{color:var(--red)}
+  .kpi .k{font-size:11.5px;color:var(--ink2);margin-top:2px;letter-spacing:.3px}
+  .note{font-size:12px;color:var(--ink2);border-left:2px solid #343a47;padding-left:10px;margin:10px 0}
+  @media print{ .tabpanelwrap{display:block !important;border-radius:8px;margin-bottom:10px} .tabbar{display:none} body{background:#fff;color:#111} .card,.card2,.tabpanelwrap{background:#fff;color:#111;border-color:#bbb} }
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div style="margin-bottom:10px"><span class="badge b-dry">PAPER-ONLY DRY RUN — NOT PUBLISHED — NOT INVESTMENT ADVICE</span>
+  <span class="badge b-teal">RUN #29 · NETWORKING · LOOP 5 · canonical_id: NET</span></div>
+  <h1>The Switch Made of Mirrors: <span class="accent">OCS</span> and its Free-Space Optics Chokepoint</h1>
+  <p class="sub">AI-Infra Chokepoint Deep-Dive · as-of <span class="mono">2026-07-22</span> (quotes <span class="mono">2026-07-21</span> close) · personal research, attribution &amp; estimates hedged · IBKR read-only · RUN_MODE=<span class="mono">paper_only</span></p>
+</div></header>
+<div class="wrap">
+
+<!-- ================= PAGE 1 : DECISION-FIRST ================= -->
+<h2>1 · What changed since the prior networking run (#23, 2026-07-10)</h2>
+<div class="card teal">
+<ul>
+<li><b>OCS graduated from watchlist to layer.</b> Run #23 (Scale-Across / coherent DSP) left "OCS" as an open watchlist item. In the twelve days since, the case that <b>2026 is the OCS external-procurement inflection</b> hardened: total demand est. &gt;20K units, Google ~18K (est., single source)<span class="cite">C01</span>, Coherent raised its OCS TAM to <b>&gt;$4B</b> on its May call<span class="cite">C03</span>, and Lumentum reports <b>&gt;$400M backlog</b>, "demand clearly outstripping supply," targeting a $1B run-rate in 2027<span class="cite">C02</span>.</li>
+<li><b>A new listed pure-play appeared mid-cycle.</b> Silex Microsystems — the Swedish MEMS foundry that fabricates Google's OCS mirror arrays<span class="cite">C06</span> — IPO'd on Nasdaq Stockholm <span class="mono">2026-05-07</span> at SEK 81, popped +178% day one, ran to SEK 362.5, and has since <b>retraced −49% to SEK 186</b><span class="cite">C07</span>. The pop-and-purge changes the entry math on the only clean vehicle at the die layer.</li>
+<li><b>The customers are funding the disintermediator.</b> nEye.ai closed an $80M Series C (2026-04-14, total $152M) for wafer-scale <i>on-chip</i> OCS — with <b>Alphabet's and Microsoft's venture arms</b> in the round<span class="cite">C10</span>. When the customers pay to shrink your free-space optics onto a chip, the free-space toll has an expiry date (est. H2 2027+ before volume).</li>
+<li><b>The whole optics complex pulled back hard then bounced.</b> LITE −23% / COHR −28% / FN −30% off 52-week highs even after a +9.4% / +11.1% / +6.7% day on 2026-07-21<span class="cite">C13</span>. The layer is inflecting while the tape digests.</li>
+<li><b>OCS is invading scale-up.</b> Marvell + Lumentum demonstrated OCS for next-gen AI <i>scale-up</i> fabric<span class="cite">C11</span> — pushing OCS beyond Google's scale-out/spine niche toward the layer Run #17 (copper) owns today.</li>
+</ul>
+</div>
+
+<h2>2 · Research states (no ambiguity, no "plays")</h2>
+<table>
+<tr><th>Entity</th><th>Link in chain</th><th>State</th><th>Remaining asymmetry</th><th>Trigger (typed)</th><th>Falsifier (typed)</th><th>Expiry / next review</th></tr>
+<tr>
+  <td><b>Silex Microsystems</b> <span class="mono">SILEX.ST</span></td><td>MEMS mirror-die foundry (~70% of OCS MEMS volume, est., single source)</td>
+  <td><span class="badge b-watch">WATCH</span></td><td class="num">8/20 — highest of run</td>
+  <td class="small"><i>fundamental:</i> first disclosure quantifying optical/DC (OCS) revenue mix &gt;20% or an optical-segment capacity expansion; <i>price:</i> below ~SEK 150 (since-IPO low 147) while thesis intact</td>
+  <td class="small"><i>fundamental:</i> TI (or another foundry) qualified as second source at volume; <i>expectations:</i> optical/DC mix revealed &lt;10% of revenue (P/E 50 then unsupported); <i>data_quality:</i> ~70% share claim fails verification</td>
+  <td class="small">2026-10-31 (Q3 report) → falls back to HYPOTHESIS</td>
+</tr>
+<tr>
+  <td><b>Lumentum</b> <span class="mono">LITE</span></td><td>Merchant MEMS-OCS system (R300/R64)</td>
+  <td><span class="badge b-watch">WATCH</span></td><td class="num">4/20 — priced</td>
+  <td class="small"><i>expectations:</i> OCS $100M/qtr exit-2026 target hit while stock consolidates below ~$900; scale-up OCS design win named</td>
+  <td class="small"><i>expectations:</i> OCS backlog growth stalls vs $400M; <i>price:</i> +740% 1Y momentum breaks regime (close &lt;200dma)</td>
+  <td class="small">2026-11-15 (FQ1-27 report) → HYPOTHESIS</td>
+</tr>
+<tr>
+  <td><b>Coherent</b> <span class="mono">COHR</span></td><td>LCoS-OCS system + collimator/fiber-array supply into Google (two links)</td>
+  <td><span class="badge b-watch">WATCH</span></td><td class="num">6/20</td>
+  <td class="small"><i>fundamental:</i> first non-Google production order (MSFT/META/AWS/NVDA) converting samples to volume; 1,000 units/mo capacity confirmed 2H26</td>
+  <td class="small"><i>fundamental:</i> LCoS ms-latency loses a major RFP to MEMS on reconfiguration speed; <i>expectations:</i> OCS orders stall at ~$300M</td>
+  <td class="small">2026-08-15 (FQ4-26 report) → HYPOTHESIS</td>
+</tr>
+<tr>
+  <td>2D collimator-array chain (Molex/Fiberguide, Ingeneric, Corning?)</td><td>The universal free-space toll (both MEMS and LCoS variants)</td>
+  <td><span class="badge b-hypo">HYPOTHESIS</span></td><td class="num">n/a — no clean vehicle</td>
+  <td class="small"><i>event:</i> a listed pure-play emerges or GLW/COHR disclose collimator content</td><td class="small"><i>fundamental:</i> waveguide OCS reaches production volume (removes free-space optics entirely)</td>
+  <td class="small">next NET run (~2026-09) → RETIRED if no vehicle</td>
+</tr>
+<tr>
+  <td><b>Fabrinet</b> <span class="mono">FN</span></td><td>iPronics waveguide-OCS assembly line; optics CM laggard (+15.8% YTD)</td>
+  <td><span class="badge b-hypo">HYPOTHESIS</span></td><td class="num">5/20 (linkage thin)</td>
+  <td class="small"><i>fundamental:</i> iPronics/waveguide OCS line reaches production volume (est. H2 2027)</td><td class="small"><i>fundamental:</i> waveguide OCS misses 2027 volume window</td>
+  <td class="small">2027-01 review → RETIRED</td>
+</tr>
+<tr>
+  <td>Sai MicroElectronics <span class="mono">300456.SZ</span> (45% Silex rump)</td><td>Minority owner of the die layer</td>
+  <td><span class="badge b-avoid">NOT ACCESSIBLE</span></td><td class="num">—</td><td class="small" colspan="3">Shenzhen ChiNext; outside IBKR-accessible universe per framework (NO Taiwan/A-share mandate). Noted for completeness only.</td>
+</tr>
+</table>
+<p class="note">A company named here is a <b>research mention</b>, not a recommendation. No `PAPER` rows were created this run: the fields a PAPER row requires (PIT expectations, after-cost spread/slippage, p10/p50/p90 grounded in a disclosed OCS mix) are not yet available for the one candidate that would justify it (SILEX) — fail-closed per operating contract.</p>
+
+<h2>3 · Portfolio impact &amp; gate status</h2>
+<div class="grid2">
+<div class="card">
+<h3>After-cost portfolio impact</h3>
+<p class="num" style="font-size:22px;color:var(--teal)">0.00%</p>
+<p class="small">All entities are WATCH/HYPOTHESIS → zero portfolio impact, zero correlated-thesis exposure change. Correlated context if any later PAPER: SILEX/LITE/COHR would all load on the same "AI optics capex" factor already carried by prior runs' mentions (FN, COHR appear in runs #13/#19/#23/#25).</p>
+</div>
+<div class="card red">
+<h3>Action-gate failures (blocking anything above WATCH)</h3>
+<ul class="small">
+<li>Originating model is <span class="mono">TRIAGE_ONLY</span> (dashboard stage-engine is descriptive; no position-grade model).</li>
+<li>No PIT expectations/valuation feed → expectation-gap unmeasurable.</li>
+<li>SILEX OCS revenue mix undisclosed (prospectus detail paywalled/unverified) → thesis-critical input missing.</li>
+<li>OCS BOM economics rest on a single specialist source (C12) → fails ≥2-source rule for sizing.</li>
+<li>~70% Silex share of OCS MEMS volume: single source (C06) → load-bearing but unverified.</li>
+</ul>
+</div>
+</div>
+
+<h2>4 · One-line conclusion</h2>
+<div class="card red">
+<p><b>NO POSITION-GRADE CANDIDATE.</b> The OCS layer is real and inflecting (severity <span class="mono">14/20</span>), the systems names (LITE +740% 1Y) are Recognition→Euphoria and priced; the genuinely under-owned scarcity — the free-space precision-optics core (2D collimator array + MEMS mirror die) — has exactly one clean listed vehicle (SILEX, post-IPO −49% digestion) that stays <b>WATCH</b> until its OCS mix is disclosed, because the free-space toll itself carries a funded 2027+ disintermediation risk (on-chip OCS, financed by the customers).</p>
+</div>
+
+<!-- ================= APPENDIX ================= -->
+<h2>A1 · Plain-language: what is an OCS? 光路交換機是什麼？</h2>
+<div class="card">
+<p><b>An OCS is a telephone switchboard for light.</b> A normal data-center switch (EPS, electrical packet switch) reads every packet: light → electrons → chip decides → back to light. That costs power (~3,000W-class for 136 ports) and locks you to one speed generation. An OCS never reads the data — it just <b>steers the beam with tiny mirrors</b> (or liquid-crystal phase arrays) from one fiber to another, like patching a cable, in ~milliseconds. ~108W, speed-agnostic, and it never needs upgrading when optics go 400G→800G→1.6T<span class="cite">C04</span>. 中文：OCS 不解讀封包，只是把光「反射」到另一條光纖 — 像自動化的配線盤。因為不碰電，功耗是電交換機的 ~1/30，而且升級到 1.6T 也不用換機器。</p>
+<p><b>Why it matters now:</b> Google proved it at scale (a decade, quietly, ~$3B claimed advantage<span class="cite">C04</span>) and in 2026, for the first time, <b>outside merchants (Lumentum, Coherent) are shipping OCS in volume to Google + Oracle</b>, with Meta/Microsoft/Amazon/NVIDIA sampling<span class="cite">C03</span>. The reflex trade is the box-makers. This run asks the deeper question: <b>what scarce thing does every OCS — captive or merchant, mirror or liquid crystal — have to pass through?</b></p>
+</div>
+
+<h3>Glossary 術語表</h3>
+<table class="small">
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td><b>OCS</b> 光路交換機</td><td>Optical circuit switch — steers light fiber-to-fiber without reading packets</td></tr>
+<tr><td><b>EPS</b> 電封包交換機</td><td>Electrical packet switch (Broadcom Tomahawk et al.) — reads every packet</td></tr>
+<tr><td><b>MEMS</b> 微機電鏡陣列</td><td>Micro-mirror array chip; 2 tilting mirrors steer each beam; Google/Lumentum path</td></tr>
+<tr><td><b>LCoS</b> 矽基液晶</td><td>Liquid-crystal-on-silicon phase array; no moving parts, ~10y life, slower (~tens of ms); Coherent path</td></tr>
+<tr><td><b>2D collimator array</b> 二維準直器陣列</td><td>Fiber array + lens array that launches hundreds of parallel beams straight enough (&lt;1 mrad) to survive free space<span class="cite">C05</span></td></tr>
+<tr><td><b>Waveguide / on-chip OCS</b> 晶上光交換</td><td>SiPh switch matrix on a chip (nEye, iPronics) — removes free-space optics entirely; 32×32 today, volume est. H2 2027+<span class="cite">C09,C10</span></td></tr>
+<tr><td><b>Insertion loss</b> 插入損耗</td><td>Light lost through the switch: MEMS ~3dB · piezo ~1dB · waveguide ~6dB<span class="cite">C09</span></td></tr>
+</table>
+
+<h2>A2 · MECE: where Run #29 sits in the networking layer</h2>
+<div class="card">
+<svg viewBox="0 0 1020 300" width="100%">
+  <text x="12" y="24" fill="#9aa3b2" font-size="12" font-weight="600">NETWORKING DOMAIN (columns = fabric scope · rows = stack depth) — teal = prior runs · red = THIS RUN</text>
+  <!-- columns -->
+  <g font-size="12.5" text-anchor="middle">
+    <text x="245" y="52" fill="#e8eaed" font-weight="600">SCALE-UP (rack)</text>
+    <text x="475" y="52" fill="#e8eaed" font-weight="600">SCALE-OUT (cluster)</text>
+    <text x="705" y="52" fill="#e8eaed" font-weight="600">SCALE-ACROSS (campus/DCI)</text>
+    <text x="915" y="52" fill="#e8eaed" font-weight="600">ENDPOINT (NIC)</text>
+  </g>
+  <g font-size="12">
+    <text x="20" y="92" fill="#9aa3b2">Packet silicon</text>
+    <text x="20" y="152" fill="#9aa3b2">PHY / IP / cable</text>
+    <text x="20" y="212" fill="#9aa3b2">Circuit switching</text>
+    <text x="20" y="272" fill="#9aa3b2">(of light)</text>
+  </g>
+  <!-- cells -->
+  <g font-size="11.5" text-anchor="middle">
+    <rect x="140" y="70" width="210" height="34" rx="4" fill="#134e4a" opacity=".55"/><text x="245" y="91" fill="#2dd4bf">NVSwitch / SUE / UALink (ctx #17, C14)</text>
+    <rect x="370" y="70" width="210" height="34" rx="4" fill="#134e4a"/><text x="475" y="91" fill="#2dd4bf">Run #5 · 224G switch silicon</text>
+    <rect x="600" y="70" width="210" height="34" rx="4" fill="#134e4a"/><text x="705" y="91" fill="#2dd4bf">Run #23 · Coherent DSP</text>
+    <rect x="820" y="70" width="190" height="34" rx="4" fill="#262b36"/><text x="915" y="91" fill="#9aa3b2">NIC war (open cell, C14)</text>
+    <rect x="140" y="130" width="210" height="34" rx="4" fill="#134e4a"/><text x="245" y="151" fill="#2dd4bf">Run #17 · copper connector/cable</text>
+    <rect x="370" y="130" width="210" height="34" rx="4" fill="#134e4a"/><text x="475" y="151" fill="#2dd4bf">Run #11 · 448G SerDes IP</text>
+    <rect x="600" y="130" width="210" height="34" rx="4" fill="#262b36"/><text x="705" y="151" fill="#9aa3b2">coherent optics → runs #13/#25</text>
+    <rect x="820" y="130" width="190" height="34" rx="4" fill="#262b36"/><text x="915" y="151" fill="#9aa3b2">AEC/retimer (in #5)</text>
+    <rect x="140" y="190" width="210" height="76" rx="4" fill="#4a2620" stroke="#e07a6a" stroke-dasharray="4 3"/><text x="245" y="222" fill="#e07a6a">MRVL+LITE scale-up OCS demo</text><text x="245" y="240" fill="#e07a6a" font-size="10.5">(2027+ expansion vector)</text>
+    <rect x="370" y="190" width="440" height="76" rx="4" fill="#4a2620" stroke="#e07a6a" stroke-width="2"/>
+    <text x="590" y="219" fill="#e07a6a" font-weight="700" font-size="13">RUN #29 · OPTICAL CIRCUIT SWITCHING</text>
+    <text x="590" y="238" fill="#e07a6a" font-size="11">Google Apollo (spine, TPU pods) → merchant ramp 2026</text>
+    <text x="590" y="255" fill="#e07a6a" font-size="11">binding link one layer down: free-space precision optics</text>
+    <rect x="820" y="190" width="190" height="76" rx="4" fill="#262b36"/><text x="915" y="225" fill="#9aa3b2">on-chip OCS at NIC?</text><text x="915" y="242" fill="#9aa3b2" font-size="10.5">(nEye 2028+ vision)</text>
+  </g>
+</svg>
+<p class="small">The un-opened cells after five networking loops: the endpoint NIC war (Thor Ultra vs ConnectX — deliberately skipped: it is a two-giant consensus battle with no hidden layer<span class="cite">C14</span>) and OCS — chosen because it has a genuine hidden sub-layer and a live 2026 inflection.</p>
+</div>
+
+<h2>A3 · How the two OCS technologies work — and what they share</h2>
+<div class="card">
+<svg viewBox="0 0 1020 330" width="100%">
+  <text x="12" y="22" fill="#9aa3b2" font-size="12" font-weight="600">LIGHT PATH THROUGH AN OCS — the shared front-end is the chokepoint</text>
+  <!-- input fibers -->
+  <g>
+    <text x="60" y="52" fill="#e8eaed" font-size="12" text-anchor="middle">input fibers ×N</text>
+    <line x1="20" y1="70" x2="100" y2="70" stroke="#2dd4bf" stroke-width="2"/>
+    <line x1="20" y1="90" x2="100" y2="90" stroke="#2dd4bf" stroke-width="2"/>
+    <line x1="20" y1="110" x2="100" y2="110" stroke="#2dd4bf" stroke-width="2"/>
+    <line x1="20" y1="130" x2="100" y2="130" stroke="#2dd4bf" stroke-width="2"/>
+  </g>
+  <!-- collimator -->
+  <rect x="105" y="50" width="150" height="100" rx="6" fill="#4a2620" stroke="#e07a6a" stroke-width="2"/>
+  <text x="180" y="88" fill="#e07a6a" font-size="12.5" font-weight="700" text-anchor="middle">2D COLLIMATOR</text>
+  <text x="180" y="105" fill="#e07a6a" font-size="11" text-anchor="middle">fiber array + lens array</text>
+  <text x="180" y="122" fill="#e07a6a" font-size="10.5" text-anchor="middle">&lt;1 mrad per beam (C05)</text>
+  <!-- free space -->
+  <g stroke="#9aa3b2" stroke-dasharray="3 4">
+    <line x1="255" y1="75" x2="420" y2="95"/>
+    <line x1="255" y1="105" x2="420" y2="115"/>
+    <line x1="255" y1="130" x2="420" y2="140"/>
+  </g>
+  <text x="335" y="65" fill="#9aa3b2" font-size="11" text-anchor="middle">free-space propagation</text>
+  <!-- steering engines -->
+  <rect x="425" y="55" width="240" height="60" rx="6" fill="#21252e" stroke="#2dd4bf"/>
+  <text x="545" y="79" fill="#2dd4bf" font-size="12" font-weight="600" text-anchor="middle">PATH A · MEMS mirror array die</text>
+  <text x="545" y="97" fill="#9aa3b2" font-size="10.5" text-anchor="middle">Google captive + LITE · die fab: Silex ~70% est. (C06)</text>
+  <rect x="425" y="125" width="240" height="60" rx="6" fill="#21252e" stroke="#2dd4bf"/>
+  <text x="545" y="149" fill="#2dd4bf" font-size="12" font-weight="600" text-anchor="middle">PATH B · LCoS phase array + beam displacer</text>
+  <text x="545" y="167" fill="#9aa3b2" font-size="10.5" text-anchor="middle">COHR · no moving parts · ~10y life · ~tens of ms (C09)</text>
+  <!-- output -->
+  <rect x="700" y="80" width="150" height="70" rx="6" fill="#4a2620" stroke="#e07a6a" stroke-width="2"/>
+  <text x="775" y="108" fill="#e07a6a" font-size="12.5" font-weight="700" text-anchor="middle">2D COLLIMATOR</text>
+  <text x="775" y="126" fill="#e07a6a" font-size="10.5" text-anchor="middle">(again, on the way out)</text>
+  <g>
+    <line x1="855" y1="95" x2="935" y2="95" stroke="#2dd4bf" stroke-width="2"/>
+    <line x1="855" y1="115" x2="935" y2="115" stroke="#2dd4bf" stroke-width="2"/>
+    <line x1="855" y1="135" x2="935" y2="135" stroke="#2dd4bf" stroke-width="2"/>
+    <text x="895" y="160" fill="#e8eaed" font-size="12" text-anchor="middle">output fibers ×N</text>
+  </g>
+  <!-- shared vs not -->
+  <rect x="20" y="205" width="980" height="105" rx="6" fill="#1c1f26" stroke="#343a47"/>
+  <text x="40" y="232" fill="#e8eaed" font-size="12.5" font-weight="600">The disaggregation that matters:</text>
+  <text x="40" y="254" fill="#e07a6a" font-size="12">• BOTH paths must pass through the 2D collimator array twice → the collimator is the UNIVERSAL toll of free-space OCS.</text>
+  <text x="40" y="274" fill="#9aa3b2" font-size="12">• The MEMS die is the binding link of the DOMINANT variant only (~85% of 2026 units est.: Google captive MEMS + LITE merchant, net of COHR ~3K LCoS). LCoS bypasses it.</text>
+  <text x="40" y="294" fill="#9aa3b2" font-size="12">• Waveguide/on-chip OCS (nEye, iPronics) removes BOTH — the funded 2027+ disintermediation of the entire free-space toll (C09, C10).</text>
+</svg>
+</div>
+
+<h2>A4 · End-to-end supply chain — scarcity peaks one layer below the box</h2>
+<div class="card">
+<svg viewBox="0 0 1020 430" width="100%">
+  <text x="12" y="22" fill="#9aa3b2" font-size="12" font-weight="600">SIX-STAGE CHAIN · bar = scarcity premium (qualitative, /10) · red = binding chokepoint</text>
+  <!-- stages -->
+  <g font-size="11.5">
+    <!-- 1 -->
+    <rect x="15" y="40" width="155" height="112" rx="6" fill="#21252e" stroke="#343a47"/>
+    <text x="92" y="60" fill="#e8eaed" text-anchor="middle" font-weight="600">1 · MATERIALS</text>
+    <text x="92" y="78" fill="#9aa3b2" text-anchor="middle" font-size="10.5">SMF fiber · glass hole-plates</text>
+    <text x="92" y="93" fill="#9aa3b2" text-anchor="middle" font-size="10.5">micro-lens glass · LC fluid</text>
+    <text x="92" y="108" fill="#9aa3b2" text-anchor="middle" font-size="10.5">GLW · Schott · JSR et al.</text>
+    <rect x="35" y="122" width="114" height="10" rx="2" fill="#343a47"/><rect x="35" y="122" width="34" height="10" rx="2" fill="#2dd4bf"/>
+    <text x="92" y="147" fill="#9aa3b2" text-anchor="middle" class="m" font-size="10">3/10 · commodity-plus</text>
+    <!-- 2 -->
+    <rect x="185" y="40" width="155" height="112" rx="6" fill="#4a2620" stroke="#e07a6a" stroke-width="2"/>
+    <text x="262" y="60" fill="#e07a6a" text-anchor="middle" font-weight="700">2 · STEERING DIE</text>
+    <text x="262" y="78" fill="#e8eaed" text-anchor="middle" font-size="10.5">MEMS mirror array wafer</text>
+    <text x="262" y="93" fill="#e8eaed" text-anchor="middle" font-size="10.5">Silex ~70% est. (C06) · TI 2nd?</text>
+    <text x="262" y="108" fill="#e8eaed" text-anchor="middle" font-size="10.5">LCoS engine (~35% LCoS BOM)</text>
+    <rect x="205" y="122" width="114" height="10" rx="2" fill="#343a47"/><rect x="205" y="122" width="91" height="10" rx="2" fill="#e07a6a"/>
+    <text x="262" y="147" fill="#e07a6a" text-anchor="middle" class="m" font-size="10">8/10 · CO-CHOKEPOINT</text>
+    <!-- 3 -->
+    <rect x="355" y="40" width="155" height="112" rx="6" fill="#4a2620" stroke="#e07a6a" stroke-width="2"/>
+    <text x="432" y="60" fill="#e07a6a" text-anchor="middle" font-weight="700">3 · COLLIMATOR ARRAY</text>
+    <text x="432" y="78" fill="#e8eaed" text-anchor="middle" font-size="10.5">fiber array + lens array, &lt;1 mrad</text>
+    <text x="432" y="93" fill="#e8eaed" text-anchor="middle" font-size="10.5">COHR · Molex/Fiberguide</text>
+    <text x="432" y="108" fill="#e8eaed" text-anchor="middle" font-size="10.5">Ingeneric lenses (private)</text>
+    <rect x="375" y="122" width="114" height="10" rx="2" fill="#343a47"/><rect x="375" y="122" width="103" height="10" rx="2" fill="#e07a6a"/>
+    <text x="432" y="147" fill="#e07a6a" text-anchor="middle" class="m" font-size="10">9/10 · THE BINDING LINK</text>
+    <!-- 4 -->
+    <rect x="525" y="40" width="155" height="112" rx="6" fill="#21252e" stroke="#343a47"/>
+    <text x="602" y="60" fill="#e8eaed" text-anchor="middle" font-weight="600">4 · OCS SYSTEM</text>
+    <text x="602" y="78" fill="#9aa3b2" text-anchor="middle" font-size="10.5">calibrate + qualify the box</text>
+    <text x="602" y="93" fill="#9aa3b2" text-anchor="middle" font-size="10.5">Google captive · LITE R300</text>
+    <text x="602" y="108" fill="#9aa3b2" text-anchor="middle" font-size="10.5">COHR LCoS · Polatis piezo</text>
+    <rect x="545" y="122" width="114" height="10" rx="2" fill="#343a47"/><rect x="545" y="122" width="80" height="10" rx="2" fill="#2dd4bf"/>
+    <text x="602" y="147" fill="#9aa3b2" text-anchor="middle" class="m" font-size="10">7/10 · where $$ is bid</text>
+    <!-- 5 -->
+    <rect x="695" y="40" width="155" height="112" rx="6" fill="#21252e" stroke="#343a47"/>
+    <text x="772" y="60" fill="#e8eaed" text-anchor="middle" font-weight="600">5 · FABRIC INTEGRATION</text>
+    <text x="772" y="78" fill="#9aa3b2" text-anchor="middle" font-size="10.5">topology SW · SDN control</text>
+    <text x="772" y="93" fill="#9aa3b2" text-anchor="middle" font-size="10.5">Google Jupiter/Apollo</text>
+    <text x="772" y="108" fill="#9aa3b2" text-anchor="middle" font-size="10.5">MRVL scale-up demo</text>
+    <rect x="715" y="122" width="114" height="10" rx="2" fill="#343a47"/><rect x="715" y="122" width="57" height="10" rx="2" fill="#2dd4bf"/>
+    <text x="772" y="147" fill="#9aa3b2" text-anchor="middle" class="m" font-size="10">5/10 · captive know-how</text>
+    <!-- 6 -->
+    <rect x="865" y="40" width="140" height="112" rx="6" fill="#21252e" stroke="#343a47"/>
+    <text x="935" y="60" fill="#e8eaed" text-anchor="middle" font-weight="600">6 · DEPLOYMENT</text>
+    <text x="935" y="78" fill="#9aa3b2" text-anchor="middle" font-size="10.5">Google ~18K units '26</text>
+    <text x="935" y="93" fill="#9aa3b2" text-anchor="middle" font-size="10.5">Oracle · sampling: MSFT</text>
+    <text x="935" y="108" fill="#9aa3b2" text-anchor="middle" font-size="10.5">META AWS NVDA (C03)</text>
+    <rect x="885" y="122" width="100" height="10" rx="2" fill="#343a47"/><rect x="885" y="122" width="30" height="10" rx="2" fill="#2dd4bf"/>
+    <text x="935" y="147" fill="#9aa3b2" text-anchor="middle" class="m" font-size="10">3/10 · buyer power</text>
+  </g>
+  <!-- arrows -->
+  <g stroke="#4a5160" stroke-width="1.5" fill="#4a5160">
+    <line x1="170" y1="96" x2="183" y2="96"/><path d="M183 92 l7 4 -7 4 z"/>
+    <line x1="340" y1="96" x2="353" y2="96"/><path d="M353 92 l7 4 -7 4 z"/>
+    <line x1="510" y1="96" x2="523" y2="96"/><path d="M523 92 l7 4 -7 4 z"/>
+    <line x1="680" y1="96" x2="693" y2="96"/><path d="M693 92 l7 4 -7 4 z"/>
+    <line x1="850" y1="96" x2="863" y2="96"/><path d="M863 92 l7 4 -7 4 z"/>
+  </g>
+  <!-- why binding -->
+  <rect x="15" y="175" width="990" height="133" rx="6" fill="#1c1f26" stroke="#343a47"/>
+  <text x="35" y="200" fill="#e8eaed" font-size="12.5" font-weight="600">Why stages 2–3 bind (為何是卡點):</text>
+  <text x="35" y="222" fill="#9aa3b2" font-size="12">• Yield physics: Google's own Palomar ships 176 mirrors and USES 136 — a 23% yield sacrifice designed-in (C04). Monolithic mirror arrays get less practical with port count.</text>
+  <text x="35" y="242" fill="#9aa3b2" font-size="12">• Precision: hundreds of 9μm cores each launched &lt;1 mrad straight; "exponentially more difficult" past 384×384 (C05). This is artisanal free-space optics at wafer discipline —</text>
+  <text x="35" y="260" fill="#9aa3b2" font-size="12">&nbsp;&nbsp;&nbsp;the same skill pool as Run #19's photonic-packaging chokepoint, and it is similarly scarce, private, and un-priced.</text>
+  <text x="35" y="280" fill="#9aa3b2" font-size="12">• Every OCS — captive or merchant, MEMS or LCoS — pays the collimator toll twice per box. The MEMS die adds a second toll on ~85% of 2026 units (est., C01, C03, C06).</text>
+  <text x="35" y="298" fill="#d4a72c" font-size="11.5">Honesty note: the collimator set is only ~$2-3K of a $30-150K box (C05, C12) — its 9/10 bar scores manufacturing DIFFICULTY, not value capture. The rent mostly settles at the system layer.</text>
+  <!-- ramp bars -->
+  <text x="15" y="320" fill="#9aa3b2" font-size="12" font-weight="600">2026 UNIT DEMAND (est., C01):</text>
+  <rect x="15" y="332" width="530" height="22" rx="3" fill="#134e4a"/><text x="280" y="347" fill="#2dd4bf" text-anchor="middle" font-size="11" class="m">Google CAPTIVE ~12-13K</text>
+  <rect x="550" y="332" width="245" height="22" rx="3" fill="#3a3320"/><text x="672" y="347" fill="#d4a72c" text-anchor="middle" font-size="11" class="m">Google via merchants ~5-6K</text>
+  <rect x="800" y="332" width="105" height="22" rx="3" fill="#262b36"/><text x="852" y="347" fill="#9aa3b2" text-anchor="middle" font-size="10" class="m">others ~2K+</text>
+  <text x="15" y="382" fill="#e07a6a" font-size="12">⟶ Merchant-addressable ≈ 7-8K of &gt;20K units ≈ ~35-40% in 2026 (est., single source, C01) — and Google is ~75% of THAT. The $4B TAM (C03) requires the sampling hyperscalers (MSFT/META/AWS/NVDA) to convert; that conversion is THE swing variable, and it is not yet evidence.</text>
+  <text x="15" y="405" fill="#9aa3b2" font-size="10.5">Scarcity-premium bars are qualitative synthesis of C04-C06, C12 (est.); not measured price premia.</text>
+</svg>
+</div>
+
+<h2>A5 · Severity scorecard — 14/20</h2>
+<div class="grid2">
+<div class="card">
+<table class="small">
+<tr><th>Factor (/5)</th><th class="num">Score</th><th>Basis</th></tr>
+<tr><td><b>Substitutability</b> 可替代性</td><td class="num">4</td><td>Free-space precision optics: 20+ yr know-how, few houses (Silex die ~70% est.; collimators COHR/Molex/Ingeneric). But: TI second-source possible, LCoS path bypasses MEMS die, Focused Photonics feeds Google's 2D arrays (C06, C12).</td></tr>
+<tr><td><b>Criticality / breadth</b> 關鍵性</td><td class="num">4</td><td>Every OCS pays the collimator toll twice; MEMS die on ~85% of 2026 units (est.). Capped: OCS itself is still OPTIONAL for every hyperscaler except Google (samples ≠ orders) (C01, C03).</td></tr>
+<tr><td><b>Time-to-relief</b> 解除時間</td><td class="num">3</td><td>COHR 1,000/mo capacity 2H26; LITE Thailand ramp 4Q26; TI qualification unknown; waveguide OCS removes the toll from H2 2027 (C02, C03, C09).</td></tr>
+<tr><td><b>Rent capture</b> 租金捕獲</td><td class="num">3</td><td>System GM 55-60% (est., C12) — healthy but the buyers are 4 hyperscalers with captive alternatives and an OCP standard forming (C11). Foundry layer earns wafer price, not monopoly rent.</td></tr>
+<tr><td><b>TOTAL</b></td><td class="num" style="color:var(--red);font-weight:700">14/20</td><td>Systemic and real, but contested and time-boxed — closer to Run #22's CDU (15) than Run #6's ABF monopoly (18).</td></tr>
+</table>
+</div>
+<div class="card">
+<h3>Street consensus vs variant view</h3>
+<table class="small">
+<tr><th></th><th>Consensus (measurable)</th><th>Variant (this run)</th></tr>
+<tr><td>Object</td><td>"Buy the OCS box makers" — LITE +740% 1Y, retail listicles ("12 Ways to Play OCS") exist<span class="cite">C17</span>; sell-side TAM $4B+ (C03, C13)</td><td>The box is the visible toll; the durable scarcity is the free-space optics CORE (collimator + die) — private, un-covered, and shared by every variant</td></tr>
+<tr><td>Falsifiable via</td><td>LITE OCS $/qtr vs $100M target</td><td>SILEX optical/DC mix disclosure; a collimator vehicle emerging; TI qualification timing</td></tr>
+<tr><td>Financialization filter</td><td colspan="2">OCS enthusiasm is already financialized at the system layer (IPO pop +178%, listicles). It is NOT financialized at the component layer — no listed collimator vehicle exists, and SILEX's OCS content is invisible in its P&L disclosure so far (C07).</td></tr>
+</table>
+</div>
+</div>
+
+<h2>A6 · Awareness curve — who is early, who is priced</h2>
+<div class="card">
+<svg viewBox="0 0 1020 340" width="100%">
+  <text x="12" y="22" fill="#9aa3b2" font-size="12" font-weight="600">AWARENESS S-CURVE · position = stage · label = YTD move (C13)</text>
+  <path d="M 60 290 C 300 285, 420 275, 520 240 C 640 195, 700 120, 780 85 C 850 55, 920 45, 980 42" stroke="#2dd4bf" stroke-width="2.5" fill="none"/>
+  <g font-size="10.5" fill="#9aa3b2" text-anchor="middle">
+    <text x="140" y="315">LATENT 潛伏</text><text x="420" y="315">EARLY 早期</text><text x="640" y="315">RECOGNITION 認知</text><text x="850" y="315">EUPHORIA→PRICED 已定價</text>
+  </g>
+  <g text-anchor="middle">
+    <circle cx="150" cy="288" r="6" fill="#e07a6a"/><text x="150" y="270" fill="#e07a6a" font-size="11.5" font-weight="600">Collimator chain</text><text x="150" y="255" fill="#9aa3b2" font-size="10">Molex/Ingeneric — private, no vehicle</text>
+    <circle cx="255" cy="284" r="6" fill="#e07a6a"/><text x="255" y="322" fill="#e07a6a" font-size="11.5" font-weight="600">Waveguide OCS</text><text x="255" y="335" fill="#9aa3b2" font-size="10">nEye/iPronics — private (FN adjacency +16% YTD)</text>
+    <circle cx="470" cy="252" r="7" fill="#d4a72c" stroke="#e8eaed"/><text x="470" y="228" fill="#d4a72c" font-size="12" font-weight="700">SILEX +130% vs IPO, −49% off peak</text><text x="470" y="243" fill="#9aa3b2" font-size="10">popped then purged; OCS mix still invisible → early ON THIS ANGLE</text>
+    <circle cx="600" cy="215" r="6" fill="#2dd4bf"/><text x="600" y="192" fill="#e8eaed" font-size="11.5">HUBN.SW (Polatis) −34% off high</text>
+    <circle cx="700" cy="140" r="6" fill="#2dd4bf"/><text x="700" y="117" fill="#e8eaed" font-size="11.5">COHR +72% YTD</text>
+    <circle cx="790" cy="80" r="6" fill="#2dd4bf"/><text x="790" y="60" fill="#e8eaed" font-size="11.5">GLW +86% · CIEN ctx</text>
+    <circle cx="890" cy="47" r="7" fill="#e07a6a"/><text x="890" y="28" fill="#e07a6a" font-size="12" font-weight="700">LITE +127% YTD / +740% 1Y</text>
+    <circle cx="960" cy="42" r="5" fill="#9aa3b2"/><text x="948" y="65" fill="#9aa3b2" font-size="10.5">Google captive story (known since 2022 paper)</text>
+  </g>
+</svg>
+<p class="small">Honest staging: the OCS <i>category</i> is Recognition→Euphoria (retail listicles<span class="cite">C17</span>, +740% 1Y leader, IPO pop). What remains genuinely early is the <b>component layer</b> — which mostly has no listed vehicle, which is precisely why it is still early. SILEX is the amber in-between: recognized as "hot Swedish IPO," unrecognized as "the OCS mirror foundry" (its own IPO coverage barely mentions optics<span class="cite">C07</span>).</p>
+</div>
+
+<h2>A7 · Leading-indicator dashboard</h2>
+<table class="small">
+<tr><th>Indicator</th><th>Current</th><th>Threshold that changes the thesis</th><th>Freq / source</th></tr>
+<tr><td>LITE OCS revenue per quarter</td><td class="num">&lt;$100M (ramping; backlog &gt;$400M)</td><td class="num up">≥$100M by CQ4-26 = on-track; miss = ramp slipping</td><td>quarterly, earnings</td></tr>
+<tr><td>COHR OCS units/month capacity</td><td class="num">target 1,000/mo by 2H26</td><td class="num up">confirmed hit; or order book &gt;$500M</td><td>quarterly, earnings</td></tr>
+<tr><td>First NON-Google/Oracle production order (MSFT/META/AWS/NVDA)</td><td class="amb">sampling only (C03)</td><td class="num up">any conversion = TAM story de-risks; none by mid-2027 = Google-niche thesis wins</td><td>event</td></tr>
+<tr><td>SILEX optical/DC revenue mix</td><td class="amb">undisclosed ("data center and telecom demand" cited, C07)</td><td class="num up">&gt;20% disclosed = WATCH trigger fires</td><td>quarterly, Q3 report ~Oct</td></tr>
+<tr><td>TI (or other) second-source MEMS qualification</td><td class="amb">rumored only (C06, single source)</td><td class="num dn">confirmed at volume = Silex moat falsified</td><td>event</td></tr>
+<tr><td>Waveguide OCS (nEye/iPronics) production timing</td><td class="num">est. not before H2 2027 (C09)</td><td class="num dn">pull-in to 2026 = free-space toll expiry accelerates</td><td>event / OFC-27</td></tr>
+<tr><td>OCP OCS spec adoption</td><td>white paper Apr-2026 (C11)</td><td class="num dn">multi-vendor interop spec ratified = commoditization vector (Run #10 UQD pattern)</td><td>OCP summits</td></tr>
+<tr><td>Scale-up OCS design win (MRVL+LITE demo → socket)</td><td class="amb">demo stage (C11)</td><td class="num up">named win = second TAM leg opens</td><td>event</td></tr>
+</table>
+
+<h2>A8 · Still-latent watchlist</h2>
+<table class="small">
+<tr><th>Name</th><th>Link</th><th>Status / vehicle</th><th>Note</th></tr>
+<tr><td>Molex / Fiberguide (Koch)</td><td>collimator fiber arrays; 20yr MEMS optics, 2M devices shipped (vendor claim, C16)</td><td class="dn">private</td><td>the quiet universal toll; watch for carve-out/IPO</td></tr>
+<tr><td>Ingeneric (DE)</td><td>micro-lens arrays for collimators</td><td class="dn">private</td><td>aixtooling heritage; no vehicle</td></tr>
+<tr><td>nEye.ai / iPronics</td><td>on-chip OCS (the disintermediator)</td><td class="dn">private ($152M / Fabrinet line)</td><td>Alphabet+MSFT venture money (C10); IPO would be the event</td></tr>
+<tr><td>HUBER+SUHNER <span class="mono">HUBN.SW</span></td><td>Polatis piezo OCS (lowest loss ~1dB)</td><td class="amb">listed, CHF 190 (−34% off high)</td><td>OCS buried in a connector conglomerate; niche at 3x+ cost (C09)</td></tr>
+<tr><td>Bure <span class="mono">BURE.ST</span> / Creades <span class="mono">CRED-A.ST</span></td><td>Silex control consortium (~55% bought at SEK 5.5B EV pre-IPO, C08)</td><td class="amb">listed holdcos</td><td>look-through Silex at a possible discount; check NAV gap next run</td></tr>
+<tr><td>Texas Instruments <span class="mono">TXN</span></td><td>candidate 2nd-source MEMS die</td><td class="amb">listed (immaterial to TXN)</td><td>a thesis-killer for SILEX, not a buy signal for TXN</td></tr>
+<tr><td>Focused Photonics / Sai Micro <span class="mono">300456.SZ</span></td><td>Google 2D arrays / 45% Silex rump</td><td class="dn">A-share — outside universe</td><td>flagged for completeness (C06, C08, C12)</td></tr>
+<tr><td>Corning <span class="mono">GLW</span></td><td>possible fiber-array/glass supplier (C05: "possibly T&amp;S and Corning")</td><td class="amb">listed, +86% YTD</td><td>linkage unverified — do not attribute OCS content yet</td></tr>
+</table>
+
+<h2>A9 · Top-3 teardowns (three different links — research mentions, not recommendations)</h2>
+<div class="tabs">
+  <input type="radio" name="tt" id="t1" checked>
+  <div class="tabpanelwrap">
+    <h3>Silex Microsystems <span class="mono">SILEX (Nasdaq Stockholm / IBKR SFB conid 879856214)</span> — the die-layer foundry</h3>
+    <div class="kpi">
+      <div><div class="v">SEK 186</div><div class="k">2026-07-21 · since-IPO range 147–362.5</div></div>
+      <div><div class="v r">−48.7%</div><div class="k">off post-IPO peak</div></div>
+      <div><div class="v">+130%</div><div class="k">vs SEK 81 IPO (05-07)</div></div>
+      <div><div class="v">~50×</div><div class="k">P/E TTM · mcap SEK 20.4B</div></div>
+      <div><div class="v">+37.9%</div><div class="k">TTM revenue growth (C07)</div></div>
+      <div><div class="v">34%</div><div class="k">Q2-26 EBIT margin</div></div>
+    </div>
+    <table class="small">
+    <tr><td class="cn">① 怎麼賺錢</td><td>Pure-play MEMS foundry (the "TSMC of MEMS", ~350 customers): customers design, Silex fabricates on 6"/8" lines in Järfälla, Sweden. Wafer revenue + NRE. No own products<span class="cite">C07</span>.</td></tr>
+    <tr><td class="cn">② 營收結構</td><td>2025 net sales SEK 1,385M, EBIT 368M (27%); Q1-26 SEK 375M/128M (34%); Q2-26 +27% YoY "driven by data center and telecom demand." End-market split NOT disclosed in free sources — the load-bearing unknown<span class="cite">C07</span>.</td></tr>
+    <tr><td class="cn">③ 成長來源</td><td>Optical MEMS for OCS (est. 23% CAGR per prospectus-based analysis<span class="cite">C06</span>), plus bio/microfluidics, RF. The OCS ramp (20K→? units, 2 mirror dies per large box<span class="cite">C12</span>) is the marginal driver.</td></tr>
+    <tr><td class="cn">④ 終端市場</td><td>Data center/telecom (OCS mirrors), medical/life-science, industrial, consumer (MEMS mics), auto.</td></tr>
+    <tr><td class="cn">⑤ 主要客戶</td><td>Google OCS mirrors (via module chain, est. ~70% of OCS MEMS volume — single source<span class="cite">C06</span>); 350+ customers; concentration undisclosed.</td></tr>
+    <tr><td class="cn">⑥ 護城河</td><td>25 years of optical-MEMS process know-how (TSV, mirror arrays); the telecom-bust survivors' skill pool; customer process lock-in typical of foundries. NOT a monopoly: TI second-source risk, LCoS variant needs no mirrors.</td></tr>
+    <tr><td class="cn">⑦ 管理層展望</td><td>IPO positioning: MEMS growth + US fab ambition (Fierce: "seeks US fab"). Q2: continued DC/telecom strength<span class="cite">C07</span>.</td></tr>
+    <tr><td class="cn">⑧ 為何是卡點</td><td>It fabricates the tilting mirrors ~85% (est.) of 2026 OCS units steer light with. Wafer-grade mirror arrays with designed-in 176→136 yield margins (C04) are not a commodity process. But it earns FOUNDRY economics on the chokepoint, not monopoly rent — hence WATCH, not more.</td></tr>
+    </table>
+    <p class="small"><b>Read:</b> the only listed pure-ish vehicle at the scarce layer, in post-pop digestion (−49%), with the OCS story <i>not yet in its disclosed numbers</i>. That combination is what "early" usually looks like — and also what "story never shows up" looks like. The Q3 report resolves that question cheaply. ~$10.7M/day USD volume: adequate for personal size, thin for anyone else (IBKR<span class="cite">C07</span>).</p>
+  </div>
+  <input type="radio" name="tt" id="t2">
+  <div class="tabpanelwrap">
+    <h3>Lumentum <span class="mono">LITE</span> — the merchant MEMS-OCS system owner</h3>
+    <div class="kpi">
+      <div><div class="v">$837.56</div><div class="k">2026-07-21 · 52w 97.55–1085.68</div></div>
+      <div><div class="v r">+740.7%</div><div class="k">1-year</div></div>
+      <div><div class="v">+127.2%</div><div class="k">YTD · −22.9% off high</div></div>
+      <div><div class="v">$65.2B</div><div class="k">market cap</div></div>
+      <div><div class="v">&gt;$400M</div><div class="k">OCS backlog (mgmt)</div></div>
+      <div><div class="v">$1B</div><div class="k">2027 OCS run-rate target</div></div>
+    </div>
+    <table class="small">
+    <tr><td class="cn">① 怎麼賺錢</td><td>Optical components/modules (datacom lasers, telecom) + now OCS systems (R300 300×300, R64). OCS sold as capital equipment to hyperscalers<span class="cite">C02</span>.</td></tr>
+    <tr><td class="cn">② 營收結構</td><td>Datacom laser/transceiver-driven; OCS currently small but targeted $100M/qtr exit-2026 (~15-20% of run-rate rev if hit, est.)<span class="cite">C02</span>.</td></tr>
+    <tr><td class="cn">③ 成長來源</td><td>EML/CW lasers (Runs #1/#13 territory) + the OCS ramp + scale-up OCS optionality (MRVL demo<span class="cite">C11</span>).</td></tr>
+    <tr><td class="cn">④ 終端市場</td><td>Hyperscale datacom; telecom; industrial lasers.</td></tr>
+    <tr><td class="cn">⑤ 主要客戶</td><td>OCS: Google (mainly) + Oracle; samples to MSFT/NVDA<span class="cite">C01,C03</span>. Concentration risk mirrors Google's captive-vs-merchant dial.</td></tr>
+    <tr><td class="cn">⑥ 護城河</td><td>WSS/MEMS beam-steering heritage (JDSU telecom lineage) — one of two merchant houses that kept free-space steering alive through the telecom winter. Thailand ramp 4Q26 = capacity moat vs startups, not vs COHR.</td></tr>
+    <tr><td class="cn">⑦ 管理層展望</td><td>"Demand clearly outstripping supply… can sell as many as we can produce"; $1B run-rate 2027<span class="cite">C02</span> (management statements — interested party).</td></tr>
+    <tr><td class="cn">⑧ 為何是卡點</td><td>It is the merchant embodiment of the chokepoint — but the market knows: +740% 1Y is the crowd pre-paying the 2027 target. Severity high, remaining asymmetry ~4/20.</td></tr>
+    </table>
+    <p class="small"><b>Read:</b> Recognition→Euphoria. The honest use of LITE from here is as the layer's leading INDICATOR (its OCS $/qtr is the cleanest tape on the ramp), not as the early entry.</p>
+  </div>
+  <input type="radio" name="tt" id="t3">
+  <div class="tabpanelwrap">
+    <h3>Coherent <span class="mono">COHR</span> — the LCoS path + the upstream collimator supplier (two links)</h3>
+    <div class="kpi">
+      <div><div class="v">$317.22</div><div class="k">2026-07-21 · 52w 84.35–440</div></div>
+      <div><div class="v">+71.9%</div><div class="k">YTD · −27.9% off high</div></div>
+      <div><div class="v">+227%</div><div class="k">1-year</div></div>
+      <div><div class="v">$50.3B</div><div class="k">market cap</div></div>
+      <div><div class="v">&gt;$300M</div><div class="k">OCS orders (GOOG+ORCL)</div></div>
+      <div><div class="v">&gt;$4B</div><div class="k">mgmt OCS TAM (raised)</div></div>
+    </div>
+    <table class="small">
+    <tr><td class="cn">① 怎麼賺錢</td><td>Broad photonics: datacom transceivers/lasers, telecom, industrial + OCS systems (LCoS) + optical components INTO other OCS chains (fiber/collimator arrays to Google, est.<span class="cite">C06</span>).</td></tr>
+    <tr><td class="cn">② 營收結構</td><td>Record $1.8B quarterly revenue (FQ3-26); datacom-driven; OCS "more meaningful in CY2026," H2-weighted, shipping to 7 customers (&gt;10 engaged)<span class="cite">C03</span>.</td></tr>
+    <tr><td class="cn">③ 成長來源</td><td>Transceivers + InP capacity doubling + OCS ramp to 1,000 units/mo 2H26 + collimator content on the captive chain.</td></tr>
+    <tr><td class="cn">④ 終端市場</td><td>Hyperscale datacom, telecom, industrial.</td></tr>
+    <tr><td class="cn">⑤ 主要客戶</td><td>OCS: Google + Oracle; sampling Meta/MSFT/AWS/NVDA; &gt;10 engaged<span class="cite">C03</span>.</td></tr>
+    <tr><td class="cn">⑥ 護城河</td><td>LCoS phase-array know-how (no moving parts, ~10y life = ~70% lower annual cost of ownership est.<span class="cite">C09</span>) + being on BOTH sides (systems + components). Weakness: tens-of-ms switching bars it from fast-reconfiguration use.</td></tr>
+    <tr><td class="cn">⑦ 管理層展望</td><td>OCS TAM raised to &gt;$4B; NVIDIA partnership headlines; capacity doubling ahead of schedule<span class="cite">C03</span> (interested party).</td></tr>
+    <tr><td class="cn">⑧ 為何是卡點</td><td>The only name touching BOTH tolls: sells LCoS boxes AND collimator components into the rival chain. Cheaper than LITE per unit of OCS story, but the story is also smaller a share of a $50B conglomerate.</td></tr>
+    </table>
+    <p class="small"><b>Read:</b> Recognition. The relative-value expression of the layer, with the lifespan-economics variant (LCoS) as structural optionality against MEMS's 3-year wear problem<span class="cite">C09</span>.</p>
+  </div>
+  <div class="tabbar">
+    <label for="t1">SILEX · die foundry</label>
+    <label for="t2">LITE · MEMS system</label>
+    <label for="t3">COHR · LCoS + components</label>
+  </div>
+</div>
+
+<h2>A10 · Risk register &amp; honest holes</h2>
+<div class="grid2">
+<div class="card red">
+<h3>Bear case / risks</h3>
+<ul class="small">
+<li><b>Funded disintermediation:</b> on-chip OCS backed by Alphabet + Microsoft venture arms (C10). If wafer-scale OCS works by 2028, the free-space collimator+mirror toll evaporates. (Mitigant: 6dB loss, 32×32 ports, H2-2027 earliest — and Run #16 taught us "2028 disintermediation" rarely kills a 2026-27 ramp.)</li>
+<li><b>Google concentration:</b> ~85-90% of 2026 units (est.). A captive-share shift or Google capex pause dominates every merchant model (C01).</li>
+<li><b>Samples ≠ orders:</b> the $4B TAM needs MSFT/META/AWS conversion — zero production orders exist outside Google/Oracle today (C03).</li>
+<li><b>OCP standardization</b> → multi-vendor interop → price competition (the Run #10 UQD pattern) (C11). A parallel Chinese OCS chain (Huawei CloudMatrix, est.) reinforces the commoditization tail (C15).</li>
+<li><b>MEMS 3-year wear</b> shifts share to LCoS/waveguide over time (C09) — bad for the mirror-die volume story specifically.</li>
+<li><b>SILEX-specific:</b> P/E ~50 on undisclosed OCS mix; IPO lockup expiries ahead (unverified dates); Sai 45% overhang; SEK; ~$10.7M/day liquidity.</li>
+<li><b>Single-source economics:</b> the entire BOM table (C12) and the ~70% Silex share (C06) trace to one specialist publication. If SemiFundamental is wrong, the component thesis needs rebuilding.</li>
+</ul>
+</div>
+<div class="card">
+<h3>Open questions (next NET run)</h3>
+<ul class="small">
+<li>SILEX prospectus (paid tier): exact optical/DC revenue %, customer concentration, lockup schedule.</li>
+<li>Does Corning actually supply OCS fiber arrays (C05 says "possibly")? Any listed collimator exposure anywhere?</li>
+<li>Bure/Creades look-through: NAV discount to SILEX stake worth anything?</li>
+<li>Second-order: OCS success reduces EPS switch-port demand — quantify the Broadcom/Arista offset (SemiAnalysis flags it "tremendously negative" for hyperscale switch, C04) before it becomes consensus.</li>
+<li>Scale-up OCS (MRVL demo): timeline to a real socket vs Run #17's copper incumbency.</li>
+</ul>
+</div>
+</div>
+
+<h2>A11 · Decision table</h2>
+<table>
+<tr><th>Entity</th><th>State</th><th>What would move it UP</th><th>What kills it</th><th>Portfolio effect today</th></tr>
+<tr><td><b>SILEX</b></td><td><span class="badge b-watch">WATCH</span></td><td>Q3 discloses OCS/optical mix &gt;20%; price &lt; SEK 150 with thesis intact → candidate for PAPER (needs PIT expectations + cost model first)</td><td>TI second source at volume; mix &lt;10%; waveguide pull-in</td><td class="num">0</td></tr>
+<tr><td><b>LITE</b></td><td><span class="badge b-watch">WATCH</span></td><td>OCS $100M/qtr hit + consolidation → relative-value review only</td><td>backlog stall; momentum regime break</td><td class="num">0</td></tr>
+<tr><td><b>COHR</b></td><td><span class="badge b-watch">WATCH</span></td><td>first non-Google production order lands</td><td>LCoS loses on latency; orders stall</td><td class="num">0</td></tr>
+<tr><td>Collimator chain</td><td><span class="badge b-hypo">HYPOTHESIS</span></td><td>a vehicle appears</td><td>waveguide OCS volume</td><td class="num">0</td></tr>
+<tr><td><b>FN</b></td><td><span class="badge b-hypo">HYPOTHESIS</span></td><td>iPronics line to volume</td><td>waveguide slips past 2027</td><td class="num">0</td></tr>
+</table>
+
+<h2>A12 · Sources</h2>
+<p class="small">Full register with URLs, tiers, publishers, access timestamps and corroboration notes: <span class="mono">claim_sources.json</span> (C01–C17) in this staging directory. Data snapshot: <span class="mono">snapshots/quotes_2026-07-21_close.json</span>. Key single-source caveats: C01 (18K/5-6K unit split), C06 (~70% Silex share), C12 (BOM economics) — all marked (est., single source) wherever used. Telescent (C05) and all management figures (C02, C03) are interested parties. Quotes: FMP + IBKR read-only, 2026-07-21 close. Nothing in this document is investment advice; no trade was placed; IBKR was used read-only.</p>
+
+</div>
+</body>
+</html>

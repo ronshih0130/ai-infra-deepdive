@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-Infra Run #32 — Compute Fabric L6: The Thin-Wafer Handling Chain (Grind · Carrier · Debond) — v5 — DRY RUN</title>
+<style>
+  :root{
+    --bg:#16181d; --bg2:#1c1f26; --card:#21252e; --card2:#262b36;
+    --ink:#e8eaed; --ink2:#9aa3b2; --ink3:#6b7283;
+    --teal:#2dd4bf; --teal2:#14b8a6; --tealdim:#134e4a;
+    --red:#e07a6a; --reddim:#4a2620; --amber:#d4a72c;
+    --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+    --sans:'Space Grotesk','Helvetica Neue',Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;padding:0 0 80px}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+  header{background:linear-gradient(180deg,#1a2b2a 0%,var(--bg) 100%);border-bottom:1px solid #2a2f3a;padding:38px 0 26px;margin-bottom:30px}
+  h1{font-size:27px;font-weight:700;letter-spacing:-.5px}
+  h1 .accent{color:var(--teal)}
+  h2{font-size:19px;font-weight:700;margin:42px 0 14px;color:var(--teal);letter-spacing:-.2px;border-bottom:1px solid #2a2f3a;padding-bottom:8px}
+  h3{font-size:15.5px;font-weight:600;margin:20px 0 8px;color:var(--ink)}
+  p{margin:0 0 12px;color:var(--ink)}
+  .sub{color:var(--ink2);font-size:13.5px;margin-top:8px}
+  .num,td.num,.mono{font-family:var(--mono)}
+  .badge{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 9px;border-radius:3px;letter-spacing:.5px;vertical-align:middle}
+  .b-dry{background:var(--reddim);color:var(--red);border:1px solid var(--red)}
+  .b-teal{background:var(--tealdim);color:var(--teal)}
+  .b-watch{background:#3a3320;color:var(--amber)}
+  .b-hypo{background:#2a2f3a;color:var(--ink2)}
+  .b-avoid{background:var(--reddim);color:var(--red)}
+  .card{background:var(--card);border:1px solid #2a2f3a;border-radius:8px;padding:20px 22px;margin:14px 0}
+  .card.red{border-left:3px solid var(--red)}
+  .card.teal{border-left:3px solid var(--teal)}
+  .card.amb{border-left:3px solid var(--amber)}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.5px}
+  th{text-align:left;color:var(--ink2);font-weight:600;font-size:12px;letter-spacing:.4px;text-transform:uppercase;padding:8px 10px;border-bottom:1px solid #343a47}
+  td{padding:8px 10px;border-bottom:1px solid #262b36;vertical-align:top}
+  td.num{white-space:nowrap}
+  .up{color:var(--teal)} .dn{color:var(--red)} .amb2{color:var(--amber)}
+  .small{font-size:12.5px;color:var(--ink2)}
+  .cite{font-family:var(--mono);font-size:10.5px;color:var(--teal2);vertical-align:super}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  @media(max-width:800px){.grid2,.grid3{grid-template-columns:1fr}}
+  svg{max-width:100%;height:auto}
+  svg text{font-family:var(--sans)} svg text.m,svg tspan.m{font-family:var(--mono)}
+  .scrollx{overflow-x:auto}
+  .scrollx svg.wide{min-width:900px}
+  .tabs{margin:16px 0;position:relative;display:flex;flex-direction:column}
+  .tabs .tabbar{order:-1}
+  .tabs input[type=radio]{position:absolute;opacity:0;pointer-events:none}
+  .tabbar{display:flex;gap:6px;flex-wrap:wrap}
+  .tabbar label{background:var(--card);border:1px solid #2a2f3a;border-radius:6px 6px 0 0;padding:9px 18px;cursor:pointer;font-size:13.5px;color:var(--ink2)}
+  .tabbar label:focus{outline:2px solid var(--teal);outline-offset:2px}
+  .tabs input:checked+.tabpanelwrap{display:block}
+  .tabpanelwrap{display:none;background:var(--card);border:1px solid #2a2f3a;border-radius:0 8px 8px 8px;padding:20px 22px}
+  .tabpanelwrap:focus{outline:2px solid var(--teal);outline-offset:2px}
+  #t1:checked~.tabbar label[for=t1],#t2:checked~.tabbar label[for=t2],#t3:checked~.tabbar label[for=t3]{background:var(--card2);color:var(--teal);border-bottom-color:var(--card2)}
+  .cn{color:var(--teal);font-weight:600}
+  ul{margin:0 0 12px 20px} li{margin-bottom:5px}
+  ol{margin:0 0 12px 20px}
+  .kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:14px 0}
+  .kpi>div{background:var(--card2);border-radius:6px;padding:12px 14px}
+  .kpi .v{font-family:var(--mono);font-size:20px;color:var(--teal);font-weight:600}
+  .kpi .v.r{color:var(--red)}
+  .kpi .v.a{color:var(--amber)}
+  .kpi .k{font-size:11.5px;color:var(--ink2);margin-top:2px;letter-spacing:.3px}
+  .note{font-size:12px;color:var(--ink2);border-left:2px solid #343a47;padding-left:10px;margin:10px 0}
+  .vstrip{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+  .vstrip>div{background:var(--card2);border-radius:5px;padding:8px 12px;font-size:12px;color:var(--ink2)}
+  .vstrip b{font-family:var(--mono);color:var(--ink);display:block;font-size:14px}
+  @media print{ .tabpanelwrap{display:block !important;border-radius:8px;margin-bottom:10px} .tabbar{display:none} body{background:#fff;color:#111} .card,.tabpanelwrap,.kpi>div,.vstrip>div{background:#fff;color:#111;border-color:#bbb} h2{color:#0a6} }
+</style>
+</head>
+<body>
+
+<header>
+<div class="wrap">
+  <span class="badge b-dry">DRY RUN · RUN_MODE = paper_only</span>
+  <span class="badge b-hypo" style="margin-left:6px">canonical_id ACCEL</span>
+  <span class="badge b-hypo" style="margin-left:6px">Run #32 · compute fabric, loop 6</span>
+  <h1 style="margin-top:14px">Thin enough to break: <span class="accent">the wafer-thinning &amp; carrier-handling chain</span> under every HBM stack</h1>
+  <p class="sub">A real physical chokepoint whose scarcity rent is set by a <b>package-height specification</b> — and the direction that spec is pushing is genuinely undetermined. AI-Infra Chokepoint Deep-Dive · data as-of <span class="mono">2026-07-28</span> (US marks = 2026-07-27 close) · personal research, <b>not investment advice</b>.</p>
+</div>
+</header>
+
+<div class="wrap">
+
+<h2>1 · Read this first — two things that constrain everything below</h2>
+<div class="card red">
+<p><b>1. The verdict was partly decided before the analysis started.</b> No point-in-time consensus estimate or forward multiple was <b>obtained</b> for any name in this run. (Not "unobtainable" — trailing market cap and trailing earnings were reachable from data this run already held and simply were not pulled. That is a limitation of this run, not of the world.) Under this skill's global action gate, missing point-in-time valuation inputs block an <span class="mono">ACTION</span> state <i>by themselves</i>, regardless of what the research found. So <span class="mono">NO POSITION-GRADE CANDIDATE</span> was structurally guaranteed at run start. The severity scorecard, awareness curve and teardowns below are <b>industry evidence</b>; they did not and could not change that verdict. A reader is entitled to know which part is analysis and which part is a data gate.</p>
+<p style="margin-bottom:0"><b>2. This run's central mechanism is two-sided, and an earlier draft got it wrong.</b> The first draft argued that a reported HBM package-height relaxation is defusing the thinning chokepoint. Adversarial review found the contradicting evidence sitting inside this run's own source register. Two further review rounds then found that the "fork" is probably not a fork at all but a <b>sequence</b> of generations. The position set out with arithmetic in &sect;12 is: near-term relief, later intensification — and the historical precedent leans <i>against</i> the bearish reading. Three separate conclusions in this report were changed by adversarial review, not just reworded; &sect;18 lists them.</p>
+</div>
+
+<h2>2 · What changed since the prior compute-fabric run (#26, 2026-07-16)</h2>
+<div class="card">
+<p>Run #26 opened front-end lithography (EUV mask blank plus actinic inspection). This run takes the cut none of the five prior compute-fabric runs touched — not the bond (#8), not the test (#14), not the memory stack (#20), not the mask (#26) — but the <b>mechanical handling of a wafer too thin to hold itself up</b>: grind &rarr; carrier-bond &rarr; thin &rarr; backside process &rarr; debond &rarr; clean.</p>
+<table>
+<tr><th>Change</th><th>Evidence</th><th>Direction</th></tr>
+<tr><td>DISCO reported FY26 Q1 on <span class="mono">2026-07-23</span>. Record shipments <span class="mono">&yen;135.9bn</span> vs <span class="mono">&yen;132bn</span> plan — but <b>equipment came in ~&yen;3bn SHORT</b>; consumables (+<span class="mono">&yen;2bn</span>) and other (+<span class="mono">&yen;5bn</span>) carried the beat.<span class="cite">C08</span></td><td>Earnings-call coverage<span class="cite">C08</span><span class="cite">C09</span> — the split rests on <b>one</b> write-up</td><td class="dn">Tool demand softer than the headline</td></tr>
+<tr><td>Q2 shipment guide <span class="mono">~&yen;141bn</span>, <span class="mono">+3.8%</span> sequentially. Reported alongside <span class="mono">+22.3%</span> year-on-year growth in Q1.<span class="cite">C10</span> OSAT ratio guided down <span class="mono">5pp</span> to <span class="mono">30%</span>.</td><td>Same call<span class="cite">C10</span></td><td class="amb2">See the caution below — these two rates are not comparable</td></tr>
+<tr><td>Reported industry move toward <span class="mono">825&ndash;900&micro;m</span> HBM package height, described in the source as being weighed <b>for 20-high stacks</b>.<span class="cite">C05</span><span class="cite">C07</span></td><td>TrendForce citing Korean trade press<span class="cite">C05</span><span class="cite">C07</span> — <b>single-origin, MEDIUM confidence</b></td><td class="amb2">Direction contested — see &sect;12</td></tr>
+<tr><td>TSMC <b>A16 / Super Power Rail slipped to 2027</b>, moving the backside-power leg of thinning demand out a year.<span class="cite">C21</span><span class="cite">C22</span></td><td>TrendForce + Tom's Hardware<span class="cite">C21</span><span class="cite">C22</span></td><td class="dn">The one unambiguous deferral in this run</td></tr>
+<tr><td>SUSS MicroTec Q1 2026: order intake <span class="mono">&euro;149.3m</span> <b>+69.5% YoY (record)</b>, order book <span class="mono">&euro;330.1m</span> +23.7% — while revenue fell to <span class="mono">&euro;86.5m</span> and EBIT margin collapsed to <span class="mono">4.3%</span>.<span class="cite">C11</span></td><td><b>Issuer primary</b>, 2026-05-07<span class="cite">C11</span></td><td class="up">Orders lead; the tape hasn't</td></tr>
+<tr><td>DISCO sits <span class="mono">-40.2%</span> below its 52-week high and <span class="mono">+14.6%</span> YTD, against a <b>Japanese</b> semi-cap peer median of <span class="mono">+46.0%</span> YTD and <span class="mono">-28.9%</span> drawdown.<span class="cite">C28</span><span class="cite">C30</span></td><td>IBKR read-only<span class="cite">C28</span><span class="cite">C30</span></td><td class="amb2">Real idiosyncratic weakness, but smaller than a USD benchmark suggests</td></tr>
+</table>
+<p class="note"><b>Caution on the growth rates.</b> <span class="mono">+3.8%</span> is quarter-on-quarter; <span class="mono">+22.3%</span> is year-on-year. They are different series and setting one against the other overstates any deceleration — <span class="mono">+3.8%</span> sequential compounds to roughly <span class="mono">+16%</span> annualised, and the Q2 guide could still be strongly positive year-on-year. <b>The like-for-like figure — DISCO's year-ago Q2 shipments — was not obtained in this run</b>, so the deceleration claim is unproven and is not used as evidence anywhere below.</p>
+</div>
+
+<h2>3 · Research states — no "plays", no "buys"</h2>
+<p class="small">Every company below is a <b>research mention</b>. Nothing here is a recommendation, a position, or a performance-ledger row. Portfolio impact of this run is <b>zero</b> by construction. All performance figures are in the security's own listing currency; cross-currency comparisons are flagged where they occur.</p>
+<div class="scrollx">
+<table>
+<tr><th>Name</th><th>Link in the chain</th><th>State</th><th>Awareness stage</th><th>YTD<span class="cite">C28</span><span class="cite">C30</span></th><th>From 52w high</th><th>Above 52w low</th><th>Portfolio impact</th></tr>
+<tr><td><b>DISCO</b> <span class="mono">6146.T</span></td><td>Grind / thin / dice tollgate</td><td><span class="badge b-watch">WATCH</span></td><td>Euphoria &rarr; unwinding</td><td class="num up">+14.6%</td><td class="num dn">-40.2%</td><td class="num up">+48.6%</td><td class="num">0</td></tr>
+<tr><td><b>SUSS MicroTec</b> <span class="mono">SMHN.DE</span></td><td>Temporary bond / debond tool</td><td><span class="badge b-watch">WATCH</span></td><td>Recognition</td><td class="num up">+83.1%</td><td class="num dn">-39.5%</td><td class="num up">+198.5%</td><td class="num">0</td></tr>
+<tr><td><b>Tokyo Seimitsu</b> <span class="mono">7729.T</span></td><td>#2 grinder / laser dicer + prober</td><td><span class="badge b-watch">WATCH</span></td><td>Recognition</td><td class="num up">+46.0%</td><td class="num dn">-24.8%</td><td class="num up">+106.3%</td><td class="num">0</td></tr>
+<tr><td><b>Okamoto Machine Tool</b> <span class="mono">6125.T</span></td><td>#3 grinder — <b>added after review</b></td><td><span class="badge b-hypo">HYPOTHESIS</span></td><td>Latent / neglected</td><td class="num up">+9.4%</td><td class="num dn">-18.7%</td><td class="num up">+30.6%</td><td class="num">0</td></tr>
+<tr><td><b>Tokyo Ohka</b> <span class="mono">4186.T</span></td><td>Bond/release materials (diluted)</td><td><span class="badge b-hypo">HYPOTHESIS</span></td><td>Recognition</td><td class="num up">+54.9%</td><td class="num dn">-30.5%</td><td class="num up">+123.5%</td><td class="num">0</td></tr>
+<tr><td><b>EV Group</b> · <b>Brewer Science</b></td><td>Laser release layer &amp; residue chemistry</td><td><span class="badge b-avoid">NO VEHICLE</span></td><td>Latent</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">0</td></tr>
+</table>
+</div>
+<p class="note"><b>Why these and not others — the exclusion list, stated in the open rather than buried in a data file.</b> <b>ASMPT</b> (<span class="mono">0522.HK</span>) supplies bond/debond and is a legitimate chain participant; it was <b>not evaluated</b> in this run for time reasons, not on merit. <b>Ebara</b> (<span class="mono">6361.T</span>, <span class="mono">+39.8%</span> YTD, <span class="mono">-25.2%</span> from high) is the CMP duopolist sitting under the step &sect;8 calls the gating one for 3D logic — also <b>not evaluated</b>, and a defensible omission only because CMP was the subject of substrate Run #30. <b>AGC</b> and <b>Corning</b> supply glass carriers; exposure is immaterial to group results. <b>Shin-Etsu</b>, <b>3M</b> and <b>DuPont</b> supply bond materials with exposure not separable in public disclosure. <b>Nitto Denko</b> (<span class="mono">6988.T</span>) and <b>Lintec</b> (<span class="mono">7966.T</span>) supply back-grinding and dicing tape — a per-wafer consumable inside the chokepoint step itself; <b>not evaluated</b> in this run, and its absence from an earlier draft was a genuine hole, since it is exactly the kind of listed, liquid unit-toll link this report claims to be hunting. <b>Takatori</b> (<span class="mono">6338.T</span>) is a further grinder/dicer participant, also unevaluated. <b>Onto</b>, <b>Camtek</b>, <b>KLA</b> and <b>BESI</b> are cross-checks only — they were the subjects of Runs #26, #2 and #8 and are deliberately not re-underwritten. <b>Hanmi</b>, <b>TOWA</b>, <b>Resonac</b> and <b>Namics</b> sit at stack assembly, one stage downstream of this chain, and are flagged in &sect;12's dissent box as a gap this run did not cover.</p>
+
+<h2>4 · Bottom line (page-one honesty)</h2>
+<div class="card red">
+<p style="font-size:16px;margin-bottom:10px"><b>NO POSITION-GRADE CANDIDATE.</b> Three <span class="mono">WATCH</span>, three <span class="mono">HYPOTHESIS</span>/<span class="mono">NO VEHICLE</span>, zero <span class="mono">PAPER</span>, zero <span class="mono">ACTION</span> — with the caveat from &sect;1 that the data gate alone forced this.</p>
+<p>The chain is a genuine physical chokepoint: you cannot stack 16 DRAM dies without thinning them to roughly <span class="mono">30&micro;m</span>, and you cannot move a <span class="mono">30&micro;m</span> wafer without bonding it to a carrier.<span class="cite">C01</span><span class="cite">C02</span><span class="cite">C14</span> What makes it unlike every other chokepoint in this rotation is that the <b>degree</b> of difficulty is set by a package-height specification written by the customers themselves — so the scarcity rent is negotiable in a way that, say, an optical preform's physics is not.</p>
+<p><b>Which way the spec is pushing is the whole question, and this run cannot answer it.</b> A taller package can buy <i>thicker dies</i> (relief for the chain) or <i>more layers at the same thickness</i> (more thinned wafers, more work for the chain). The source that reports the relaxation says the first<span class="cite">C06</span>; the same source family says the <span class="mono">825&ndash;900&micro;m</span> figure is being weighed <b>for 20-high stacks</b><span class="cite">C07</span>, which is the second. The one precedent available — the earlier move from <span class="mono">720&micro;m</span> to <span class="mono">775&micro;m</span> — bought <b>four extra layers at a thinner per-die target</b><span class="cite">C02</span><span class="cite">C03</span>, i.e. it went the second way. See &sect;12 for the arithmetic and why it does not close.</p>
+<p><b>The likeliest reading is not a fork at all — it is a sequence.</b> C-05/C-06 describe ~<span class="mono">900&micro;m</span> for <b>HBM4E</b>; C-07 describes <span class="mono">825&ndash;900&micro;m</span> for <b>20-high</b>. Those are plausibly two different generations in order, not two mutually exclusive outcomes: relief first at 16 layers, then the envelope refilled with 20 layers and hybrid bonding behind it. If that is right, the chain gets a soft patch and then a step-up, and the correct posture is <b>not "avoid" but "be ready for 2027&ndash;28"</b>. This run cannot confirm which generation each report refers to, which is precisely why &sect;14 signal 1 asks for height <i>and</i> layer count together.</p>
+<p style="margin-bottom:0"><b>What is <i>not</i> in doubt:</b> A16 Super Power Rail slipped to 2027<span class="cite">C21</span>, HBM4 is shipping on MR-MUF microbumps rather than hybrid bonding<span class="cite">C04</span>, and DISCO's Q1 beat came from consumables while equipment missed plan<span class="cite">C08</span>. Those are three real facts about near-term tool demand — and they are why "wait for the fork to resolve" beats "buy the drawdown".</p>
+</div>
+<div class="kpi">
+  <div><div class="v a">13&ndash;16</div><div class="k">Severity /20, branch-conditional (&sect;12)</div></div>
+  <div><div class="v a">FORK</div><div class="k">Direction of the key mechanism</div></div>
+  <div><div class="v">30&micro;m</div><div class="k">HBM4 16-Hi die target (est.)<span class="cite">C01</span></div></div>
+  <div><div class="v">+69.5%</div><div class="k">SUSS Q1 order intake YoY<span class="cite">C11</span></div></div>
+  <div><div class="v r">-31pp</div><div class="k">DISCO YTD vs JPY peer median<span class="cite">C30</span></div></div>
+  <div><div class="v r">0</div><div class="k">Position-grade candidates</div></div>
+</div>
+
+<div class="card amb">
+<h3 style="margin-top:0">Is the DISCO de-rating idiosyncratic, or just the Japanese semi-cap sector?</h3>
+<p class="small" style="margin-bottom:8px">The first draft compared DISCO to <b>SOXX</b> — a USD-denominated, NVDA/AVGO-weighted US ETF — and reported <span class="mono">-51pp</span> of relative underperformance. That number mixed genuine underperformance with the yen. <b>Corrected below using a same-currency, same-exchange Japanese peer set</b>, which removes the FX term entirely.<span class="cite">C30</span></p>
+<table>
+<tr><th>Tokyo-listed semi-cap</th><th>YTD</th><th>From 52w high</th><th>Read</th></tr>
+<tr><td>Tokyo Electron <span class="mono">8035.T</span></td><td class="num up">+64.7%</td><td class="num dn">-31.1%</td><td class="small">Sector leader</td></tr>
+<tr><td>Tokyo Ohka <span class="mono">4186.T</span></td><td class="num up">+54.9%</td><td class="num dn">-30.5%</td><td class="small">Materials</td></tr>
+<tr><td>Tokyo Seimitsu <span class="mono">7729.T</span></td><td class="num up">+46.0%</td><td class="num dn">-24.8%</td><td class="small">In this chain</td></tr>
+<tr><td>Ebara <span class="mono">6361.T</span></td><td class="num up">+39.8%</td><td class="num dn">-25.2%</td><td class="small">CMP</td></tr>
+<tr><td>Advantest <span class="mono">6857.T</span></td><td class="num up">+30.3%</td><td class="num dn">-28.9%</td><td class="small">Test</td></tr>
+<tr style="background:#1c1f26"><td><b>Peer median</b></td><td class="num up"><b>+46.0%</b></td><td class="num dn"><b>-28.9%</b></td><td class="small">The control &mdash; see caveat</td></tr>
+<tr><td><b>DISCO</b> <span class="mono">6146.T</span></td><td class="num dn"><b>+14.6%</b></td><td class="num dn"><b>-40.2%</b></td><td class="small"><b>-31pp vs peers; ~11pp deeper drawdown</b></td></tr>
+<tr><td>Okamoto <span class="mono">6125.T</span></td><td class="num up">+9.4%</td><td class="num dn">-18.7%</td><td class="small">Neglected micro-cap, ~<span class="mono">$2m</span> ADV</td></tr>
+</table>
+<p class="small" style="margin-bottom:0"><b>Control-set caveat, stated before the reading:</b> two of these five (Tokyo Ohka and Tokyo Seimitsu) are <i>also</i> subject names in &sect;3, so treatment sits inside the control. The five were picked as recognisable Tokyo semi-cap names, not by a stated rule, and Screen, Kokusai and Lasertec are absent. A median of five hand-picked names cannot cleanly separate sector from story. <b>What survives the correction anyway:</b> the whole Tokyo semi-cap complex is <span class="mono">-25%</span> to <span class="mono">-31%</span> off its highs, so most of DISCO's drawdown is sector, not story. But DISCO is still the <i>worst</i> performer of the group on both measures, currency-neutral — roughly <span class="mono">31pp</span> of YTD underperformance and <span class="mono">11pp</span> of extra drawdown against its own peers. <b>Something name-specific is being priced.</b> <b>What this run still cannot do</b> is prove the name-specific driver is the one described here rather than flow, index or regional-regulation effects — and it cannot date the peak precisely. <b>It can bound it, though, and an earlier draft wrongly claimed otherwise:</b> DISCO's reported 13-week high equals its 52-week high (both <span class="mono">91,680</span>), which places the peak <b>inside the last 13 weeks</b> — i.e. after roughly late April 2026. The same holds for SUSS. That has two consequences: it <b>rules out</b> the April-2026 spec and A16 reports as the trigger (the peak came after them), and it means DISCO is <b>early in an unwind, not late</b> — which argues against "the drawdown has already discounted it". DISCO is also printing below its own 13-week low, i.e. at a fresh low. <b>No causal attribution to any specific event is made anywhere in this report.</b></p>
+</div>
+
+<h2>5 · Explain it simply / 白話版</h2>
+<div class="card teal">
+<p><b>The problem in one sentence.</b> To fit 16 memory chips into a finished stack no taller than <span class="mono">775&micro;m</span>, each chip must be ground down to roughly <span class="mono">30&micro;m</span> — about a third the width of a human hair.<span class="cite">C01</span> At that thickness a 300mm silicon wafer behaves like cling film: it curls, cracks, and cannot be picked up.</p>
+<p><b>Careful with two different 775s.</b> A raw incoming wafer is also about <span class="mono">775&micro;m</span> thick. That is a coincidence of numbers, not a relationship. One is <b>how thick a single starting wafer is</b>; the other is <b>how tall the finished 16-die package is allowed to be</b>. The whole argument in &sect;12 is about the second one.</p>
+<p><b>So the industry glues the wafer to a carrier.</b> A thick glass or silicon disc is temporarily bonded on, the wafer is ground thin, processed on its back, then <b>debonded</b> — peeled or laser-released — and the glue residue washed off. Every one of those steps can destroy a wafer that already carries months of accumulated value.</p>
+<p><b>Why an investor should care.</b> The chain is unavoidable, it is supplied by a handful of Japanese and European toolmakers, and it scales with every extra layer of HBM. That is the standard bull case, and it is why these stocks ran hard into 2025.</p>
+<p style="margin-bottom:0"><b>Why this report says wait rather than buy or sell.</b> The premium in this chain comes from <i>difficulty</i>, and difficulty here is set by a committee that writes the height rule. If a taller package means <b>thicker chips</b>, the difficulty falls and so does the premium. If it means <b>more chips at the same thinness</b>, the work goes up. Reports say both things. Until that is settled, you are guessing — and the last time the rule changed, it bought more layers, not thicker chips.</p>
+</div>
+<div class="grid2">
+<div class="card">
+<h3>Layer key — where "L1/L2/L3" sit</h3>
+<ul class="small">
+<li><b>Upstream:</b> consumables and materials — grinding wheels, <b>back-grinding and dicing tape</b>, temporary-bond adhesives, laser-release layers, glass or silicon carrier discs.</li>
+<li><b>L3 (sub-technology):</b> the individual process steps — backgrind, TAIKO ring-grind, carrier bond, laser debond, residue clean, warpage metrology.</li>
+<li><b>L2 (module):</b> the tool that performs one step — a grinder, a temporary bonder, a debonder.</li>
+<li><b>L1 (finished thing):</b> the thinned die that goes into an HBM stack, a 3D-stacked logic die, or a backside-powered CPU/GPU wafer.</li>
+</ul>
+</div>
+<div class="card">
+<h3>Glossary — the ten terms that actually appear in the triggers</h3>
+<ul class="small">
+<li><b>HBM</b> — high-bandwidth memory. DRAM chips stacked vertically and wired to a processor through the package rather than across a board. "16-Hi" means sixteen memory dies in one stack.</li>
+<li><b>JEDEC</b> — the industry standards body whose members (the memory makers and their customers) agree the specifications, including the maximum package height that this whole report turns on.</li>
+<li><b>Non-die overhead</b> — everything in an HBM package that is not core DRAM: the foundry-made base logic die, the microbumps, the underfill and the mold cap. The height left over after subtracting it is what the memory dies must fit inside.</li>
+<li><b>OSAT</b> — Outsourced Semiconductor Assembly and Test. The independent packaging houses (ASE, Amkor) that do assembly work fabs do not. DISCO's "OSAT ratio" is the share of its shipments going to them, and it is one of only two named DISCO triggers below.</li>
+<li><b>TTV</b> — total thickness variation. How un-flat a thinned wafer is. At a <span class="mono">30&micro;m</span> target, a few <span class="mono">&micro;m</span> of TTV is a scrap wafer.</li>
+<li><b>TAIKO</b> — a grind that leaves a thick outer ring, so a thin wafer keeps a stiff rim and stops curling.</li>
+<li><b>TBDB</b> — temporary bond / debond. Gluing the wafer to a carrier and getting it off again.</li>
+<li><b>TSV reveal</b> — grinding the wafer back until the copper through-silicon vias buried in it emerge on the far side, so the next die can connect to them.</li>
+<li><b>CMP</b> — chemical-mechanical planarization. Chemical-plus-abrasive polishing that makes a surface flat to atomic tolerances.</li>
+<li><b>MR-MUF</b> — mass-reflow molded underfill. SK hynix's way of stacking HBM with microbumps instead of hybrid bonding.<span class="cite">C04</span></li>
+<li><b>Hybrid bonding</b> — direct copper-to-copper joining with no bumps. Thinner stacks, far harder. Reported as needed only at <b>20 layers or more</b>.<span class="cite">C05</span></li>
+<li><b>BSPDN</b> — backside power delivery. Power wires moved to the underside of the wafer; requires flipping, bonding and extreme thinning of a logic wafer. TSMC's version is "Super Power Rail".<span class="cite">C23</span></li>
+<li><b>Book-to-bill</b> — orders received divided by revenue billed in the same period. Above <span class="mono">1.0</span> means the backlog is growing. SUSS's Q1 was far above it.<span class="cite">C11</span></li>
+</ul>
+</div>
+</div>
+
+<h2>6 · Framework — use cases &times; stack layers (the two orthogonal axes)</h2>
+<p class="small">Thin-wafer handling is not one market. It is one <i>capability</i> sold into three different demand engines, each with its own thickness target, tool mix and 2026 status.</p>
+<div class="scrollx">
+<table>
+<tr><th>Use case (row)</th><th>Thickness target</th><th>What is used</th><th>Binding constraint</th><th>Who wins</th><th>2026 status</th></tr>
+<tr>
+<td><b>A · HBM stacking</b><br><span class="small">memory, the volume engine</span></td>
+<td class="num">~<span class="mono">30&micro;m</span> at 16-Hi<br>(~<span class="mono">50&micro;m</span> at 12-Hi)<span class="cite">C01</span><span class="cite">C02</span></td>
+<td>Backgrind + TAIKO, carrier bond, TSV reveal, TC/MR-MUF stack</td>
+<td>Loss of self-support below ~<span class="mono">100&micro;m</span><span class="cite">C14</span>; warpage and residue after debond</td>
+<td>DISCO, Tokyo Seimitsu, Okamoto (grind) · EVG, SUSS, TOK, ASMPT (TBDB) · Hanmi, BESI (stack)</td>
+<td class="amb2"><b>Direction contested</b> — height moving to <span class="mono">825&ndash;900&micro;m</span>, but reportedly to enable 20-high<span class="cite">C05</span><span class="cite">C07</span></td>
+</tr>
+<tr>
+<td><b>B · 3D logic / hybrid bonding</b><br><span class="small">SoIC, chiplet stacking</span></td>
+<td class="num">below <span class="mono">10&micro;m</span> device layers <b>(est., uncited)</b></td>
+<td>Ultra-flat CMP, direct fusion/Cu-Cu bond, ultra-low-TTV grind</td>
+<td>Sub-nm surface flatness and overlay; particle control</td>
+<td>TSMC (captive) · BESI, EVG (tools) · Ebara, AMAT (CMP) · Onto, KLA (metrology)</td>
+<td class="dn"><b>Deferred at HBM.</b> HBM4 stayed on microbumps<span class="cite">C04</span>; hybrid bonding reported needed only at 20-Hi<span class="cite">C05</span></td>
+</tr>
+<tr>
+<td><b>C · Backside power (BSPDN)</b><br><span class="small">front-end logic, A16 / PowerVia</span></td>
+<td class="num">device layer to under <span class="mono">1&micro;m</span> above the transistors <b>(est., uncited)</b></td>
+<td>Carrier bond, extreme thin, backside litho + align, backside metal</td>
+<td>Backside overlay to a buried front-side pattern; carrier-induced stress</td>
+<td>AMAT, Lam, TEL, ASMI (modules) · EVG, SUSS (bond) · KLA, Onto (align)</td>
+<td class="dn"><b>Pushed to 2027.</b> A16 volume production slipped<span class="cite">C21</span><span class="cite">C22</span></td>
+</tr>
+</table>
+</div>
+<p class="note"><b>The chokepoint sits at cell (A &times; L2-grind/L3-debond)</b> — the highest-volume use case crossed with the most supply-concentrated tool step. That is also the cell where the specification argument lands.</p>
+
+<h2>7 · Component deep-dive gallery (L3 sub-technologies, drawn)</h2>
+<div class="grid2">
+
+<div class="card">
+<h3>a · Backgrind &amp; TAIKO ring-grind</h3>
+<svg viewBox="0 0 460 176" role="img" aria-label="Cross-section of a standard backgrind wafer versus a TAIKO ring-ground wafer with a stiff outer rim">
+  <text x="8" y="16" fill="#9aa3b2" font-size="10.5">Standard backgrind — curls</text>
+  <rect x="8" y="26" width="200" height="34" fill="#2a2f3a" stroke="#343a47"/>
+  <path d="M8 60 Q108 74 208 60 L208 66 Q108 82 8 66 Z" fill="#e07a6a" opacity="0.55"/>
+  <text class="m" x="8" y="98" fill="#e07a6a" font-size="10.5">30 um · self-supporting: no</text>
+  <text x="248" y="16" fill="#9aa3b2" font-size="10.5">TAIKO — thick rim kept</text>
+  <rect x="248" y="26" width="200" height="34" fill="#2a2f3a" stroke="#343a47"/>
+  <rect x="248" y="60" width="18" height="26" fill="#2dd4bf" opacity="0.5"/>
+  <rect x="430" y="60" width="18" height="26" fill="#2dd4bf" opacity="0.5"/>
+  <rect x="266" y="60" width="164" height="7" fill="#2dd4bf" opacity="0.35"/>
+  <text class="m" x="248" y="98" fill="#2dd4bf" font-size="10.5">thin centre, full-thick rim</text>
+  <text x="8" y="126" fill="#9aa3b2" font-size="11">Role: remove ~<tspan class="m">96%</tspan> of the wafer without breaking it.</text>
+  <text x="8" y="146" fill="#e8eaed" font-size="11">Made by: DISCO · Tokyo Seimitsu · Okamoto</text>
+  <text x="8" y="166" fill="#6b7283" font-size="10">Consumable attached: diamond grinding wheels, replaced on a cycle.</text>
+</svg>
+</div>
+
+<div class="card">
+<h3>b · Temporary bond stack (TBDB)</h3>
+<svg viewBox="0 0 460 176" role="img" aria-label="Layer stack showing carrier, release layer, adhesive and thinned device wafer">
+  <rect x="60" y="22" width="340" height="26" fill="#3a4150" stroke="#4a5262"/>
+  <text x="70" y="39" fill="#e8eaed" font-size="11">Carrier disc — glass or silicon, full thickness</text>
+  <rect x="60" y="50" width="340" height="12" fill="#d4a72c" opacity="0.6"/>
+  <text x="70" y="60" fill="#16181d" font-size="10">Release layer (laser- or thermal-releasable)</text>
+  <rect x="60" y="64" width="340" height="16" fill="#2dd4bf" opacity="0.35"/>
+  <text x="70" y="76" fill="#e8eaed" font-size="10">Temporary bonding adhesive</text>
+  <rect x="60" y="82" width="340" height="10" fill="#e07a6a" opacity="0.75"/>
+  <text x="70" y="90.5" fill="#16181d" font-size="9">Device wafer, thinned to 30 um</text>
+  <text x="8" y="118" fill="#9aa3b2" font-size="11">Role: give a film-thin wafer a rigid body so it can be</text>
+  <text x="8" y="136" fill="#9aa3b2" font-size="11">ground, TSV-revealed, plated and inspected.</text>
+  <text x="8" y="156" fill="#e8eaed" font-size="11">Tools: EV Group* · SUSS MicroTec · TOK · ASMPT</text>
+  <text x="8" y="172" fill="#6b7283" font-size="10">Materials: Brewer Science* · 3M · TOK · Shin-Etsu   (*private)</text>
+</svg>
+</div>
+
+<div class="card">
+<h3>c · Debond — mechanical vs IR laser release</h3>
+<svg viewBox="0 0 460 176" role="img" aria-label="Comparison of mechanical peel debonding and infrared laser release through a silicon carrier">
+  <text x="8" y="16" fill="#e07a6a" font-size="10.5">Mechanical peel — stress</text>
+  <rect x="8" y="24" width="190" height="16" fill="#3a4150"/>
+  <path d="M8 46 Q60 30 120 46 L198 46" stroke="#e07a6a" stroke-width="3" fill="none"/>
+  <text class="m" x="8" y="66" fill="#e07a6a" font-size="10">risk rises as it thins</text>
+  <text x="248" y="16" fill="#2dd4bf" font-size="10.5">IR laser release</text>
+  <rect x="248" y="24" width="190" height="16" fill="#3a4150"/>
+  <line x1="290" y1="2" x2="290" y2="24" stroke="#2dd4bf" stroke-width="2"/>
+  <line x1="330" y1="2" x2="330" y2="24" stroke="#2dd4bf" stroke-width="2"/>
+  <line x1="370" y1="2" x2="370" y2="24" stroke="#2dd4bf" stroke-width="2"/>
+  <rect x="248" y="40" width="190" height="6" fill="#d4a72c" opacity="0.7"/>
+  <rect x="248" y="46" width="190" height="8" fill="#e07a6a" opacity="0.7"/>
+  <text class="m" x="248" y="66" fill="#2dd4bf" font-size="10">no peel force on the film</text>
+  <text x="8" y="96" fill="#9aa3b2" font-size="11">EVG markets IR LayerRelease as removing the need for</text>
+  <text x="8" y="114" fill="#9aa3b2" font-size="11">mechanical debond and for glass carriers (vendor claim).</text>
+  <text x="8" y="138" fill="#d4a72c" font-size="11">Reported real bottleneck: not the release itself, but</text>
+  <text x="8" y="156" fill="#d4a72c" font-size="11">removing adhesive residue afterwards.</text>
+  <text x="8" y="172" fill="#6b7283" font-size="10">Source could not be fetched directly (HTTP 403) — treat as indicative.</text>
+</svg>
+</div>
+
+<div class="card">
+<h3>d · Backside reveal &amp; backside power</h3>
+<svg viewBox="0 0 460 176" role="img" aria-label="Schematic of TSV reveal on a thinned wafer and of a backside power delivery network">
+  <text x="8" y="16" fill="#9aa3b2" font-size="10.5">TSV reveal (HBM)</text>
+  <rect x="8" y="24" width="190" height="40" fill="#2a2f3a" stroke="#343a47"/>
+  <rect x="40" y="24" width="10" height="52" fill="#2dd4bf" opacity="0.6"/>
+  <rect x="90" y="24" width="10" height="52" fill="#2dd4bf" opacity="0.6"/>
+  <rect x="140" y="24" width="10" height="52" fill="#2dd4bf" opacity="0.6"/>
+  <text class="m" x="8" y="92" fill="#9aa3b2" font-size="10">grind until vias emerge</text>
+  <text x="248" y="16" fill="#9aa3b2" font-size="10.5">BSPDN (logic)</text>
+  <rect x="248" y="24" width="190" height="10" fill="#d4a72c" opacity="0.55"/>
+  <text x="252" y="32" fill="#16181d" font-size="8">backside power metal</text>
+  <rect x="248" y="34" width="190" height="14" fill="#e07a6a" opacity="0.65"/>
+  <text x="252" y="44" fill="#16181d" font-size="8">transistors</text>
+  <rect x="248" y="48" width="190" height="28" fill="#2a2f3a" stroke="#343a47"/>
+  <text x="252" y="66" fill="#9aa3b2" font-size="8">signal wiring (front side)</text>
+  <text class="m" x="248" y="92" fill="#9aa3b2" font-size="10">power below, signal above</text>
+  <text x="8" y="118" fill="#9aa3b2" font-size="11">Role: the step that makes thinning a FRONT-END problem,</text>
+  <text x="8" y="136" fill="#9aa3b2" font-size="11">not just a packaging one — far higher value at risk.</text>
+  <text x="8" y="158" fill="#e07a6a" font-size="11">Status: TSMC A16 Super Power Rail slipped to 2027.</text>
+  <text x="8" y="174" fill="#6b7283" font-size="10">Tools: AMAT · Lam · TEL · ASMI · EVG/SUSS (carrier bond)</text>
+</svg>
+</div>
+
+</div>
+<div class="card">
+<h3>e · Warpage &amp; TTV metrology — the step that decides whether any of the above worked</h3>
+<div class="scrollx">
+<svg class="wide" viewBox="0 0 1000 120" role="img" aria-label="A bonded thin wafer stack with warpage measured across its diameter and a total thickness variation trace">
+  <path d="M40 70 Q300 34 560 70" stroke="#e07a6a" stroke-width="3" fill="none"/>
+  <line x1="40" y1="70" x2="560" y2="70" stroke="#343a47" stroke-dasharray="4 4"/>
+  <text x="40" y="26" fill="#e07a6a" font-size="11">Warpage — the bonded pair bows; overlay to the front-side pattern drifts</text>
+  <text class="m" x="40" y="96" fill="#9aa3b2" font-size="11">measured across 300 mm</text>
+  <text x="620" y="26" fill="#2dd4bf" font-size="11">TTV — thickness variation across the wafer</text>
+  <rect x="620" y="40" width="340" height="30" fill="#2a2f3a" stroke="#343a47"/>
+  <path d="M620 62 L680 58 L740 66 L800 57 L860 64 L920 59 L960 62" stroke="#2dd4bf" stroke-width="2" fill="none"/>
+  <text class="m" x="620" y="96" fill="#9aa3b2" font-size="11">a few um of TTV at a 30 um target = scrap</text>
+</svg>
+</div>
+<p class="small" style="margin:8px 0 0">Made by Onto Innovation, KLA, Camtek and Tokyo Seimitsu's metrology arm. <b>This link was the whole subject of ACCEL Run #26 and is deliberately not re-underwritten here</b> — shown for chain completeness only.</p>
+</div>
+
+<h2>8 · Sub-tech &rarr; product assembly (L3 &rarr; L2 &rarr; L1)</h2>
+<div class="card">
+<div class="scrollx">
+<svg class="wide" viewBox="0 0 1020 268" role="img" aria-label="Assembly flow from a full-thickness device wafer through carrier bonding, thinning, backside processing, debonding and stacking into a finished HBM package">
+  <g>
+    <rect x="10" y="30" width="140" height="72" rx="6" fill="#21252e" stroke="#343a47"/>
+    <text x="20" y="52" fill="#e8eaed" font-size="12">1 · Device wafer</text>
+    <text class="m" x="20" y="72" fill="#9aa3b2" font-size="11">775 um thick</text>
+    <text x="20" y="90" fill="#6b7283" font-size="10">from the fab</text>
+
+    <rect x="180" y="30" width="140" height="72" rx="6" fill="#21252e" stroke="#343a47"/>
+    <text x="190" y="52" fill="#e8eaed" font-size="12">2 · Carrier bond</text>
+    <text class="m" x="190" y="72" fill="#2dd4bf" font-size="11">adhesive + release</text>
+    <text x="190" y="90" fill="#6b7283" font-size="10">EVG · SUSS · TOK</text>
+
+    <rect x="350" y="30" width="140" height="72" rx="6" fill="#2b2028" stroke="#e07a6a" stroke-width="2"/>
+    <text x="360" y="52" fill="#e07a6a" font-size="12">3 · Grind / thin</text>
+    <text class="m" x="360" y="72" fill="#e07a6a" font-size="11">775 to 30 um</text>
+    <text x="360" y="90" fill="#9aa3b2" font-size="10">DISCO · Seimitsu</text>
+
+    <rect x="520" y="30" width="140" height="72" rx="6" fill="#21252e" stroke="#343a47"/>
+    <text x="530" y="52" fill="#e8eaed" font-size="12">4 · Backside</text>
+    <text class="m" x="530" y="72" fill="#9aa3b2" font-size="11">TSV reveal · metal</text>
+    <text x="530" y="90" fill="#6b7283" font-size="10">AMAT · Lam · TEL</text>
+
+    <rect x="690" y="30" width="140" height="72" rx="6" fill="#21252e" stroke="#343a47"/>
+    <text x="700" y="52" fill="#e8eaed" font-size="12">5 · Debond + clean</text>
+    <text class="m" x="700" y="72" fill="#d4a72c" font-size="11">residue = the risk</text>
+    <text x="700" y="90" fill="#6b7283" font-size="10">EVG · SUSS · DISCO</text>
+
+    <rect x="860" y="30" width="150" height="72" rx="6" fill="#21252e" stroke="#343a47"/>
+    <text x="870" y="52" fill="#e8eaed" font-size="12">6 · Stack &rarr; L1</text>
+    <text class="m" x="870" y="72" fill="#2dd4bf" font-size="11">16-Hi, 775 um tall</text>
+    <text x="870" y="90" fill="#6b7283" font-size="10">SK hynix · Samsung</text>
+  </g>
+  <g stroke="#4a5262" stroke-width="2" fill="none">
+    <path d="M150 66 L176 66"/><path d="M320 66 L346 66"/>
+    <path d="M490 66 L516 66"/><path d="M660 66 L686 66"/><path d="M830 66 L856 66"/>
+  </g>
+  <text x="10" y="134" fill="#d4a72c" font-size="11.5">Note the two different 775s: at step 1 it is one wafer's THICKNESS; at step 6 it is the finished 16-die stack's HEIGHT. Unrelated quantities.</text>
+  <text x="10" y="160" fill="#9aa3b2" font-size="12">What changes at each step:</text>
+  <text x="10" y="180" fill="#e8eaed" font-size="11.5">Steps 1&ndash;2 add cost but no scarcity. Step 3 removes ~<tspan class="m">96%</tspan> of the wafer and is where the supply base narrows to three names.</text>
+  <text x="10" y="200" fill="#e8eaed" font-size="11.5">Step 5 is where accumulated value is destroyed if it fails — a wafer here already carries every prior process cost.</text>
+  <text x="10" y="220" fill="#e8eaed" font-size="11.5">Step 6 is the one the standards body controls. The height allowed at step 6 sets the thickness budget at step 3.</text>
+  <rect x="10" y="234" width="1000" height="28" rx="4" fill="#2b2028" stroke="#e07a6a"/>
+  <text x="24" y="252" fill="#e07a6a" font-size="12">A committee at step 6 can reprice the scarcity at step 3 — but whether it raises or lowers it is exactly what &sect;12 cannot settle.</text>
+</svg>
+</div>
+</div>
+
+<h2>9 · Deployment mapping — which sub-tech serves which use case</h2>
+<div class="card">
+<div class="scrollx">
+<svg class="wide" viewBox="0 0 1020 250" role="img" aria-label="Mapping of thin-wafer sub-technologies onto the three use cases: HBM stacking, 3D logic and backside power delivery">
+  <text x="10" y="18" fill="#9aa3b2" font-size="12">Sub-technology</text>
+  <text x="330" y="18" fill="#2dd4bf" font-size="12">A · HBM stacking</text>
+  <text x="560" y="18" fill="#d4a72c" font-size="12">B · 3D logic / hybrid bond</text>
+  <text x="830" y="18" fill="#e07a6a" font-size="12">C · Backside power</text>
+  <line x1="10" y1="26" x2="1010" y2="26" stroke="#343a47"/>
+
+  <g font-size="11.5">
+    <text x="10" y="52" fill="#e8eaed">Backgrind / TAIKO</text>
+    <rect x="330" y="40" width="180" height="16" fill="#2dd4bf" opacity="0.7"/><text class="m" x="336" y="52" fill="#16181d" font-size="10">core, high volume</text>
+    <rect x="560" y="40" width="120" height="16" fill="#d4a72c" opacity="0.45"/><text class="m" x="566" y="52" fill="#16181d" font-size="10">used</text>
+    <rect x="830" y="40" width="120" height="16" fill="#e07a6a" opacity="0.45"/><text class="m" x="836" y="52" fill="#16181d" font-size="10">used</text>
+
+    <text x="10" y="82" fill="#e8eaed">Temporary bond / debond</text>
+    <rect x="330" y="70" width="140" height="16" fill="#2dd4bf" opacity="0.55"/><text class="m" x="336" y="82" fill="#16181d" font-size="10">used</text>
+    <rect x="560" y="70" width="140" height="16" fill="#d4a72c" opacity="0.5"/><text class="m" x="566" y="82" fill="#16181d" font-size="10">used</text>
+    <rect x="830" y="70" width="180" height="16" fill="#e07a6a" opacity="0.75"/><text class="m" x="836" y="82" fill="#16181d" font-size="10">every wafer</text>
+
+    <text x="10" y="112" fill="#e8eaed">Ultra-low-TTV CMP</text>
+    <rect x="330" y="100" width="90" height="16" fill="#2dd4bf" opacity="0.3"/><text class="m" x="336" y="112" fill="#e8eaed" font-size="10">light</text>
+    <rect x="560" y="100" width="180" height="16" fill="#d4a72c" opacity="0.75"/><text class="m" x="566" y="112" fill="#16181d" font-size="10">the gating step</text>
+    <rect x="830" y="100" width="120" height="16" fill="#e07a6a" opacity="0.45"/><text class="m" x="836" y="112" fill="#16181d" font-size="10">used</text>
+
+    <text x="10" y="142" fill="#e8eaed">IR / laser release</text>
+    <rect x="330" y="130" width="140" height="16" fill="#2dd4bf" opacity="0.5"/><text class="m" x="336" y="142" fill="#16181d" font-size="10">emerging</text>
+    <rect x="560" y="130" width="160" height="16" fill="#d4a72c" opacity="0.6"/><text class="m" x="566" y="142" fill="#16181d" font-size="10">enabling</text>
+    <rect x="830" y="130" width="160" height="16" fill="#e07a6a" opacity="0.6"/><text class="m" x="836" y="142" fill="#16181d" font-size="10">enabling</text>
+
+    <text x="10" y="172" fill="#e8eaed">Warpage / overlay metrology</text>
+    <rect x="330" y="160" width="120" height="16" fill="#2dd4bf" opacity="0.45"/><text class="m" x="336" y="172" fill="#16181d" font-size="10">used</text>
+    <rect x="560" y="160" width="160" height="16" fill="#d4a72c" opacity="0.6"/><text class="m" x="566" y="172" fill="#16181d" font-size="10">critical</text>
+    <rect x="830" y="160" width="180" height="16" fill="#e07a6a" opacity="0.75"/><text class="m" x="836" y="172" fill="#16181d" font-size="10">backside align</text>
+  </g>
+  <line x1="10" y1="190" x2="1010" y2="190" stroke="#343a47"/>
+  <text x="10" y="212" fill="#9aa3b2" font-size="11.5">Column A is the volume today and is where the specification argument bites. Column C is where the requirement is most absolute — you cannot</text>
+  <text x="10" y="232" fill="#9aa3b2" font-size="11.5">do backside power without a carrier at all — but column C just moved out to 2027. The demand is real; the timing is not 2026.</text>
+</svg>
+</div>
+</div>
+
+<h2>10 · End-to-end supply-chain map — where the constriction is</h2>
+<div class="scrollx">
+<svg class="wide" viewBox="0 0 1020 492" role="img" aria-label="Six-stage supply chain from carrier and adhesive materials to stack assembly, with the constriction at the grind and thin stage, and a bar chart of scarcity premium peaking there">
+
+  <text x="12" y="18" fill="#9aa3b2" font-size="12">UPSTREAM</text>
+  <text x="930" y="18" fill="#9aa3b2" font-size="12">DOWNSTREAM</text>
+
+  <g>
+    <rect x="12" y="30" width="145" height="128" rx="6" fill="#21252e" stroke="#343a47"/>
+    <text x="22" y="50" fill="#9aa3b2" font-size="10">STAGE 1</text>
+    <text x="22" y="68" fill="#e8eaed" font-size="12">Carrier, adhesive</text>
+    <text x="22" y="84" fill="#e8eaed" font-size="12">&amp; TAPE materials</text>
+    <text x="22" y="106" fill="#6b7283" font-size="10">Brewer Science* · 3M</text>
+    <text x="22" y="120" fill="#6b7283" font-size="10">TOK · Shin-Etsu · AGC</text>
+    <text x="22" y="134" fill="#2dd4bf" font-size="10">Nitto Denko · Lintec</text>
+    <text class="m" x="22" y="151" fill="#9aa3b2" font-size="10">*private</text>
+
+    <rect x="182" y="30" width="145" height="128" rx="6" fill="#21252e" stroke="#2dd4bf" stroke-width="1.5"/>
+    <text x="192" y="50" fill="#9aa3b2" font-size="10">STAGE 2</text>
+    <text x="192" y="68" fill="#e8eaed" font-size="12">Temporary bond</text>
+    <text x="192" y="84" fill="#e8eaed" font-size="12">/ debond tools</text>
+    <text x="192" y="106" fill="#6b7283" font-size="10">EV Group*</text>
+    <text x="192" y="120" fill="#6b7283" font-size="10">SUSS MicroTec</text>
+    <text x="192" y="134" fill="#6b7283" font-size="10">TOK · ASMPT</text>
+    <text class="m" x="192" y="151" fill="#2dd4bf" font-size="10">secondary rent</text>
+
+    <rect x="352" y="30" width="145" height="128" rx="6" fill="#2b2028" stroke="#e07a6a" stroke-width="2.5"/>
+    <text x="362" y="50" fill="#e07a6a" font-size="10">STAGE 3</text>
+    <text x="362" y="68" fill="#e07a6a" font-size="12">Grind · thin ·</text>
+    <text x="362" y="84" fill="#e07a6a" font-size="12">polish · dice</text>
+    <text x="362" y="106" fill="#e8eaed" font-size="10">DISCO</text>
+    <text x="362" y="120" fill="#6b7283" font-size="10">Tokyo Seimitsu</text>
+    <text x="362" y="134" fill="#6b7283" font-size="10">Okamoto</text>
+    <text class="m" x="362" y="151" fill="#e07a6a" font-size="10">narrowest supply</text>
+
+    <rect x="522" y="30" width="145" height="128" rx="6" fill="#21252e" stroke="#343a47"/>
+    <text x="532" y="50" fill="#9aa3b2" font-size="10">STAGE 4</text>
+    <text x="532" y="68" fill="#e8eaed" font-size="12">Backside process</text>
+    <text x="532" y="84" fill="#e8eaed" font-size="12">TSV reveal · metal</text>
+    <text x="532" y="106" fill="#6b7283" font-size="10">Applied Materials</text>
+    <text x="532" y="120" fill="#6b7283" font-size="10">Lam · TEL · ASMI</text>
+    <text class="m" x="532" y="151" fill="#9aa3b2" font-size="10">diluted exposure</text>
+
+    <rect x="692" y="30" width="145" height="128" rx="6" fill="#21252e" stroke="#343a47"/>
+    <text x="702" y="50" fill="#9aa3b2" font-size="10">STAGE 5</text>
+    <text x="702" y="68" fill="#e8eaed" font-size="12">Thin-stack</text>
+    <text x="702" y="84" fill="#e8eaed" font-size="12">metrology</text>
+    <text x="702" y="106" fill="#6b7283" font-size="10">Onto · KLA</text>
+    <text x="702" y="120" fill="#6b7283" font-size="10">Camtek</text>
+    <text x="702" y="134" fill="#6b7283" font-size="10">Tokyo Seimitsu</text>
+    <text class="m" x="702" y="151" fill="#9aa3b2" font-size="10">see Run #26</text>
+
+    <rect x="862" y="30" width="145" height="128" rx="6" fill="#21252e" stroke="#d4a72c" stroke-width="1.5"/>
+    <text x="872" y="50" fill="#9aa3b2" font-size="10">STAGE 6</text>
+    <text x="872" y="68" fill="#e8eaed" font-size="12">Stack assembly</text>
+    <text x="872" y="84" fill="#e8eaed" font-size="12">&amp; the SPEC</text>
+    <text x="872" y="106" fill="#6b7283" font-size="10">SK hynix · Samsung</text>
+    <text x="872" y="120" fill="#6b7283" font-size="10">Micron · TSMC · ASE</text>
+    <text x="872" y="134" fill="#d4a72c" font-size="10">JEDEC height rule</text>
+    <text class="m" x="872" y="151" fill="#d4a72c" font-size="10">sets stage 3</text>
+  </g>
+
+  <g fill="none">
+    <path d="M157 94 L178 94" stroke="#4a5262" stroke-width="9"/>
+    <path d="M327 94 L348 94" stroke="#e07a6a" stroke-width="2.5"/>
+    <path d="M497 94 L518 94" stroke="#e07a6a" stroke-width="2.5"/>
+    <path d="M667 94 L688 94" stroke="#4a5262" stroke-width="9"/>
+    <path d="M837 94 L858 94" stroke="#4a5262" stroke-width="9"/>
+  </g>
+  <path d="M934 164 L934 178 L424 178 L424 164" stroke="#d4a72c" stroke-width="1.5" stroke-dasharray="5 4" fill="none"/>
+  <text x="470" y="196" fill="#d4a72c" font-size="11">feedback: the stage-6 height rule sets the stage-3 budget</text>
+
+  <rect x="330" y="208" width="190" height="24" rx="4" fill="#e07a6a"/>
+  <text x="352" y="225" fill="#16181d" font-size="12" font-weight="700">CHOKEPOINT · STAGE 3</text>
+
+  <text x="12" y="256" fill="#9aa3b2" font-size="11">Scarcity premium by stage (0&ndash;10 rubric, separate from the /20 severity scale in &sect;12 — not a margin forecast)</text>
+  <line x1="12" y1="440" x2="1010" y2="440" stroke="#343a47"/>
+  <g>
+    <rect x="44" y="380" width="80" height="60" fill="#4a5262"/><text class="m" x="78" y="372" fill="#9aa3b2" font-size="11">3</text>
+    <rect x="214" y="320" width="80" height="120" fill="#2dd4bf" opacity="0.8"/><text class="m" x="248" y="312" fill="#2dd4bf" font-size="11">6</text>
+    <rect x="384" y="280" width="80" height="160" fill="#e07a6a"/><text class="m" x="418" y="272" fill="#e07a6a" font-size="11">8</text>
+    <rect x="554" y="400" width="80" height="40" fill="#4a5262"/><text class="m" x="588" y="392" fill="#9aa3b2" font-size="11">2</text>
+    <rect x="724" y="360" width="80" height="80" fill="#4a5262"/><text class="m" x="758" y="352" fill="#9aa3b2" font-size="11">4</text>
+    <rect x="894" y="380" width="80" height="60" fill="#4a5262"/><text class="m" x="928" y="372" fill="#9aa3b2" font-size="11">3</text>
+  </g>
+  <g font-size="10.5" fill="#6b7283">
+    <text x="44" y="458">1 materials</text>
+    <text x="214" y="458">2 bond/debond</text>
+    <text x="384" y="458">3 grind/thin</text>
+    <text x="554" y="458">4 backside</text>
+    <text x="724" y="458">5 metrology</text>
+    <text x="894" y="458">6 stack/spec</text>
+  </g>
+  <text x="12" y="482" fill="#e07a6a" font-size="11">Peak at stage 3; secondary pool at stage 2. Both bars move with the spec decision in &sect;12 — up on the 20-high branch, down on the thicker-die branch.</text>
+</svg>
+</div>
+<p class="note">The two thin red arrows are the constriction: material flows freely into stage 2, narrows through stage 3, and widens again at stage 4. The dashed amber line is what makes this chain different from every other chokepoint in this rotation — <b>the downstream customer's standards body writes the upstream requirement</b>. (Optical fibre, Run #31, is also standards-governed via ITU-T; the difference here is one of degree and of who sits on the committee, not an absolute.)</p>
+
+<h2>11 · Multi-year evolution timeline</h2>
+<div class="scrollx">
+<svg class="wide" viewBox="0 0 1020 300" role="img" aria-label="Grid of four domains against the years 2026 to 2029, with stressed and catalyst cells tinted">
+  <g font-size="11.5">
+    <text x="196" y="24" fill="#2dd4bf">2026</text><text x="396" y="24" fill="#2dd4bf">2027</text>
+    <text x="596" y="24" fill="#2dd4bf">2028</text><text x="796" y="24" fill="#2dd4bf">2029</text>
+  </g>
+  <line x1="10" y1="32" x2="1010" y2="32" stroke="#343a47"/>
+
+  <text x="10" y="66" fill="#e8eaed" font-size="12">A · HBM stacking</text>
+  <rect x="190" y="44" width="190" height="34" fill="#e07a6a" opacity="0.35"/><text class="m" x="198" y="66" fill="#e8eaed" font-size="10">16-Hi at 775 um, ~30 um die</text>
+  <rect x="390" y="44" width="190" height="34" fill="#d4a72c" opacity="0.35"/><text class="m" x="398" y="66" fill="#e8eaed" font-size="10">HBM4E: the height decision</text>
+  <rect x="590" y="44" width="190" height="34" fill="#d4a72c" opacity="0.3"/><text class="m" x="598" y="66" fill="#e8eaed" font-size="10">20-Hi decision point</text>
+  <rect x="790" y="44" width="190" height="34" fill="#2dd4bf" opacity="0.3"/><text class="m" x="798" y="66" fill="#e8eaed" font-size="10">hybrid bond if 20-Hi lands</text>
+
+  <text x="10" y="116" fill="#e8eaed" font-size="12">B · 3D logic / SoIC</text>
+  <rect x="190" y="94" width="190" height="34" fill="#2a2f3a"/><text class="m" x="198" y="116" fill="#9aa3b2" font-size="10">captive at TSMC, steady</text>
+  <rect x="390" y="94" width="190" height="34" fill="#2a2f3a"/><text class="m" x="398" y="116" fill="#9aa3b2" font-size="10">chiplet count rises</text>
+  <rect x="590" y="94" width="190" height="34" fill="#d4a72c" opacity="0.3"/><text class="m" x="598" y="116" fill="#e8eaed" font-size="10">wafer-on-wafer scale-up</text>
+  <rect x="790" y="94" width="190" height="34" fill="#d4a72c" opacity="0.3"/><text class="m" x="798" y="116" fill="#e8eaed" font-size="10">sub-10 um layers (est.)</text>
+
+  <text x="10" y="166" fill="#e8eaed" font-size="12">C · Backside power</text>
+  <rect x="190" y="144" width="190" height="34" fill="#2a2f3a"/><text class="m" x="198" y="166" fill="#9aa3b2" font-size="10">A16 slipped out of 2026</text>
+  <rect x="390" y="144" width="190" height="34" fill="#e07a6a" opacity="0.45"/><text class="m" x="398" y="166" fill="#e8eaed" font-size="10">A16 SPR volume · step-up</text>
+  <rect x="590" y="144" width="190" height="34" fill="#e07a6a" opacity="0.3"/><text class="m" x="598" y="166" fill="#e8eaed" font-size="10">BSPDN on more nodes</text>
+  <rect x="790" y="144" width="190" height="34" fill="#2dd4bf" opacity="0.25"/><text class="m" x="798" y="166" fill="#e8eaed" font-size="10">carrier bond every wafer</text>
+
+  <text x="10" y="216" fill="#d4a72c" font-size="12">D · The spec itself</text>
+  <rect x="190" y="194" width="190" height="34" fill="#2a2f3a"/><text class="m" x="198" y="216" fill="#9aa3b2" font-size="10">775 um holds for HBM4</text>
+  <rect x="390" y="194" width="190" height="34" fill="#d4a72c" opacity="0.45"/><text class="m" x="398" y="216" fill="#e8eaed" font-size="10">825-900 um reported</text>
+  <rect x="590" y="194" width="190" height="34" fill="#d4a72c" opacity="0.35"/><text class="m" x="598" y="216" fill="#e8eaed" font-size="10">20-high envelope set?</text>
+  <rect x="790" y="194" width="190" height="34" fill="#2a2f3a"/><text class="m" x="798" y="216" fill="#9aa3b2" font-size="10">spec follows layer count</text>
+
+  <line x1="10" y1="242" x2="1010" y2="242" stroke="#343a47"/>
+  <text x="10" y="264" fill="#e07a6a" font-size="11.5">Row D is the one that moves the others. Read it top-down: the spec decision in 2027 sets what rows A and C have to do in 2028-29.</text>
+  <text x="10" y="284" fill="#9aa3b2" font-size="11.5">2026 is the trough year for INCREMENTAL difficulty in every row. The step-ups sit in 2027-2028 — which is what makes this a timing problem, not a quality one.</text>
+</svg>
+</div>
+<p class="note">Note the shape: a buyer today pays a 2025-vintage multiple for a 2027-28 catalyst, through a year in which the tool order rate is not obviously accelerating. That is the whole case for waiting — and equally the reason to have the &sect;14 triggers on a calendar rather than forgetting the chain.</p>
+
+<h2>12 · Chokepoint callout, the specification fork, and the severity scorecard</h2>
+<div class="card red">
+<h3 style="margin-top:0;color:var(--red)">The binding link</h3>
+<p style="margin-bottom:0"><b>Stage 3 — ultra-thin grind/thin/polish of a carrier-mounted wafer</b>, co-binding with <b>stage 2 — carrier bond and debond</b>. A 300mm wafer at <span class="mono">30&micro;m</span> cannot be handled without a carrier<span class="cite">C14</span>; the carrier cannot come off without a debond whose practical bottleneck is reportedly the residue clean rather than the release<span class="cite">C14</span>; and the grind that gets there is supplied by three names, one of which holds most of it.</p>
+</div>
+
+<div class="card amb">
+<h3 style="margin-top:0">The specification question — four readings, of which the likeliest is a sequence, not a fork</h3>
+<p class="small">A taller allowed package height can be spent more than one way. Below is the arithmetic, using only figures already in this report's source register. <b>Read the assumption warning first, because it governs every number in the table.</b></p>
+<p class="small" style="border-left:2px solid var(--red);padding-left:10px"><b>Assumption warning.</b> Both branch rows are computed by holding <b>non-die overhead</b> constant at the HBM4 value of <span class="mono">~295&micro;m</span>. <i>Non-die overhead</i> means everything in the package that is not core DRAM die: the foundry-made base logic die, the microbumps, the underfill and the mold cap. That assumption is <b>almost certainly wrong</b> — the same arithmetic implies only <span class="mono">~120&micro;m</span> of overhead at HBM3E, a <span class="mono">175&micro;m</span> jump in one generation. The branch rows are therefore <b>illustrative of direction, not predictive of thickness</b>, and the two right-hand columns should be read as "what this assumption would imply", not as forecasts.</p>
+<div class="scrollx">
+<table>
+<tr><th>Generation</th><th>Package height</th><th>Layers</th><th>Reported die thickness</th><th>Implied die stack</th><th>Implied non-die overhead</th></tr>
+<tr><td>HBM3E</td><td class="num">720&micro;m<span class="cite">C05</span></td><td class="num">12</td><td class="num">~50&micro;m<span class="cite">C02</span></td><td class="num">600&micro;m</td><td class="num">~120&micro;m</td></tr>
+<tr><td>HBM4</td><td class="num">775&micro;m<span class="cite">C02</span></td><td class="num">16</td><td class="num">~30&micro;m<span class="cite">C01</span></td><td class="num">480&micro;m</td><td class="num">~295&micro;m</td></tr>
+<tr style="background:#2b2028"><td><b>HBM4E branch A</b><br><span class="small">taller package, same 16 layers</span></td><td class="num">~900&micro;m<span class="cite">C05</span></td><td class="num">16</td><td class="num up"><b>~37.8&micro;m (thicker)</b></td><td class="num">~605&micro;m</td><td class="num">assumed 295&micro;m</td></tr>
+<tr style="background:#1c2b28"><td><b>HBM4E branch B</b><br><span class="small">taller package, 20 layers</span></td><td class="num">825&ndash;900&micro;m<span class="cite">C07</span><br><span class="small">computed at 900</span></td><td class="num">20</td><td class="num dn"><b>~30&micro;m (unchanged)</b></td><td class="num">~605&micro;m</td><td class="num">assumed 295&micro;m</td></tr>
+<tr style="background:#1c1f26"><td><b>Branch C — sequence, not fork</b><br><span class="small">A then B, in order</span></td><td class="num">~900&micro;m then 825&ndash;900&micro;m</td><td class="num">16 &rarr; 20</td><td class="num amb2"><b>relief first, then back to ~30&micro;m or below</b></td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+<tr style="background:#1c1f26"><td><b>Branch D — no relief at all</b><br><span class="small">height absorbed by the package, not the dies</span></td><td class="num">~900&micro;m</td><td class="num">16</td><td class="num dn"><b>~30&micro;m unchanged</b></td><td class="num">~480&micro;m</td><td class="num">rises to ~420&micro;m</td></tr>
+</table>
+</div>
+<p class="small"><b>Branch A</b> is relief: dies get roughly <span class="mono">25%</span> thicker, handling gets easier, the difficulty premium falls. This is what the source explicitly says — <i>"the need to process ultra-thin DRAM wafers may decline"</i><span class="cite">C06</span>.</p>
+<p class="small"><b>Branch B</b> is the opposite: same <span class="mono">~30&micro;m</span> target, but <span class="mono">25%</span> more thinned wafers per package, more TSV reveals, more bond/debond cycles. This is what the same source family describes when it says the <span class="mono">825&ndash;900&micro;m</span> range is being weighed <b>for 20-high stacks</b><span class="cite">C07</span>, and it is the branch under which hybrid bonding — reportedly essential at 20 layers<span class="cite">C05</span> — also arrives. <b>But "25% more wafers" needs a denominator, and this run does not have one.</b> Going 16-Hi to 20-Hi puts 25% more dies in a package <i>and</i> 25% more capacity in it. If demand is set by accelerator unit count with a fixed number of HBM sites per package, thinned-wafer volume rises 25%. If demand is set by total DRAM bit demand, the same bits are simply stacked taller and volume is roughly flat. <b>Under the bit-demand denominator branch B is neutral, not an accelerant</b>, and most of the fork's asymmetry disappears. <b>And branch B is worse at the bottom of its range than the top:</b> at <span class="mono">825&micro;m</span> rather than <span class="mono">900&micro;m</span>, the same overhead leaves <span class="mono">530&micro;m</span> for 20 dies, i.e. roughly <span class="mono">26&micro;m</span> each — <b>thinner dies AND more of them</b>.</p>
+<p class="small"><b>The precedent points to branch B.</b> The last height change, <span class="mono">720&micro;m &rarr; 775&micro;m</span>, did not make dies thicker. It bought <b>four more layers at a thinner per-die target</b> (<span class="mono">50&micro;m &rarr; 30&micro;m</span>)<span class="cite">C02</span><span class="cite">C03</span>. If height increases are historically spent on layer count, a relaxation is a demand <i>accelerant</i> for this chain, not a defusal.</p>
+<p class="small" style="margin-bottom:0"><b>And the arithmetic does not close, which is itself the finding.</b> Note the implied non-die overhead: <span class="mono">~120&micro;m</span> at HBM3E but <span class="mono">~295&micro;m</span> at HBM4. A constant-overhead budget cannot reconcile the published height and thickness figures, so the reported <span class="mono">50&micro;m</span> and <span class="mono">30&micro;m</span> are approximations that <b>cannot settle the fork</b>. Both branch rows above therefore inherit that error bar and are marked (est.). <b>Anyone telling you this chain's rent is clearly rising or clearly falling in 2026 is working from numbers that do not reconcile.</b></p>
+</div>
+
+<div class="card">
+<h3 style="margin-top:0">Dissent — an independent teardown that scores this chain differently</h3>
+<p class="small" style="margin-bottom:8px">A self-published Japanese supply-chain teardown of the 16-layer HBM era (2026-06-13) reaches a <b>different</b> conclusion about where the narrowest knot sits.<span class="cite">C29</span></p>
+<div class="scrollx">
+<table>
+<tr><th style="width:24%">&nbsp;</th><th>That teardown</th><th>This run</th></tr>
+<tr><td><b>Binding link</b></td><td>Stacking and <b>bonding</b>, scored 5/5. Equipment for each bonding method limited to one or two suppliers; recipes certified as integrated equipment-plus-material units taking years to validate; bonding cycles rise structurally with layer count.</td><td>Grind/thin (stage 3), co-binding with carrier bond/debond (stage 2).</td></tr>
+<tr><td><b>Wafer thinning</b></td><td>Scored 4/5 — real, but explicitly <i>"not a situation where there are only one or two companies."</i></td><td>Supply concentration scored <b>4/5</b>. <b>This is the direct disagreement.</b></td></tr>
+<tr><td><b>Names it favours</b></td><td>Hanmi Semiconductor (TC bonders), ASMPT, TOWA (molding/encapsulation, ~60% share est.), Resonac (NCF film), Namics (encapsulant); BESI as the 2027&ndash;2028 hybrid-bond beneficiary.</td><td>None underwritten here — they sit at stage 6, outside the handling chain.</td></tr>
+</table>
+</div>
+<p class="small" style="margin-bottom:0"><b>How this run treats the disagreement:</b> not resolved in its own favour. The source is self-published and unauditable, so it establishes no fact — but on the one testable point it raises it has a case: DISCO, Tokyo Seimitsu and Okamoto is <b>three</b> suppliers, not one. <b>If the dissent is right, the 4/5 belongs to the Stage-3 row, which would fall from 15/20 to 14/20.</b> The chain composite already carries a 3 on that factor, so it is unchanged at 14/20 — an earlier draft claimed a 14&rarr;13 composite sensitivity that is not derivable from the published scores. The dissent also names a link this run did not cover at all — molding and encapsulation materials — which is logged as a gap in &sect;19.</p>
+</div>
+
+<p class="small">Severity is <b>derived</b>, not asserted: four factors, each 0&ndash;5, summed to /20, on the same rubric as every prior run. <b>Severity measures industry tightness. It is not expected return.</b></p>
+<div class="scrollx">
+<table>
+<tr><th>Link / name</th><th>Supply concentration</th><th>Lead time &amp; elasticity</th><th>Low substitutability</th><th>Demand intensity</th><th>Severity</th><th>Comment</th></tr>
+<tr>
+<td><b>Stage 3 grind/thin</b><br><span class="small">DISCO <span class="mono">6146.T</span></span></td>
+<td class="num">4</td><td class="num">3</td><td class="num">4</td><td class="num">4</td>
+<td class="num dn"><b>15/20</b></td>
+<td class="small">Est. <span class="mono">65&ndash;80%</span> share in grinders and dicers — a <b>third-hand</b> aggregator restatement of unseen sell-side estimates<span class="cite">C17</span>, loosely supported by a 2022 structural piece<span class="cite">C18</span>. Razor-and-blade consumables attach is real<span class="cite">C18</span>. The dissent<span class="cite">C29</span> argues the 4 should be a 3.</td>
+</tr>
+<tr>
+<td><b>Stage 2 bond/debond tool</b><br><span class="small">SUSS MicroTec <span class="mono">SMHN.DE</span></span></td>
+<td class="num">2</td><td class="num">3</td><td class="num">3</td><td class="num">4</td>
+<td class="num amb2"><b>12/20</b></td>
+<td class="small">Genuinely contested: EV Group, SUSS, TOK and ASMPT all supply it<span class="cite">C16</span>. SUSS pre-built Taiwan bonder capacity back in 2023<span class="cite">C13</span> — capacity is elastic, which caps rent.</td>
+</tr>
+<tr>
+<td><b>Stage 3 second source</b><br><span class="small">Tokyo Seimitsu <span class="mono">7729.T</span></span></td>
+<td class="num">2</td><td class="num">2</td><td class="num">3</td><td class="num">4</td>
+<td class="num"><b>11/20</b></td>
+<td class="small">#2 in grind/dice plus probers and metrology. HPC-including-GenAI heading to roughly <span class="mono">40%</span> of the mix<span class="cite">C19</span>. Diversification cuts both the risk and the purity.</td>
+</tr>
+<tr>
+<td><b>Stage 3 third source</b><br><span class="small">Okamoto <span class="mono">6125.T</span></span></td>
+<td class="num">1</td><td class="num">2</td><td class="num">3</td><td class="num">3</td>
+<td class="num"><b>9/20</b></td>
+<td class="small">Added after adverse review flagged its silent omission. Its <i>existence</i> is what caps the stage-3 concentration score; as a security it is a <span class="mono">~$2m</span>-ADV micro-cap up only <span class="mono">+9.4%</span> YTD<span class="cite">C30</span> — neglected, but neglected for reasons this run did not investigate.</td>
+</tr>
+<tr>
+<td><b>Stage 1 materials</b><br><span class="small">TOK <span class="mono">4186.T</span></span></td>
+<td class="num">3</td><td class="num">2</td><td class="num">3</td><td class="num">3</td>
+<td class="num"><b>11/20</b></td>
+<td class="small">Bond and release materials are a small pool; TOK's exposure is diluted inside a much larger resist business and is not separable in public disclosure.</td>
+</tr>
+<tr>
+<td><b>Laser release layer</b><br><span class="small">EV Group / Brewer Science — <b>private</b></span></td>
+<td class="num">4</td><td class="num">3</td><td class="num">4</td><td class="num">3</td>
+<td class="num dn"><b>14/20</b></td>
+<td class="small"><b>This specific link has no listed vehicle</b> — a narrower claim than "the chain is unbuyable", which is false: see the exclusion list in &sect;3. Do not substitute a listed proxy to get exposure to a private company's position.</td>
+</tr>
+<tr style="background:#1c1f26">
+<td><b>Chain composite</b></td>
+<td class="num">3</td><td class="num">3</td><td class="num">4</td><td class="num">4</td>
+<td class="num dn"><b>14/20</b></td>
+<td class="small"><b>Conditional, not a point estimate.</b> The <span class="mono">14/20</span> is the status-quo reading; under branch B (20-high, more wafers, hybrid bonding) the two factors that rise are demand intensity and low substitutability, <span class="mono">4&rarr;5</span> each, taking the chain to <span class="mono">16/20</span>; under branch A demand intensity falls <span class="mono">4&rarr;3</span> and it reads <span class="mono">13/20</span>. The range is therefore <span class="mono">13&ndash;16</span>, derived from the published factor scores rather than asserted — an earlier draft printed <span class="mono">17</span>, which needed a third upgrade it never named. Quoting a single number for a quantity the report says is undetermined would be false precision. <b>Scored independently for the chain as a whole</b> — it is not the mean of the rows above (that mean is <span class="mono">12.0</span>), because a chain is as tight as its binding link plus its co-binding link, not as tight as its average member. Directionally this is below the run's own back-cast estimate of <span class="mono">~17/20</span> for H2-2025 — but that back-cast is this run's retrospective guess, was never decomposed into the four factors, and <b>no prior artifact scored this chain</b>. Treat the direction as soft and the level as the finding.</td>
+</tr>
+</table>
+</div>
+
+<div class="card amb">
+<h3 style="margin-top:0">Variant perception &amp; disaggregation test</h3>
+<div class="scrollx">
+<table>
+<tr><th style="width:20%">&nbsp;</th><th>Street / consensus narrative</th><th>This run's variant view</th></tr>
+<tr><td><b>The syllogism</b></td><td>16-Hi HBM4 needs <span class="mono">30&micro;m</span> dies &rarr; more thinning steps &rarr; more grinders and bonders &rarr; own the toolmakers.</td><td>Right on units, unresolved on rent. Thinning intensity is a <b>specified</b> requirement, and which way the spec is moving is a genuine fork — not a settled negative, as an earlier draft of this report wrongly claimed.</td></tr>
+<tr><td><b>What is measurable</b></td><td>DISCO shipments hit a record in Q1 FY26<span class="cite">C09</span>.</td><td>The record was carried by <b>consumables and other</b>; <b>equipment missed plan by ~<span class="mono">&yen;3bn</span></b><span class="cite">C08</span>. Consumables track installed-base utilisation; equipment tracks belief in future capacity. <b>Alternative reading, not excluded:</b> a consumables beat can also be customer stocking ahead of a price move. One quarter cannot separate the two.</td></tr>
+<tr><td><b>Disaggregation</b></td><td>"Thin-wafer play" as one basket.</td><td>Split it: <b>unit toll</b> (wheels, blades, per-wafer passes — survives either branch, and <i>grows</i> under branch B) vs <b>difficulty rent</b> (the premium for hitting <span class="mono">30&micro;m</span> rather than <span class="mono">37&micro;m</span> — falls only under branch A). <b>Neither side of this split was quantified in this run</b> — see &sect;19 item 11.</td></tr>
+<tr><td><b>Financialisation filter</b></td><td>Order-book strength at SUSS (<span class="mono">+69.5%</span> YoY) reads as the cycle turning<span class="cite">C11</span>.</td><td>Order intake at a tool vendor is a customer <i>option</i>, not a contract that must be taken in the quarter. SUSS's Q1 revenue fell to <span class="mono">&euro;86.5m</span> with a <span class="mono">4.3%</span> EBIT margin<span class="cite">C11</span> — the order book is real, the earnings power is unproven at this stage of the ramp.</td></tr>
+<tr><td><b>Rent-capture test</b></td><td>Toolmakers capture the scarcity.</td><td>Partially. The customer set is three memory makers plus TSMC — the most concentrated buyer group in the industry, and the one that sits on the committee setting the difficulty. Buyer power here is unusually high whichever branch wins.</td></tr>
+<tr><td><b>Competitive risk not covered</b></td><td>DISCO's share is a fortress.</td><td><b>This run did not examine Chinese domestic tool entrants</b> (thinning, CMP and dicing) — the live structural threat to any <span class="mono">65&ndash;80%</span> share position. A moat scored 4/5 with no entrant analysis behind it is an incomplete moat assessment, and it is flagged as such rather than defended.</td></tr>
+</table>
+</div>
+</div>
+
+<h2>13 · Awareness curve — honestly staged</h2>
+<div class="scrollx">
+<svg class="wide" viewBox="0 0 1020 300" role="img" aria-label="Awareness S-curve with the named companies staged from latent through early, recognition, euphoria and priced">
+  <path d="M40 292 C 240 288, 330 262, 430 192 S 640 72, 980 56" stroke="#2dd4bf" stroke-width="2.5" fill="none"/>
+  <line x1="40" y1="300" x2="980" y2="300" stroke="#343a47"/>
+  <g font-size="11" fill="#6b7283">
+    <text x="46" y="296">LATENT</text><text x="250" y="296">EARLY</text><text x="450" y="296">RECOGNITION</text>
+    <text x="680" y="296">EUPHORIA</text><text x="890" y="296">PRICED</text>
+  </g>
+
+  <line x1="74" y1="196" x2="74" y2="292" stroke="#d4a72c" stroke-dasharray="6 5"/>
+  <text x="82" y="192" fill="#d4a72c" font-size="11">where the next entry hides</text>
+
+  <circle cx="108" cy="290" r="6" fill="#6b7283"/>
+  <text x="86" y="268" fill="#9aa3b2" font-size="11">EVG / Brewer</text>
+  <text class="m" x="86" y="254" fill="#6b7283" font-size="10">private · no vehicle</text>
+
+  <circle cx="157" cy="286" r="6" fill="#6b7283"/>
+  <text x="150" y="240" fill="#9aa3b2" font-size="11">Okamoto · BSPDN module</text>
+  <text class="m" x="150" y="226" fill="#6b7283" font-size="10">neglected / 2027 catalyst</text>
+
+  <circle cx="493" cy="152" r="7" fill="#2dd4bf"/>
+  <text x="330" y="120" fill="#2dd4bf" font-size="12">SUSS MicroTec</text>
+  <text class="m" x="330" y="134" fill="#9aa3b2" font-size="10">+83.1% YTD · -39.5% off high</text>
+
+  <circle cx="615" cy="104" r="7" fill="#d4a72c"/>
+  <text x="520" y="54" fill="#d4a72c" font-size="12">Tokyo Seimitsu</text>
+  <text class="m" x="520" y="68" fill="#9aa3b2" font-size="10">+46.0% YTD · -24.8% off hi</text>
+
+  <circle cx="698" cy="85" r="7" fill="#d4a72c"/>
+  <text x="720" y="112" fill="#d4a72c" font-size="12">Tokyo Ohka</text>
+  <text class="m" x="720" y="126" fill="#9aa3b2" font-size="10">+54.9% YTD · -30.5% off hi</text>
+
+  <circle cx="885" cy="62" r="8" fill="#e07a6a"/>
+  <path d="M890 70 C 922 120, 884 180, 818 206" stroke="#e07a6a" stroke-width="1.5" stroke-dasharray="4 4" fill="none"/>
+  <circle cx="812" cy="208" r="7" fill="#e07a6a" opacity="0.6"/>
+  <text x="520" y="234" fill="#e07a6a" font-size="12">DISCO — through euphoria and unwinding</text>
+  <text class="m" x="520" y="250" fill="#9aa3b2" font-size="10">+14.6% YTD · -40.2% off high</text>
+  <text class="m" x="520" y="266" fill="#6b7283" font-size="10">vs JPY peer median +46.0% / -28.9%</text>
+
+  <text x="40" y="24" fill="#9aa3b2" font-size="11.5">Staged by move and drawdown, not by conviction — this axis is a price proxy, not an awareness measurement. No coverage,</text>
+  <text x="40" y="42" fill="#9aa3b2" font-size="11.5">ownership or consensus data obtained — treat placement as indicative.</text>
+</svg>
+</div>
+<p class="note"><b>The awkward honesty, in two parts.</b> First: in most runs of this rotation the answer to "where is it still early" is a name further left on this curve. Here the genuinely-latent nodes are a <b>private company</b> and a <b>neglected micro-cap</b>. Second, and less comfortable: <b>this run named that micro-cap and then did not underwrite it.</b> Okamoto got a quote and a severity score, not a teardown — no AI exposure, no financials, no explanation of why it has not re-rated. Three full teardowns went to names the report itself stages as Recognition or Euphoria with no dislocation to exploit. Research effort was allocated inversely to where the report says the asymmetry is, and a reader should weigh the &sect;15 watchlist accordingly. And DISCO having fallen 40% does not move it left — a de-rating is not the same as being early.</p>
+
+<h2>14 · Leading-indicator dashboard</h2>
+<p class="small"><b>Honest structural weakness of this table:</b> with the exception of row 0, every trigger below is a <i>confirmation</i> that arrives in a scheduled quarterly disclosure. A reader acting only on confirmed triggers will by construction arrive after the tape — which is the failure mode this whole rotation exists to avoid. The two genuinely leading edges this run found are row 0 and SUSS's order book, and the latter has already fired. Each row states what would have to be observed, and where an amateur can read it for free. Rows are marked <span class="mono">[quant]</span> where a numeric threshold exists and <span class="mono">[binary]</span> where the trigger is an event, because three of these are honestly not quantitative.</p>
+<div class="scrollx">
+<table>
+<tr><th>#</th><th>Signal</th><th>Trigger</th><th>Reads which way</th><th>Where an amateur reads it (free)</th></tr>
+<tr><td class="num">1</td><td><b>Which branch the height relaxation buys</b> — the fork in &sect;12, and the highest-value unknown in this run</td><td><span class="mono">[quant]</span> A next-gen HBM product page or datasheet stating BOTH package z-height and layer count. Height <span class="mono">&ge;825&micro;m</span> at <b>16 layers</b> = branch A (relief). Height <span class="mono">&ge;825&micro;m</span> at <b>20 layers</b> = branch B (more work).</td><td class="amb2">Decides the sign of the whole thesis</td><td>SK hynix / Samsung / Micron HBM product pages and spec sheets — these publish z-height and stack height. <b>Do not rely on jedec.org:</b> JEDEC does not publish a ratification calendar and dimensional tables sit inside registration-gated PDFs. <b>Unverified assumption:</b> this run did <i>not</i> confirm that any vendor publishes package z-height together with layer count on a free page — HBM mechanical dimensions are often NDA-gated. If they are not free, route this instead through SEMICON/IEDM/VLSI conference papers or supplier commentary, and note that the &sect;17 discard-by falsifier would then be firing on <b>unobservability</b>, not on disconfirmation.</td></tr>
+<tr style="background:#1c2b28"><td class="num">0</td><td><b>DISCO monthly shipment release</b> — the only genuinely LEADING free signal in this table</td><td><span class="mono">[quant]</span> Monthly shipments rolling over before the quarterly print confirms it</td><td class="up">Weeks of lead on every other row here</td><td>disco.co.jp IR — published monthly, in Japanese and English. <b>Caveat:</b> it is a single total, not split by equipment vs consumables, so it cannot substitute for row 2.</td></tr>
+<tr><td class="num">2</td><td><b>DISCO equipment-vs-consumables split</b></td><td><span class="mono">[quant]</span> Equipment shipments below plan for a <b>second</b> consecutive quarter (Q2 FY26 reports around Oct 2026)</td><td class="dn">Confirms tool demand, not utilisation, is rolling</td><td>DISCO IR — monthly shipment disclosure and the quarterly tanshin (the Japanese short-form earnings statement), both free on disco.co.jp</td></tr>
+<tr><td class="num">3</td><td><b>SUSS order intake / book-to-bill</b></td><td><span class="mono">[quant]</span> Quarterly order intake below <span class="mono">&euro;110m</span>, or order book falling QoQ from <span class="mono">&euro;330.1m</span>. <b>Derivation:</b> <span class="mono">&euro;110m</span> is roughly the midpoint of FY26 revenue guidance (<span class="mono">&euro;425&ndash;485m</span>) divided by four, i.e. the level at which book-to-bill falls to about <span class="mono">1.0</span> and the backlog stops growing. It is a convention, not a company disclosure.</td><td class="dn">Kills the "orders lead revenue" case</td><td>suss.com investor relations quarterly statements (the source of<span class="cite">C11</span>)</td></tr>
+<tr><td class="num">4</td><td><b>TSMC A16 / Super Power Rail timing</b></td><td><span class="mono">[binary]</span> Any restatement moving volume production earlier or later than 2027. <b>Honest caveat:</b> a pull-in to 2026 is now close to physically impossible, so this row is realistically a one-sided (bearish) signal.</td><td class="amb2">A further push-out defers the BSPDN leg again</td><td>TSMC quarterly earnings-call transcript and the annual Technology Symposium deck, both public</td></tr>
+<tr><td class="num">5</td><td><b>20-Hi stack qualification</b></td><td><span class="mono">[binary]</span> Any named 20-Hi HBM qualification or hybrid-bond production announcement from SK hynix, Samsung or Micron</td><td class="up">Confirms branch B — the strongest bullish trigger for the chain</td><td>SK hynix / Samsung Semiconductor / Micron newsrooms</td></tr>
+<tr><td class="num">6</td><td><b>DISCO OSAT mix ratio</b></td><td><span class="mono">[quant]</span> OSAT ratio recovering above <span class="mono">35%</span> after the guided drop to <span class="mono">30%</span><span class="cite">C10</span></td><td class="up">Broadening packaging demand beyond captive TSMC</td><td>DISCO quarterly earnings-call coverage; the ratio is disclosed each quarter</td></tr>
+<tr><td class="num">7</td><td><b>Advanced-packaging allocation</b></td><td><span class="mono">[binary]</span> TSMC commentary implying a material change to the <span class="mono">~130k</span> wpm late-2026 CoWoS target<span class="cite">C25</span>. <b>Caveat:</b> TSMC does not disclose CoWoS wafers-per-month directly, so this is read from capex and qualitative commentary, not a printed number.</td><td class="amb2">Sets the unit-toll ceiling for the whole chain</td><td>TSMC quarterly call; TrendForce free news items</td></tr>
+</table>
+</div>
+
+<h2>15 · Still-latent watchlist — where the next entry actually hides</h2>
+<div class="grid3">
+<div class="card teal">
+<h3 style="margin-top:0">1 · Laser release layer + post-debond residue clean</h3>
+<p class="small"><b>Why next:</b> as dies thin, mechanical peel becomes the yield risk, and the reported real bottleneck is the residue clean after release, not the release<span class="cite">C14</span>. That is a materials-and-chemistry problem — structurally the most defensible position in the chain.</p>
+<p class="small"><b>Trigger:</b> a listed materials supplier breaking out a temporary-bond / release-layer revenue line, or a licensing deal putting EVG's IR LayerRelease into a listed vendor's platform.</p>
+<p class="small"><b>Track it:</b> EVG and Brewer Science press rooms; TOK and Shin-Etsu segment disclosures; SEMICON Korea / Taiwan session titles.</p>
+<p class="small" style="color:var(--red);margin-bottom:0"><b>Constraint: EV Group and Brewer Science are private.</b> This specific link has no listed vehicle. Naming it is not the same as being able to buy it.</p>
+</div>
+<div class="card teal">
+<h3 style="margin-top:0">2 · Okamoto Machine Tool <span class="mono">6125.T</span> — the neglected third source</h3>
+<p class="small"><b>Why next:</b> its existence is what caps the stage-3 supply-concentration score, and it is the only listed name in this chain that has <i>not</i> re-rated — <span class="mono">+9.4%</span> YTD against a Tokyo semi-cap peer median of <span class="mono">+46%</span>, and only <span class="mono">-18.7%</span> off its high<span class="cite">C30</span>. Left-of-curve by construction.</p>
+<p class="small"><b>Trigger:</b> any disclosure of AI or HBM-related grinder orders, or a share-gain datapoint against DISCO.</p>
+<p class="small"><b>Track it:</b> Okamoto IR (Japanese); DISCO and Tokyo Seimitsu Q&amp;A for share commentary.</p>
+<p class="small" style="color:var(--red);margin-bottom:0"><b>Constraint — read this before anything else:</b> roughly <span class="mono">$2m</span> average daily volume. This run did <b>not</b> examine why it is cheap, its AI exposure, or its financials. It is a <span class="mono">HYPOTHESIS</span> with a liquidity problem, listed here because omitting it silently was the fair criticism of the first draft — not because it is a candidate.</p>
+</div>
+<div class="card teal">
+<h3 style="margin-top:0">3 · Back-grinding &amp; dicing tape <span class="mono">6988.T</span> · <span class="mono">7966.T</span></h3>
+<p class="small"><b>Why next — and why this is the item that most deserves the next run's time:</b> tape is consumed on <i>every wafer</i> through the exact step this report names as the chokepoint. It is a pure <b>unit toll</b>, so it survives both branches of &sect;12's fork and grows under branch B, while the difficulty rent that the toolmakers earn does not. Nitto Denko and Lintec are Tokyo-listed and liquid.</p>
+<p class="small"><b>Trigger:</b> a segment disclosure sizing semiconductor tape revenue, or any tape qualification announcement tied to sub-<span class="mono">30&micro;m</span> handling.</p>
+<p class="small"><b>Track it:</b> Nitto Denko and Lintec segment reporting; SEMI consumables sessions.</p>
+<p class="small" style="color:var(--red);margin-bottom:0"><b>Constraint:</b> <b>zero analysis was done here.</b> Exposure is almost certainly diluted inside large diversified materials companies, and this run has not checked. Listed as the strongest lead for the next run, not as a candidate.</p>
+</div>
+<div class="card teal">
+<h3 style="margin-top:0">4 · The BSPDN backside-process module</h3>
+<p class="small"><b>Why next:</b> backside power makes carrier-bonding mandatory on <i>leading-edge logic</i> wafers, not just packaging wafers — far higher value at risk per wafer. The one leg where the requirement is absolute rather than negotiable.</p>
+<p class="small"><b>Trigger:</b> TSMC moving A16 Super Power Rail volume earlier<span class="cite">C21</span>, or Intel disclosing 18A/14A backside-power volume economics.</p>
+<p class="small"><b>Track it:</b> TSMC Technology Symposium; IEDM and VLSI paper titles; AMAT and Lam launches naming backside modules.</p>
+<p class="small" style="margin-bottom:0"><b>Constraint:</b> every listed vehicle (AMAT, Lam, TEL, ASMI) is heavily diluted — backside is a small slice of a large company. Panel-level (FOPLP) thin-panel handling is a fourth candidate on the same logic, with genuinely unknown timing.</p>
+</div>
+</div>
+
+<h2>16 · Top-3 teardowns — three different links</h2>
+<div class="tabs">
+  <input type="radio" name="tabs" id="t1" checked>
+  <div class="tabpanelwrap" role="tabpanel" id="p1" tabindex="0" aria-labelledby="lt1">
+    <h3 style="margin-top:0">DISCO Corporation · <span class="mono">6146.T</span> · Tokyo &mdash; the grind/thin/dice tollgate <span class="badge b-watch">WATCH</span></h3>
+    <div class="vstrip">
+      <div>Last<b class="mono">&yen;54,868</b></div>
+      <div>YTD<b class="mono">+14.6%</b></div>
+      <div>vs JPY peers<b class="mono">-31pp</b></div>
+      <div>From 52w high<b class="mono">-40.2%</b></div>
+      <div>Severity<b class="mono">15/20</b></div>
+      <div>90d avg USD volume<b class="mono">~$820m</b></div>
+    </div>
+    <p class="small"><b>Hard financial anchor:</b> FY26 Q1 (Apr&ndash;Jun 2026) net sales <span class="mono">&yen;95bn</span>, <b>+26% YoY</b>, above plan; total shipments <span class="mono">&yen;135.9bn</span> vs <span class="mono">&yen;132bn</span> forecast — but equipment ~<span class="mono">&yen;3bn</span> short, with consumables +<span class="mono">&yen;2bn</span> and other +<span class="mono">&yen;5bn</span> carrying it.<span class="cite">C08</span><span class="cite">C09</span> Q2 shipment guide <span class="mono">~&yen;141bn</span>.<span class="cite">C10</span> <b>Reconciliation note:</b> the sources also report a record <b>non-consolidated</b> net shipment figure of <span class="mono">&yen;116.5bn</span><span class="cite">C09</span>; consolidated and non-consolidated bases are not reconciled in this run, so the two figures should not be compared directly.</p>
+    <ul>
+      <li><span class="cn">① 怎麼賺錢</span> — sells precision grinders, dicing saws and laser dicers, then sells the diamond wheels and blades that wear out in them. A razor-and-blade model on top of a capital-equipment model.<span class="cite">C18</span></li>
+      <li><span class="cn">② 營收結構</span> — equipment plus consumables and service. The Q1 mix is the story: consumables and "other" beat, equipment missed.<span class="cite">C08</span> Q1 end-market ratios: OSAT <span class="mono">35%</span>, memory <span class="mono">35%</span>, power semis just under <span class="mono">10%</span>.<span class="cite">C08</span></li>
+      <li><span class="cn">③ 成長來源</span> — every additional HBM layer, chiplet and backside-power wafer adds grind and dice passes. Growth is passes-per-wafer times wafers, plus consumable attach on an expanding installed base. <b>Under branch B of &sect;12's fork this accelerates; under branch A the passes stay but the premium compresses.</b></li>
+      <li><span class="cn">④ 終端市場</span> — AI/HBM memory, OSAT advanced packaging, and a power-semiconductor tail (just under <span class="mono">10%</span> in Q1<span class="cite">C08</span>) that is a genuine non-AI diversifier and a genuine drag when EV demand is weak.</li>
+      <li><span class="cn">⑤ 主要客戶</span> — the memory three (SK hynix, Samsung, Micron), TSMC, and the OSATs. Extremely concentrated buyer set, and the same set that writes the JEDEC package spec.</li>
+      <li><span class="cn">⑥ 護城河</span> — estimated <span class="mono">65&ndash;80%</span> share in grinders and dicers on third-hand sell-side estimates<span class="cite">C17</span>, plus decades of process recipes and consumables lock-in. Bounded: DISCO has very <i>low</i> share in CMP, where Applied Materials and Ebara dominate<span class="cite">C18</span>. <b>Not assessed here:</b> Chinese domestic entrants in thinning and dicing, the live structural threat to that share.</li>
+      <li><span class="cn">⑦ 管理層展望</span> — the CFO framed HBM as lumpy quarter to quarter across multiple customers, with general-purpose memory still a large share of the mix.<span class="cite">C08</span> The Q2 guide embeds a <span class="mono">5pp</span> fall in the OSAT ratio.<span class="cite">C10</span></li>
+      <li><span class="cn">⑧ 為何是卡點</span> — because you cannot get from a <span class="mono">775&micro;m</span> wafer to a <span class="mono">30&micro;m</span> die without this step, and the supply base for it is three names deep with one holding most of it.</li>
+    </ul>
+    <div class="card amb" style="margin-top:14px"><p class="small" style="margin:0"><b>Asymmetric information gap:</b> DISCO discloses shipments <i>monthly</i>, and splits equipment from consumables in its quarterly call. An amateur reading those two free disclosures side by side sees the equipment-vs-utilisation divergence <b>before</b> it reaches a headline revenue number. That is a genuine, free, repeatable edge — and it currently reads negative.</p></div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="card teal"><p class="small" style="margin:0"><b>Bull</b> — record shipments, an installed base that consumes wheels and blades regardless of capex mood, and a <span class="mono">-40%</span> drawdown that has discounted a lot. If &sect;12's branch B is the one that lands — a taller package bought with 20 layers — the unit toll <i>rises</i> and hybrid bonding arrives too, in a company holding most of the step.</p></div>
+      <div class="card red"><p class="small" style="margin:0"><b>Bear</b> — A16 deferred to 2027<span class="cite">C21</span>, hybrid bonding postponed at HBM4<span class="cite">C04</span>, an equipment miss inside a headline beat<span class="cite">C08</span>, a buyer set that both concentrates purchasing power and writes the spec, and an unexamined Chinese-entrant risk under a <span class="mono">65&ndash;80%</span> share. <span class="mono">-31pp</span> against its own currency-neutral peers may be the correct answer, not the opportunity.</p></div>
+    </div>
+  </div>
+
+  <input type="radio" name="tabs" id="t2">
+  <div class="tabpanelwrap" role="tabpanel" id="p2" tabindex="0" aria-labelledby="lt2">
+    <h3 style="margin-top:0">SUSS MicroTec SE · <span class="mono">SMHN.DE</span> · Xetra &mdash; the temporary bond/debond tool <span class="badge b-watch">WATCH</span></h3>
+    <div class="vstrip">
+      <div>Last<b class="mono">&euro;71.65</b></div>
+      <div>YTD<b class="mono">+83.1%</b></div>
+      <div>From 52w high<b class="mono">-39.5%</b></div>
+      <div>Above 52w low<b class="mono">+198.5%</b></div>
+      <div>Severity<b class="mono">12/20</b></div>
+      <div>90d avg USD volume<b class="mono">~$12m</b></div>
+    </div>
+    <p class="small"><b>Hard financial anchor (issuer primary):</b> Q1 2026 order intake <span class="mono">&euro;149.3m</span> <b>+69.5% YoY, a record</b>; order book <span class="mono">&euro;330.1m</span> (+23.7% vs <span class="mono">&euro;266.8m</span> at end-2025); sales <span class="mono">&euro;86.5m</span> (vs <span class="mono">&euro;124.9m</span>); gross margin <span class="mono">36.1%</span>; <b>EBIT margin <span class="mono">4.3%</span></b> (vs <span class="mono">18.0%</span>); FY26 guidance sales <span class="mono">&euro;425&ndash;485m</span>, EBIT margin <span class="mono">8&ndash;10%</span>.<span class="cite">C11</span></p>
+    <ul>
+      <li><span class="cn">① 怎麼賺錢</span> — sells bonders (temporary and permanent), coaters/developers and photomask equipment, plus service. The relevant product here is the XBS300 temporary bonder built in Hsinchu.<span class="cite">C13</span></li>
+      <li><span class="cn">② 營收結構</span> — Bonding Solutions plus Photomask Solutions plus Lithography. Bonding was roughly half of segment order intake in Q1 while bonding revenue fell sharply on delivery timing<span class="cite">C12</span> — a large gap between what is sold and what is shipped.</li>
+      <li><span class="cn">③ 成長來源</span> — management attributes the order surge to "significantly higher demand from key customers for solutions used in the value chain for AI chip modules"<span class="cite">C11</span>. Every carrier-bonded wafer in HBM, 3D logic and eventually BSPDN is addressable.</li>
+      <li><span class="cn">④ 終端市場</span> — AI chip modules first, then MEMS, power and compound semiconductors where temporary bonding has been standard for a decade.</li>
+      <li><span class="cn">⑤ 主要客戶</span> — not named in the release; the 2023 capacity build was for "one of the world's leading foundries"<span class="cite">C13</span>. Concentration is high and undisclosed, which is itself a risk.</li>
+      <li><span class="cn">⑥ 護城河</span> — thinner than DISCO's. EV Group, TOK and ASMPT all supply bonding and debonding<span class="cite">C16</span>. <b>No reliable share figure for SUSS in temporary bonders was obtained in this run</b> — an earlier draft carried an unsourced "roughly a fifth" and it has been removed. The moat is best described as qualification lock-in at a named customer, not measured share.</li>
+      <li><span class="cn">⑦ 管理層展望</span> — 2026 framed as a transition year with Q1 the low point<span class="cite">C12</span>; FY26 EBIT margin guided to <span class="mono">8&ndash;10%</span> against <span class="mono">4.3%</span> delivered in Q1<span class="cite">C11</span>. A steep required ramp in the back half.</li>
+      <li><span class="cn">⑧ 為何是卡點</span> — a wafer below about <span class="mono">100&micro;m</span> can no longer self-support through backside processing and needs a carrier<span class="cite">C14</span>. <b>Note what this threshold does to the fork:</b> even branch A's thicker <span class="mono">~38&micro;m</span> dies sit far below <span class="mono">100&micro;m</span>, so carrier bond/debond stays mandatory under <i>every</i> branch. The step is unavoidable; the <i>supplier</i> is not.</li>
+    </ul>
+    <div class="card amb" style="margin-top:14px"><p class="small" style="margin:0"><b>Asymmetric information gap:</b> SUSS publishes order intake and order book every quarter, free, one to three quarters ahead of the revenue that follows. Almost no one outside Germany reads this small cap's Q1 statement — the <span class="mono">+69.5%</span> number sat there for two months before any of it reached the tape<span class="cite">C11</span>. <b>Counter-caution:</b> a tool order is a customer option, not a commitment, and at roughly <span class="mono">$12m</span> of 90-day average daily USD volume, position sizing — not thesis quality — is the binding constraint. <b>Market capitalisation was not obtained in this run</b> and an earlier draft's estimate has been removed as unsourced.</p></div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="card teal"><p class="small" style="margin:0"><b>Bull</b> — a record order book at <span class="mono">&euro;330.1m</span> against <span class="mono">&euro;425&ndash;485m</span> of guided FY26 sales, an explicit AI-chip-module attribution from the issuer, and an EBIT margin at a cyclical trough that management guides to roughly double. Orders lead revenue; the tape has not paid for this yet.</p></div>
+      <div class="card red"><p class="small" style="margin:0"><b>Bear</b> — still <span class="mono">+83%</span> YTD and nearly <span class="mono">200%</span> above its 52-week low, so not a cheap or unnoticed asset. A <span class="mono">4.3%</span> EBIT margin on falling revenue is real deterioration, not just timing. Capacity was pre-built for this demand in 2023<span class="cite">C13</span>, and elastic supply caps rent. Branch A would compress the premium on the hardest bonding work — though, per point ⑧, not the requirement itself.</p></div>
+    </div>
+  </div>
+
+  <input type="radio" name="tabs" id="t3">
+  <div class="tabpanelwrap" role="tabpanel" id="p3" tabindex="0" aria-labelledby="lt3">
+    <h3 style="margin-top:0">Tokyo Seimitsu (ACCRETECH) · <span class="mono">7729.T</span> · Tokyo &mdash; the second source, plus test <span class="badge b-watch">WATCH</span></h3>
+    <div class="vstrip">
+      <div>Last<b class="mono">&yen;16,035</b></div>
+      <div>YTD<b class="mono">+46.0%</b></div>
+      <div>vs JPY peers<b class="mono">~0pp</b></div>
+      <div>From 52w high<b class="mono">-24.8%</b></div>
+      <div>Severity<b class="mono">11/20</b></div>
+      <div>90d avg USD volume<b class="mono">~$52m</b></div>
+    </div>
+    <p class="small"><b>Hard financial anchor (issuer, est. read):</b> FY2026/3 nine-month sales <span class="mono">&yen;113.0bn</span> (+10% YoY), operating profit <span class="mono">&yen;20.9bn</span> (+10% YoY, <span class="mono">19%</span> margin); full-year forecast revised to <span class="mono">&yen;165.0bn</span> sales (+10%) and <span class="mono">&yen;32.0bn</span> operating profit (+8%, <span class="mono">19%</span> margin). HPC-including-generative-AI contribution expected to rise to roughly <span class="mono">40%</span>.<span class="cite">C19</span></p>
+    <ul>
+      <li><span class="cn">① 怎麼賺錢</span> — two segments: semiconductor production equipment (grinders, dicers, laser dicers, probers) and metrology. Sells the same thinning step as DISCO plus the test-handling step next to it.</li>
+      <li><span class="cn">② 營收結構</span> — SPE plus Metrology, both revised upward in FY2026/3<span class="cite">C20</span>. Materially more diversified than DISCO, and materially less levered to any single AI step.</li>
+      <li><span class="cn">③ 成長來源</span> — the issuer reports strong inquiries for high-precision probers, grinders and laser dicers, and strong HBM test demand, with HPC/GenAI heading toward roughly <span class="mono">40%</span> of the mix<span class="cite">C19</span>.</li>
+      <li><span class="cn">④ 終端市場</span> — AI/HBM, logic test, plus a broad legacy semiconductor and industrial metrology base that dampens the cycle in both directions.</li>
+      <li><span class="cn">⑤ 主要客戶</span> — memory makers, OSATs, logic fabs and test houses; not disclosed at useful granularity.</li>
+      <li><span class="cn">⑥ 護城河</span> — a credible number-two in grind and dice, a real position in a three-supplier world but structurally a price-taker to the leader. The prober and metrology franchises are the more defensible parts.</li>
+      <li><span class="cn">⑦ 管理層展望</span> — upward revisions to both segments on current shipment and sales plans<span class="cite">C20</span>, HPC contribution guided higher on first-half order strength<span class="cite">C19</span>. Steadier tone than DISCO's, partly because the base is less AI-concentrated.</li>
+      <li><span class="cn">⑧ 為何是卡點</span> — it is not, on its own. It is here because a chokepoint with three credible suppliers is a different risk from one with one, and because its HBM-test exposure gives a second, partly independent read on the same demand.</li>
+    </ul>
+    <div class="card amb" style="margin-top:14px"><p class="small" style="margin:0"><b>Asymmetric information gap:</b> ACCRETECH publishes a full English Q&amp;A summary after every quarterly earnings conference — an unusually candid free document for a Japanese mid-cap, and the source of the <span class="mono">40%</span> HPC figure<span class="cite">C19</span>. Reading DISCO's and ACCRETECH's Q&amp;As together separates company-specific share shifts from genuine end-demand moves. <b>Caveat:</b> the figures above were extracted from search results over the issuer PDF rather than a full render, so treat them as (est. read) pending a direct check.</p></div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="card teal"><p class="small" style="margin:0"><b>Bull</b> — the shallowest drawdown in the chain at <span class="mono">-24.8%</span>, a <span class="mono">19%</span> operating margin, upward revisions to both segments, and rising HPC mix. If thin-wafer volumes grow while the difficulty premium compresses (branch A with volume), the diversified number-two is structurally a better place than the premium-priced leader.</p></div>
+      <div class="card red"><p class="small" style="margin:0"><b>Bear</b> — dilution cuts both ways: at roughly <span class="mono">40%</span> HPC, more than half the business is legacy semis and metrology, so this is not a clean expression of the thesis. It is a price-taker behind DISCO in the step that matters, its severity score is <span class="mono">11/20</span>, and it is performing exactly in line with its Japanese peer group — i.e. there is no visible dislocation to exploit.</p></div>
+    </div>
+  </div>
+
+  <div class="tabbar" role="tablist">
+    <label for="t1" id="lt1" tabindex="0" role="tab" aria-controls="p1" aria-selected="true">DISCO · 6146.T</label>
+    <label for="t2" id="lt2" tabindex="-1" role="tab" aria-controls="p2" aria-selected="false">SUSS MicroTec · SMHN.DE</label>
+    <label for="t3" id="lt3" tabindex="-1" role="tab" aria-controls="p3" aria-selected="false">Tokyo Seimitsu · 7729.T</label>
+  </div>
+</div>
+
+<h2>17 · Decision table</h2>
+<div class="scrollx">
+<table>
+<tr><th>Name</th><th>Its chokepoint</th><th>Severity</th><th>Stage</th><th>Valuation read</th><th>Remaining asymmetry</th><th>State</th><th>Typed trigger &rarr; typed falsifier</th></tr>
+<tr style="background:#2b2028">
+<td><b>THE THESIS ITSELF</b><br><span class="small">"the chain's rent is spec-determined"</span></td>
+<td>&mdash;</td><td class="num">&mdash;</td><td>&mdash;</td>
+<td class="small">n/a</td>
+<td class="small">This is the row an earlier draft omitted. The claim that most needed a falsifier had none.</td>
+<td><span class="badge b-hypo">HYPOTHESIS</span></td>
+<td class="small"><b>Resolution</b> (<span class="mono">event</span>): a next-gen HBM spec or product page stating height <b>and</b> layer count (&sect;14 signal 1). Height up at 16 layers = branch A; height up at 20 layers = branch B.<br><b>Falsifier</b> (<span class="mono">data_quality</span>): if no such disclosure exists by <span class="mono">2026-12-31</span>, this framework is <b>unfalsifiable in practice</b> and should be discarded rather than carried forward as a soft bearish prior.<br><b>Next review</b> 2026-10-31.</td>
+</tr>
+<tr>
+<td><b>DISCO</b><br><span class="mono">6146.T</span></td>
+<td>Grind / thin / dice</td><td class="num dn">15/20</td><td>Euphoria &rarr; unwinding</td>
+<td class="small"><b>None obtained.</b> No multiple, market cap, or earnings anchor was pulled. The word "cheap" is therefore unavailable to this run, and so is "expensive".</td>
+<td class="small">Genuinely two-sided and unresolved — it depends entirely on which branch of &sect;12 lands.</td>
+<td><span class="badge b-watch">WATCH</span></td>
+<td class="small"><b>Trigger</b> (<span class="mono">fundamental</span>): equipment shipments back above plan <i>and</i> OSAT ratio above 35%.<br><b>Falsifier</b> (<span class="mono">fundamental</span>): a second consecutive quarter of equipment below plan &rarr; <span class="mono">HYPOTHESIS</span>.<br><b>Lapse condition</b> (<span class="mono">event</span>): if no &sect;14 signal has fired by the Q3 FY26 print, the WATCH lapses rather than rolling on.<br><b>Next review</b> ~Oct 2026. <b>Expiry</b> 2026-12-31.</td>
+</tr>
+<tr>
+<td><b>SUSS MicroTec</b><br><span class="mono">SMHN.DE</span></td>
+<td>Temporary bond / debond</td><td class="num amb2">12/20</td><td>Recognition</td>
+<td class="small"><b>None obtained.</b> The thing being underwritten is the FY26 guide (8&ndash;10% EBIT from 4.3%), not the price.</td>
+<td class="small">Moderate — the order-book-leads-revenue gap is real and free to observe. Capped by elastic supply and by <span class="mono">~$12m</span> ADV.</td>
+<td><span class="badge b-watch">WATCH</span></td>
+<td class="small"><b>Trigger</b> (<span class="mono">expectations</span>): a second consecutive record order-intake quarter <i>with</i> EBIT margin recovering toward guidance.<br><b>Falsifier</b> (<span class="mono">fundamental</span>): order intake below &euro;110m or order book falling QoQ &rarr; <span class="mono">HYPOTHESIS</span>.<br><b>Next review</b> Q2 2026 statement. <b>Expiry</b> 2026-12-31.</td>
+</tr>
+<tr>
+<td><b>Tokyo Seimitsu</b><br><span class="mono">7729.T</span></td>
+<td>Second-source grind + HBM test</td><td class="num">11/20</td><td>Recognition</td>
+<td class="small"><b>None obtained.</b> 19% operating margin with upward revisions is an earnings fact, not a valuation.</td>
+<td class="small">Low — it is performing in line with its peer group, so there is no dislocation to exploit.</td>
+<td><span class="badge b-watch">WATCH</span></td>
+<td class="small"><b>Trigger</b> (<span class="mono">fundamental</span>): HPC/GenAI mix confirmed above 40% with SPE orders still rising.<br><b>Falsifier</b> (<span class="mono">fundamental</span>): downward revision to the SPE segment &rarr; <span class="mono">HYPOTHESIS</span>.<br><b>Next review</b> next quarterly Q&amp;A. <b>Expiry</b> 2026-12-31.</td>
+</tr>
+<tr>
+<td><b>Okamoto</b><br><span class="mono">6125.T</span></td>
+<td>Third-source grind</td><td class="num">9/20</td><td>Latent / neglected</td>
+<td class="small"><b>None obtained</b>, and no business analysis was done at all.</td>
+<td class="small">Unknown. Cheap-looking and un-re-rated, but this run does not know why.</td>
+<td><span class="badge b-hypo">HYPOTHESIS</span></td>
+<td class="small"><b>Trigger</b> (<span class="mono">data_quality</span>): a proper teardown — AI exposure, financials, and why it has not re-rated — before any other consideration.<br><b>Falsifier</b>: none carried; no thesis exists yet.<br><b>Hard constraint</b> (<span class="mono">liquidity</span>): <span class="mono">~$2m</span> ADV. <b>Expiry</b> 2026-12-31.</td>
+</tr>
+<tr>
+<td><b>Tokyo Ohka</b><br><span class="mono">4186.T</span></td>
+<td>Bond / release materials</td><td class="num">11/20</td><td>Recognition</td>
+<td class="small">Not underwritten this run.</td>
+<td class="small">Unknown — exposure not separable from the resist business in public disclosure.</td>
+<td><span class="badge b-hypo">HYPOTHESIS</span></td>
+<td class="small"><b>Trigger</b> (<span class="mono">data_quality</span>): a segment disclosure separating temporary-bond materials revenue.<br><b>Falsifier</b>: none needed — no thesis is being carried. <b>Expiry</b> 2026-12-31.</td>
+</tr>
+<tr>
+<td><b>EV Group · Brewer Science</b></td>
+<td>Laser release + residue chemistry</td><td class="num dn">14/20</td><td>Latent</td>
+<td class="small">n/a</td><td class="small">Highest in the chain on <i>asymmetry</i> — a different axis from severity, and unreachable either way.</td>
+<td><span class="badge b-avoid">NO VEHICLE</span></td>
+<td class="small">Monitor only. Do <b>not</b> substitute a listed proxy for a private company's position.</td>
+</tr>
+</table>
+</div>
+<div class="card red">
+<p style="margin-bottom:6px"><b>If you can only do one thing:</b> resolve &sect;12's fork before forming any view on any name here. The test is one observation — the next-generation HBM spec stating <b>both</b> package height and layer count. Height up at 16 layers means the chain's difficulty premium is falling. Height up at 20 layers means it is rising, and rising a lot. Everything else in this report is downstream of that single fact, and this run does not know it.</p>
+<p class="small" style="margin:0"><b>After-cost portfolio impact of this run: zero.</b> No paper decision was opened, so there is no spread, slippage, commission, FX, financing, turnover or maximum-loss contribution to report. Correlated-thesis exposure is unchanged. All rows are <span class="mono">WATCH</span> or <span class="mono">HYPOTHESIS</span>, which by this skill's rules carry no size — which also means their falsifiers cost nothing when they fire. The one falsifier with real consequence is the thesis row at the top of the table.</p>
+</div>
+
+<h2>18 · What changed between draft and final</h2>
+<div class="card">
+<p class="small">This run was reviewed adversarially before completion and the review changed the conclusion, not just the presentation. Recorded here because a reader deserves to see the correction rather than a clean surface.</p>
+<table>
+<tr><th>Draft claim</th><th>What review found</th><th>Final position</th></tr>
+<tr><td>"The height relaxation is defusing the thinning chokepoint; the de-rating is rational."</td><td>The run's own register contained the contradicting precedent (<span class="mono">720&rarr;775&micro;m</span> bought layers, not thickness<span class="cite">C02</span><span class="cite">C03</span>) and the source's own framing of <span class="mono">825&ndash;900&micro;m</span> as being <i>for 20-high stacks</i><span class="cite">C07</span>. Neither was cited in the argument.</td><td class="amb2">Replaced with the explicit two-branch fork and its arithmetic (&sect;12), which does not resolve.</td></tr>
+<tr><td>"The de-rating is a rational discount, not a gift."</td><td>A valuation claim with no valuation data anywhere in the run.</td><td class="amb2">Withdrawn. &sect;17 now says "none obtained" in every valuation cell.</td></tr>
+<tr><td>"-51.3pp vs SOXX."</td><td>A JPY return subtracted from a USD return — part performance, part yen.</td><td class="amb2">Replaced with a same-currency Tokyo peer set (&sect;4): <span class="mono">-31pp</span>, currency-neutral.</td></tr>
+<tr><td>"The purest link has no listed vehicle" &rarr; read as "the chain is unbuyable".</td><td>Okamoto, ASMPT, Ebara, AGC and Corning were named in the report's own diagrams and never evaluated; the exclusion list sat in a file the reader never sees.</td><td class="amb2">Exclusion list moved into &sect;3; Okamoto added to the tables and watchlist; the "no vehicle" claim narrowed to the release-layer link only.</td></tr>
+<tr><td>"+3.8% QoQ against +22.3% YoY" as deceleration evidence.</td><td>Two different series. The like-for-like figure was never obtained.</td><td class="amb2">Caveated in &sect;2 and removed from the evidence base.</td></tr>
+<tr><td>SUSS "roughly a fifth of the market", "a &euro;2bn-ish small cap".</td><td>Neither figure appears in the source register; the market cap was also materially wrong.</td><td class="amb2">Both deleted.</td></tr>
+<tr><td>Causal attribution of the drawdown to April 2026 events.</td><td>No bar history was available, so the peak date is unknown; the attribution was impossible to support.</td><td class="amb2">All dated causal claims removed.</td></tr>
+<tr style="background:#1c1f26"><td colspan="3"><b>Round 2 — a second pair of independent reviewers, on the revised draft</b></td></tr>
+<tr><td>"The two branches are an unresolvable fork."</td><td>C-05/C-06 describe HBM4E; C-07 describes 20-high. Plausibly two generations <i>in sequence</i>, not exclusive outcomes — in which case both happen and the fork is a timing question. A fourth reading (extra height absorbed by a thicker base die and mold cap) was never considered and is the obvious explanation for the <span class="mono">175&micro;m</span> overhead jump.</td><td class="amb2">Branches C and D added; the sequential reading is now stated as the <b>likeliest</b>, changing the posture from "avoid" to "be ready for 2027&ndash;28".</td></tr>
+<tr><td>Branch arithmetic presented as the finding.</td><td>The same paragraph declared the constant-overhead assumption unreconcilable and then computed both branches from it — circular.</td><td class="amb2">An explicit assumption warning now precedes the table; the derived columns are labelled illustrative, not predictive.</td></tr>
+<tr><td>"Handling yield fails below <span class="mono">50&micro;m</span>" (cited to C-14, three times).</td><td>C-14 actually states ~<span class="mono">100&micro;m</span>. A 2x misstatement of the only source behind the core physical claim — and it flattered the bear case.</td><td class="amb2">Corrected to ~<span class="mono">100&micro;m</span>. Consequence: carrier bond/debond stays mandatory under <i>every</i> branch, so the SUSS branch-A bear line was rewritten.</td></tr>
+<tr><td>"It cannot date the peak at all."</td><td>The 13-week high equals the 52-week high, which bounds the peak inside the last 13 weeks — information the run discarded.</td><td class="amb2">Bound now stated. It rules out the April events as trigger and implies DISCO is <b>early</b> in an unwind, not late.</td></tr>
+<tr><td>Multi-year timeline present in draft 1.</td><td>Dropped entirely during the draft-2 rewrite — a mandatory v5.1 section removed rather than repaired.</td><td class="amb2">Restored as &sect;11 with cells sized to fit.</td></tr>
+<tr><td>Back-grinding / dicing tape: absent everywhere.</td><td>A per-wafer consumable inside the chokepoint step, with listed liquid suppliers, missing from the layer key, the supply map, the exclusion list and the watchlist — in a report whose thesis is that the <i>unit toll</i> is the durable half.</td><td class="amb2">Added to the layer key, stage 1 of the map, the exclusion list and the watchlist as the strongest lead for the next run.</td></tr>
+<tr><td>Every dashboard trigger was a lagging quarterly confirmation.</td><td>Guarantees the reader arrives after the tape — the exact failure mode this rotation exists to avoid.</td><td class="amb2">Leading row 0 (DISCO's monthly shipment release) added, and &sect;14 now opens by admitting the structural weakness outright.</td></tr>
+<tr><td>Peer median drawdown given as <span class="mono">-27%</span> in one place.</td><td>Inconsistent with the <span class="mono">-28.9%</span> in the data files; and two of the five "control" peers are subject names in the thesis.</td><td class="amb2">Corrected to <span class="mono">-28.9%</span> throughout, and a control-set contamination caveat now precedes the reading.</td></tr>
+<tr><td>Severity quoted as a single <span class="mono">14/20</span>.</td><td>A point estimate for a quantity the text says is undetermined; and the dissent sensitivity (14&rarr;13) was not derivable from the published factor scores.</td><td class="amb2">Now quoted as a branch-conditional range; the dissent sensitivity corrected to affect the Stage-3 row only.</td></tr>
+<tr style="background:#1c1f26"><td colspan="3"><b>Rounds 3 and 4 — two consecutive clean convergence checks</b></td></tr>
+<tr><td>Branch-conditional severity <span class="mono">13&ndash;17/20</span>.</td><td>The upper bound needed a third factor upgrade the text never named; the two named factors going <span class="mono">4&rarr;5</span> give <span class="mono">16</span>. Same defect class the run had corrected one round earlier in the dissent box.</td><td class="amb2">Corrected to <span class="mono">13&ndash;16/20</span> with both rising factors named, so the range is derivable from the published scores.</td></tr>
+<tr><td>Audit-trail drift after the timeline was restored.</td><td>Restoring the deleted timeline as &sect;11 renumbered everything below it, but the claim register still said "section 11 fork", the snapshot still said no peak date was asserted, and &sect;19 read as if the peak were unbounded.</td><td class="amb2">All four cross-artifact references reconciled; <span class="mono">review_convergence.json</span> written.</td></tr>
+<tr><td>"DISCO publishes shipments monthly" — the only leading trigger.</td><td>Carried no claim id and was absent from the register, in a report that flags every other unsourced figure.</td><td class="amb2">Added to <span class="mono">claims_not_obtained</span> as explicitly unverified.</td></tr>
+</table>
+</div>
+
+<h2>19 · Open questions, risks, and what this run could not resolve</h2>
+<div class="card">
+<ol class="small">
+<li><b>The specification fork is unresolved</b> and the arithmetic in &sect;12 does not close — implied non-die overhead differs by <span class="mono">175&micro;m</span> between HBM3E and HBM4 on published figures. This is the run's central open question.</li>
+<li><b>The height-relaxation reporting is single-origin.</b> C-05, C-06 and C-07 trace to one chain of Korean trade reporting relayed by TrendForce. Republication is not corroboration. <b>No JEDEC primary document was located.</b></li>
+<li><b>The <span class="mono">30&micro;m</span> figure is trade-press-grade.</b> C-01 and C-02 are both T3 aggregators drawing on the same origin chain, so an earlier "HIGH confidence" rating on them was inconsistent with the single-origin rule applied to TrendForce. Downgraded to MEDIUM and marked (est.).</li>
+<li><b>DISCO's equipment-vs-consumables split comes from one earnings-call write-up</b><span class="cite">C08</span>, not the issuer tanshin. The headline figures are corroborated<span class="cite">C09</span>; the split is not. Consolidated and non-consolidated shipment figures are also unreconciled.</li>
+<li><b>No price history.</b> IBKR returned "No market data permissions" for TSEJ and IBIS, so drawdowns come from a 52-week-high field and exact peak <i>dates</i> are unknown. <b>They are bounded, though</b> — the 13-week and 52-week high fields are equal for DISCO and SUSS, placing both peaks inside the last 13 weeks (see &sect;4). The snapshot also flags that DISCO's last price prints below its own reported 13-week low, i.e. the low fields lag — which puts some freshness doubt on the high field too.</li>
+<li><b>No valuation data of any kind</b> — no multiple, market cap or earnings anchor for any name. This alone blocks any <span class="mono">ACTION</span> state and, as &sect;1 says, predetermined the verdict.</li>
+<li><b>No lead-time evidence.</b> Not one delivery-time quote for a grinder, bonder or debonder. The lead-time severity factor is the weakest of the four.</li>
+<li><b>Chinese domestic tool entrants were not examined</b> — the live structural threat to DISCO's share and the largest single hole in the moat assessment.</li>
+<li><b>ASMPT and Ebara were not evaluated</b> despite being named chain participants, and molding/encapsulation (TOWA, Resonac, Namics) — flagged by the dissent<span class="cite">C29</span> as the actual narrowest knot — was not covered at all.</li>
+<li><b>Vendor market-sizing for this chain is unusable</b> — two reports differ by roughly 4x on the same equipment pool<span class="cite">C26</span><span class="cite">C27</span>. Cited as evidence of the problem, not of the market.</li>
+<li><b>The unit-toll / difficulty-rent split is unquantified.</b> Grind-pass and bond/debond-cycle counts per stack are not publicly disclosed — a targeted search found no source, so this appears to be proprietary process detail rather than a research failure. Until it exists, the distinction is a frame, not a measurement.</li>
+<li><b>Semiconductor Engineering's thin-wafer article returned HTTP 403</b><span class="cite">C14</span> and was read only through a search extract — including the "residue removal is the real bottleneck" claim underpinning the &sect;15 watchlist.</li>
+<li><b>No revenue-exposure sizing.</b> What share of DISCO's, Tokyo Seimitsu's or SUSS's revenue actually <i>is</i> the thin-wafer step was never estimated. Without it, a reader cannot tell whether a correct thesis would even move the stock.</li>
+<li><b>No cross-run severity ranking.</b> A 14/20 means little without knowing what Runs #26, #28, #30 and #31 scored. The comparison across the rotation is arguably the most decision-useful output of a recurring chokepoint series and it is not produced here — a gap in the series design, not just this run.</li>
+<li><b>No downside case.</b> DISCO is already <span class="mono">-40%</span> and this run never estimates what branch A would cost from here, nor how these names behaved in prior semi-cap downturns.</li>
+<li><b>Cross-session staleness.</b> US marks are the 2026-07-27 close; the SUSS mark is live Xetra. Uniformly negative daily moves must <b>not</b> be read as one simultaneous event — a claim an earlier draft made and this one does not.</li>
+</ol>
+</div>
+
+<h2>20 · Compliance &amp; sources</h2>
+<div class="card red">
+<p class="small" style="margin:0"><b>This is personal research for a private knowledge base. It is NOT investment advice</b>, not a recommendation, and not a solicitation. Every company named is a research mention. All estimates are marked (est.) and hedged; severity scores are a subjective rubric, not a forecast. Data as-of <b>2026-07-28</b> (US marks = 2026-07-27 close); generated <b>2026-07-28</b>. <b>IBKR was used strictly READ-ONLY for market data — no order was created, modified or cancelled, no position or money was moved.</b> RUN_MODE = <span class="mono">paper_only</span>: this artifact was not promoted to the vault, not staged to the public site, and not published.</p>
+</div>
+<p class="small">Full source register with URL, publisher, tier, publication date, access time, primary/secondary flag and corroborating-source ids: <span class="mono">claim_sources.json</span> (30 claims, <span class="mono">C-01</span>&hellip;<span class="mono">C-30</span>) in this run's staging directory, including an explicit <span class="mono">single_origin_warning</span> and a <span class="mono">claims_not_obtained</span> list. Market-data snapshot with session and permission caveats: <span class="mono">snapshots/quotes_2026-07-28.json</span>. Reviewer findings and the builder's own critique: <span class="mono">reviews.json</span>, <span class="mono">self_critique.json</span>, <span class="mono">review_convergence.json</span>.</p>
+<p class="small"><b>Primary (T1) sources used:</b> SUSS MicroTec Q1 2026 corporate news, issuer<span class="cite">C11</span><span class="cite">C12</span> · Tokyo Seimitsu FY2026/3 issuer IR Q&amp;A<span class="cite">C19</span><span class="cite">C20</span> · EV Group product and newsroom pages (vendor claims, capability identification only)<span class="cite">C15</span> · IBKR read-only market data<span class="cite">C28</span><span class="cite">C30</span>. <b>Specialist (T2):</b> TrendForce on the HBM height reporting<span class="cite">C05</span><span class="cite">C06</span><span class="cite">C07</span> and the A16 roadmap slip<span class="cite">C21</span> · BigGo earnings-call coverage of DISCO FY26 Q1<span class="cite">C08</span><span class="cite">C10</span> · Semiconductor Engineering<span class="cite">C14</span><span class="cite">C23</span> · SemiAnalysis on DISCO's structure<span class="cite">C18</span> · Silicon Semiconductor on the 2023 SUSS capacity build<span class="cite">C13</span>. <b>Used but low-tier &mdash; and load-bearing despite it, which is a weakness not a disclaimer:</b> the DISCO share range<span class="cite">C17</span> anchors a moat discussion and the advanced-packaging allocation source<span class="cite">C24</span> is cited as context only (round-2 review found no figure from it used in the body; the demand-ceiling row cites<span class="cite">C25</span>). <b>Cited only to show the layer is unusable:</b> vendor market-sizing<span class="cite">C26</span><span class="cite">C27</span>. <b>Dissent:</b> an independent self-published teardown<span class="cite">C29</span>.</p>
+<p class="small" style="color:#6b7283">AI-Infra Chokepoint Deep-Dive · Run #32 · compute fabric loop 6 · canonical_id <span class="mono">ACCEL</span> · v5 report standard · builder <span class="mono">claude-opus-5[1m]</span> · paper-only dry run · revised across four independent adversarial review rounds, the last two clean</p>
+
+</div>
+<script>
+(function(){
+  var labels=[].slice.call(document.querySelectorAll('.tabbar label'));
+  function select(i){
+    labels.forEach(function(l,j){
+      var on=(i===j);
+      l.tabIndex=on?0:-1;
+      l.setAttribute('aria-selected',on?'true':'false');
+    });
+    document.getElementById(labels[i].htmlFor).checked=true;
+  }
+  labels.forEach(function(l,i){
+    l.addEventListener('click',function(){select(i);});
+    l.addEventListener('keydown',function(e){
+      var n=null;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown') n=(i+1)%labels.length;
+      if(e.key==='ArrowLeft'||e.key==='ArrowUp') n=(i-1+labels.length)%labels.length;
+      if(e.key===' '||e.key==='Enter'){ select(i); e.preventDefault(); return; }
+      if(n!==null){ select(n); labels[n].focus(); e.preventDefault(); }
+    });
+  });
+})();
+</script>
+</body>
+</html>

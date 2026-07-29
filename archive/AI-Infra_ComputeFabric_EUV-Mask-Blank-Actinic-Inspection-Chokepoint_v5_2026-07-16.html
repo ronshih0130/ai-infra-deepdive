@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Infra Run #26 v5 — Compute Fabric / EUV Photomask / Mask-Blank + Actinic-Inspection Chokepoint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#13161e; --panel2:#1a1e28; --panel3:#212634; --line:#2a3040; --line2:#363d4f;
+    --txt:#e8eaf0; --mut:#9aa3b5; --dim:#697283;
+    --accent:#2dd4bf;        /* single brand accent (desaturated teal) */
+    --choke:#e0686a;         /* desaturated red */
+    /* categorical: mask-lifecycle layers */
+    --up:#5b81c4; --l3:#8b84cf; --pkg:#c47a9e; --l2:#d2a24a; --l1:#4faf8e;
+    --dup:#e0a458; --dout:#5aa9e0; --dacr:#5fc98a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px;-webkit-font-smoothing:antialiased}
+  .num{font-family:"JetBrains Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  header{border-bottom:1px solid var(--line);padding:38px 0 30px;margin-bottom:8px;background:
+     radial-gradient(900px 320px at 12% -40%,rgba(45,212,191,.10),transparent 60%),
+     radial-gradient(700px 300px at 96% -60%,rgba(224,104,106,.10),transparent 60%)}
+  .kick{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  .kick .ln{height:1px;width:34px;background:var(--accent);opacity:.6}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.6px;line-height:1.12;max-width:940px}
+  .sub{font-size:15px;font-weight:400;color:var(--mut);margin-top:12px;max-width:860px}
+  .meta{margin-top:20px;display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+  .meta div{padding-right:26px;margin-right:26px;border-right:1px solid var(--line)}
+  .meta div:last-child{border:0}
+  .meta .k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
+  .meta .vv{font-size:13px;color:var(--txt);margin-top:3px;font-weight:500}
+  .asof{margin-top:14px;display:inline-flex;align-items:center;gap:9px;font-size:11px;color:#c4ab78;background:rgba(210,162,74,.07);border:1px solid #3a3015;border-radius:9px;padding:7px 13px}
+  .gauges{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .gauge{border:1px solid var(--line);border-radius:11px;padding:11px 15px;background:var(--panel);min-width:150px}
+  .gauge .gl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim)}
+  .gauge .gv{font-size:22px;font-weight:600;margin-top:3px}
+  .gauge .gd{font-size:10.5px;color:var(--mut);margin-top:2px}
+  section{padding:34px 0 2px}
+  .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+  .sh .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.05em}
+  .sh h2{font-size:21px;font-weight:600;letter-spacing:-.3px}
+  .sh .cn{font-size:13px;color:var(--dim);font-weight:400;margin-left:auto}
+  .lead{color:var(--mut);font-size:13.5px;max-width:900px;margin-bottom:18px}
+  .lead b{color:var(--txt);font-weight:600}
+  .toc{position:sticky;top:0;z-index:20;background:rgba(11,13,18,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:9px 0;margin-bottom:4px;font-size:11.5px}
+  .toc a{color:var(--mut);text-decoration:none;margin-right:15px;white-space:nowrap}
+  .toc a:hover{color:var(--accent)}
+  .toc .scr{overflow-x:auto;display:flex;gap:2px}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  @media(max-width:780px){.kpis{grid-template-columns:1fr 1fr}}
+  .kpi{padding:18px 20px;border-right:1px solid var(--line)}
+  .kpi:last-child{border-right:0}
+  .kpi .v{font-size:24px;font-weight:600;letter-spacing:-.5px}
+  .kpi .l{font-size:11.5px;color:var(--mut);margin-top:4px}
+  .kpi .d{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.4}
+  .teal{color:var(--accent)}.red{color:var(--choke)}.amb{color:var(--dup)}.grn{color:var(--dacr)}
+  .matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .matrix th{background:var(--panel2);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);font-weight:600;padding:12px 14px;text-align:left;border-bottom:1px solid var(--line)}
+  .matrix td{padding:14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--mut)}
+  .matrix tr:last-child td{border-bottom:0}
+  .matrix .dom{font-weight:600;font-size:14px;color:var(--txt);display:flex;align-items:center;gap:9px}
+  .matrix .dom .sw{width:10px;height:10px;border-radius:3px;flex:none}
+  .matrix .dom small{display:block;font-weight:400;font-size:10.5px;color:var(--dim);margin-top:2px}
+  .matrix td b{color:var(--txt);font-weight:600}
+  .matrix tr.hot td{background:rgba(224,104,106,.06)}
+  .chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--panel3);color:var(--mut);margin:2px 4px 2px 0;border:1px solid var(--line2)}
+  .chip.hot{background:rgba(224,104,106,.12);border-color:#5a3236;color:#efa0a1}
+  .gal{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:900px){.gal{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.gal{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column}
+  .card .svgbox{background:linear-gradient(180deg,#0e1117,#161a24);padding:14px;border-bottom:1px solid var(--line)}
+  .card .body{padding:14px 16px 16px}
+  .card h4{font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .card .role{font-size:12px;color:var(--mut);margin-top:6px;line-height:1.45}
+  .card .who{font-size:11px;color:var(--dim);margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px}
+  .card .who b{color:var(--l3)}
+  .badge{font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:5px;letter-spacing:.03em;flex:none}
+  .b-hot{background:rgba(224,104,106,.14);color:#eda3a4}
+  .b-now{background:rgba(45,212,191,.13);color:var(--accent)}
+  .b-next{background:rgba(90,169,224,.14);color:var(--dout)}
+  .b-emrg{background:rgba(210,162,74,.14);color:var(--dup)}
+  .svgwide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;overflow-x:auto}
+  .cap{font-size:11px;color:var(--dim);margin-top:8px;font-style:italic}
+  .st{border:1px solid var(--line);border-radius:11px;padding:12px 11px;background:var(--panel2)}
+  .tlgrid{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .tlhead{display:grid;grid-template-columns:130px repeat(4,1fr);background:var(--panel2);border-bottom:1px solid var(--line)}
+  .tlhead div{padding:11px 12px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:600;color:var(--accent);border-right:1px solid var(--line)}
+  .tlhead div:first-child{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-family:"Space Grotesk",sans-serif;display:flex;align-items:center}
+  .tlrow{display:grid;grid-template-columns:130px repeat(4,1fr);border-bottom:1px solid var(--line)}
+  .tlrow:last-child{border-bottom:0}
+  .tlrow .lab{padding:13px 12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;border-right:1px solid var(--line);background:var(--panel2)}
+  .tlrow .lab .sw{width:9px;height:9px;border-radius:3px;flex:none}
+  .tlrow .cell{padding:11px 12px;border-right:1px solid var(--line);font-size:11.5px;color:var(--mut);line-height:1.4}
+  .tlrow .cell:last-child{border-right:0}
+  .tlrow .cell b{color:var(--txt);font-weight:600;display:block;margin-bottom:2px;font-size:11.5px}
+  .tlrow .cell.hot{background:rgba(224,104,106,.06)}
+  @media(max-width:780px){.tlhead,.tlrow{grid-template-columns:84px repeat(4,1fr);font-size:10px}.tlrow .cell{font-size:10px}}
+  .choke{border:1px solid #5a3236;border-radius:14px;padding:22px 24px;background:
+    linear-gradient(135deg,rgba(224,104,106,.10),transparent 55%),var(--panel)}
+  .choke .ttl{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+  .choke .ttl svg{flex:none}
+  .choke .ttl h3{font-size:17px;font-weight:600;color:var(--choke)}
+  .choke p{font-size:13.5px;color:#d9c4c6;max-width:940px}.choke p b{color:#fff}
+  .choke .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:18px;border-top:1px solid #4a2c2f;padding-top:16px}
+  @media(max-width:780px){.choke .stats{grid-template-columns:1fr 1fr}}
+  .choke .stats div{padding-right:18px}
+  .choke .stats b{display:block;font-size:20px;color:var(--choke);font-weight:600}
+  .choke .stats span{font-size:10.5px;color:var(--dim)}
+  .tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  .tbl th{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .tbl td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--mut)}
+  .tbl td b{color:var(--txt)}
+  .lyr{font-family:"JetBrains Mono",monospace;font-size:10.5px;padding:1px 7px;border-radius:5px;font-weight:600}
+  .ly3{background:rgba(139,132,207,.15);color:#aaa3e6}
+  .ly2{background:rgba(210,162,74,.15);color:#e3bd76}
+  .ly1{background:rgba(79,175,142,.15);color:#7cc9ad}
+  .lyu{background:rgba(91,129,196,.15);color:#8aa7df}
+  .lyp{background:rgba(196,122,158,.15);color:#dba0bf}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+  .two{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+  @media(max-width:780px){.two{grid-template-columns:1fr}}
+  .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:2px 0 16px}
+  .leg span{display:flex;align-items:center;gap:7px}
+  .leg .sw{width:11px;height:11px;border-radius:3px}
+  .disc{background:rgba(210,162,74,.06);border:1px solid #3a3015;border-radius:11px;padding:13px 16px;font-size:11.5px;color:#c4ab78;margin-top:22px}
+  footer{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}
+  footer b{color:var(--mut)}
+  .variant{border-left:3px solid var(--choke);background:rgba(224,104,106,.05);border-radius:8px;padding:14px 17px;margin-top:14px}
+  .variant .h{font-size:11px;font-weight:700;color:var(--choke);letter-spacing:.04em;margin-bottom:6px}
+  .variant p{font-size:12.5px;color:var(--mut);line-height:1.55}.variant p b{color:var(--txt)}
+  .variant p+p{margin-top:8px}
+  /* svg fonts set via CSS rule below, never as SVG presentation attributes */
+  svg text{font-family:"Space Grotesk",sans-serif}
+  svg text.m{font-family:"JetBrains Mono",monospace}
+  .svglabel{font-size:9px;fill:var(--dim)}
+  /* awareness / tabs */
+  .axis-zone{font-size:9px;letter-spacing:.04em}
+  .liw{width:100%;border-collapse:collapse;font-size:12px}
+  .liw th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .liw td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+  .liw td b{color:var(--txt)}
+  .dotR{color:var(--choke);font-weight:600}.dotA{color:var(--dup);font-weight:600}.dotG{color:var(--dacr);font-weight:600}
+  .tabbtn{font-family:"Space Grotesk",sans-serif;background:var(--panel2);border:1px solid var(--line);color:var(--mut);padding:11px 16px;border-radius:10px 10px 0 0;font-size:13px;font-weight:600;cursor:pointer;border-bottom:none;display:flex;flex-direction:column;gap:2px;min-width:160px;text-align:left}
+  .tabbtn small{font-size:10px;font-weight:400;color:var(--dim)}
+  .tabbtn.on{background:var(--panel);color:var(--txt);border-color:var(--line2)}
+  .tabbtn.on small{color:var(--accent)}
+  .tabbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .stagebadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.04em}
+  .sg-early{background:rgba(95,201,138,.16);color:var(--dacr)}
+  .sg-recog{background:rgba(210,162,74,.16);color:var(--dup)}
+  .sg-eu{background:rgba(224,104,106,.16);color:var(--choke)}
+  .mini{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0}
+  .mini div{padding:11px 13px;border-right:1px solid var(--line)}
+  .mini div:last-child{border-right:0}
+  .mini .v{font-family:"JetBrains Mono",monospace;font-size:16px;font-weight:600}
+  .mini .l{font-size:10px;color:var(--mut);margin-top:2px}
+  .gap{border-left:3px solid var(--accent);background:rgba(45,212,191,.06);border-radius:8px;padding:12px 15px;margin:14px 0}
+  .gap .h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:5px}
+  .gap p{font-size:12.5px;color:var(--mut);line-height:1.5}.gap p b{color:var(--txt)}
+  .mtd{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
+  @media(max-width:780px){.mtd{grid-template-columns:1fr}.mini{grid-template-columns:1fr 1fr 1fr}.tabbtn{min-width:0;flex:1}}
+  .mtc{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+  .mtc .h{font-size:11.5px;font-weight:600;color:var(--accent);margin-bottom:3px}
+  .mtc p{font-size:11.5px;color:var(--mut);line-height:1.45}.mtc p b{color:var(--txt)}
+  .bbr{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+  .bbr div{border-radius:8px;padding:9px 12px;font-size:11.5px;line-height:1.45;color:var(--mut)}
+  .bbr .bl{border-left:3px solid var(--dacr);background:var(--panel2)}
+  .bbr .be{border-left:3px solid var(--choke);background:var(--panel2)}
+  .bbr b{display:block;font-size:10.5px;margin-bottom:2px}
+  @media print{
+    .tabpane[hidden]{display:block!important}
+    .toc{display:none}
+    .tabbtn{display:none}
+    svg text{fill:#111}
+    body{background:#fff;color:#111}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kick"><span class="ln"></span> AI Infra · Recurring Deep-Dive · Run #26 · Compute Fabric loop 5 · v5</div>
+    <h1>The EUV Mask Chokepoint — the master stencil every AI chip is printed from, and whether you're still early</h1>
+    <p class="sub">Compute fabric → front-end lithography → the EUV photomask ecosystem. Two axes (<b style="color:#fff">where</b> in the mask lifecycle: substrate→blank→write→inspect→pellicle→print × <b style="color:#fff">how scarce</b> each link is), a visual end-to-end supply chain, and a top-3 of companies at <b style="color:#fff">different</b> chokepoints — staged on the awareness curve so you can see what's still early versus already priced.</p>
+    <div class="gauges">
+      <div class="gauge"><div class="gl">Chokepoint severity</div><div class="gv num red">17<span style="font-size:13px;color:var(--dim)">/20</span></div><div class="gd">mask blank · duopoly · decade-long barrier</div></div>
+      <div class="gauge"><div class="gl">Remaining asymmetry</div><div class="gv num amb">~8<span style="font-size:13px;color:var(--dim)">/20</span></div><div class="gd">a genuine laggard exists (Hoya) — but capped</div></div>
+      <div class="gauge"><div class="gl">Prices</div><div class="gv" style="font-size:15px;margin-top:7px">IBKR read-only</div><div class="gd">personal research — not advice</div></div>
+    </div>
+    <div class="meta">
+      <div><div class="k">Date</div><div class="vv num">16 Jul 2026</div></div>
+      <div><div class="k">Stack path</div><div class="vv">quartz → mask blank → e-beam write → actinic inspect → pellicle/resist → scanner → GPU die</div></div>
+      <div><div class="k">Universe</div><div class="vv">Global · JP / US / NL / TW</div></div>
+      <div><div class="k">Top-3</div><div class="vv">Hoya · Lasertec · TOK</div></div>
+    </div>
+    <div class="asof">● AS-OF 16 Jul 2026 · prices decay fast — a broad AI-litho selloff hit the tape today (Lasertec −6.7%, TOK −6.9%). Re-check before sizing.</div>
+  </div>
+</header>
+
+<div class="toc">
+  <div class="wrap"><div class="scr">
+    <a href="#s1">01 Snapshot</a><a href="#s2">02 Framework</a><a href="#s3">03 Components</a><a href="#s4">04 Mask build</a><a href="#s5">05 Where it's used</a><a href="#s6">06 Supply chain</a><a href="#s7">07 Timeline</a><a href="#s8">08 Chokepoint</a><a href="#s9">09 Awareness</a><a href="#s10">10 Top-3</a><a href="#s11">11 Risks</a><a href="#s12">12 Decision</a>
+  </div></div>
+</div>
+
+<div class="wrap">
+
+<!-- 1. SNAPSHOT -->
+<section id="s1">
+  <div class="sh"><span class="n">01</span><h2>Executive snapshot</h2><span class="cn">為什麼是現在</span></div>
+  <p class="lead">The GPU die is the ultimate compute fabric — and every transistor on it is printed with <b>extreme-ultraviolet (EUV) light</b> through a <b>photomask</b>: the master stencil. The market buys the fab (<b>TSMC</b>) and the scanner (<b>ASML, +68% YTD</b>). But leading-edge EUV masks are made <b>captive</b> inside TSMC/Intel/Samsung, so the investable scarcity migrated one layer below the scanner — to the two un-substitutable merchant links every mask passes through: the defect-free <b>mask blank</b> (a Hoya-led duopoly) and its <b>actinic inspection</b> (a Lasertec monopoly). The twist: the scarcest <i>structural</i> link sits in the <b>cheapest stock</b>.</p>
+  <div class="kpis">
+    <div class="kpi"><div class="v num teal">~70%+</div><div class="l">Hoya share of EUV mask blanks (est.; sources vary 60–75%)</div><div class="d">Hoya + AGC ≈ 90–93% duopoly; barrier = &lt;0.1 phase-defect/cm² (est.)</div></div>
+    <div class="kpi"><div class="v num red">100%</div><div class="l">Lasertec share of actinic (ACTIS) mask inspection</div><div class="d">the only tool that inspects at the 13.5 nm exposure λ; ~49% op margin</div></div>
+    <div class="kpi"><div class="v num amb">+6%</div><div class="l">Hoya YTD vs Lasertec +55% / TOK +80% / ASML +68%</div><div class="d">the scarcest link is the laggard — hidden in a healthcare conglomerate</div></div>
+    <div class="kpi"><div class="v num grn">20–30</div><div class="l">EUV layers per 3 nm chip (rising at N2/High-NA)</div><div class="d">60–100 masks/set (only ~20–30 are EUV) · ~$0.3–1M per EUV mask (est.)</div></div>
+  </div>
+
+  <div style="border:1px solid var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px;background:var(--panel)">
+    <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.05em;margin-bottom:8px">EXPLAIN IT SIMPLY · 白話版</div>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6;max-width:940px">To print the billions of transistors on an AI chip, a fab shines <b style="color:var(--txt)">EUV light</b> through a <b style="color:var(--txt)">photomask</b> — a stencil of the circuit — onto the silicon wafer, like a projector slide. That stencil is built on a mirror-perfect <b style="color:var(--txt)">mask blank</b>: a quartz plate coated with 40–50 microscopic layers. Making a blank with essentially <b style="color:var(--txt)">zero defects</b> is so hard that only two companies in the world can do it (<b style="color:var(--txt)">Hoya</b> and AGC), and only <b style="color:var(--txt)">one company (Lasertec)</b> makes the machine that can even <i>check</i> the stencil is perfect. The chip fabs make their own stencils in-house — so you can't buy "the mask." You buy the <b style="color:var(--txt)">rare ingredients and tools</b> that go into it. The investing question this report answers: <b style="color:var(--txt)">who owns those un-copyable links, and is that scarcity still hidden (early) or already in the share price (late)?</b> Here, the scarcest link — the blank monopoly — is buried inside <b style="color:var(--txt)">Hoya, a company the market prices as an eyeglass-lens and medical-scope maker</b>, which is why it has barely moved while the famous names doubled.</p>
+  </div>
+</section>
+
+<!-- 2. TWO-AXIS FRAMEWORK -->
+<section id="s2">
+  <div class="sh"><span class="n">02</span><h2>The framework — two orthogonal axes</h2><span class="cn">MECE 框架</span></div>
+  <p class="lead">Every EUV mask passes through a <b>lifecycle</b> (substrate → blank → write → inspect → pellicle → print). The second axis is <b>how scarce</b> each stage is — concentration, who wins, and whether it can be substituted or in-sourced. The chokepoint is the single cell where a <b>near-monopoly meets no-substitute</b>: the <b>mask blank</b> (a decade-long defect-control barrier, Hoya-led duopoly) and its co-binding twin, <b>actinic inspection</b> (Lasertec's 100% ACTIS).</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+    <div class="panel" style="padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">THE LAYER STACK · 分層 (read this first)</div>
+      <div style="font-size:12px;color:var(--mut);line-height:1.85">
+        <span class="lyr lyu">UP</span> raw <b>quartz + Mo/Si</b> that a blank is built from &nbsp;·&nbsp;
+        <span class="lyr ly3">BLK</span> the <b>mask blank</b> — the mirror-perfect coated plate (the chokepoint) &nbsp;·&nbsp;
+        <span class="lyr lyp">W/I</span> <b>write</b> the circuit + <b>actinic inspect / repair</b> it &nbsp;·&nbsp;
+        <span class="lyr ly2">FIN</span> add a <b>pellicle</b> + the wafer-side <b>photoresist</b> &nbsp;·&nbsp;
+        <span class="lyr ly1">PRN</span> the <b>scanner</b> prints the <b>GPU die</b>.
+      </div>
+    </div>
+    <div class="panel" style="padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px">6-TERM GLOSSARY · 名詞</div>
+      <div style="font-size:11.5px;color:var(--mut);line-height:1.7">
+        <b>EUV</b> 13.5 nm extreme-UV light used to print sub-7nm chips · <b>mask blank</b> the un-patterned coated quartz plate · <b>reticle / photomask</b> the finished patterned stencil · <b>actinic</b> inspecting at the true 13.5 nm wavelength · <b>pellicle</b> a thin membrane shielding the mask from dust · <b>photoresist</b> the light-sensitive film on the wafer
+      </div>
+    </div>
+  </div>
+  <table class="matrix">
+    <tr>
+      <th style="width:180px">Mask-lifecycle stage (what)</th>
+      <th style="width:150px">Concentration</th>
+      <th>What it is / why it constrains</th>
+      <th style="width:220px">Who wins · key players</th>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--up)"></span>Substrate / materials<small>quartz · Mo/Si · CNT</small></div></td>
+      <td>Oligopoly</td>
+      <td>Ultra-low-expansion quartz + sputter targets. Real barrier but several qualified suppliers. <span class="chip">upstream</span></td>
+      <td>Corning ULE, AGC, Shin-Etsu (quartz)</td>
+    </tr>
+    <tr class="hot">
+      <td><div class="dom"><span class="sw" style="background:var(--l3)"></span>Mask blank<small>the coated plate</small></div></td>
+      <td><b style="color:var(--choke)">Duopoly ~90%+</b></td>
+      <td><b>THE CHOKEPOINT.</b> A single phase defect in the 40–50-layer Mo/Si mirror prints on <i>every</i> wafer. Defect-free at &lt;0.1/cm² = a decade of tacit know-how. <span class="chip hot">Hoya ~70%+ EUV (est.)</span></td>
+      <td><b>Hoya</b>, AGC (only two commercial EUV-blank makers)</td>
+    </tr>
+    <tr class="hot">
+      <td><div class="dom"><span class="sw" style="background:var(--pkg)"></span>Write + actinic inspect<small>pattern &amp; verify</small></div></td>
+      <td><b style="color:var(--choke)">Monopoly (inspect)</b></td>
+      <td>E-beam writing is captive/oligopoly; but you cannot <i>verify</i> an EUV mask any other way at 13.5 nm. <span class="chip hot">Lasertec ACTIS 100%</span></td>
+      <td>Writers: JEOL, NuFlare, IMS (Intel). <b>Inspect: Lasertec</b></td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--l2)"></span>Pellicle + photoresist<small>finish &amp; wafer</small></div></td>
+      <td>Near-mono / oligopoly</td>
+      <td>Pellicle a near-monopoly but the <i>most substitutable</i> link (TSMC ran pellicle-less for years). Resist an all-Japanese oligopoly. <span class="chip">consumable toll</span></td>
+      <td>Pellicle: Mitsui. Resist: JSR (private), <b>TOK</b>, Shin-Etsu, Fujifilm</td>
+    </tr>
+    <tr>
+      <td><div class="dom"><span class="sw" style="background:var(--l1)"></span>Scanner → GPU die<small>print &amp; buyers</small></div></td>
+      <td>Monopoly (bid)</td>
+      <td>ASML is a true monopoly and captures the <i>biggest $</i> — but it is the headline and fully priced. The die-maker is captive. <span class="chip">already priced</span></td>
+      <td>ASML (scanner); TSMC/Intel/Samsung (die); NVIDIA/AMD (buy)</td>
+    </tr>
+  </table>
+  <p class="cap">The chokepoint sits at two adjacent (stage × concentration) cells — <b>mask blank</b> and <b>actinic inspection</b> — the only two links that are both near-monopoly AND un-substitutable AND merchant (not captive). Everything downstream waits on a yielding, verified mask.</p>
+</section>
+
+<!-- 3. COMPONENT GALLERY -->
+<section id="s3">
+  <div class="sh"><span class="n">03</span><h2>The mask ecosystem, illustrated</h2><span class="cn">關鍵元件</span></div>
+  <p class="lead">The four scarce merchant links, drawn. Three of the four are <b>Japanese near-monopolies</b> — which is exactly why the bottleneck is structural, and why it's protected from Chinese substitution by the same export controls that gate the scanner.</p>
+  <div class="gal">
+    <!-- Mask blank -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <text x="14" y="20" class="svglabel">EUV mask blank — cross-section</text>
+          <rect x="20" y="70" width="160" height="24" rx="3" fill="#20242f" stroke="#3a3f55"/>
+          <text x="100" y="86" text-anchor="middle" font-size="8" fill="#9aa3b5">ULE quartz substrate</text>
+          <!-- multilayer -->
+          <g>
+            <rect x="20" y="52" width="160" height="4" fill="#8b84cf"/><rect x="20" y="56" width="160" height="4" fill="#3a3f63"/>
+            <rect x="20" y="60" width="160" height="4" fill="#8b84cf"/><rect x="20" y="64" width="160" height="4" fill="#3a3f63"/>
+            <rect x="20" y="68" width="160" height="2" fill="#8b84cf"/>
+          </g>
+          <text x="184" y="60" text-anchor="end" font-size="6.5" fill="#aaa3e6">40–50× Mo/Si</text>
+          <!-- absorber -->
+          <rect x="34" y="44" width="24" height="8" fill="#c47a9e"/><rect x="92" y="44" width="30" height="8" fill="#c47a9e"/><rect x="150" y="44" width="16" height="8" fill="#c47a9e"/>
+          <text x="20" y="40" class="svglabel" fill="#dba0bf">absorber pattern</text>
+          <!-- defect -->
+          <circle cx="70" cy="62" r="3.5" fill="#e0686a"/>
+          <text x="70" y="108" text-anchor="middle" font-size="7.5" fill="#eda3a4">1 defect → prints on EVERY wafer</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Mask blank <span class="badge b-hot">CHOKEPOINT</span></h4>
+        <p class="role">Quartz plate coated with 40–50 alternating molybdenum/silicon layers that reflect 13.5 nm light. A single sub-0.1/cm² phase defect ruins it — the hardest link to make and to copy.</p>
+        <p class="who">Supply: <b>Hoya ~70%+ EUV (est.)</b>, AGC</p>
+      </div>
+    </div>
+    <!-- Actinic inspection -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <text x="14" y="20" class="svglabel">actinic inspection — 13.5 nm</text>
+          <!-- source -->
+          <circle cx="40" cy="40" r="10" fill="none" stroke="#2dd4bf" stroke-width="2"/>
+          <text x="40" y="43" text-anchor="middle" font-size="6.5" fill="#2dd4bf">EUV</text>
+          <line x1="49" y1="46" x2="92" y2="70" stroke="#2dd4bf" stroke-width="1.6"/>
+          <!-- mask -->
+          <rect x="88" y="70" width="96" height="14" rx="2" fill="#20242f" stroke="#3a3f55"/>
+          <circle cx="120" cy="77" r="3" fill="#e0686a"/>
+          <text x="184" y="68" text-anchor="end" font-size="7" fill="#9aa3b5">mask under test</text>
+          <!-- reflection to detector -->
+          <line x1="120" y1="74" x2="150" y2="40" stroke="#e0686a" stroke-width="1.6" stroke-dasharray="3 2"/>
+          <rect x="150" y="30" width="30" height="16" rx="2" fill="#13283a" stroke="#5aa9e0"/>
+          <text x="165" y="41" text-anchor="middle" font-size="6.5" fill="#8ec4ee">detector</text>
+          <text x="100" y="104" text-anchor="middle" font-size="7.5" fill="#eda3a4">only ACTIS "sees" at the real λ</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Actinic inspect <span class="badge b-hot">CO-CHOKE</span></h4>
+        <p class="role">Inspects the mask at the actual 13.5 nm exposure wavelength — the only way to catch phase defects that print but are invisible to e-beam/optical tools. Verification gate for every EUV mask.</p>
+        <p class="who">Supply: <b>Lasertec — 100% ACTIS</b></p>
+      </div>
+    </div>
+    <!-- Pellicle -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <text x="14" y="20" class="svglabel">EUV pellicle — dust shield</text>
+          <rect x="30" y="76" width="140" height="14" rx="2" fill="#20242f" stroke="#3a3f55"/>
+          <text x="100" y="86" text-anchor="middle" font-size="7.5" fill="#9aa3b5">reticle</text>
+          <!-- standoffs -->
+          <rect x="40" y="52" width="6" height="24" fill="#3a3f55"/><rect x="154" y="52" width="6" height="24" fill="#3a3f55"/>
+          <!-- membrane -->
+          <line x1="40" y1="52" x2="160" y2="52" stroke="#2dd4bf" stroke-width="2"/>
+          <text x="100" y="46" text-anchor="middle" font-size="7" fill="#2dd4bf">CNT membrane ≥94% T</text>
+          <!-- falling dust -->
+          <circle cx="70" cy="34" r="2" fill="#e0a458"/><circle cx="110" cy="30" r="2" fill="#e0a458"/><circle cx="130" cy="38" r="1.6" fill="#e0a458"/>
+          <text x="100" y="106" text-anchor="middle" font-size="7.5" fill="#9aa3b5">dust lands off-focus, harmless</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Pellicle <span class="badge b-emrg">HIGH-NA GATE</span></h4>
+        <p class="role">A thin membrane held above the mask so any particle lands out of focus. Needs &gt;90% (CNT ≥94%) EUV transmission for 600 W+ / High-NA. The <i>most substitutable</i> link — fabs can run pellicle-less.</p>
+        <p class="who">Supply: <b>Mitsui Chemicals</b> (+ ASML)</p>
+      </div>
+    </div>
+    <!-- Photoresist -->
+    <div class="card">
+      <div class="svgbox">
+        <svg viewBox="0 0 200 110" width="100%" height="110" xmlns="http://www.w3.org/2000/svg">
+          <text x="14" y="20" class="svglabel">EUV photoresist — on wafer</text>
+          <rect x="20" y="72" width="160" height="18" rx="2" fill="#1c2030" stroke="#2f3a52"/>
+          <text x="100" y="84" text-anchor="middle" font-size="7.5" fill="#9aa3b5">silicon wafer</text>
+          <!-- resist film -->
+          <rect x="20" y="60" width="160" height="12" fill="#4faf8e" opacity="0.5"/>
+          <text x="24" y="56" class="svglabel" fill="#7cc9ad">resist film</text>
+          <!-- exposed pattern -->
+          <g fill="#d2a24a"><rect x="40" y="60" width="8" height="12"/><rect x="70" y="60" width="8" height="12"/><rect x="100" y="60" width="8" height="12"/><rect x="130" y="60" width="8" height="12"/></g>
+          <!-- incoming light lines -->
+          <g stroke="#2dd4bf" stroke-width="1.2"><line x1="44" y1="34" x2="44" y2="58"/><line x1="74" y1="34" x2="74" y2="58"/><line x1="104" y1="34" x2="104" y2="58"/><line x1="134" y1="34" x2="134" y2="58"/></g>
+          <text x="100" y="106" text-anchor="middle" font-size="7.5" fill="#e3bd76">metal-oxide resists gate High-NA</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4>Photoresist <span class="badge b-now">CONSUMABLE</span></h4>
+        <p class="role">The light-sensitive film on the wafer that records the pattern. Metal-oxide resists are the High-NA frontier. A recurring, high-margin consumable toll — but an oligopoly, not a monopoly.</p>
+        <p class="who">Supply: JSR (private), <b>TOK</b>, Shin-Etsu, Fujifilm</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. MASK BUILD ASSEMBLY -->
+<section id="s4">
+  <div class="sh"><span class="n">04</span><h2>How a blank becomes a printed wafer</h2><span class="cn">白片如何變成晶圓</span></div>
+  <p class="lead">The mask lifecycle, left to right. The scarce merchant links (<span style="color:#aaa3e6">blank</span>, <span style="color:#eda3a4">inspect</span>) sit early; the fab does the writing and the printing <b>captive</b> — which is exactly why you can't buy "the mask" and must own the inputs.</p>
+  <div class="svgwide">
+    <svg viewBox="0 0 1060 300" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="ar4" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#5a6377"/></marker>
+        <marker id="ar4r" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#e0686a"/></marker>
+      </defs>
+      <!-- step 1 blank -->
+      <rect x="20" y="118" width="150" height="66" rx="9" fill="#2a2540" stroke="#8b84cf"/>
+      <text x="95" y="144" text-anchor="middle" font-size="12" fill="#cfc9f2" font-weight="600">1 · Mask blank</text>
+      <text x="95" y="162" text-anchor="middle" font-size="9.5" fill="#9aa3b5">Hoya / AGC · merchant</text>
+      <text x="95" y="176" text-anchor="middle" font-size="8.5" fill="#aaa3e6">defect-free Mo/Si</text>
+      <line x1="170" y1="151" x2="205" y2="151" stroke="#e0686a" stroke-width="3" marker-end="url(#ar4r)"/>
+      <!-- step 2 write -->
+      <rect x="205" y="118" width="150" height="66" rx="9" fill="#1a1e28" stroke="#c47a9e"/>
+      <text x="280" y="144" text-anchor="middle" font-size="12" fill="#dba0bf" font-weight="600">2 · E-beam write</text>
+      <text x="280" y="162" text-anchor="middle" font-size="9.5" fill="#9aa3b5">JEOL / NuFlare / IMS</text>
+      <text x="280" y="176" text-anchor="middle" font-size="8.5" fill="#697283">captive at fab</text>
+      <line x1="355" y1="151" x2="390" y2="151" stroke="#e0686a" stroke-width="3" marker-end="url(#ar4r)"/>
+      <!-- step 3 inspect -->
+      <rect x="390" y="118" width="150" height="66" rx="9" fill="#1c1518" stroke="#e0686a"/>
+      <text x="465" y="140" text-anchor="middle" font-size="12" fill="#eda3a4" font-weight="600">3 · Actinic inspect</text>
+      <text x="465" y="157" text-anchor="middle" font-size="9.5" fill="#9aa3b5">Lasertec ACTIS · 100%</text>
+      <text x="465" y="172" text-anchor="middle" font-size="8.5" fill="#eda3a4">+ repair (Zeiss)</text>
+      <line x1="540" y1="151" x2="575" y2="151" stroke="#5a6377" stroke-width="6" marker-end="url(#ar4)"/>
+      <!-- step 4 pellicle -->
+      <rect x="575" y="118" width="150" height="66" rx="9" fill="#1a1e28" stroke="#d2a24a"/>
+      <text x="650" y="144" text-anchor="middle" font-size="12" fill="#e3bd76" font-weight="600">4 · Pellicle + ship</text>
+      <text x="650" y="162" text-anchor="middle" font-size="9.5" fill="#9aa3b5">Mitsui · to fab</text>
+      <text x="650" y="176" text-anchor="middle" font-size="8.5" fill="#697283">finished reticle</text>
+      <line x1="725" y1="151" x2="760" y2="151" stroke="#5a6377" stroke-width="6" marker-end="url(#ar4)"/>
+      <!-- step 5 print -->
+      <rect x="760" y="118" width="150" height="66" rx="9" fill="#11261f" stroke="#4faf8e"/>
+      <text x="835" y="140" text-anchor="middle" font-size="12" fill="#7cc9ad" font-weight="600">5 · Scanner prints</text>
+      <text x="835" y="157" text-anchor="middle" font-size="9.5" fill="#9aa3b5">ASML EUV + resist</text>
+      <text x="835" y="172" text-anchor="middle" font-size="8.5" fill="#697283">→ GPU die (TSMC)</text>
+
+      <!-- reuse loop -->
+      <path d="M835 184 C 835 250, 465 250, 465 186" fill="none" stroke="#5a6377" stroke-width="1.4" stroke-dasharray="4 4" marker-end="url(#ar4)"/>
+      <text x="650" y="245" text-anchor="middle" font-size="9" fill="#697283">one mask is reused for thousands–100,000s of wafers</text>
+
+      <!-- note box -->
+      <rect x="20" y="26" width="890" height="70" rx="10" fill="#13161e" stroke="#2a3040"/>
+      <text x="38" y="48" font-size="11" fill="#e8eaf0" font-weight="600">The rent-migration in one line:</text>
+      <text x="38" y="68" font-size="10.5" fill="#9aa3b5">Steps 2 &amp; 5 (write, print) are done captive inside TSMC/Intel/Samsung — not investable. The scarce, merchant, un-copyable links are</text>
+      <text x="38" y="84" font-size="10.5" fill="#eda3a4">step 1 (blank · Hoya) and step 3 (verify · Lasertec). Value migrated one layer below the scanner, to the ingredients and the inspector.</text>
+    </svg>
+  </div>
+  <p class="cap">Because the mask is <i>reused</i>, blank/mask demand tracks new chip designs and node ramps (tape-outs) — not linear wafer volume. That is the single most important nuance in the whole thesis (see §12).</p>
+</section>
+
+<!-- 5. DEPLOYMENT / USE-CASE -->
+<section id="s5">
+  <div class="sh"><span class="n">05</span><h2>Where the mask ecosystem is leveraged</h2><span class="cn">應用領域</span></div>
+  <p class="lead">Three demand pools pull on the same blank + inspection monopoly. Reading left → right, the EUV-layer intensity rises — and the High-NA frontier multiplies mask complexity per design.</p>
+  <div class="svgwide">
+    <svg viewBox="0 0 1060 250" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <!-- LOGIC -->
+      <text x="40" y="28" font-size="12" fill="#8b84cf" font-weight="600">LEADING-EDGE LOGIC</text>
+      <text x="40" y="44" class="svglabel">GPU/ASIC · N3→N2 · ~20–30 EUV layers</text>
+      <rect x="34" y="58" width="300" height="150" rx="10" fill="#17131f" stroke="#3a3352"/>
+      <rect x="60" y="86" width="70" height="40" rx="5" fill="#241d33" stroke="#8b84cf"/><text x="95" y="110" text-anchor="middle" font-size="9" fill="#cfc9f2">Rubin</text>
+      <rect x="150" y="86" width="70" height="40" rx="5" fill="#241d33" stroke="#8b84cf"/><text x="185" y="110" text-anchor="middle" font-size="9" fill="#cfc9f2">MI400</text>
+      <rect x="240" y="86" width="70" height="40" rx="5" fill="#241d33" stroke="#8b84cf"/><text x="275" y="110" text-anchor="middle" font-size="9" fill="#cfc9f2">TPU/ASIC</text>
+      <text x="184" y="150" text-anchor="middle" font-size="9" fill="#aaa3e6">most EUV layers/chip · the biggest blank pool</text>
+      <text x="184" y="170" text-anchor="middle" font-size="8.5" fill="#697283">TSMC N2 ramp 2026 → the near-term driver</text>
+
+      <!-- DRAM / HBM -->
+      <text x="380" y="28" font-size="12" fill="#5aa9e0" font-weight="600">DRAM / HBM LOGIC</text>
+      <text x="380" y="44" class="svglabel">1γ DRAM + HBM base die · EUV-enabled</text>
+      <rect x="374" y="58" width="270" height="150" rx="10" fill="#0e1722" stroke="#244258"/>
+      <g>
+        <rect x="450" y="80" width="120" height="12" rx="2" fill="#13283a" stroke="#5aa9e0"/>
+        <rect x="450" y="96" width="120" height="12" rx="2" fill="#13283a" stroke="#5aa9e0"/>
+        <rect x="450" y="112" width="120" height="12" rx="2" fill="#13283a" stroke="#5aa9e0"/>
+        <rect x="450" y="128" width="120" height="14" rx="2" fill="#1a3346" stroke="#8ec4ee"/><text x="510" y="139" text-anchor="middle" font-size="8" fill="#8ec4ee">base die (EUV)</text>
+      </g>
+      <text x="509" y="164" text-anchor="middle" font-size="9" fill="#8ec4ee">EUV entering DRAM → more layers/bit</text>
+      <text x="509" y="182" text-anchor="middle" font-size="8.5" fill="#697283">SK Hynix / Samsung / Micron</text>
+
+      <!-- HIGH-NA -->
+      <text x="700" y="28" font-size="12" fill="#5fc98a" font-weight="600">HIGH-NA FRONTIER</text>
+      <text x="700" y="44" class="svglabel">0.55 NA · half-field · Intel 14A first</text>
+      <rect x="694" y="58" width="332" height="150" rx="10" fill="#0e1a14" stroke="#24533c"/>
+      <!-- half-field stitch -->
+      <rect x="744" y="86" width="90" height="52" rx="4" fill="#123124" stroke="#5fc98a"/>
+      <rect x="840" y="86" width="90" height="52" rx="4" fill="#123124" stroke="#5fc98a" stroke-dasharray="3 2"/>
+      <line x1="834" y1="82" x2="834" y2="142" stroke="#e0686a" stroke-width="1.6"/>
+      <text x="834" y="78" text-anchor="middle" font-size="7.5" fill="#eda3a4">stitch</text>
+      <text x="837" y="160" text-anchor="middle" font-size="9" fill="#5fc98a">half-field → MORE masks / design</text>
+      <text x="837" y="178" text-anchor="middle" font-size="8.5" fill="#697283">Intel/SK Hynix 2027 · TSMC A14 low-NA (High-NA ~2029)</text>
+    </svg>
+  </div>
+  <p class="cap">The near-term blank/inspection driver is rising EUV layer counts in <b>logic (N2)</b> + EUV creeping into <b>DRAM</b> — NOT High-NA units yet (TSMC is deferring High-NA to ~2029). High-NA is the 2027+ intensifier, not the 2026 catalyst.</p>
+</section>
+
+<!-- 6. SUPPLY CHAIN -->
+<section id="s6">
+  <div class="sh"><span class="n">06</span><h2>End-to-end supply chain</h2><span class="cn">上下游全鏈</span></div>
+  <div class="leg">
+    <span><span class="sw" style="background:var(--up)"></span>Upstream materials</span>
+    <span><span class="sw" style="background:var(--l3)"></span>Mask blank</span>
+    <span><span class="sw" style="background:var(--pkg)"></span>Write / inspect</span>
+    <span><span class="sw" style="background:var(--l2)"></span>Pellicle / resist</span>
+    <span><span class="sw" style="background:var(--l1)"></span>Scanner → die + buyers</span>
+    <span><span class="sw" style="background:var(--choke)"></span>Chokepoint</span>
+  </div>
+  <div class="svgwide">
+    <svg viewBox="-12 -2 1124 492" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="aT6" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5a6377"/></marker>
+        <marker id="aR6" markerWidth="9" markerHeight="9" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e0686a"/></marker>
+      </defs>
+
+      <text x="22" y="20" font-size="11" fill="#697283" font-weight="600">UPSTREAM</text>
+      <line x1="110" y1="16" x2="980" y2="16" stroke="#2a3040" stroke-width="1"/>
+      <polygon points="982,16 974,12 974,20" fill="#2a3040"/>
+      <text x="1078" y="20" font-size="11" fill="#697283" font-weight="600" text-anchor="end">DOWNSTREAM</text>
+
+      <!-- flow connectors (thin/red into&out of chokepoint; thick/grey elsewhere) -->
+      <line x1="180" y1="180" x2="200" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR6)"/>
+      <line x1="360" y1="180" x2="380" y2="180" stroke="#e0686a" stroke-width="3" marker-end="url(#aR6)"/>
+      <line x1="540" y1="180" x2="560" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
+      <line x1="720" y1="180" x2="740" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
+      <line x1="900" y1="180" x2="920" y2="180" stroke="#5a6377" stroke-width="9" marker-end="url(#aT6)"/>
+
+      <!-- C1 Materials -->
+      <rect x="20" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="20" y="40" width="5" height="262" rx="2" fill="#5b81c4"/>
+      <text x="36" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Materials</text>
+      <text x="36" y="74" font-size="9" fill="#8aa7df" font-weight="600">UPSTREAM</text>
+      <g font-size="9">
+        <rect x="32" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="98" fill="#fff" font-weight="600">ULE quartz</text><text x="40" y="110" fill="#9aa3b5">Corning · AGC</text>
+        <rect x="32" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="136" fill="#fff" font-weight="600">Mo/Si targets</text><text x="40" y="148" fill="#9aa3b5">sputter materials</text>
+        <rect x="32" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="40" y="174" fill="#fff" font-weight="600">CNT / membrane</text><text x="40" y="186" fill="#9aa3b5">pellicle feed</text>
+      </g>
+      <text x="36" y="214" font-size="9" fill="#9aa3b5">real barrier, several</text>
+      <text x="36" y="228" font-size="8.5" fill="#697283">qualified suppliers</text>
+
+      <!-- C2 BLANK CHOKEPOINT -->
+      <rect x="200" y="40" width="160" height="262" rx="10" fill="#1c1518" stroke="#5a3236" stroke-width="1.5"/>
+      <rect x="200" y="40" width="5" height="262" rx="2" fill="#8b84cf"/>
+      <rect x="210" y="26" width="140" height="20" rx="5" fill="#e0686a"/><text x="280" y="40" font-size="9.5" fill="#1c1518" font-weight="700" text-anchor="middle">CHOKEPOINT · BLANK</text>
+      <text x="216" y="62" font-size="12" fill="#e8eaf0" font-weight="600">Mask blank</text>
+      <text x="216" y="76" font-size="9" fill="#aaa3e6" font-weight="600">DUOPOLY ~90%+</text>
+      <g font-size="9">
+        <rect x="212" y="86" width="136" height="32" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="220" y="100" fill="#fff" font-weight="700">Hoya ~70%+ ★</text><text x="220" y="112" fill="#eda3a4">EUV blank leader (est.)</text>
+        <rect x="212" y="124" width="136" height="32" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="220" y="138" fill="#fff" font-weight="600">AGC</text><text x="220" y="150" fill="#bcb3e6">#2 · the other maker</text>
+        <rect x="212" y="162" width="136" height="32" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="220" y="176" fill="#fff" font-weight="600">Shin-Etsu</text><text x="220" y="188" fill="#bcb3e6">DUV / development</text>
+      </g>
+      <text x="216" y="214" font-size="9" fill="#eda3a4">one defect prints</text>
+      <text x="216" y="228" font-size="8.5" fill="#697283">on every wafer</text>
+
+      <!-- C3 Write / Inspect -->
+      <rect x="380" y="40" width="160" height="262" rx="10" fill="#1c1518" stroke="#5a3236" stroke-width="1.5"/>
+      <rect x="380" y="40" width="5" height="262" rx="2" fill="#c47a9e"/>
+      <rect x="392" y="26" width="136" height="20" rx="5" fill="#e0686a"/><text x="460" y="40" font-size="9.5" fill="#1c1518" font-weight="700" text-anchor="middle">CO-CHOKE · INSPECT</text>
+      <text x="396" y="62" font-size="12" fill="#e8eaf0" font-weight="600">Write + verify</text>
+      <text x="396" y="76" font-size="9" fill="#dba0bf" font-weight="600">PATTERN</text>
+      <g font-size="9">
+        <rect x="392" y="86" width="136" height="32" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="400" y="100" fill="#fff" font-weight="700">Lasertec ★</text><text x="400" y="112" fill="#eda3a4">ACTIS actinic · 100%</text>
+        <rect x="392" y="124" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="138" fill="#fff" font-weight="600">E-beam write</text><text x="400" y="150" fill="#9aa3b5">JEOL·NuFlare·IMS</text>
+        <rect x="392" y="162" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="400" y="176" fill="#fff" font-weight="600">Repair</text><text x="400" y="188" fill="#9aa3b5">Zeiss</text>
+      </g>
+      <text x="396" y="214" font-size="9" fill="#eda3a4">can't verify any</text>
+      <text x="396" y="228" font-size="8.5" fill="#697283">other way at 13.5nm</text>
+
+      <!-- C4 Pellicle/Resist -->
+      <rect x="560" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="560" y="40" width="5" height="262" rx="2" fill="#d2a24a"/>
+      <text x="576" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Pellicle + resist</text>
+      <text x="576" y="74" font-size="9" fill="#e3bd76" font-weight="600">FINISH · WAFER</text>
+      <g font-size="9">
+        <rect x="572" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="98" fill="#fff" font-weight="600">Pellicle</text><text x="580" y="110" fill="#9aa3b5">Mitsui (near-mono)</text>
+        <rect x="572" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="136" fill="#fff" font-weight="600">EUV resist</text><text x="580" y="148" fill="#9aa3b5">JSR* · TOK · Fuji</text>
+        <rect x="572" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="580" y="174" fill="#fff" font-weight="600">Metal-oxide</text><text x="580" y="186" fill="#9aa3b5">Inpria (JSR)</text>
+      </g>
+      <text x="576" y="214" font-size="9" fill="#e3bd76">consumable toll</text>
+      <text x="576" y="228" font-size="8.5" fill="#697283">*JSR now private (JIC)</text>
+
+      <!-- C5 Scanner/die -->
+      <rect x="740" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="740" y="40" width="5" height="262" rx="2" fill="#4faf8e"/>
+      <text x="756" y="60" font-size="12" fill="#e8eaf0" font-weight="600">Scanner → die</text>
+      <text x="756" y="74" font-size="9" fill="#7cc9ad" font-weight="600">PRINT</text>
+      <g font-size="9">
+        <rect x="752" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="98" fill="#fff" font-weight="600">ASML EUV</text><text x="760" y="110" fill="#9aa3b5">scanner monopoly</text>
+        <rect x="752" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="136" fill="#fff" font-weight="600">Zeiss optics</text><text x="760" y="148" fill="#9aa3b5">Cymer source</text>
+        <rect x="752" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="760" y="174" fill="#fff" font-weight="600">GPU die</text><text x="760" y="186" fill="#9aa3b5">TSMC · Intel · Sam.</text>
+      </g>
+      <text x="756" y="214" font-size="9" fill="#7cc9ad">biggest $ but priced</text>
+      <text x="756" y="228" font-size="8.5" fill="#697283">die-maker is captive</text>
+
+      <!-- C6 Buyers -->
+      <rect x="920" y="40" width="160" height="262" rx="10" fill="#141822" stroke="#2a3040"/>
+      <rect x="920" y="40" width="5" height="262" rx="2" fill="#4faf8e"/>
+      <text x="936" y="60" font-size="12" fill="#e8eaf0" font-weight="600">End buyers</text>
+      <text x="936" y="74" font-size="9" fill="#7cc9ad" font-weight="600">DEMAND</text>
+      <g font-size="9">
+        <rect x="932" y="84" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="98" fill="#fff" font-weight="600">NVIDIA · AMD</text><text x="940" y="110" fill="#9aa3b5">GPU / accelerator</text>
+        <rect x="932" y="122" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="136" fill="#fff" font-weight="600">Hyperscaler ASIC</text><text x="940" y="148" fill="#9aa3b5">TPU · Trainium · MTIA</text>
+        <rect x="932" y="160" width="136" height="32" rx="6" fill="#1b2030" stroke="#2f3a52"/><text x="940" y="174" fill="#fff" font-weight="600">HBM makers</text><text x="940" y="186" fill="#9aa3b5">SK Hynix · Micron</text>
+      </g>
+      <text x="936" y="214" font-size="9" fill="#7cc9ad">demand ∝ tape-outs</text>
+      <text x="936" y="228" font-size="8.5" fill="#697283">not raw wafer volume</text>
+
+      <!-- scarcity premium bars -->
+      <line x1="40" y1="432" x2="1080" y2="432" stroke="#2a3040" stroke-width="1"/>
+      <text x="40" y="326" font-size="9" fill="#697283">hidden scarcity premium (un-bid durable toll)</text>
+      <g>
+        <rect x="80" y="410" width="40" height="22" rx="2" fill="#2dd4bf" opacity="0.3"/>
+        <rect x="260" y="338" width="40" height="94" rx="2" fill="#e0686a"/>
+        <rect x="440" y="356" width="40" height="76" rx="2" fill="#e0686a" opacity="0.82"/>
+        <rect x="620" y="392" width="40" height="40" rx="2" fill="#2dd4bf" opacity="0.5"/>
+        <rect x="800" y="404" width="40" height="28" rx="2" fill="#5fc98a" opacity="0.55"/>
+        <rect x="980" y="416" width="40" height="16" rx="2" fill="#2dd4bf" opacity="0.28"/>
+      </g>
+      <text x="280" y="330" font-size="9" fill="#eda3a4" text-anchor="middle" font-weight="600">rent peaks at the blank</text>
+      <text x="460" y="348" font-size="8.5" fill="#eda3a4" text-anchor="middle">2nd: actinic inspect</text>
+      <text x="820" y="396" font-size="8" fill="#7cc9ad" text-anchor="middle">ASML: biggest $ but bid</text>
+      <g font-size="8.5" fill="#697283" text-anchor="middle">
+        <text x="100" y="446">materials</text><text x="280" y="446">blank</text><text x="460" y="446">write/inspect</text><text x="640" y="446">pellicle/resist</text><text x="820" y="446">scanner/die</text><text x="1000" y="446">buyers</text>
+      </g>
+      <text x="550" y="468" font-size="8.5" fill="#697283" text-anchor="middle">Red arrows = constricted throughput into &amp; out of the blank; this axis ranks UN-BID durable toll.</text>
+      <text x="550" y="482" font-size="8.5" fill="#697283" text-anchor="middle">ASML captures the biggest absolute $ — but it's the headline and already priced, so it scores low here.</text>
+    </svg>
+  </div>
+  <p class="cap">The scarcity rent peaks at the mask blank (Hoya) and the actinic inspector (Lasertec) — the two merchant links a mask cannot skip. The scanner earns more dollars but is fully bid; the blank/inspection toll is the one still hiding in plain sight.</p>
+</section>
+
+<!-- 7. TIMELINE -->
+<section id="s7">
+  <div class="sh"><span class="n">07</span><h2>Multi-year evolution — by demand pool</h2><span class="cn">多年發展時間軸</span></div>
+  <p class="lead">How each pool pulls on the blank + inspection monopoly, 2025→2028. <b style="color:#eda3a4">Tinted</b> cells mark supply-stress / catalyst windows. The hinge is <b>2026</b>: Intel shipped its first High-NA EUV logic silicon (a milestone, not yet a mass-market node) and ASML raised guidance (both 15-Jul-2026), while the real near-term driver is the N2 ramp lifting low-NA EUV layer counts.</p>
+  <div class="tlgrid">
+    <div class="tlhead"><div>Pool ↓ / Year →</div><div>2025</div><div>2026</div><div>2027</div><div>2028</div></div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--l3)"></span>Logic (N3→N2)</div>
+      <div class="cell"><b>N3 volume</b>Blackwell/Rubin-era EUV layer counts</div>
+      <div class="cell hot"><b>N2 ramp</b>more EUV layers/chip → blank &amp; inspection demand steps up</div>
+      <div class="cell hot"><b>A16 / N2P</b>backside power adds layers; more ASIC tape-outs</div>
+      <div class="cell"><b>Feynman N2</b>design starts broaden the mask pool</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--dout)"></span>DRAM / HBM</div>
+      <div class="cell"><b>EUV enters DRAM</b>1γ nodes at SK Hynix/Samsung</div>
+      <div class="cell hot"><b>HBM4 base die</b>logic base die on EUV foundry nodes</div>
+      <div class="cell"><b>1δ DRAM</b>more EUV layers per bit</div>
+      <div class="cell"><b>HBM4E</b>EUV intensity compounds</div>
+    </div>
+    <div class="tlrow">
+      <div class="lab"><span class="sw" style="background:var(--dacr)"></span>High-NA frontier</div>
+      <div class="cell"><b>EXE:5000 R&amp;D</b>Intel/imec learning cycles</div>
+      <div class="cell hot"><b>Intel 14A first silicon</b>first High-NA logic milestone (15-Jul-26; not yet mass-market); new blank/pellicle/resist specs</div>
+      <div class="cell"><b>Intel/SK Hynix HVM</b>EXE:5200 in volume; half-field → more masks/design</div>
+      <div class="cell"><b>Samsung SF1.4</b>TSMC still low-NA (High-NA ~2029)</div>
+    </div>
+  </div>
+  <p class="cap">Reading down a column shows what's live that year; across a row shows one pool's arc. The near-term (2026) blank/inspection driver is the N2 logic ramp + EUV-in-DRAM — NOT High-NA units, which are the 2027+ intensifier.</p>
+</section>
+
+<!-- 8. CHOKEPOINT + SEVERITY + VARIANT -->
+<section id="s8">
+  <div class="sh"><span class="n">08</span><h2>The chokepoint — the defect-free mask blank</h2><span class="cn">卡點</span></div>
+  <div class="choke">
+    <div class="ttl">
+      <svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 2 L22 20 H2 Z" fill="none" stroke="#e0686a" stroke-width="2" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="14" stroke="#e0686a" stroke-width="2"/><circle cx="12" cy="17" r="1.2" fill="#e0686a"/></svg>
+      <h3>Defect-free EUV mask blank (+ its actinic inspection)</h3>
+    </div>
+    <p>Every EUV exposure passes through a reflective mask built on a <b>mask blank</b>: quartz coated with 40–50 Mo/Si layers held to a <b>phase-defect density below ~0.1 /cm² at 13.5 nm</b> (est.) — the line between production-viable and scrap. Only <b>two companies (Hoya ~70%+ EUV est., AGC) commercially make EUV blanks</b>, and only <b>Lasertec (100% ACTIS)</b> can verify one at the true wavelength. A single defect prints on <i>every</i> wafer, so there is no tolerance and no quick second source — the know-how took a decade to build. And because EUV is <b>banned to China</b>, the China-substitution bear that broke other material chokepoints is muted here: the moat is export-control-protected.</p>
+    <div class="stats">
+      <div><b class="num">~90%+</b><span>Hoya + AGC EUV-blank duopoly</span></div>
+      <div><b class="num">100%</b><span>Lasertec actinic (ACTIS) inspection</span></div>
+      <div><b class="num">&lt;0.1</b><span>phase defects/cm² required (13.5nm)</span></div>
+      <div><b class="num">~49%</b><span>Lasertec op margin — rent captured</span></div>
+      <div><b class="num">0</b><span>China EUV access (export-controlled)</span></div>
+    </div>
+  </div>
+
+  <!-- severity scorecard -->
+  <div class="panel" style="margin-top:14px">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
+      <h4 style="font-size:13px;font-weight:600">Chokepoint-severity scorecard <span style="color:var(--dim);font-weight:400;font-size:11px">· for the mask-BLANK link (Hoya) · 1 = mild, 5 = acute · per-name links scored in §12</span></h4>
+      <div style="text-align:right"><span class="num" style="font-size:26px;font-weight:600;color:var(--choke)">17</span><span class="num" style="font-size:13px;color:var(--dim)">/20</span><div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em">composite · HIGH</div></div>
+    </div>
+    <div style="display:grid;gap:11px">
+      <div style="display:grid;grid-template-columns:180px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Supply concentration</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:#3a3040"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">4</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">Two makers ≈ 90%; Hoya ~70% EUV (est.). A duopoly, not sole-source → 4 not 5</div>
+      </div>
+      <div style="display:grid;grid-template-columns:180px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Lead time to add capacity</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">5</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">Defect-free Mo/Si multilayer at &lt;0.1/cm² = a decade of tacit know-how</div>
+      </div>
+      <div style="display:grid;grid-template-columns:180px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Low substitutability</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:#3a3040"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">4</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">No EUV without a blank; captive in-sourcing is possible but slow → 4</div>
+      </div>
+      <div style="display:grid;grid-template-columns:180px 120px 1fr;gap:14px;align-items:center">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Demand-growth pressure</div>
+        <div style="display:flex;gap:4px">
+          <span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:var(--choke)"></span><span style="flex:1;height:8px;border-radius:2px;background:#3a3040"></span>
+          <span class="num" style="margin-left:8px;font-size:12px;color:var(--choke)">4</span>
+        </div>
+        <div style="font-size:11.5px;color:var(--mut)">EUV layers rising + AI/HBM — but demand ∝ design starts, not wafer volume → 4</div>
+      </div>
+    </div>
+    <p class="cap" style="margin-top:12px">Severity 17/20 — high but a notch below the rotation's 18–19 monopolies, because it's a duopoly (not sole-source) and demand scales with tape-outs, not raw AI wafer volume. <b>Tightness ≠ a good buy</b> — see the awareness curve and the thin scenario EV. The actinic-inspection link (Lasertec) scores 18; the resist link (TOK) scores 14 (§12).</p>
+  </div>
+
+  <div class="variant">
+    <div class="h">THE VARIANT / DISAGGREGATION · 變異認知 (the edge)</div>
+    <p><b>Consensus</b> owns the AI compute-fabric trade through TSMC (the fab) and ASML (the scanner) — both fully priced (ASML +68% YTD). <b>The variant:</b> leading-edge EUV masks are made <i>captive</i>, so the investable scarcity migrated one layer below the scanner to the mask's un-copyable merchant inputs — and the <b>scarcest structural link (the blank duopoly) sits in the cheapest stock (Hoya +6% YTD)</b>, because Hoya is priced as an eyewear / medical-scope / HDD-glass conglomerate (Life Care ≈ 62% of revenue), not as an AI-litho monopoly. The crowd instead bids the famous inspection monopoly (Lasertec +55%) and the resist (TOK +80%). This is the recurring rotation pattern — the scarcest link hiding in the least-bid stock (the Ajinomoto / Synopsys / Advantest / JCU setup).</p>
+    <p><b>How it could be wrong:</b> mask/blank demand tracks <b>design starts and node ramps, not wafer volume</b> (a mask is reused for 10⁵ wafers), so the "AI volume" narrative over-reaches; the fabs can <b>in-source</b> blanks over time (Intel owns IMS); and Hoya may simply <b>never re-rate</b> as a litho monopoly while it's buried in a healthcare P&amp;L. The thesis needs a catalyst — a visible acceleration in Hoya's IT-segment / mask-blank revenue on the N2 ramp — that may not come. See §12 open questions.</p>
+  </div>
+
+  <!-- component-interaction schematic -->
+  <div class="svgwide" style="margin-top:14px">
+    <svg viewBox="0 0 1060 210" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <text x="20" y="24" font-size="12" fill="#e8eaf0" font-weight="600">Two ways to own the same AI-litho scarcity — and where the rent actually hides</text>
+      <!-- LEFT: headline -->
+      <rect x="20" y="40" width="500" height="150" rx="10" fill="#11261f" stroke="#24533c"/>
+      <text x="40" y="64" font-size="12" fill="#7cc9ad" font-weight="600">A · What the crowd buys (priced)</text>
+      <rect x="40" y="78" width="130" height="40" rx="6" fill="#13283a" stroke="#5aa9e0"/><text x="105" y="98" text-anchor="middle" font-size="10" fill="#8ec4ee">ASML scanner</text><text x="105" y="110" text-anchor="middle" font-size="8" fill="#697283">+68% YTD</text>
+      <rect x="200" y="78" width="130" height="40" rx="6" fill="#13283a" stroke="#5aa9e0"/><text x="265" y="98" text-anchor="middle" font-size="10" fill="#8ec4ee">TSMC fab</text><text x="265" y="110" text-anchor="middle" font-size="8" fill="#697283">the die-maker</text>
+      <rect x="360" y="78" width="130" height="40" rx="6" fill="#13283a" stroke="#5aa9e0"/><text x="425" y="98" text-anchor="middle" font-size="10" fill="#8ec4ee">Lasertec/TOK</text><text x="425" y="110" text-anchor="middle" font-size="8" fill="#697283">+55% / +80%</text>
+      <text x="40" y="146" font-size="9.5" fill="#9aa3b5">Biggest absolute $, true monopolies — but the scarcity is</text>
+      <text x="40" y="162" font-size="9.5" fill="#9aa3b5">fully in the price. High quality, low remaining asymmetry.</text>
+      <text x="40" y="180" font-size="9.5" fill="#eda3a4">Tightness ≠ a good buy.</text>
+
+      <!-- RIGHT: hidden -->
+      <rect x="540" y="40" width="500" height="150" rx="10" fill="#1c1518" stroke="#5a3236"/>
+      <text x="560" y="64" font-size="12" fill="#eda3a4" font-weight="600">B · Where the un-bid toll hides</text>
+      <rect x="560" y="78" width="200" height="40" rx="6" fill="#2a1a1f" stroke="#e0686a"/><text x="660" y="98" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">Hoya · mask blank</text><text x="660" y="110" text-anchor="middle" font-size="8" fill="#eda3a4">~70%+ EUV · +6% YTD</text>
+      <rect x="780" y="78" width="240" height="40" rx="6" fill="#221c2e" stroke="#5a4a7a"/><text x="900" y="94" text-anchor="middle" font-size="9.5" fill="#fff">priced as eyewear + medical</text><text x="900" y="108" text-anchor="middle" font-size="8" fill="#bcb3e6">Life Care ≈ 62% of revenue</text>
+      <text x="560" y="146" font-size="9.5" fill="#d9c4c6">The scarcest STRUCTURAL link (defect-free blank) in the</text>
+      <text x="560" y="162" font-size="9.5" fill="#d9c4c6">LEAST-bid stock — the market doesn't tag Hoya as AI.</text>
+      <text x="560" y="180" font-size="9.5" fill="#7cd6a0">Hidden alpha — but needs a re-rating catalyst (may not come).</text>
+    </svg>
+  </div>
+  <p class="cap">The disaggregation in one picture: same scarcity, two very different prices. The rent the market can see (scanner, inspection, resist) is bid; the rent it mis-files as "healthcare" (Hoya's blank) is not.</p>
+</section>
+
+<!-- 9. AWARENESS CURVE -->
+<section id="s9">
+  <div class="sh"><span class="n">09</span><h2>Are we early? The awareness curve</h2><span class="cn">現在是早期嗎</span></div>
+  <p class="lead">The game is owning a chokepoint <b>before</b> the crowd prices it — the way the 2018 MLCC and 2021 CPU/substrate shortages showed up in <b>lead-times and pricing weeks before earnings</b>. Here the honest read is unusual: the tightest links (Lasertec inspection, TOK resist) have <i>already</i> run, but the scarcest <i>structural</i> link — Hoya's blank duopoly — is the <b>laggard</b>, hidden in a healthcare P&amp;L. That mispricing is the whole thesis.</p>
+
+  <div class="svgwide" style="margin-bottom:14px">
+    <svg viewBox="0 0 1060 320" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="alz9" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5fc98a" stop-opacity="0.22"/><stop offset="1" stop-color="#5fc98a" stop-opacity="0"/></linearGradient></defs>
+      <rect x="40" y="40" width="190" height="230" fill="#11141c"/>
+      <rect x="230" y="40" width="200" height="230" fill="url(#alz9)" stroke="#2c5a40" stroke-dasharray="3 4"/>
+      <rect x="630" y="40" width="200" height="230" fill="#1a1216" opacity="0.5"/>
+      <text x="135" y="32" text-anchor="middle" class="axis-zone" fill="#697283">LATENT</text>
+      <text x="330" y="32" text-anchor="middle" class="axis-zone" fill="#5fc98a" font-weight="600">EARLY SIGNAL · ALPHA</text>
+      <text x="530" y="32" text-anchor="middle" class="axis-zone" fill="#d2a24a">RECOGNITION</text>
+      <text x="730" y="32" text-anchor="middle" class="axis-zone" fill="#e0686a">EUPHORIA</text>
+      <text x="930" y="32" text-anchor="middle" class="axis-zone" fill="#697283">FULLY PRICED</text>
+      <path d="M40,258 C 260,250 280,205 430,150 C 560,104 640,70 760,62 C 880,56 980,58 1020,58" fill="none" stroke="#4a5570" stroke-width="2.5"/>
+      <text x="48" y="288" font-size="10" fill="#697283">time · market awareness  →</text>
+      <text x="20" y="150" font-size="10" fill="#697283" transform="rotate(-90 20 150)">price / crowding →</text>
+      <!-- Hoya: early by price -->
+      <circle cx="360" cy="176" r="7" fill="#5fc98a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="360" y="164" text-anchor="middle" font-size="11" fill="#7cd6a0" font-weight="700">Hoya</text>
+      <text x="360" y="200" text-anchor="middle" font-size="9" fill="#9aa3b5" class="m">+6% YTD · ~30x</text>
+      <!-- ASML: recognition -->
+      <circle cx="600" cy="92" r="6" fill="#d2a24a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="600" y="80" text-anchor="middle" font-size="10" fill="#e3bd76" font-weight="700">ASML</text>
+      <text x="600" y="116" text-anchor="middle" font-size="9" fill="#9aa3b5" class="m">+68% · headline</text>
+      <!-- Lasertec: recognition->euphoria -->
+      <circle cx="700" cy="72" r="7" fill="#d2a24a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="700" y="60" text-anchor="middle" font-size="11" fill="#e3bd76" font-weight="700">Lasertec</text>
+      <text x="700" y="96" text-anchor="middle" font-size="9" fill="#9aa3b5" class="m">+55% · ~49x</text>
+      <!-- TOK: euphoria -->
+      <circle cx="800" cy="64" r="7" fill="#e0686a" stroke="#0b0d12" stroke-width="2"/>
+      <text x="800" y="52" text-anchor="middle" font-size="11" fill="#eda3a4" font-weight="700">TOK</text>
+      <text x="800" y="88" text-anchor="middle" font-size="9" fill="#9aa3b5" class="m">+80% · euphoria</text>
+      <!-- latent marker -->
+      <circle cx="288" cy="212" r="6" fill="none" stroke="#5fc98a" stroke-width="2" stroke-dasharray="2 2"/>
+      <text x="316" y="200" text-anchor="end" font-size="9" fill="#7cd6a0">where the NEXT entry hides ↙</text>
+      <text x="150" y="240" text-anchor="middle" font-size="8.5" fill="#697283">AGC · Mitsui · metal-oxide resist</text>
+      <text x="330" y="262" text-anchor="middle" font-size="9.5" fill="#5fc98a">↑ enter here — Hoya sits closest</text>
+      <text x="775" y="250" text-anchor="middle" font-size="9.5" fill="#eda3a4">most retail buys here — too late</text>
+    </svg>
+  </div>
+  <p class="cap" style="margin-top:-4px;margin-bottom:14px">Horizontal = awareness stage (qualitative). Dot height = how much is already in the price as of 16 Jul 2026 — Hoya least (the scarce link the market files as "healthcare"), TOK most. Hoya's low YTD is the anomaly the thesis rests on.</p>
+
+  <div class="panel" style="margin-bottom:14px;border-color:#2c5a40;background:rgba(95,201,138,.05)">
+    <h4 style="font-size:13px;margin-bottom:6px;font-weight:600;color:var(--dacr)">Still-latent watchlist — where the NEXT early entry hides <span class="cn" style="font-weight:400;color:var(--dim)">尚未被發現的早期標的</span></h4>
+    <p style="font-size:12px;color:var(--mut);line-height:1.55">Even Hoya (+6%) is only "early by price," not undiscovered. To buy <i>before</i> the crowd wakes to the next link, watch what is still unpriced and under-covered today:</p>
+    <table class="tbl" style="margin-top:8px">
+      <tr><th>Latent candidate (link)</th><th>Why it could be next</th><th>Trigger that wakes it up</th></tr>
+      <tr><td><b>AGC · 5201.T</b> — the #2 mask blank</td><td>The cheaper duopoly hedge, even more diluted in a glass giant (+23% YTD); a Hoya-lite on the same barrier</td><td>Blank capacity-expansion PRs; any Hoya supply wobble</td></tr>
+      <tr><td><b>Mitsui Chemicals · 4183.T</b> — EUV pellicle near-monopoly</td><td>CNT pellicles (≥94% T) become mandatory for High-NA 600W+; +8% YTD, un-bid</td><td>High-NA pellicle qualification; Intel/SK-Hynix 14A ramp</td></tr>
+      <tr><td><b>Metal-oxide / dry resist</b> — Inpria (JSR-owned), Lam dry-resist</td><td>The High-NA resist frontier; JSR (the #1 resist, ~27%) went <i>private</i> — the "absorbed pure-play" tell</td><td>First High-NA metal-oxide production win; a new listed resist vehicle</td></tr>
+    </table>
+    <p class="cap" style="margin-top:6px">Watch-only ideas, not recommendations — most latent bets fail. The merchant mask <i>shops</i> (Photronics −7% YTD, Toppan, DNP) are NOT the play: leading-edge masks are captive, so they sit on mature nodes.</p>
+  </div>
+
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:4px;font-weight:600">Leading indicators — the early-signal dashboard</h4>
+      <p style="font-size:11px;color:var(--dim);margin-bottom:10px">These move BEFORE reported revenue. Watch them to catch the next leg early.</p>
+      <table class="liw">
+        <tr><th>Signal · trigger</th><th>Where an amateur can actually read it</th></tr>
+        <tr><td><b>Lasertec order intake / backlog</b><br><span class="dotR" style="font-size:11px">&gt;18 mo · leads the whole mask complex</span></td><td>Lasertec IR quarterly results PDFs (free); order-outlook revisions</td></tr>
+        <tr><td><b>Hoya IT-segment / mask-blank rev</b><br><span class="dotG" style="font-size:11px">accel. = the re-rating tell</span></td><td>Hoya quarterly results &amp; segment slides (free IR)</td></tr>
+        <tr><td><b>ASML EUV/High-NA bookings + foundry capex</b><br><span class="dotG" style="font-size:11px">rising · a cut = exit signal</span></td><td>ASML &amp; TSMC earnings decks; 10-Q/6-K capex lines</td></tr>
+        <tr><td><b>EUV layer-count roadmap (N2/A16/14A)</b><br><span class="dotA" style="font-size:11px">more layers = more masks/blanks</span></td><td>SemiAnalysis / SPIE / IEDM notes; foundry tech-day slides</td></tr>
+        <tr><td><b>High-NA shipments (EXE:5200)</b><br><span class="dotA" style="font-size:11px">ramp = pellicle/blank spec change</span></td><td>ASML earnings + press; Intel/SK Hynix updates</td></tr>
+        <tr><td><b>Blank / pellicle capacity adds</b><br><span class="dotA" style="font-size:11px">Hoya · AGC · Mitsui expansions</span></td><td>Company press releases; trade press (TheElec, Digitimes)</td></tr>
+        <tr><td><b>EUV export-control changes</b><br><span class="dotG" style="font-size:11px">tighter = moat deepens</span></td><td>US BIS / Dutch / Federal Register notices (free)</td></tr>
+      </table>
+      <p style="font-size:10px;color:var(--dim);margin-top:8px">Thresholds are illustrative starting points — calibrate to your own risk. Every signal is readable from <b>free public sources</b> (IR PDFs, 10-Qs, PRs, BIS notices) before it hits reported revenue.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">How to be early here <span class="cn" style="font-weight:400;color:var(--dim)">如何提前布局</span></h4>
+      <div class="mtc" style="margin-bottom:9px"><div class="h">1 · Buy the scarce link the market mis-files</div><p>Hoya's blank monopoly is priced inside a healthcare/eyewear P&amp;L. The alpha is that the market hasn't tagged it as AI-litho — <b>the same setup as a monopoly hiding in a food company.</b></p></div>
+      <div class="mtc" style="margin-bottom:9px"><div class="h">2 · Watch the inspector to time the complex</div><p>Lasertec's order book leads the whole mask ecosystem. A rolling-over backlog is the first tell for blank + resist demand — read it in the free IR deck.</p></div>
+      <div class="mtc" style="margin-bottom:9px"><div class="h">3 · Respect the demand driver</div><p>Blank demand ∝ <b>tape-outs and node ramps</b>, not wafer volume. Track EUV-layer roadmaps and design starts — not just "AI capex is up."</p></div>
+      <div class="mtc"><div class="h">4 · The export-control moat is underrated</div><p>China can't buy EUV, so the China-substitution bear that broke GOES / CCL / plating-chemistry is muted here. Tighter controls <i>deepen</i> the incumbents' moat.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. TOP-3 MULTI-TAB -->
+<section id="s10">
+  <div class="sh"><span class="n">10</span><h2>Top-3 chokepoint plays</h2><span class="cn">三大卡點標的 · 分頁</span></div>
+  <p class="lead">Three companies, three <i>different</i> links of the mask ecosystem, spread across the awareness curve. Ranked by <b>remaining asymmetry</b> (how much is still NOT priced): the scarcest structural link (Hoya's blank) is also, unusually, the <b>least-bid stock</b> — while the purest monopoly (Lasertec) is famous and priced.</p>
+
+  <div role="tablist" aria-label="Top-3 plays" style="display:flex;gap:6px;margin-bottom:-1px;flex-wrap:wrap">
+    <button class="tabbtn on" role="tab" id="tab1" aria-selected="true" aria-controls="t1" tabindex="0" onclick="showTab('t1',this)">① Hoya · 7741<small>Mask-blank duopoly · earliest by price</small></button>
+    <button class="tabbtn" role="tab" id="tab2" aria-selected="false" aria-controls="t2" tabindex="-1" onclick="showTab('t2',this)">② Lasertec · 6920<small>Actinic-inspection monopoly · priced</small></button>
+    <button class="tabbtn" role="tab" id="tab3" aria-selected="false" aria-controls="t3" tabindex="-1" onclick="showTab('t3',this)">③ Tokyo Ohka · 4186<small>EUV photoresist · euphoric</small></button>
+  </div>
+
+  <!-- TAB 1: Hoya -->
+  <div class="tabpane" id="t1" role="tabpanel" aria-labelledby="tab1" tabindex="0" style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">Hoya <span style="color:var(--dim);font-weight:400">TSE: 7741 · ADR HOCPY</span></h3>
+      <span class="stagebadge sg-early">EARLY BY PRICE · most remaining asymmetry</span>
+      <span style="font-size:12px;color:var(--mut)">Chokepoint: <b style="color:var(--txt)">defect-free EUV mask blank (~70%+ est.)</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The scarcest structural link in the whole mask ecosystem — a near-decade defect-control moat — <b>hidden inside a company the market prices as an eyeglass-lens and medical-endoscope maker</b> (Life Care ≈ 62% of revenue). The mask-blank monopoly is a small, very high-margin slice of the Information Technology segment; the AI-litho scarcity isn't in the multiple. The laggard (+6% YTD) while Lasertec/TOK/ASML ran +55–80%.</p>
+    <div class="mini">
+      <div><div class="v">¥25,050</div><div class="l">Last price</div></div>
+      <div><div class="v" style="color:var(--dacr)">+6.4%</div><div class="l">YTD (IBKR)</div></div>
+      <div><div class="v">~¥8.4T</div><div class="l">Market cap (~$54B)</div></div>
+      <div><div class="v">~30x</div><div class="l">P/E est.*</div></div>
+      <div><div class="v" style="color:var(--dacr)">+9%</div><div class="l">FY25 rev growth</div></div>
+    </div>
+    <div class="gap"><div class="h">ASYMMETRIC INFO GAP · 變異認知</div><p>Consensus models Hoya as a defensive healthcare/eyewear compounder (eyeglass lenses, contact/ICL, endoscopy) with an HDD-glass cyclical tail. The variant: it also owns the <b>tightest un-substitutable link in EUV lithography — the mask blank (~70%+ EUV share, est.)</b> — a monopoly-grade toll on every leading-edge AI chip, export-control-protected from China. At ~30x with the blank buried in the mix, the AI-litho optionality is <b>free</b>. <b>The honest catch (size it yourself):</b> total mask blanks (EUV + the bigger, slower DUV/binary business) are an estimated ~10–15% of group revenue (est.; Hoya doesn't disclose) — and the pure <i>EUV</i>-blank market is only ~$0.2B today (→~$0.55B by 2032). So even a blank boom is a <b>small needle to move an ¥8.4T company</b>; the re-rate rests on margin/strategic value, not EUV-blank dollars alone. The gap closes only if IT-segment / mask-blank revenue visibly accelerates on the N2 ramp — the required, and not-yet-present, catalyst.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢 Business model</div><p>Two engines: Life Care (eyeglass lenses, contact lenses/ICL, medical endoscopy) + Information Technology (EUV mask blanks, HDD glass substrates, optics). Sells high-margin components, not subscriptions.</p></div>
+      <div class="mtc"><div class="h">② 營收結構 Segments</div><p>FY25 revenue ¥947.7B (+9%). Life Care ≈ 62%; Information Technology ≈ 38%. Mask blanks are a minority of IT but carry the highest margins.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源 Growth drivers</div><p>Rising EUV layer counts at N2/A16, EUV entering DRAM, High-NA blank spec upgrades; plus steady eyewear + endoscopy. HDD-glass recovery a bonus.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場 End market</div><p>Leading-edge foundry/IDM (mask blanks → TSMC/Intel/Samsung); global eyewear; hospitals (scopes); nearline HDD (AI-storage).</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶 Customers</div><p>The captive mask shops of TSMC, Intel, Samsung, SK Hynix (blanks); optical retailers &amp; hospitals (Life Care). AI names only indirectly, via foundries.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河 Moat</div><p>A near-decade of defect-reduction know-how in Mo/Si multilayer deposition at &lt;0.1/cm²; duopoly with AGC; export controls fence out China. Very hard to copy or in-source.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望 Guidance</div><p>Steady mid-single-digit group growth; IT segment guided up on constant-currency; capital returns. Management under-markets the mask-blank monopoly.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點 Why chokepoint</div><p>No EUV chip ships without a defect-free blank, and only two firms can make one. Hoya is the larger — the master-stencil substrate everything downstream depends on.</p></div>
+    </div>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--dacr)">BULL</b>N2 ramp + EUV-in-DRAM + High-NA specs re-rate the IT segment; market re-tags Hoya as an AI-litho monopoly, not just healthcare; steady FCF compounds meanwhile.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>Mask demand ∝ tape-outs (caps the AI story); fabs in-source blanks; eyewear/HDD drag; the monopoly stays buried and never re-rates. A value trap by dilution.</div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Lasertec -->
+  <div class="tabpane" id="t2" role="tabpanel" aria-labelledby="tab2" tabindex="0" hidden style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">Lasertec <span style="color:var(--dim);font-weight:400">TSE: 6920 · ADR LSRCY</span></h3>
+      <span class="stagebadge sg-recog">RECOGNITION→EUPHORIA · mostly priced</span>
+      <span style="font-size:12px;color:var(--mut)">Chokepoint: <b style="color:var(--txt)">actinic EUV mask inspection (100% ACTIS)</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The purest, tightest monopoly in the stack — the <i>only</i> company whose tool inspects an EUV mask at the true 13.5 nm wavelength. Its <b>~40%+ operating margins</b> (fabless model — among the highest in semi equipment) <b>prove</b> the rent is captured. But the market knows: +46–55% YTD (FMP/IBKR) at ~49x, a violent tape (52-wk ¥13.7k–¥58.6k), and a live short-seller overhang. Admire the monopoly; respect the price.</p>
+    <div class="mini">
+      <div><div class="v">¥45,880</div><div class="l">Last price</div></div>
+      <div><div class="v" style="color:var(--dup)">+55%</div><div class="l">YTD (IBKR)</div></div>
+      <div><div class="v">~¥4.2T</div><div class="l">Market cap (~$27B)</div></div>
+      <div><div class="v" style="color:var(--choke)">~49x</div><div class="l">P/E est.*</div></div>
+      <div><div class="v" style="color:var(--dacr)">~49%</div><div class="l">Op margin</div></div>
+    </div>
+    <div class="gap"><div class="h">ASYMMETRIC INFO GAP · 變異認知</div><p>Largely closed — this is the consensus "own the EUV monopoly" name. Residual edge: the <b>durability</b> of the actinic monopoly as High-NA arrives (new ACTIS/ABICS demand) vs the risk that DFT/e-beam or in-house verification chips away at it. The 2024 <b>Scorpion Capital fraud short</b> (alleging an unreliable ACTIS light source) is a known overhang that adds volatility, not a proven flaw. The debate is no longer "is it a monopoly" but "what multiple for a lumpy, controversial monopoly." Quality highest; asymmetry low.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢 Business model</div><p>Fabless maker of EUV mask/blank inspection + metrology systems (ACTIS actinic, ABICS blank). Sells high-ASP tools + a growing service/consumable tail.</p></div>
+      <div class="mtc"><div class="h">② 營收結構 Segments</div><p>FY(Jun-25) net sales ~¥251.5B, op income ~¥122.8B (~49% op margin, reported — verify vs filing); fabless → unusually high margins. EUV inspection the fast-growing core; backlog &gt;18 months.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源 Growth drivers</div><p>EUV wafer/mask growth; High-NA (0.55 NA) evaluation tools; blank-inspection (ABICS E320); rising defect-control needs as layers multiply.</p></div>
+      <div class="mtc"><div class="h">④ 終端市場 End market</div><p>Leading-edge logic + EUV-DRAM mask shops (captive at TSMC/Intel/Samsung/SK Hynix) and merchant blank makers (Hoya/AGC).</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶 Customers</div><p>TSMC, Intel, Samsung, SK Hynix, Hoya, AGC. High concentration among a handful of leading-edge buyers — lumpy orders.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河 Moat</div><p>Sole commercial actinic-inspection tool — you cannot verify an EUV mask at 13.5 nm any other way. A genuine ~100% monopoly with a deep IP + service lock-in.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望 Guidance</div><p>Order outlook revised up on AI-semi demand; multi-year backlog visibility; High-NA a next-leg driver. History of lumpy, order-timing-driven prints.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點 Why chokepoint</div><p>A mask can't be qualified without actinic inspection; every EUV blank + patterned mask passes through Lasertec's gate. The tightest single link (sev 18).</p></div>
+    </div>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--dacr)">BULL</b>High-NA + EUV-DRAM multiply inspection intensity; monopoly compounds at ~49% op margins; backlog underwrites the next two years.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>~49x on lumpy orders + Scorpion overhang + any foundry capex pause → violent de-rate (the 52-wk range shows how far it can fall). Momentum, not value.</div>
+    </div>
+  </div>
+
+  <!-- TAB 3: TOK -->
+  <div class="tabpane" id="t3" role="tabpanel" aria-labelledby="tab3" tabindex="0" hidden style="border:1px solid var(--line2);border-radius:0 10px 10px 10px;padding:20px;background:var(--panel)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <h3 style="font-size:18px;font-weight:600">Tokyo Ohka Kogyo <span style="color:var(--dim);font-weight:400">TSE: 4186 · ADR TOKYY</span></h3>
+      <span class="stagebadge sg-eu">EUPHORIA · alpha window largely gone</span>
+      <span style="font-size:12px;color:var(--mut)">Chokepoint: <b style="color:var(--txt)">EUV photoresist (co-binding consumable)</b></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut);margin-top:8px">The cleanest <i>listed</i> EUV-photoresist name after JSR (the #1, ~27% est.) was taken private by JIC in 2024. Resist is a genuine high-margin recurring toll on every EUV wafer and a metal-oxide gate for High-NA — but it's an all-Japanese <b>oligopoly, not a monopoly</b> (Japan ≈ 91% of EUV resist, est.), and the stock has already run +80% YTD (2.7× off its 52-wk low). Included as "what late looks like" — and as the co-binding consumable.</p>
+    <div class="mini">
+      <div><div class="v">¥10,465</div><div class="l">Last price</div></div>
+      <div><div class="v" style="color:var(--choke)">+80%</div><div class="l">YTD (IBKR)</div></div>
+      <div><div class="v">~¥1.25T</div><div class="l">Market cap (~$8B)</div></div>
+      <div><div class="v" style="color:var(--choke)">~38x</div><div class="l">P/E est.*</div></div>
+      <div><div class="v" style="color:var(--dacr)">strong</div><div class="l">EUV mix rising</div></div>
+    </div>
+    <div class="gap" style="border-left-color:var(--dup);background:rgba(210,162,74,.06)"><div class="h" style="color:var(--dup)">ASYMMETRIC INFO GAP · 變異認知</div><p>Mostly closed. The market is awake to the "Japan monopolizes EUV resist" story (Japan ≈ 91% of supply). Residual edge is narrow: TOK's <b>share gains at 2 nm and in metal-oxide / High-NA resist</b>, and the scarcity value of being the last clean listed resist pure-play after JSR delisted. But at ~38x and +80% YTD, this is a momentum/quality hold, not an early entry.</p></div>
+    <div class="mtd">
+      <div class="mtc"><div class="h">① 怎麼賺錢 Business model</div><p>Sells advanced photoresists + process chemicals (developers, cleaners) — a recurring, per-wafer consumable razor. Resist qualified per customer/node, then sticky.</p></div>
+      <div class="mtc"><div class="h">② 營收結構 Segments</div><p>Material business dominates (photoresists + high-purity chemicals); smaller equipment arm. EUV/leading-edge mix is the growth lever.</p></div>
+      <div class="mtc"><div class="h">③ 成長來源 Growth drivers</div><p>Rising EUV wafer starts; 2 nm resist wins; metal-oxide / dry-resist for High-NA; new capacity (industry-wide 2nm resist investment, Nov-2025).</p></div>
+      <div class="mtc"><div class="h">④ 終端市場 End market</div><p>Leading-edge logic + EUV-DRAM at TSMC, Samsung, Intel, SK Hynix, Micron — the same buyer set as the blank/inspection links.</p></div>
+      <div class="mtc"><div class="h">⑤ 主要客戶 Customers</div><p>Global leading-edge fabs; deep TSMC ties (peers expanding resist capacity specifically for TSMC). Diversified across the top foundries/IDMs.</p></div>
+      <div class="mtc"><div class="h">⑥ 護城河 Moat</div><p>Decades of resist chemistry + per-node qualification lock-in; part of the ~91% Japanese resist oligopoly. Real, but shared with JSR/Shin-Etsu/Fujifilm.</p></div>
+      <div class="mtc"><div class="h">⑦ 管理層展望 Guidance</div><p>Growth guided on EUV mix + 2 nm; capacity expansion; margin accretive as leading-edge resist share rises.</p></div>
+      <div class="mtc"><div class="h">⑧ 為何是卡點 Why chokepoint</div><p>No EUV exposure records a pattern without resist, and only a few Japanese houses can make leading-edge grades — but as an oligopoly it's the softest of the three links (sev 14).</p></div>
+    </div>
+    <div class="bbr">
+      <div class="bl"><b style="color:var(--dacr)">BULL</b>Wins share at 2 nm + owns a metal-oxide/High-NA resist; scarcity premium as the last clean listed resist pure-play; EUV mix lifts margins.</div>
+      <div class="be"><b style="color:var(--choke)">BEAR</b>Oligopoly competition (JSR-private now better-funded, Shin-Etsu, Fujifilm, Korea's Dongjin); ~38x + 80% YTD already prices the story; cyclical wafer-start risk.</div>
+    </div>
+  </div>
+  <p class="cap" style="margin-top:12px">*Valuation multiples are estimates from live price, latest reported revenue/EPS run-rate and approximate share counts; verify on a data terminal before sizing. Prices: IBKR read-only + FMP, as-of 16 Jul 2026.</p>
+
+  <!-- scenario table -->
+  <div class="panel" style="margin-top:16px">
+    <h4 style="font-size:13px;margin-bottom:4px;font-weight:600">Scenario table — Hoya (the own-it) · ~12–18 months <span class="cn" style="font-weight:400;color:var(--dim)">情境分析</span></h4>
+    <p style="font-size:11px;color:var(--dim);margin-bottom:10px">Probabilities and returns are illustrative first-person estimates, not forecasts. A thin EV is a finding — it argues for entry discipline, not conviction sizing.</p>
+    <table class="tbl">
+      <tr><th>Scenario</th><th>Prob.</th><th>What happens</th><th>~12–18m return</th></tr>
+      <tr><td><b style="color:var(--dacr)">Bull</b></td><td class="num">30%</td><td>N2 ramp + EUV-in-DRAM + High-NA specs visibly accelerate IT-segment/mask-blank revenue; market re-rates Hoya as an AI-litho monopoly</td><td class="num" style="color:var(--dacr)">+35 to +50%</td></tr>
+      <tr><td><b>Base</b></td><td class="num">50%</td><td>Steady EUV-layer growth; Hoya compounds with healthcare; modest, gradual re-rate as mask-blank mix creeps up</td><td class="num">+10 to +15%</td></tr>
+      <tr><td><b style="color:var(--choke)">Bear</b></td><td class="num">20%</td><td>AI-capex/node air-pocket + eyewear/HDD drag; the blank monopoly stays buried and un-re-rated; a de-rate from ~30x on an earnings wobble</td><td class="num" style="color:var(--choke)">−25 to −35%</td></tr>
+    </table>
+    <p class="cap" style="margin-top:8px">Probability-weighted EV ≈ <b class="num" style="color:var(--txt)">+13%</b> (0.30·+42% + 0.50·+12% + 0.20·−30%). The fat left tail is exactly why this is a <b>small-size, entry-discipline</b> starter, not a conviction position. <b>Dated falsifier:</b> if the next 1–2 Hoya IT-segment prints show mask-blank/EUV revenue NOT accelerating despite the N2 ramp — OR a leading fab qualifies an in-house/third EUV blank — OR Lasertec's backlog rolls over, the re-rating thesis is broken and the position exits.</p>
+  </div>
+</section>
+
+<!-- 11. BENEFICIARY MAP + RISKS -->
+<section id="s11">
+  <div class="sh"><span class="n">11</span><h2>Beneficiary map &amp; key risks</h2><span class="cn">受惠族群與風險</span></div>
+  <div class="two">
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Who benefits — by link</h4>
+      <table class="tbl">
+        <tr><th>Company</th><th>Link</th><th>Angle</th></tr>
+        <tr><td><b>Hoya</b> · 7741</td><td><span class="lyr ly3">BLK</span></td><td>EUV mask-blank leader ~70%+ (est.); hidden in a healthcare P&amp;L</td></tr>
+        <tr><td><b>AGC</b> · 5201</td><td><span class="lyr ly3">BLK</span></td><td>The #2 blank; cheaper duopoly hedge, more diluted</td></tr>
+        <tr><td><b>Lasertec</b> · 6920</td><td><span class="lyr lyp">INS</span></td><td>100% actinic mask inspection; the purest monopoly</td></tr>
+        <tr><td><b>Mitsui Chem</b> · 4183</td><td><span class="lyr ly2">PEL</span></td><td>EUV pellicle near-monopoly; High-NA CNT optionality</td></tr>
+        <tr><td><b>TOK</b> · 4186</td><td><span class="lyr ly2">RES</span></td><td>Cleanest listed EUV resist after JSR delisted</td></tr>
+        <tr><td><b>Shin-Etsu / Fujifilm</b></td><td><span class="lyr ly2">RES</span></td><td>Resist oligopoly; diluted giants</td></tr>
+        <tr><td><b>ASML</b> · ASML</td><td><span class="lyr ly1">SCN</span></td><td>Scanner monopoly; biggest $ but fully priced</td></tr>
+        <tr><td><b>TSMC</b> · TSM</td><td><span class="lyr ly1">DIE</span></td><td>The captive die-maker + captive mask shop</td></tr>
+      </table>
+      <p class="cap" style="margin-top:10px">Link key — <span class="lyr ly3">BLK</span> blank · <span class="lyr lyp">INS</span> inspection · <span class="lyr ly2">PEL/RES</span> pellicle/resist · <span class="lyr ly1">SCN/DIE</span> scanner/die.</p>
+    </div>
+    <div class="panel">
+      <h4 style="font-size:13px;margin-bottom:10px;font-weight:600">Risks to the thesis</h4>
+      <table class="tbl">
+        <tr><th>Risk</th><th>Watch</th></tr>
+        <tr><td><b>Mislocated chokepoint</b></td><td>Inspection (Lasertec, sev 18) or the scanner may be the tighter gate than the blank</td></tr>
+        <tr><td><b>Demand ∝ design starts</b></td><td>Masks reused for 10⁵ wafers → AI volume doesn't linearly drive blank demand</td></tr>
+        <tr><td><b>Captive in-sourcing</b></td><td>Intel owns IMS; TSMC/Samsung could push into blanks/masks</td></tr>
+        <tr><td><b>Hoya dilution</b></td><td>Blank monopoly buried in eyewear/medical P&amp;L may never re-rate</td></tr>
+        <tr><td><b>Lasertec valuation / Scorpion</b></td><td>~49x on lumpy orders; 2024 fraud-short overhang</td></tr>
+        <tr><td><b>AI-capex cyclicality</b></td><td>A foundry capex pause hits every link at once</td></tr>
+        <tr><td><b>Pellicle substitutability</b></td><td>Fabs can run pellicle-less → weakest link (Mitsui)</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 12. DECISION TABLE -->
+<section id="s12">
+  <div class="sh"><span class="n">12</span><h2>The decision — one table</h2><span class="cn">投資決策總表</span></div>
+  <p class="lead">Everything above reconciled, ranked by <b>remaining asymmetry</b> (how much is still NOT in the price). The one row-read: the scarcest <i>structural</i> link (Hoya's blank) is, unusually, the <b>least-bid stock</b> — while the purest <i>monopoly</i> (Lasertec) is the most priced. <b>Tightness ≠ a good buy.</b></p>
+  <div style="overflow-x:auto">
+  <table class="tbl" style="min-width:920px">
+    <tr><th>#</th><th>Ticker</th><th>Chokepoint (link)</th><th>Severity</th><th>Awareness</th><th>Valuation</th><th>Remaining asymmetry</th><th>Framework lean</th><th>Key trigger to watch</th></tr>
+    <tr>
+      <td class="num">1</td><td><b>7741</b> · Hoya</td><td><span class="lyr ly3">BLK</span> EUV mask blank</td>
+      <td class="num">17/20</td><td><span class="stagebadge sg-early">EARLY (by price)</span></td><td class="num">~30x · +6% YTD</td>
+      <td class="dotG">Highest</td><td><b>Accumulate / starter</b></td><td>IT-segment / mask-blank revenue acceleration on N2</td>
+    </tr>
+    <tr>
+      <td class="num">2</td><td><b>6920</b> · Lasertec</td><td><span class="lyr lyp">INS</span> actinic inspection</td>
+      <td class="num">18/20</td><td><span class="stagebadge sg-recog">RECOGNITION</span></td><td class="num">~49x · +55% YTD</td>
+      <td class="dotA">Low</td><td><b>Own quality, don't chase</b></td><td>Order backlog holding &gt;18mo; High-NA tool orders</td>
+    </tr>
+    <tr>
+      <td class="num">3</td><td><b>4186</b> · Tokyo Ohka</td><td><span class="lyr ly2">RES</span> EUV photoresist</td>
+      <td class="num">14/20</td><td><span class="stagebadge sg-eu">EUPHORIA</span></td><td class="num">~38x · +80% YTD</td>
+      <td class="dotR">Negative</td><td><b>Hold / don't chase</b></td><td>2nm / metal-oxide resist share wins</td>
+    </tr>
+  </table>
+  </div>
+  <p class="cap"><b>How each severity is derived</b> (same 0–20 rubric, four factors each 0–5: supply concentration · lead-time · low substitutability · demand): <b>Lasertec inspection = 18</b> (5+4+4+5 — sole actinic tool). <b>Hoya blank = 17</b> (4+5+4+4 — duopoly, decade barrier, demand ∝ tape-outs). <b>TOK resist = 14</b> (3+3+3+5 — oligopoly, multi-sourced). So the same scarcity logic ranks the <i>links</i>, even though Hoya is the better <i>entry</i> — tightness ≠ a good buy. "Framework lean" is analysis, not advice.</p>
+
+  <div class="panel" style="margin-top:14px;border-color:#2c5a40;background:rgba(95,201,138,.05)">
+    <h4 style="font-size:13px;margin-bottom:6px;font-weight:600;color:var(--dacr)">If you can only do one thing</h4>
+    <p style="font-size:12.5px;color:var(--mut);line-height:1.55">Own the <b>scarcest structural link at the cheapest price</b>: <b>Hoya</b> — the EUV mask-blank duopoly leader hidden inside a company the market prices as an eyewear/medical maker — as the un-bid way to own the master stencil every AI chip is printed from, with <b>entry discipline</b> and small size (the re-rating catalyst may not come). <b>Admire</b> Lasertec's 100% actinic monopoly but respect its ~49x price and volatility; <b>hold, don't chase</b> TOK. Hunt the genuinely-early dollar in the watchlist — AGC (cheaper blank), Mitsui (High-NA pellicle), and the metal-oxide-resist frontier. <i>Personal opinion, not a recommendation.</i></p>
+  </div>
+
+  <!-- open questions -->
+  <div class="panel" style="margin-top:14px">
+    <h4 style="font-size:13px;margin-bottom:8px;font-weight:600">Open questions &amp; honest holes <span class="cn" style="font-weight:400;color:var(--dim)">自我批判</span></h4>
+    <table class="tbl">
+      <tr><th>Unresolved hole</th><th>Why it matters / retail steelman</th></tr>
+      <tr><td><b>Blank share is estimated</b> (Hoya ~60–75%+ EUV)</td><td>Sources disagree (one aggregator credits AGC &gt;59%); the exact Hoya lead is uncertain, though the duopoly is robust</td></tr>
+      <tr><td><b>Demand ∝ design starts, not wafer volume</b></td><td>The single biggest weakness — "AI wafer volume up" does NOT linearly lift blank/mask demand; a mask is reused for 10⁵ wafers</td></tr>
+      <tr><td><b>Hoya may never re-rate</b></td><td>The monopoly is a minority of a healthcare-priced P&amp;L; without a visible catalyst it can stay a value trap indefinitely</td></tr>
+      <tr><td><b>Is litho even "compute fabric"?</b></td><td>Yes — the GPU transistor IS the compute fabric, and front-end litho is the one sub-area untouched after 4 back-end runs (CoWoS/hybrid-bond/test/HBM)</td></tr>
+      <tr><td><b>Illustrative sizing / multiples</b></td><td>P/E and share figures are run-rate estimates; verify on a terminal before sizing. Lasertec FY basis + Scorpion overhang add uncertainty</td></tr>
+    </table>
+  </div>
+</section>
+
+<div class="disc"><b>Not investment advice.</b> Automated research synthesis for a private knowledge base — idea generation only, not a recommendation or solicitation. Figures drawn from public reporting and third-party estimates as of 16 Jul 2026; approximations marked (est.); may contain errors or become stale. Prices via <b>IBKR read-only</b> (no trade placed) + FMP. Verify against primary filings and do your own due diligence.</div>
+
+<footer>
+  <p><b>Sources:</b> EUV mask-blank share — semiconductorinsight, dcf-model (7741 SWOT), SNS Insider, IntelMarketResearch, SemiEngineering ("EUV mask blank biz heats up"). Actinic inspection / Lasertec — GMInsights, DataIntelo, note.com (Lasertec IR deep-dive), Lasertec.co.jp (ABICS E320), Fortune 2024-06-05 (Scorpion), Digitimes 2024-09-13. EUV photoresist — Fountyl, GMInsights, DataInsights; JSR privatization — Digitimes 2024-04-19, C&amp;EN, Evertiq, Tom's Hardware. Pellicle — Mitsui Chemicals PR, imec-Mitsui CNT, YoleGroup, TheElec. High-NA / mask economics — TechTimes 2026-07-15 (ASML guide raise + Intel first High-NA chip), TrendForce 2026-05-01 (TSMC deferral), SemiAnalysis SPIE2025, TechPowerUp ($400M tool), PatentPC, SemiEngineering, DataVagyanik ($6.8B photomask market). Live quotes — IBKR read-only (Hoya 7741, Lasertec 6920, TOK 4186, ASML, Mitsui 4183) + FMP. <b>IBKR read-only — no trade placed.</b></p>
+  <p style="margin-top:10px">Automated AI-Infra workflow · Run #26 v5 · Compute Fabric loop 5 (front-end lithography, one cut below TSMC/ASML) · recurs every 2 days. <b>Iteration log:</b> v5 build — end-to-end supply-chain map with bars tallest-at-chokepoint (blank) + 2nd at actinic inspection; disaggregation "same scarcity, two prices" schematic; scenario table + EV +14% + dated falsifier; keyboard-accessible tabs + @media print; SVG fonts via CSS rule; cross-reviewed (viz-QA + analyst/fact-check), punch-list applied.</p>
+</footer>
+
+</div>
+<script>
+(function(){
+  var tabs=[{b:'tab1',p:'t1'},{b:'tab2',p:'t2'},{b:'tab3',p:'t3'}];
+  window.showTab=function(id,btn){
+    document.querySelectorAll('.tabpane').forEach(function(p){p.hidden=true;});
+    var el=document.getElementById(id); if(el){el.hidden=false;}
+    document.querySelectorAll('.tabbtn').forEach(function(b){b.classList.remove('on');b.setAttribute('aria-selected','false');b.tabIndex=-1;});
+    if(btn){btn.classList.add('on');btn.setAttribute('aria-selected','true');btn.tabIndex=0;}
+  };
+  var btns=tabs.map(function(t){return document.getElementById(t.b);});
+  btns.forEach(function(b,i){
+    b.addEventListener('keydown',function(e){
+      var n=null;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'){n=(i+1)%btns.length;}
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){n=(i-1+btns.length)%btns.length;}
+      else if(e.key==='Home'){n=0;}
+      else if(e.key==='End'){n=btns.length-1;}
+      if(n!==null){e.preventDefault();var nb=btns[n];showTab(tabs[n].p,nb);nb.focus();}
+    });
+  });
+})();
+</script>
+</body>
+</html>

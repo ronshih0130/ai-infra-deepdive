@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AI-Infra Alpha Map v5 — where the edge actually is (mid-2026) · as-of 2026-07-13</title>
+<style>
+  :root{
+    --bg:#0e1116;--panel:#161b22;--panel2:#1c232c;--line:#2a323d;--line2:#3a444f;
+    --ink:#e6edf3;--muted:#9aa7b4;--faint:#8692a0;
+    --accent:#e0a23b;--accent2:#3fb6a8;--pos:#46b87f;--neg:#df6258;--warn:#dca24a;--violet:#9a8cd6;--grey:#6b7682;
+    --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55}
+  .wrap{max-width:1180px;margin:0 auto;padding:34px 26px 80px}
+  h1{font-size:28px;letter-spacing:-.02em;margin:0 0 4px}
+  h2{font-size:16px;letter-spacing:.01em;margin:40px 0 6px;padding-top:14px;border-top:1px solid var(--line)}
+  h2 .n{font-family:var(--mono);color:var(--accent2);font-size:13px;margin-right:8px}
+  .sub{color:var(--muted);max-width:92ch}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .mono{font-family:var(--mono)}
+  .num{font-family:var(--mono);font-feature-settings:"tnum"}
+  .teal{color:var(--accent2)} .red{color:var(--neg)} .amber{color:var(--accent)} .pos{color:var(--pos)} .mut{color:var(--muted)} .violet{color:var(--violet)} .grey{color:var(--grey)}
+  .card{background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px}
+  .card.edge{border-color:#2f5e57} .card.trap{border-color:#5e3331} .card.amberc{border-color:#5e4f2f}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  .grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+  @media(max-width:900px){.grid2,.grid3,.grid4{grid-template-columns:1fr}}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12.5px}
+  th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+  td.num,th.num{font-family:var(--mono)}
+  .pill{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:999px;border:1px solid var(--line2);white-space:nowrap;display:inline-block;line-height:1.5}
+  .pill.edge{color:var(--accent2);border-color:#2f5e57} .pill.trap{color:var(--neg);border-color:#5e3331}
+  .pill.watch{color:var(--accent);border-color:#5e4f2f} .pill.ctx{color:var(--faint)} .pill.avoid{color:var(--grey);border-color:#3a444f}
+  svg{display:block;width:100%;height:auto}
+  svg text{font-family:var(--sans);fill:var(--ink);font-size:12px}
+  svg text.m{font-family:var(--mono)}
+  svg text.lbl{fill:var(--muted);font-size:11px}
+  svg text.fa{fill:var(--faint);font-size:10px}
+  .legend{color:var(--faint);font-size:12px;margin-top:18px}
+  .kicker{color:var(--muted);font-size:13px;margin:2px 0 0}
+  b.h{color:var(--ink)}
+  ul{margin:6px 0 0;padding-left:18px} li{margin:3px 0;color:var(--muted)}
+  code{font-family:var(--mono);font-size:12px;background:var(--panel2);padding:1px 5px;border-radius:4px;color:var(--ink)}
+  .tag{font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.06em}
+  .verdict{background:#13302c;border:1px solid #2f5e57;border-radius:12px;padding:14px 18px;margin-top:14px}
+  .glossbox{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-top:12px}
+  .glossbox dt{font-family:var(--mono);color:var(--accent2);font-size:12px;margin-top:8px}
+  .glossbox dd{margin:1px 0 0;color:var(--muted);font-size:12.5px}
+  .legendrow{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:8px;align-items:center}
+  .sw{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+  .lead{font-size:15px;color:var(--ink)}
+  hr.soft{border:0;border-top:1px solid var(--line);margin:14px 0}
+  .trig{width:100%;border-collapse:collapse;margin-top:8px;font-size:11.5px}
+  .trig th,.trig td{padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+  .trig td.g{color:var(--pos)} .trig td.y{color:var(--warn)} .trig td.r{color:var(--neg)}
+  .trig th{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:0}
+  .dot.g{background:var(--pos)} .dot.y{background:var(--warn)} .dot.r{background:var(--neg)}
+  .exec{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 11px;margin-top:8px;font-size:11.5px;color:var(--muted)}
+  .exec b{color:var(--ink)}
+  .rmwrap{display:grid;grid-template-columns:0.95fr 1.15fr;gap:12px;margin-top:8px}
+  @media(max-width:900px){.rmwrap{grid-template-columns:1fr}}
+  .rmbox{background:var(--panel2);border:1px solid var(--line2);border-radius:10px;padding:11px 13px}
+  .rmhead{margin-bottom:2px}
+  table.rm{width:100%;border-collapse:collapse;margin-top:6px;font-size:11.5px}
+  table.rm td,table.rm th{padding:4px 7px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left;color:var(--muted)}
+  table.rm th{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+  table.rm td.num{font-family:var(--mono);text-align:right;white-space:nowrap;color:var(--ink)}
+  table.rm td.num.teal{color:var(--accent2)} table.rm td.num.red{color:var(--neg)} table.rm td.num.pos{color:var(--pos)} table.rm td.num.mut{color:var(--muted)}
+  table.rmscen td:first-child{white-space:nowrap}
+  table.rmscen td.num{min-width:88px}
+  tr.bear td:first-child{color:var(--neg)} tr.base td:first-child{color:var(--accent2)} tr.bull td:first-child{color:var(--pos)}
+  .rm .g{color:var(--pos)} .rm .y{color:var(--warn)} .rm .r{color:var(--neg)}
+  .rmnote{font-size:11px;color:var(--muted);margin:9px 0 0;line-height:1.5}
+  .rm .fa{color:var(--faint);font-size:10px}
+  @media print{
+    body{background:#fff;color:#000}
+    .wrap{max-width:none}
+    .card,.verdict,.glossbox{break-inside:avoid}
+    h2{break-after:avoid}
+  }
+</style>
+</head>
+<body><div class="wrap">
+
+  <div class="eyebrow">AI-Infra Research · the alpha map · v5 (consensus-gap bridge · two-mode lens · weekly refresh) · as-of 2026-07-13</div>
+  <h1>The AI-Infra Alpha Map</h1>
+  <p class="kicker mono">9 sub-segments scored for information edge · honest EARLY-vs-PRICED · IBKR crowding overlaid · personal research, NOT investment advice · IBKR READ-ONLY</p>
+
+  <div class="verdict">
+    <span class="tag teal">ONE-LINE VERDICT</span>
+    <p class="lead" style="margin:6px 0 0">In mid-2026 the AI-infra trade is <b class="h">largely PRICED</b>. The financialization filter (&gt;15 analysts + deep options &rarr; EARLY-ineligible) and the priced-check veto fire across almost every liquid bucket. The single freshest <i>differentiated read</i> is still the <b class="h teal">S4 Interconnect "CPO-kills-EML" misread</b> (the edge is one layer up at InP epitaxy / MOCVD tools) — and this week the optics complex <b class="h">BIFURCATED</b>, sharpening the divergence into a 3rd week: LITE <span class="num pos">+9.4%</span> bounced off the leg-2 washout on the <i>calmest</i> S4 IV (<span class="num">0.65</span> = clean mean-revert) while COHR de-rated with IV <b class="h">pegged 1.00</b> and FN washed <span class="num">&minus;37%</span> below high — same bucket, opposite crowding &rarr; the CPO-vs-EML fear is idiosyncratic positioning, not a thesis break, and the architecture-agnostic upstream tool gate (AIXTRON ~70&ndash;90% share, May-2026 Lumentum G10-AsP orders, new NC InP fab) is untouched. The <b class="h red">VETO BROADENED</b>: memory keeps capitulating (MU <span class="num">&minus;22%</span> off high, IV easing 0.94&rarr;<span class="num">0.88</span> = crowded de-risk deepening even after record Korea HBM &amp; TSMC's record June print), networking-silicon unwind deepening (MRVL <span class="num">&minus;28%</span> off high), power's pullback is <b class="h">NOT de-crowding</b> (GEV &minus;3.8% but IV still pegged <span class="num">0.98</span>). And the tell on demand: TSMC's <b class="h">record June revenue (+68% YoY)</b> did NOT revive the tape (TSM <span class="num">&minus;2.7%</span> wk) while the calm mega-caps snapped back (NVDA <span class="num pos">+8%</span> on IV 0.44, AVGO +6.6%) — priced names bouncing, not new information. <span class="mut">The most valuable output this week is again the veto.</span></p>
+  </div>
+
+  <div class="card" style="border-color:#2f5e57;background:#13211f">
+    <span class="tag teal">WHAT CHANGED THIS WEEK (2026-07-06 &rarr; 2026-07-13) — the decision-critical deltas</span>
+    <ul style="margin-top:6px">
+      <li><b class="h teal">The optics complex BIFURCATED — the tell of the week.</b> Same bucket (S4), opposite crowding: <b class="h pos">LITE +9.4%</b> wk bounced off the leg-2 washout on the <i>calmest</i> S4 IV (<span class="num">0.65</span>) = a clean mean-revert; <b class="h">COHR &minus;4.5%</b> wk with IV now <b class="h">PEGGED 1.00</b> = de-rate with fear; <b class="h">FN &minus;7.8%</b>, now &minus;37% below high = deepest capitulation. When one bucket splits like this the fear is <i>idiosyncratic / positioning-driven, not a thesis break</i>. The architecture-agnostic upstream InP/MOCVD tool gate (AIXTRON ~70&ndash;90% share; May-2026 multiple Lumentum G10-AsP orders tied to the new NC InP fab) is <b class="h">untouched</b> — the divergence has now persisted into a 3rd week. Live expression stays the de-rated optics, LITE the cleaner mean-revert on calm IV.</li>
+      <li><b class="h red">The VETO broadened across the crowd.</b> <b class="h">Memory keeps capitulating:</b> MU &minus;2.9% wk (924 pre-mkt 07-13), now <b class="h">&minus;22% below its high</b> with IV <i>easing</i> from pegged (0.94&rarr;<b class="h">0.88</b>) — the crowded de-risk that began late-June is deepening toward capitulation even after record Korea HBM (+51% MoM) and TSMC's record June print; cheap-on-peak is the cyclical trap, not value. <b class="h">Networking-silicon unwind is deepening:</b> MRVL &minus;7.7% wk / &minus;28% off high (the ex-momentum leader now the biggest loser). <b class="h">Power's pullback is NOT de-crowding:</b> GEV &minus;3.8% off its new high but IV still pegged <span class="num">0.98</span>; ETN 1.00; VRT 0.99 — a crowded theme exhaling, not an entry.</li>
+      <li><b class="h">Demand reconfirmed unconstrained yet coincident — and the calm mega-caps snapped back.</b> <b class="h">TSMC's record June revenue (+68% YoY; Q2 $39.63B, +36% beat)</b> did NOT revive the tape (TSM &minus;2.7% wk) — record demand + muted price is the textbook coincident/PRICED tell (Barron's: "record revenue isn't reviving the AI trade"). Meanwhile <b class="h pos">NVDA +8%</b> on the complex's <i>lowest</i> IV (0.49&rarr;0.44) and AVGO +6.6% led a snapback — priced &gt;15-analyst names bouncing, not new information. <b class="h amber">AF-1 reconciliation:</b> the quant bridge (rotation_state 07-10) still tags GRID/POWER/CLOUD "EARLY" via <i>fundamental-ahead-of-tape</i> — a pullback in a known theme, NOT an information edge; the Alpha Map overrides to PRICED/ride.</li>
+    </ul>
+  </div>
+
+  <div class="card" style="border-color:#3a444f">
+    <span class="tag">30-SECOND ACTION SHEET — the whole map in three buckets (detail in §5/§7)</span>
+    <div class="grid3" style="margin-top:8px">
+      <div class="rmbox" style="border-color:#2f5e57">
+        <div class="rmhead"><span class="tag teal">DIG NOW (where to point work)</span></div>
+        <ul style="margin-top:4px">
+          <li><b class="h teal">S4 InP/optics</b> &mdash; the CPO-kills-EML misread; the optics complex bifurcated (divergence into a 3rd week). Two layers: <b class="h teal">EDGE sliver (EARLY-eligible, thin cov., hard exec.)</b> = <b class="h">AXTI</b> (InP substrate, binary China-permit) · <b class="h">OXIG.L</b> (InP back-end) · AIXTRON-on-dip. <b class="h amber">Liquid EXPRESSION (priced, ride the mean-revert, NO edge)</b> = <b class="h">LITE</b> (calmest IV 0.65) &gt; FN &gt; COHR (IV pegged 1.00 = fear). Catalyst: AIXTRON Q2 (Jul 30) / LITE FQ4 (Aug).</li>
+          <li><b class="h amber">S3 tool (Hanmi)</b> &mdash; HBM4 bonder, second-order; unaffected by the MU price unwind. Thin edge (HBM over-covered).</li>
+        </ul>
+      </div>
+      <div class="rmbox" style="border-color:#5e4f2f">
+        <div class="rmhead"><span class="tag amber">WAIT FOR A RESET (durable, poor entry)</span></div>
+        <ul style="margin-top:4px">
+          <li><b class="h">S2 CAMT</b> (ran, buy-the-dip), <b class="h">S1 2330.TW</b> (rel-val arb only), <b class="h">S7 DOV/CPC</b> &amp; <b class="h">S6b NVTS</b> (DISCOVERY options, 2H26&ndash;2027).</li>
+          <li>Re-open only on a multiple reset or a fresh order/disclosure surprise.</li>
+        </ul>
+      </div>
+      <div class="rmbox" style="border-color:#5e3331">
+        <div class="rmhead"><span class="tag red">VETO / CHASE-RISK (priced &amp; crowded)</span></div>
+        <ul style="margin-top:4px">
+          <li><b class="h red">S6a/S6b power</b> (GEV/VRT/ETN/MPWR) &mdash; pullback did NOT de-crowd (IV still pegged 0.98&ndash;1.00); ride-only. <b class="h red">S3 memory</b> (MU &minus;22% off high, capitulating) &mdash; don't catch it.</li>
+          <li><b class="h red">S5 networking</b> (MRVL &minus;28% off high, unwind deepening) and <b class="h red">D0/S1 demand</b> (TSMC record June +68% but stock &minus;2.7% = coincident) &mdash; fully priced; the NVDA/AVGO snapback is priced names bouncing.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== EXPLAIN IT SIMPLY ===================== -->
+  <h2><span class="n">0</span>Explain it simply / 白話版</h2>
+  <div class="grid2">
+    <div class="card">
+      <span class="tag teal">白話版 — the headline in plain English</span>
+      <p class="kicker" style="margin-top:8px">The whole AI build-out (chips &rarr; packaging &rarr; memory &rarr; optics &rarr; networking &rarr; power &rarr; cooling) is real and still growing. <b class="h">But "the constraint is real" is NOT the same as "the stock is a good buy."</b> By mid-2026 the crowd has already found almost every liquid name in this stack and bid it up. So the question this map answers is not "what is tight?" — it is <span class="teal">"where does the market still NOT understand something, AND the price hasn't caught up yet?"</span></p>
+      <p class="kicker" style="margin-top:10px">The honest answer: <b class="h">almost nowhere at the big-cap / cluster level.</b> The remaining edge is narrow:</p>
+      <ul>
+        <li><b class="h teal">S4 Interconnect</b> — the "CPO will kill the EML laser" selloff is a <b class="h">misread</b>: the real bottleneck is one layer upstream in <b class="h">InP epitaxy / MOCVD tools</b>, which feed <i>both</i> architectures (sold out to 2027). Still the freshest read — and this week the downstream optics <b class="h">bifurcated</b> (LITE bounced +9% on calm IV while COHR fell on pegged IV), proving the fear is positioning, not fundamentals. The obvious pure-play <span class="mono">AIXTRON</span> is itself re-rated to ~&euro;50&ndash;55 (still ~15-22% ABOVE the &euro;42.70 target) &mdash; so the cheaper way to own the <i>same insight</i> is the <b class="h">de-rated downstream optics</b> (LITE &minus;26% / FN &minus;37% / COHR &minus;26% off highs, LITE the cleanest), not AIXTRON at the high.</li>
+        <li><b class="h">Under-covered second-order names</b> where thin analyst coverage lets a gap survive — Camtek (yield-gate), Hammond Power (HPS.A), Dover/CPC (cooling connectors), Hanmi (HBM4 bonder).</li>
+        <li><b class="h">Same-asset relative value</b> — TSMC Taiwan ordinary <span class="mono">2330.TW</span> vs the financialized <span class="mono">TSM</span> ADR.</li>
+      </ul>
+      <p class="kicker" style="margin-top:10px"><b class="h red">Most PRICED / avoid as fresh entries:</b> D0/S1 demand (TSMC's record June revenue +68% YoY did NOT move the stock — coincident, fully priced; the NVDA/AVGO snapback is priced names bouncing, not new information), the <b class="h">power complex (GEV/VRT/ETN)</b> where a price pullback did <i>not</i> de-crowd the options book (IV still pegged 0.98&ndash;1.00), and <b class="h">memory (MU, now &minus;22% off its high)</b>, where the euphoria keeps unwinding <i>despite</i> record data. "Constraint real, stock falling" = a crowded de-risk; don't try to catch it.</p>
+    </div>
+    <div class="card">
+      <span class="tag amber">6-term glossary</span>
+      <dl class="glossbox" style="margin-top:8px;border:0;padding:0;background:transparent">
+        <dt>alpha</dt><dd>Edge from knowing something the market hasn't priced yet — getting in EARLY, before consensus re-rates the stock. Not the same as a good company.</dd>
+        <dt>consensus-gap</dt><dd>The distance between your differentiated bottom-up estimate and what the Street/price already assumes. A big, un-priced gap is where money is made.</dd>
+        <dt>financialization filter</dt><dd>Hard rule: a name with <b class="h">&gt;15 analysts + deep options</b> is EARLY-ineligible — the print hits every desk the same second, so it can only be CONFIRMING or PRICED, never fresh alpha.</dd>
+        <dt>priced-check (reverse-model veto)</dt><dd>Before calling anything EARLY, back out what the price already implies. If your view doesn't beat the price-implied expectation by more than the error band, the edge is gone — veto it.</dd>
+        <dt>EARLY vs PRICED</dt><dd>EARLY = gap open, revision barely started, asymmetry intact. PRICED = the move and the up-revision are already in the stock; chasing it is paying for a beat that's already discounted.</dd>
+        <dt>the two modes</dt><dd><b class="h teal">CONSENSUS-GAP</b> (a real Street number exists; be early to a forced revision) vs <b class="h amber">DISCOVERY</b> (under-covered, no clean consensus; anchor on the price-implied expectation + a dated catalyst).</dd>
+      </dl>
+    </div>
+  </div>
+
+  <!-- ===================== 1. MASTER ALPHA MAP — SCATTER ===================== -->
+  <h2><span class="n">1</span>The master alpha map — which sub-segment has the edge</h2>
+  <p class="sub">Two linked pictures. <b class="h">(a)</b> the 2&times;2 ALPHA SCATTER plots all 9 buckets by <i>is-it-priced</i> (x) &times; <i>variant-view strength</i> (gap magnitude &times; conviction, y); bubble SIZE &prop; chokepoint severity, COLOR by quadrant. <b class="h">(b)</b> the same 9 ranked by expected-value (EV). <span class="teal">S4 sits furthest toward un-priced + high-conviction; S5/D0 sit fully priced.</span></p>
+
+  <div class="card">
+    <span class="tag">(a) ALPHA SCATTER — the "which sub-segment has alpha" picture</span>
+    <svg viewBox="0 0 1120 560" role="img" aria-label="Alpha scatter: 9 AI-infra buckets by is-it-priced versus variant-view strength; bubble size is chokepoint severity; color is quadrant">
+      <!-- quadrant tints -->
+      <rect x="70" y="40" width="490" height="220" fill="#13302c" opacity="0.35"/>
+      <rect x="560" y="40" width="490" height="220" fill="#2a1c1d" opacity="0.30"/>
+      <rect x="70" y="260" width="490" height="200" fill="#161b22" opacity="0.5"/>
+      <rect x="560" y="260" width="490" height="200" fill="#161b22" opacity="0.5"/>
+      <!-- axes -->
+      <line x1="70" y1="40" x2="70" y2="460" stroke="#3a444f"/>
+      <line x1="70" y1="460" x2="1050" y2="460" stroke="#3a444f"/>
+      <!-- mid divider -->
+      <line x1="560" y1="40" x2="560" y2="460" stroke="#2a323d" stroke-dasharray="4 4"/>
+      <line x1="70" y1="260" x2="1050" y2="260" stroke="#2a323d" stroke-dasharray="4 4"/>
+      <!-- axis labels -->
+      <text class="lbl" x="76" y="56">VARIANT-VIEW STRENGTH &uarr;  (gap magnitude &times; conviction)</text>
+      <text class="fa" x="80" y="455" text-anchor="start">&larr; un-priced / fresh edge</text>
+      <text class="fa" x="1046" y="455" text-anchor="end">fully priced &rarr;</text>
+      <text class="fa" x="560" y="490" text-anchor="middle">IS-IT-PRICED  (reverse-model: does price already embed the view?)</text>
+      <!-- quadrant captions -->
+      <text class="m" x="84" y="80" style="fill:#3fb6a8;font-size:12px">&#9733; REAL-ALPHA-ish  (edge + un-priced)</text>
+      <text class="m" x="1040" y="80" text-anchor="end" style="fill:#df6258;font-size:12px">&#9888; TRAP  (gap real, stock already ran)</text>
+      <text class="m" x="84" y="280" style="fill:#9aa7b4;font-size:11px">watchlist / no clean expression</text>
+      <text class="m" x="1040" y="280" text-anchor="end" style="fill:#8692a0;font-size:11px">AVOID / CONTEXT  (priced denominator)</text>
+
+      <!-- formula note (P2) — placed in the empty bottom-right band to avoid bubble collision -->
+      <text class="fa" x="1046" y="436" text-anchor="end" style="fill:#8692a0;font-size:10px">y &asymp; gap&times;conviction · x &asymp; price-implied embed · r &prop; sev/20 · dashed border = est. coords</text>
+      <!-- bubbles: cx mapped from is-priced (70..1050), cy from variant-strength (460 low .. 40 high), r ~ severity/20*scale -->
+      <!-- ALL bubble borders DASHED = estimated/judgment coordinates (no measured-coordinate name in this chart) -->
+      <!-- S4 Interconnect: least priced, highest conviction, sev 18 -> TOP -->
+      <circle cx="235" cy="120" r="38" fill="#3fb6a8" fill-opacity="0.22" stroke="#3fb6a8" stroke-width="1.6" stroke-dasharray="5 3"/>
+      <text class="m" x="235" y="116" text-anchor="middle" style="fill:#3fb6a8;font-size:13px">S4</text>
+      <text class="fa" x="235" y="132" text-anchor="middle" style="fill:#cfe9e4">Interconnect</text>
+      <text class="fa" x="235" y="172" text-anchor="middle">EV6 · InP insight; play via LITE</text>
+
+      <!-- S1 Foundry: PRICED side, whole body clears the x=560 divider (cx-r=615-40=... cx=615), sev 19 (largest bubble) -->
+      <circle cx="615" cy="225" r="38" fill="#e0a23b" fill-opacity="0.18" stroke="#e0a23b" stroke-width="1.4" stroke-dasharray="5 3"/>
+      <text class="m" x="615" y="221" text-anchor="middle" style="fill:#e0a23b;font-size:13px">S1</text>
+      <text class="fa" x="615" y="237" text-anchor="middle" style="fill:#eed9b0">Foundry</text>
+      <text class="fa" x="615" y="275" text-anchor="middle">EV4 · sev19 · 2330.TW</text>
+
+      <!-- S3 HBM: PRICED core (right of divider), conviction mid-high, sev 19 -->
+      <circle cx="628" cy="120" r="40" fill="#e0a23b" fill-opacity="0.18" stroke="#e0a23b" stroke-width="1.4" stroke-dasharray="5 3"/>
+      <text class="m" x="628" y="116" text-anchor="middle" style="fill:#e0a23b;font-size:13px">S3</text>
+      <text class="fa" x="628" y="132" text-anchor="middle" style="fill:#eed9b0">HBM</text>
+      <text class="fa" x="628" y="172" text-anchor="middle">EV5 · sev19 · Hanmi</text>
+
+      <!-- S2 Packaging: priced side, gap real, sev ~15 -->
+      <circle cx="690" cy="170" r="33" fill="#df6258" fill-opacity="0.16" stroke="#df6258" stroke-width="1.4" stroke-dasharray="5 3"/>
+      <text class="m" x="690" y="166" text-anchor="middle" style="fill:#df6258;font-size:12px">S2</text>
+      <text class="fa" x="690" y="181" text-anchor="middle" style="fill:#e9b7b3">Packaging</text>
+      <text class="fa" x="690" y="216" text-anchor="middle">EV4 · CAMT</text>
+
+      <!-- S6a Facility power: priced-ish, sev 18, gap mid (under-covered angle survives) -->
+      <circle cx="760" cy="235" r="38" fill="#df6258" fill-opacity="0.16" stroke="#df6258" stroke-width="1.4" stroke-dasharray="5 3"/>
+      <text class="m" x="760" y="231" text-anchor="middle" style="fill:#df6258;font-size:12px">S6a</text>
+      <text class="fa" x="760" y="246" text-anchor="middle" style="fill:#e9b7b3">Facility pwr</text>
+      <text class="fa" x="760" y="287" text-anchor="middle">EV4 · HPS.A</text>
+
+      <!-- S6b Rack power: priced, sev 17, gap mid -->
+      <circle cx="880" cy="300" r="36" fill="#df6258" fill-opacity="0.14" stroke="#df6258" stroke-width="1.3" stroke-dasharray="5 3"/>
+      <text class="m" x="880" y="296" text-anchor="middle" style="fill:#df6258;font-size:12px">S6b</text>
+      <text class="fa" x="880" y="311" text-anchor="middle" style="fill:#e9b7b3">Rack pwr</text>
+      <text class="fa" x="880" y="350" text-anchor="middle">EV4 · NVTS</text>
+
+      <!-- S7 Cooling: priced, sev 16, gap mid-low -->
+      <circle cx="800" cy="330" r="34" fill="#df6258" fill-opacity="0.14" stroke="#df6258" stroke-width="1.3" stroke-dasharray="5 3"/>
+      <text class="m" x="800" y="326" text-anchor="middle" style="fill:#df6258;font-size:12px">S7</text>
+      <text class="fa" x="800" y="341" text-anchor="middle" style="fill:#e9b7b3">Cooling</text>
+      <text class="fa" x="800" y="378" text-anchor="middle">EV4 · DOV</text>
+
+      <!-- S5 Networking: fully priced, euphoric, sev 16 -->
+      <circle cx="985" cy="200" r="34" fill="#df6258" fill-opacity="0.18" stroke="#df6258" stroke-width="1.5" stroke-dasharray="5 3"/>
+      <text class="m" x="985" y="196" text-anchor="middle" style="fill:#df6258;font-size:12px">S5</text>
+      <text class="fa" x="985" y="211" text-anchor="middle" style="fill:#e9b7b3">Networking</text>
+      <text class="fa" x="985" y="247" text-anchor="middle">EV3 · CRDO</text>
+
+      <!-- D0 Demand: most priced, low variant strength (in-line), sev 17 -->
+      <circle cx="965" cy="345" r="38" fill="#6b7682" fill-opacity="0.18" stroke="#6b7682" stroke-width="1.4" stroke-dasharray="5 3"/>
+      <text class="m" x="965" y="341" text-anchor="middle" style="fill:#9aa7b4;font-size:12px">D0</text>
+      <text class="fa" x="965" y="356" text-anchor="middle" style="fill:#b6bdc6">Demand</text>
+      <text class="fa" x="965" y="397" text-anchor="middle">EV3 · NVDA denom</text>
+
+      <!-- "where the edge hides" marker -->
+      <path d="M150,120 L196,120" stroke="#3fb6a8" stroke-width="1.2" stroke-dasharray="4 3"/>
+      <text class="fa" x="148" y="116" text-anchor="end" style="fill:#3fb6a8">edge hides here &rarr;</text>
+    </svg>
+    <div class="legendrow">
+      <span><span class="sw" style="background:#3fb6a8"></span>edge / real-alpha-ish (teal)</span>
+      <span><span class="sw" style="background:#e0a23b"></span>watchlist (amber)</span>
+      <span><span class="sw" style="background:#df6258"></span>trap / late (desat-red)</span>
+      <span><span class="sw" style="background:#6b7682"></span>avoid / context (grey)</span>
+      <span class="mut">bubble size &prop; chokepoint severity/20</span>
+      <span class="mut"><span class="sw" style="background:transparent;border:1.5px dashed var(--faint)"></span>dashed border = estimated/judgment coordinates (all bubbles)</span>
+    </div>
+    <p class="kicker" style="margin-top:10px"><b class="h">Read this:</b> only <span class="teal">S4</span> sits clearly in the top-left (edge + un-priced). S1/S3 are amber — real, conviction-bearing, but the liquid expression is financialized so the edge is a thin sliver in a less-covered same-asset / second-order name. Everything in the right half is a <span class="red">TRAP</span> (gap real, stock already ran) or a grey priced denominator. <span class="mut">Coordinates are an honest reconstruction of the dossier verdicts (est.), not a measured dataset.</span></p>
+  </div>
+
+  <!-- ===================== 1b. RANKED EV BAR ===================== -->
+  <div class="card">
+    <span class="tag">(b) RANKED by EV — tallest = the freshest edge</span>
+    <svg viewBox="0 0 1120 470" role="img" aria-label="Horizontal ranked bar of 9 buckets sorted by expected value, colored by quadrant, annotated with edge name and stage">
+      <!-- scale: EV0 at x=250, 1 EV unit = 114.3px (bar width = EV*114.3); gridlines share this origin -->
+      <line x1="250" y1="30" x2="250" y2="430" stroke="#3a444f"/>
+      <!-- gridlines EV 3..6 (at 250+EV*114.3 so bar tips land ON their labeled gridline) -->
+      <g class="fa">
+        <line x1="593" y1="30" x2="593" y2="430" stroke="#2a323d" stroke-dasharray="3 4"/><text x="593" y="448" text-anchor="middle">EV 3</text>
+        <line x1="707" y1="30" x2="707" y2="430" stroke="#2a323d" stroke-dasharray="3 4"/><text x="707" y="448" text-anchor="middle">4</text>
+        <line x1="821" y1="30" x2="821" y2="430" stroke="#2a323d" stroke-dasharray="3 4"/><text x="821" y="448" text-anchor="middle">5</text>
+        <line x1="935" y1="30" x2="935" y2="430" stroke="#2a323d" stroke-dasharray="3 4"/><text x="935" y="448" text-anchor="middle">6</text>
+      </g>
+      <!-- bars: row height 44, gap. width = (EV)*114.2 from x=250 baseline, but start bars at 250 with EV3 baseline visible; use full EV length -->
+      <!-- helper: x_end = 250 + EV*114.3 ... EV6 -> 935.8 -->
+      <!-- S4 EV6 -->
+      <g>
+        <rect x="250" y="40" width="686" height="32" rx="5" fill="#3fb6a8" fill-opacity="0.85"/>
+        <text class="m" x="60" y="61" style="font-size:12px;fill:#e6edf3">S4 Interconnect</text>
+        <text class="m" x="266" y="61" style="font-size:12px;fill:#06231f">EV 6 · TOP</text>
+        <text class="fa" x="948" y="56" style="fill:#cfe9e4">InP insight · play LITE (AIXTRON priced)</text>
+        <text class="fa" x="948" y="68">live edge = de-rated optics</text>
+      </g>
+      <!-- S3 EV5 -->
+      <g>
+        <rect x="250" y="82" width="572" height="32" rx="5" fill="#e0a23b" fill-opacity="0.8"/>
+        <text class="m" x="60" y="103" style="font-size:12px;fill:#e6edf3">S3 HBM</text>
+        <text class="m" x="266" y="103" style="font-size:12px;fill:#241a07">EV 5</text>
+        <text class="fa" x="834" y="98" style="fill:#eed9b0">Hanmi (042700 KS)</text>
+        <text class="fa" x="834" y="110">CONFIRMING · DISCOVERY · HBM over-covered</text>
+      </g>
+      <!-- S1 EV4 -->
+      <g>
+        <rect x="250" y="124" width="457" height="32" rx="5" fill="#e0a23b" fill-opacity="0.66"/>
+        <text class="m" x="60" y="145" style="font-size:12px;fill:#e6edf3">S1 Foundry</text>
+        <text class="m" x="266" y="145" style="font-size:12px;fill:#241a07">EV 4</text>
+        <text class="fa" x="719" y="140" style="fill:#eed9b0">2330.TW vs TSM ADR</text>
+        <text class="fa" x="719" y="152">stage PRICED · CONSENSUS-GAP (thin)</text>
+      </g>
+      <!-- S2 EV4 -->
+      <g>
+        <rect x="250" y="166" width="457" height="32" rx="5" fill="#df6258" fill-opacity="0.55"/>
+        <text class="m" x="60" y="187" style="font-size:12px;fill:#e6edf3">S2 Packaging</text>
+        <text class="m" x="266" y="187" style="font-size:12px;fill:#2a0f0d">EV 4</text>
+        <text class="fa" x="719" y="182" style="fill:#e9b7b3">Camtek (CAMT)</text>
+        <text class="fa" x="719" y="194">stage LATE · CONSENSUS-GAP</text>
+      </g>
+      <!-- S6a EV4 -->
+      <g>
+        <rect x="250" y="208" width="457" height="32" rx="5" fill="#df6258" fill-opacity="0.55"/>
+        <text class="m" x="60" y="229" style="font-size:12px;fill:#e6edf3">S6a Facility power</text>
+        <text class="m" x="266" y="229" style="font-size:12px;fill:#2a0f0d">EV 4</text>
+        <text class="fa" x="719" y="224" style="fill:#e9b7b3">Hammond (HPS.A)</text>
+        <text class="fa" x="719" y="236">stage LATE @ cluster · CONTEXT</text>
+      </g>
+      <!-- S6b EV4 -->
+      <g>
+        <rect x="250" y="250" width="457" height="32" rx="5" fill="#df6258" fill-opacity="0.55"/>
+        <text class="m" x="60" y="271" style="font-size:12px;fill:#e6edf3">S6b Rack power</text>
+        <text class="m" x="266" y="271" style="font-size:12px;fill:#2a0f0d">EV 4</text>
+        <text class="fa" x="719" y="266" style="fill:#e9b7b3">Navitas (NVTS)</text>
+        <text class="fa" x="719" y="278">stage LATE · DISCOVERY (2027 option)</text>
+      </g>
+      <!-- S7 EV4 -->
+      <g>
+        <rect x="250" y="292" width="457" height="32" rx="5" fill="#df6258" fill-opacity="0.55"/>
+        <text class="m" x="60" y="313" style="font-size:12px;fill:#e6edf3">S7 Cooling</text>
+        <text class="m" x="266" y="313" style="font-size:12px;fill:#2a0f0d">EV 4</text>
+        <text class="fa" x="719" y="308" style="fill:#e9b7b3">Dover / CPC (DOV)</text>
+        <text class="fa" x="719" y="320">stage LATE · DISCOVERY (SOTP)</text>
+      </g>
+      <!-- S5 EV3 -->
+      <g>
+        <rect x="250" y="334" width="343" height="32" rx="5" fill="#df6258" fill-opacity="0.55"/>
+        <text class="m" x="60" y="355" style="font-size:12px;fill:#e6edf3">S5 Networking</text>
+        <text class="m" x="266" y="355" style="font-size:12px;fill:#2a0f0d">EV 3</text>
+        <text class="fa" x="605" y="350" style="fill:#e9b7b3">Credo (CRDO)</text>
+        <text class="fa" x="605" y="362">stage LATE/euphoria · most crowded</text>
+      </g>
+      <!-- D0 EV3 -->
+      <g>
+        <rect x="250" y="376" width="343" height="32" rx="5" fill="#6b7682" fill-opacity="0.55"/>
+        <text class="m" x="60" y="397" style="font-size:12px;fill:#e6edf3">D0 Demand</text>
+        <text class="m" x="266" y="397" style="font-size:12px;fill:#11151a">EV 3</text>
+        <text class="fa" x="605" y="392" style="fill:#b6bdc6">NVDA (denominator)</text>
+        <text class="fa" x="605" y="404">stage PRICED · CONTEXT (master driver)</text>
+      </g>
+    </svg>
+    <p class="kicker" style="margin-top:6px"><b class="h">EV-rank</b> = the dossiers' 1&ndash;10 expected-value score for the residual edge (not the company's quality). <span class="teal">S4=6</span> is the single freshest call; everything at EV4 is "durable theme, poor entry"; <span class="red">S5/D0=3</span> are ride-only / context.</p>
+  </div>
+
+  <!-- ===================== 2. CONSENSUS-GAP / EV BRIDGE (P0) ===================== -->
+  <h2><span class="n">2</span>The consensus-gap bridge — what's priced vs what I model</h2>
+  <p class="sub">The core quantitative artifact. Per bucket: the key forward metric, the <b class="h">STREET consensus</b> (the actual published number), the <b class="h amber">PRICE-IMPLIED</b> expectation the current multiple embeds (<span class="red">est., reconstructed — not a measured reverse-model</span>), my <b class="h teal">VARIANT</b> estimate, the <b class="h">DELTA</b> (the gap), the <b class="h">catalyst threshold</b> (the specific print that forces convergence), conviction, and the residual-edge EV. <span class="teal">Read the DELTA column first:</span> only S4 carries a clean, datable order-vs-revenue gap; most rows are in-line (CONTEXT) or gap-real-but-closed (TRAP).</p>
+  <div class="card">
+    <span class="tag">CONSENSUS-GAP / EV BRIDGE — one row per bucket · as-of 2026-07-13</span>
+    <table>
+      <thead><tr>
+        <th>Bucket</th><th>Key forward metric</th><th>STREET consensus</th><th>PRICE-IMPLIED <span class="red">(est.)</span></th><th>VARIANT view</th><th>DELTA (gap)</th><th>Catalyst threshold</th><th>Conv.</th><th class="num">EV</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td class="mono"><b class="h grey">D0</b> Demand</td>
+          <td class="mut">2026E / 2027E aggregate capex ($)</td>
+          <td class="mut">2026 ~$725&ndash;805B (+69% YoY); 2027 &gt;$1.0&ndash;1.1T. TSMC June rev <b class="h">+68% YoY</b> / Q2 $39.63B (+36%, beat) reconfirm demand — but TSM &minus;2.7% wk on the record print = coincident</td>
+          <td class="mut">NVDA ~21x embeds the &gt;$1T-2027 trajectory as <i>base case</i> — the up-revision is fully in; TSMC's record print didn't revive the tape, the calm mega-caps (NVDA +8%) just snapped back</td>
+          <td>Number is right &amp; priced; edge is the binding-constraint disaggregation (marginal $ &rarr; supply-side enablers; FCF strain)</td>
+          <td class="mut"><b class="h">~0 (in-line)</b> &rarr; CONTEXT</td>
+          <td class="mut">A hyperscaler CUTTING/flat-holding 2027 guide</td>
+          <td class="mut">high</td><td class="num grey">3</td>
+        </tr>
+        <tr>
+          <td class="mono"><b class="h amber">S1</b> Foundry</td>
+          <td class="mut">2026 rev growth (USD) + GM / N2 ASP</td>
+          <td class="mut">&gt;30% 2026 growth (TSMC raised, Street converged); EPS ~$13.05 (+23%); ~21x fwd</td>
+          <td class="mut">~21x fwd embeds &gt;30% growth + ~59&ndash;60% GM holding — i.e. volume in, price/mix NOT</td>
+          <td class="teal">Pricing power under-modeled: 4 yrs of +3&ndash;5% hikes, $30k N2 no-discount &rarr; <b class="h">GM toward 67%+</b></td>
+          <td class="amber">GM/ASP upside (~<b class="h">+700&ndash;800 bps</b> vs embedded), small &amp; closing</td>
+          <td class="mut">TSMC Q2 (Jul 16): GM guide &gt;67% + N2 ASP commentary</td>
+          <td class="mut">med</td><td class="num amber">4</td>
+        </tr>
+        <tr>
+          <td class="mono"><b class="h red">S2</b> Packaging</td>
+          <td class="mut">CoWoS/SoIC kwpm + bonder book-to-bill</td>
+          <td class="mut">BESI FY26 EPS ~&euro;3.45 (from &euro;1.66); CAMT FY26 rev ~$559m (+13%); CoWoS gap 20%&rarr;10%</td>
+          <td class="mut">BESI ~56x / CAMT ~46x fwd already embed the hybrid-bonding inflection + a beat</td>
+          <td>Severity bifurcating CoWoS-S&rarr;3D SoIC — correct read, but order data already screams it</td>
+          <td class="mut"><b class="h">Closing in real time</b> &rarr; TRAP (gap real, stock ran)</td>
+          <td class="mut">BESI Q2 B:B &lt;1.2x = digesting (kill)</td>
+          <td class="mut">med</td><td class="num red">4</td>
+        </tr>
+        <tr>
+          <td class="mono"><b class="h amber">S3</b> HBM</td>
+          <td class="mut">HBM bit-ship &times; HBM4 ASP; tool order intake</td>
+          <td class="mut">FQ3 RECORD (sold-out HBM4/DRAM thru CY2027) + Korea June HBM shipments <b class="h">+51% MoM</b> — yet <b class="h red">MU now &minus;22% off high</b>, IV easing 0.94&rarr;0.88 (crowded de-risk deepening a 3rd week)</td>
+          <td class="mut">MU keeps falling on record data (the print already hit every desk) = late-cycle crowded de-risk, fully priced; Hanmi ~30x on a <i>washed-out</i> &minus;65.5% trailing print (unaffected by the MU price unwind)</td>
+          <td class="teal">HBM4 TC-bonder (Hanmi ~71% share) mis-priced on a depressed Q1; Griffin order inflection not in numbers</td>
+          <td class="amber">Tool-layer revision (forward) vs anchored-bearish Street</td>
+          <td class="mut">Follow-on Griffin awards + revenue inflection H2-26</td>
+          <td class="mut">med <span class="mut">(over-covered)</span></td><td class="num amber">5</td>
+        </tr>
+        <tr class="" style="background:#13302c">
+          <td class="mono"><b class="h teal">S4</b> Interconnect <span class="tag teal">&#9733; TOP</span></td>
+          <td class="mut">1.6T units + InP CW/EML $-content; <b class="h">MOCVD tool book-to-bill</b></td>
+          <td class="mut">AIXTRON ~&euro;50&ndash;55, ~15-22% ABOVE the &euro;42.70 consensus PT ("Hold"); LITE FY26 EPS ~$5.00 (raised). This week the optics <b class="h">BIFURCATED</b>: LITE <b class="h pos">+9.4% wk</b> on the calmest IV (0.65) vs COHR &minus;4.5% with IV pegged 1.00 and FN &minus;37% below high — same CPO fear, opposite crowding</td>
+          <td class="mut">AIXTRON (re-rated above PT) now embeds base/bull on the tool gate — so the <i>cheap</i> mispricing has migrated DOWNSTREAM to the de-rated optics (LITE the cleaner mean-revert, COHR/FN the fear-driven washout), which embed the CPO-kills-EML overhang</td>
+          <td class="teal"><b class="h">Order-book ACCELERATING: multiple new Lumentum G10-AsP InP MOCVD orders (May-2026)</b> + LITE 240k-sqft NC InP facility + $100M+ H1-27 CPO order; FY26 guide raised ~&euro;560M vs a lagging &minus;48% rev print. CPO converts modulated EMLs to CW lasers, <i>both InP/MOCVD-grown</i> &rarr; the upstream tool is architecture-agnostic (AIXTRON ~70&ndash;90% share)</td>
+          <td class="teal"><b class="h">Insight fresh, expression shifted.</b> AIXTRON the <i>equity</i> is now priced (above PT); the live gap is the optics complex pricing CPO as a threat when InP demand persists across architectures &rarr; gap = the de-rated optics, not AIXTRON</td>
+          <td class="teal"><b class="h">AIXTRON Q2 (Jul 30):</b> orders-vs-revenue reconciliation; LITE FQ4 (Aug) 200G-EML mix toward ~25%. EV6 = the sub-segment <i>edge / where-to-dig</i>, NOT a buy on AIXTRON at the high</td>
+          <td class="teal">med&ndash;high</td><td class="num teal"><b class="h">6</b></td>
+        </tr>
+        <tr>
+          <td class="mono"><b class="h red">S5</b> Networking</td>
+          <td class="mut">Scale-up switch / SerDes $-content per rack</td>
+          <td class="mut">ALAB guided $355&ndash;365M vs ~$310M cons (+16%); CRDO FY26 ~$1.3B+ (~170% growth) — Street CHASING up</td>
+          <td class="mut">ALAB ~115&ndash;120x / CRDO ~42x fwd embed a beat <i>and then some</i> — price ran 3&ndash;4x off lows</td>
+          <td>Scale-up switch $-content (TAM ~$20B by 2030) under-disaggregated — but the gap is <b class="h">closed on price</b></td>
+          <td class="mut"><b class="h">Gap real on fundamentals, closed on price (40&ndash;120x)</b> &rarr; TRAP</td>
+          <td class="mut">A multiple de-rate to ~25&ndash;30x while still beating (would re-open it)</td>
+          <td class="mut">med</td><td class="num red">3</td>
+        </tr>
+        <tr>
+          <td class="mono"><b class="h red">S6a</b> Facility pwr</td>
+          <td class="mut">Grid-equip orders/backlog; lead-time persistence</td>
+          <td class="mut">GEV FY26 rev ~$45.5B, EPS ~$30.93, ~64x fwd, $163B backlog; transformer 128/144/160+ wk</td>
+          <td class="mut">GEV ~64x embeds the super-cycle AND the options crowd (IV-pctile pegged 1.00, near 52w high); HPS.A ~40x (~7 analysts) embeds +95% backlog but coverage lags</td>
+          <td>Tightness is structural/longer-duration, but the crowd ARRIVED this week (power = "new bottleneck trade") &rarr; the dip-accumulation window closed; thin-coverage HPS.A is the residual but at risk of being swept up</td>
+          <td class="mut"><b class="h">Duration, not level</b> &rarr; CONTEXT / late (HPS.A +80% YTD already)</td>
+          <td class="mut">Lead-times CONTRACTING &lt;100 wk = shortage breaking (kill)</td>
+          <td class="mut">med</td><td class="num red">4</td>
+        </tr>
+        <tr>
+          <td class="mono"><b class="h red">S6b</b> Rack pwr</td>
+          <td class="mut">Power-semi/VRM $-content per kW; magnetics supply</td>
+          <td class="mut">MPWR FY26 EPS ~$24.85, Q2 guide $890&ndash;910M vs ~$870M cons, ~50&ndash;77x fwd; IFX FY26 AI ~&euro;1.5B&rarr;2.5B</td>
+          <td class="mut">MPWR ~50&ndash;77x / IFX 25-yr high embed the 800V theme today; NVTS prices a 2027-Kyber narrative option</td>
+          <td>True chokepoint (nanocrystalline cores, VAC/Proterial) is <b class="h">PRIVATE/un-investable</b>; NVTS = binary 2027 option</td>
+          <td class="mut"><b class="h">No clean liquid expression</b> &rarr; TRAP / DISCOVERY</td>
+          <td class="mut">Kyber/Rubin 800V ecosystem ramp (2027)</td>
+          <td class="mut">med</td><td class="num red">4</td>
+        </tr>
+        <tr>
+          <td class="mono"><b class="h red">S7</b> Cooling</td>
+          <td class="mut">DLC attach-rate &times; thermal $-content per rack</td>
+          <td class="mut">VRT FY26 $13.5&ndash;14.0B (+29&ndash;31%), EPS $6.30&ndash;6.40, ~$15B backlog; DLC 47% 2026 (DOV/CPC = NO_CONS)</td>
+          <td class="mut">VRT/AVC/Auras embed the attach-story; DOV (conglomerate) does NOT price CPC as a cooling pure-play</td>
+          <td>DLC priced in pure-plays; the QD/UQD connector edge buried in Dover/CPC (SOTP), but open OCP spec caps pricing</td>
+          <td class="mut"><b class="h">Volume edge, not monopoly</b> &rarr; TRAP / DISCOVERY</td>
+          <td class="mut">Vera Rubin 100% attach forces CPC volume (2H-26)</td>
+          <td class="mut">med</td><td class="num red">4</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="kicker" style="margin-top:10px"><b class="h">EV formula (heuristic).</b> <code>EV &asymp; gap &times; conviction &times; catalyst-probability &times; unpriced-score &times; expression-score</code> — i.e. the residual-edge rank decays fast when any factor is weak (gap closed, low conviction, no clean ticker, or an un-datable catalyst). This is why <span class="teal">S4 (open gap, dated H1 catalyst, architecture-agnostic, thin coverage)</span> tops the list while a high-severity-but-priced bucket like S6a lands at EV 4. <b class="h">EV is the dossier's 1&ndash;10 expected-edge rank, NOT a position size</b> — a high EV still has to clear execution/liquidity before any sizing.</p>
+    <div class="card" style="margin-top:10px;background:var(--panel2)">
+      <span class="tag amber">DE-COMPRESSING THE EV4 CLUSTER — five EV4 rows are NOT five equivalent ideas (tiebreak sub-rank)</span>
+      <table class="rm" style="margin-top:6px">
+        <thead><tr><th>Sub-rank</th><th>Bucket</th><th>Situation type</th><th>Why it differs inside EV4</th></tr></thead>
+        <tbody>
+          <tr><td class="num">4a</td><td class="mono amber">S1 Foundry</td><td>same-asset REL-VAL arb</td><td class="mut">Highest-confidence/lowest-variance of the four: identical mega-cap asset, the only uncertainty is the ADR-vs-ordinary premium &mdash; not a fundamental discovery</td></tr>
+          <tr><td class="num">4b</td><td class="mono red">S2 Packaging</td><td>TRAP (gap real, ran)</td><td class="mut">Gap was real but is closing on price (~46x, recognition&rarr;euphoria); buy-the-dip only &mdash; lower forward asymmetry than 4a</td></tr>
+          <tr><td class="num">4c</td><td class="mono red">S6a Facility pwr</td><td>CONTEXT / duration</td><td class="mut">Tightness is structural-duration, not a level surprise; HPS.A already +80% YTD &mdash; a monitor, not an entry</td></tr>
+          <tr><td class="num">4d</td><td class="mono red">S6b / S7</td><td>DISCOVERY options</td><td class="mut">Lowest-confidence: no clean liquid expression (NVTS = binary 2027 option; DOV = SOTP sliver capped by an open spec). Optionality, not a base-case edge</td></tr>
+        </tbody>
+      </table>
+      <p class="rmnote">So the EV4 band runs <b class="h">4a (tightest, lowest-variance arb) &rarr; 4d (widest, option-like)</b>. They share a score but not a risk profile &mdash; do not read "EV4" as "five interchangeable buys."</p>
+    </div>
+    <p class="kicker" style="margin-top:6px"><b class="h red">Honesty stamp:</b> every PRICE-IMPLIED cell is <b class="h">(est., reconstructed — not a measured reverse-model)</b>. It is a judgment of what the current multiple <i>appears</i> to embed, inferred from the consensus number + the traded multiple, NOT a formal DCF back-out. STREET and VARIANT figures are traceable to <code>datapack.json</code> (see §9 ledger). The DELTA is the load-bearing column; conviction is medium except where flagged.</p>
+    <p class="kicker" style="margin-top:6px"><b class="h amber">One worked back-out (to make the top-bucket DELTA less hand-wavy):</b> <b class="h">S4 / AIXTRON</b> at ~&euro;50&ndash;55 on ~30&ndash;33x fwd FY26 EPS (est.) with FY26 rev guided ~&euro;560M and ~18% EBIT margin implies the market is paying for the <i>base</i> case (H1 revenue inflects toward the order book) — i.e. the tool-equity's gap is CLOSED, which is exactly why the live gap sits DOWNSTREAM in the de-rated optics (see §5). <b class="h">S1 / TSM</b> at ~21x fwd on ~$13 FY26 EPS back-solves to ~59&ndash;60% GM held flat + &gt;30% growth already in the price — so the only residual is the +700&ndash;800bps GM/ASP upside (the amber DELTA), small and CONFIRMING. <b class="h">S3 / MU</b> at ~6&ndash;7x on peak EPS embeds a cyclical roll-over, not sold-out-forever — the cheap multiple IS the trap, which is why the tool-layer (Hanmi, off a washed-out print) is the only sliver with a forward gap. These three anchor the buckets we actually route work into; the rest of the column stays (est.).</p>
+  </div>
+
+  <!-- ===================== 3. CONSENSUS VS VARIANT TABLE ===================== -->
+  <h2><span class="n">3</span>Consensus vs the variant view — the differentiated substance</h2>
+  <p class="sub">Per bucket: the binding chokepoint, what the Street models, the <b class="h teal">VARIANT view</b> (the differentiated take), gap direction, mode, and awareness stage. This is the qualitative companion to the §2 bridge — the <b class="h">quantified</b> "Street X / variant Y / delta Z" lives there. Where the gap is <i>in-line</i>, the bucket is labelled <span class="pill ctx">CONTEXT</span> / no-edge explicitly; where it is real-but-already-run it is a <span class="pill trap">TRAP</span>.</p>
+  <table>
+    <thead><tr>
+      <th>Bucket</th><th>Chokepoint</th><th>What the Street models</th><th>The VARIANT view (differentiated)</th><th>Gap dir</th><th>Mode</th><th>Stage</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="mono"><b class="h grey">D0</b> Demand</td>
+        <td class="mut">Power/buildout-gated, no longer demand-gated; capex&minus;energized-MW gap widest ever</td>
+        <td class="mut">2026 ~$725&ndash;805B, 2027 &gt;$1T — and chasing it UP</td>
+        <td>Headline number is roughly <i>right</i> and caught up; the edge is the binding-constraint disaggregation (marginal $ forced through supply-side enablers; FCF/financing strain)</td>
+        <td class="mut">in-line</td><td><span class="pill ctx">CONTEXT</span></td><td class="mut">priced</td>
+      </tr>
+      <tr>
+        <td class="mono"><b class="h amber">S1</b> Foundry</td>
+        <td class="mut">TSMC N2/N3 leading-edge wafer allocation</td>
+        <td class="mut">&gt;30% 2026 growth (TSMC raised it; Street converged up)</td>
+        <td>Multi-year <b class="h">pricing power</b> under-modeled (4 yrs of +3&ndash;5% hikes, $30k N2, no-discount &rarr; GM toward 67%+); ASIC-vs-GPU mix is neutral for the foundry — all paths land on TSMC. Fresh sliver = under-financialized <span class="mono">2330.TW</span></td>
+        <td class="amber">above</td><td><span class="pill watch">CONS-GAP</span></td><td class="mut">priced</td>
+      </tr>
+      <tr>
+        <td class="mono"><b class="h red">S2</b> Packaging</td>
+        <td class="mut">2.5D CoWoS loosening; binding link migrating to 3D SoIC hybrid bonding</td>
+        <td class="mut">Hybrid-bonding ramp already modeled (BESI EPS &euro;1.66&rarr;&euro;3.45)</td>
+        <td>Severity is <b class="h">bifurcating</b> — CoWoS-S de-rates while SoIC (10&ndash;15k wpm, yield-gated) becomes the true gate; the inspection/yield-verification name (Camtek) is the quieter arms-dealer. But order data already screams it &rarr; gap closing in real time</td>
+        <td class="mut">in-line</td><td><span class="pill watch">CONS-GAP</span></td><td class="red">euphoria</td>
+      </tr>
+      <tr>
+        <td class="mono"><b class="h amber">S3</b> HBM</td>
+        <td class="mut">HBM4 die-stacking/yield + TSMC logic base die; DRAM-wafer crowd-out</td>
+        <td class="mut">Big-3 sold-out at risen ASPs (MU ~6&ndash;7x peak EPS) — consensus &amp; priced</td>
+        <td>Mega-cap leg is priced; the un-modeled gap is the HBM4 <b class="h">back-end TOOL layer</b> — Hanmi's first Griffin orders (Jun-2026) post-date a washed-out trailing print the sell-side still anchors bearish. <span class="mut">Caveat: HBM is the most over-covered trade in semis (verifier)</span></td>
+        <td class="amber">above</td><td><span class="pill watch">DISCOVERY</span></td><td class="amber">recognition</td>
+      </tr>
+      <tr>
+        <td class="mono"><b class="h teal">S4</b> Interconnect</td>
+        <td class="red">InP epitaxy / MOCVD (AIXTRON &gt;90% on the G10-AsP Planetary-IP tool) feeding 200G EMLs AND CW lasers</td>
+        <td class="mut">CPO is a binary threat to optics; disaggregates LITE/COHR on the EML-vs-CPO axis</td>
+        <td class="teal"><b class="h">The MARQUEE misread.</b> CPO doesn't remove laser demand — it converts modulated EMLs into CW lasers in ELS modules, <i>both grown on InP via MOCVD</i>. So the upstream tool layer is architecture-agnostic &amp; undersupplied through 2027 either way. June selloff mispriced AIXTRON (orders +30% YoY masked by a &minus;48% revenue print)</td>
+        <td class="amber">above</td><td><span class="pill edge">CONS-GAP</span></td><td class="amber">recognition</td>
+      </tr>
+      <tr>
+        <td class="mono"><b class="h red">S5</b> Networking</td>
+        <td class="mut">224G/448G SerDes + retimer/AEC DSP IP + merchant scale-up switch-ASIC</td>
+        <td class="mut">Street now CHASING up (ALAB beat own guide +16%, CRDO +14% EPS)</td>
+        <td>Scale-up switch-silicon $-content (TAM ~$20B by 2030) under-disaggregated; CRDO's DSP-IP moat understated as "commodity cable". But every name re-rated to 40&ndash;120x &rarr; gap real on fundamentals, <b class="h">closed on price</b></td>
+        <td class="amber">above</td><td><span class="pill trap">CONS-GAP</span></td><td class="red">euphoria</td>
+      </tr>
+      <tr>
+        <td class="mono"><b class="h red">S6a</b> Facility pwr</td>
+        <td class="mut">HV transformers (128&ndash;160+ wk) + GSU + 5&ndash;7yr grid interconnect queues</td>
+        <td class="mut">Transformer super-cycle + DC order surge fully in mega-cap (GEV 64x, 37 analysts)</td>
+        <td>Tightness is more <b class="h">structural/longer-duration</b> than a normal up-cycle (GOES steel + skilled-labor gated, holds into 2028&ndash;30); residual un-priced angle is the thin-coverage 2nd-order name (HPS.A ~7 analysts) — but it ran +80% YTD already</td>
+        <td class="mut">in-line</td><td><span class="pill ctx">CONTEXT</span></td><td class="red">euphoria</td>
+      </tr>
+      <tr>
+        <td class="mono"><b class="h red">S6b</b> Rack pwr</td>
+        <td class="mut">Nanocrystalline soft-magnetic cores (sold out thru mid-2026) + 800V GaN/SiC integration</td>
+        <td class="mut">800V-HVDC/VRM theme via MPWR/IFX — already in price</td>
+        <td>True chokepoint owners (VAC, Proterial) are <b class="h">private/un-investable</b> (zero coverage); the non-linear $-content step at 600kW&rarr;1MW Rubin/Kyber racks isn't in numbers yet. Cleanest bet = NVTS 2027 option (binary, ~$41M rev)</td>
+        <td class="amber">above</td><td><span class="pill trap">DISCOVERY</span></td><td class="amber">recognition</td>
+      </tr>
+      <tr>
+        <td class="mono"><b class="h red">S7</b> Cooling</td>
+        <td class="mut">Cold-plate + blind-mate quick-disconnect (QD/UQD) leak-proof coupling</td>
+        <td class="mut">DLC volume/attach (47% 2026 &rarr; mandatory on Rubin) — fully in pure-plays</td>
+        <td>The QD/UQD connector is a hard reliability gate buried inside <b class="h">Dover/CPC</b>, not priced as an AI-cooling pure-play; scales with rack&times;connections. Caveat: open OCP spec caps pricing &rarr; <b class="h">volume edge, not monopoly</b></td>
+        <td class="amber">above</td><td><span class="pill trap">DISCOVERY</span></td><td class="amber">recognition</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ===================== 4. WHY EVERYTHING IS PRICED + CROWDING ===================== -->
+  <h2><span class="n">4</span>Why almost everything is PRICED — the crowding strip</h2>
+  <p class="sub">The financialization filter says a name with &gt;15 analysts + deep options is EARLY-ineligible. IBKR <b class="h">IV-percentile</b> (52w, pulled 2026-07-13) and <b class="h">52-week-range position</b> (07-10 close) let you <i>see</i> the euphoria directly: high IV-pctile + near-highs = crowded; calm IV + pulled-back = mean-reverting. The hot names ARE the consensus AI trade.</p>
+  <div class="card">
+    <span class="tag">CROWDING STRIP — IV-percentile (x) &times; position-in-52w-range (y) · IV as-of 2026-07-13 · arrows = this week&#39;s movers (NVDA snapback &middot; LITE bounce &middot; MU/MRVL sliding &middot; COHR de-rate) · <span class="mut">pegged-IV right cluster (TSM/ALAB/VRT/ETN/COHR/MPWR, IV .98&ndash;1.00) carries a &plusmn;~0.03&ndash;0.05 vertical anti-overlap offset for label clearance</span></span>
+    <svg viewBox="0 0 1120 470" role="img" aria-label="Crowding scatter of 14 names by IV percentile versus 52-week range position; top-right is euphoric, bottom-left is calm; arrows show MU falling and LITE de-rating this week">
+      <!-- zones -->
+      <rect x="640" y="40" width="430" height="180" fill="#2a1c1d" opacity="0.30"/>
+      <rect x="70" y="260" width="350" height="160" fill="#13302c" opacity="0.25"/>
+      <!-- axes -->
+      <line x1="70" y1="40" x2="70" y2="420" stroke="#3a444f"/>
+      <line x1="70" y1="420" x2="1070" y2="420" stroke="#3a444f"/>
+      <!-- gridlines x: IV 0.2..1.0 -> x = 70 + iv*1000 -->
+      <g class="fa">
+        <line x1="320" y1="40" x2="320" y2="420" stroke="#2a323d" stroke-dasharray="3 4"/><text x="320" y="438" text-anchor="middle">IV .25</text>
+        <line x1="570" y1="40" x2="570" y2="420" stroke="#2a323d" stroke-dasharray="3 4"/><text x="570" y="438" text-anchor="middle">.50</text>
+        <line x1="820" y1="40" x2="820" y2="420" stroke="#2a323d" stroke-dasharray="3 4"/><text x="820" y="438" text-anchor="middle">.75</text>
+        <line x1="920" y1="40" x2="920" y2="420" stroke="#5e3331" stroke-dasharray="3 4"/><text x="920" y="438" text-anchor="middle" style="fill:#df6258">.85 hot</text>
+      </g>
+      <text class="lbl" x="76" y="56">52-WEEK RANGE POSITION &uarr;  (near highs = extended)</text>
+      <text class="fa" x="560" y="462" text-anchor="middle">IV-PERCENTILE (52w) &rarr;  crowded/extended options</text>
+      <text class="m" x="1064" y="60" text-anchor="end" style="fill:#df6258;font-size:11px">EUPHORIC / RIDE-ONLY (hot IV + near highs)</text>
+      <text class="m" x="80" y="278" style="fill:#3fb6a8;font-size:11px">CALMER / less-crowded</text>
+      <!-- helper: x = 70 + iv*1000 ; y = 420 - rangepos*380 ; IV as-of 2026-07-13 -->
+
+      <!-- NVDA snapback arrow: 07-06 (iv.49 r.48 x560 y238) -> 07-13 (iv.44 r.66 x510 y169) : calm-name rally up-left -->
+      <circle cx="560" cy="238" r="5" fill="none" stroke="#6b7682" stroke-dasharray="3 2"/><text class="m fa" x="568" y="248" text-anchor="start" style="fill:#8692a0">NVDA 07-06</text>
+      <path d="M555,233 C535,215 522,195 514,177" fill="none" stroke="#3fb6a8" stroke-width="1.4" stroke-dasharray="5 3"/>
+      <path d="M514,177 l7,4 l2,-9 z" fill="#3fb6a8"/>
+      <!-- LITE bounce arrow: 07-06 (iv.67 r.65 x740 y173) -> 07-13 (iv.65 r.71 x720 y150) : mean-revert working up-left -->
+      <circle cx="740" cy="173" r="5" fill="none" stroke="#6b7682" stroke-dasharray="3 2"/><text class="m fa" x="748" y="183" text-anchor="start" style="fill:#8692a0">LITE 07-06</text>
+      <path d="M735,169 C728,163 725,160 722,156" fill="none" stroke="#e0a23b" stroke-width="1.4" stroke-dasharray="5 3"/>
+      <path d="M722,156 l6,3 l1,-8 z" fill="#e0a23b"/>
+      <!-- MU slide-continues arrow: 07-06 (iv.94 r.79 x1010 y120) -> 07-13 (iv.88 r.76 x950 y131) : de-risk deepening down-left -->
+      <circle cx="1010" cy="120" r="5" fill="none" stroke="#6b7682" stroke-dasharray="3 2"/><text class="m fa" x="1018" y="116" text-anchor="start" style="fill:#8692a0">MU 07-06</text>
+      <path d="M1005,122 C985,126 972,128 957,130" fill="none" stroke="#df6258" stroke-width="1.4" stroke-dasharray="5 3"/>
+      <path d="M957,130 l8,-4 l1,9 z" fill="#df6258"/>
+      <!-- COHR de-rate arrow: 07-06 (iv.96 r.72 x1030 y146) -> 07-13 (iv1.00 r.68 x1070 y162) : IV pegs to fear, right-down -->
+      <circle cx="1030" cy="146" r="5" fill="none" stroke="#6b7682" stroke-dasharray="3 2"/>
+      <path d="M1035,148 C1050,152 1058,156 1065,159" fill="none" stroke="#df6258" stroke-width="1.2" stroke-dasharray="4 3"/>
+      <path d="M1065,159 l-9,-1 l2,8 z" fill="#df6258"/>
+
+      <!-- ==== 07-13 points ==== -->
+      <!-- GEV iv.98 r.84 -> x1050 y101 (pulled back but IV still pegged) -->
+      <circle cx="1050" cy="101" r="8" fill="#df6258" stroke="#fff" stroke-width="1.2"/><text class="m fa" x="1042" y="95" text-anchor="end" style="fill:#f3c9c5">GEV .98 (&minus;4% wk)</text>
+      <!-- TSM iv1.00 r.82 -> x1070 y108 -->
+      <circle cx="1070" cy="112" r="6" fill="#df6258"/><text class="m fa" x="1062" y="118" text-anchor="end" style="fill:#e9b7b3">TSM 1.00</text>
+      <!-- ALAB iv.99 r.79 -> x1060 y120 -->
+      <circle cx="1060" cy="124" r="6" fill="#df6258"/><text class="m fa" x="1052" y="130" text-anchor="end" style="fill:#e9b7b3">ALAB .99</text>
+      <!-- VRT iv.99 r.77 -> x1060 y127 -->
+      <circle cx="1062" cy="139" r="6" fill="#df6258"/><text class="m fa" x="1054" y="145" text-anchor="end" style="fill:#e9b7b3">VRT .99</text>
+      <!-- ETN iv1.00 r.76 -> x1070 y131 (small +offset for label clearance) -->
+      <circle cx="1071" cy="138" r="6" fill="#df6258"/><text class="m fa" x="1063" y="135" text-anchor="end" style="fill:#e9b7b3">ETN 1.00</text>
+      <!-- COHR iv1.00 r.68 -> x1070 y162 (de-rate, IV now PEGGED = fear) -->
+      <circle cx="1070" cy="165" r="7" fill="#df6258" stroke="#f3c9c5" stroke-width="1.1"/><text class="m fa" x="1062" y="172" text-anchor="end" style="fill:#f3c9c5">COHR 1.00 &#9660;fear</text>
+      <!-- MPWR iv.99 r.65 -> x1060 y173 -->
+      <circle cx="1058" cy="180" r="6" fill="#df6258"/><text class="m fa" x="1050" y="186" text-anchor="end" style="fill:#e9b7b3">MPWR .99</text>
+      <!-- MU iv.88 r.76 -> x950 y131 (mover, still down; IV easing) -->
+      <circle cx="950" cy="131" r="8" fill="#df6258" stroke="#f3c9c5" stroke-width="1.1"/><text class="m fa" x="942" y="127" text-anchor="end" style="fill:#f3c9c5">MU .88 &#9660;&minus;22% off hi</text>
+      <!-- CRDO iv.89 r.77 -> x960 y127 -->
+      <circle cx="963" cy="115" r="6" fill="#e0a23b"/><text class="m fa" x="955" y="110" text-anchor="end" style="fill:#eed9b0">CRDO .89</text>
+      <!-- MRVL iv.88 r.65 -> x950 y173 (unwind deepening) -->
+      <circle cx="950" cy="176" r="6" fill="#df6258"/><text class="m fa" x="942" y="181" text-anchor="end" style="fill:#e9b7b3">MRVL .88 (&minus;28% off hi)</text>
+      <!-- LITE iv.65 r.71 -> x720 y150 (bounced, IV calmest = mean-revert) -->
+      <circle cx="720" cy="150" r="7" fill="#e0a23b" stroke="#eed9b0"/><text class="m fa" x="728" y="148" text-anchor="start" style="fill:#eed9b0">LITE .65 &#9650;+9% (&minus;26% off hi)</text>
+      <!-- FN iv.93 r.42 -> x1000 y260 (washed out further, IV hot) -->
+      <circle cx="1000" cy="260" r="6" fill="#e0a23b"/><text class="m fa" x="992" y="255" text-anchor="end" style="fill:#eed9b0">FN .93 (&minus;37% off hi)</text>
+      <!-- AVGO iv.69 r.58 -> x760 y200 (snapback with NVDA) -->
+      <circle cx="760" cy="200" r="7" fill="#3fb6a8" stroke="#cfe9e4"/><text class="m fa" x="752" y="195" text-anchor="end" style="fill:#cfe9e4">AVGO .69 &#9650;+7%</text>
+      <!-- NVDA iv.44 r.66 -> x510 y169 (calmest, IV eased .49->.44, +8% wk) -->
+      <circle cx="510" cy="169" r="8" fill="#3fb6a8" stroke="#cfe9e4" stroke-width="1.2"/><text class="m fa" x="502" y="164" text-anchor="end" style="fill:#cfe9e4">NVDA .44 &#9650;+8% wk</text>
+    </svg>
+    <p class="kicker" style="margin-top:8px"><b class="h red">The story is the four arrows — and the S4 SPLIT.</b> <b class="h teal">NVDA snapped back +8%</b> (teal arrow, up-left) on the <i>lowest</i> IV in the complex (0.49&rarr;0.44) — a calm-name rally, not euphoria (but &gt;15-analyst, EARLY-ineligible). <b class="h amber">LITE bounced +9%</b> (amber arrow, up) on the calmest S4 IV (0.65) = the cleaner mean-revert, InP-gated thesis intact — <i>while</i> <b class="h red">COHR de-rated with IV now PEGGED 1.00</b> (red arrow, right-down = fear) and FN washed &minus;37% below high: the optics bucket <b class="h">bifurcated</b>, proving the CPO fear is idiosyncratic positioning. <b class="h red">MU keeps sliding</b> (red arrow, down-left) — now &minus;22% off high, IV easing 0.94&rarr;0.88 = crowded de-risk deepening. <b class="h red">Hot / euphoric (ride-only):</b> the whole right cluster — GEV, TSM, ALAB, ETN, VRT, MPWR, COHR (IV 0.98&ndash;1.00); GEV pulled back &minus;4% but IV stayed pegged = NOT de-crowding. <b class="h teal">Calmest / least-crowded:</b> NVDA (IV .44) and AVGO (IV .69) — both EARLY-ineligible. <span class="mut">cumulative_perf empty (IBKR single-stock gotcha) — range-position + IV used as proxies; IV as-of 07-13, prices 07-10 close.</span></p>
+  </div>
+
+  <div class="card">
+    <span class="tag">POSITIONING COMPOSITE — "hot but still under-modeled" vs "priced &amp; crowded" · combines coverage + multiple + revision + move</span>
+    <p class="sub" style="margin-top:6px">IV + range-position alone don't prove a thesis is priced. This composite adds <b class="h">analyst count</b> (financialization), <b class="h">forward multiple / its percentile</b>, <b class="h">estimate-revision direction</b>, and the <b class="h">~3-month / YTD move</b> to separate the two failure modes. A name that is <span class="teal">thinly covered + rising estimates + not-yet-fully-run</span> can still be under-modeled; a name that is <span class="red">deeply covered + already +100&ndash;240% + 50&ndash;120x</span> is priced regardless of how good the story is.</p>
+    <table>
+      <thead><tr>
+        <th>Name</th><th>Bucket</th><th class="num">Analysts</th><th class="num">Fwd mult.</th><th>Est. revision</th><th class="num">Move (YTD / off-low)</th><th>Composite read</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="mono">AIXTRON</td><td class="mut">S4 tool</td><td class="num">~15 (rising)</td><td class="mut">guide raised &euro;560M; new Lumentum orders</td><td class="mut">up (guide + orders)</td><td class="num red">~&euro;50&ndash;55 (07-02)</td><td class="red"><b class="h">PRICED</b> — still ~15-22% ABOVE the &euro;42.70 PT after a ~10% pullback; insight <i>strengthened</i> (new tool orders) but equity no longer prices the bear case</td></tr>
+        <tr><td class="mono amber">HPS.A</td><td class="mut">S6a pwr</td><td class="num amber">~7</td><td class="num amber">~40x</td><td class="amber">up (backlog +95%)</td><td class="num">+80% YTD</td><td class="amber"><b class="h">Hot but thin</b> — least-covered, but already re-rated; CONFIRMING not latent</td></tr>
+        <tr><td class="mono">CAMT</td><td class="mut">S2 pkg</td><td class="num">~13</td><td class="num">~46x</td><td class="mut">up (order inflection)</td><td class="num">recognition&rarr;euphoria</td><td class="mut">Mid coverage, ran &rarr; buy-the-dip, not latent</td></tr>
+        <tr><td class="mono red">GEV</td><td class="mut">S6a pwr</td><td class="num red">37</td><td class="num red">~64x</td><td class="mut">up (super-cycle)</td><td class="num red">&minus;4% wk off high (IV still <b class="h">0.98</b>)</td><td class="red"><b class="h">Pullback did NOT de-crowd</b> — price dipped but IV stayed pegged; a crowded theme exhaling, not an entry</td></tr>
+        <tr><td class="mono red">MRVL</td><td class="mut">S5 net</td><td class="num red">~24</td><td class="num red">~40x</td><td class="red">up (guide)</td><td class="num red"><b class="h">&minus;28% off high</b> (&minus;7.7% wk, IV .88)</td><td class="red"><b class="h">Unwind deepening</b> — the ex-momentum leader now the biggest S5 loser; late/euphoria bleeding, ride-only</td></tr>
+        <tr><td class="mono red">CRDO</td><td class="mut">S5 net</td><td class="num red">18</td><td class="num">~42x</td><td class="red">up (+201% rev)</td><td class="num red">+69% YTD (~3x off low)</td><td class="red">Cheapest of a fully-priced group, but still crowded &rarr; TRAP</td></tr>
+        <tr><td class="mono red">MU</td><td class="mut">S3 HBM</td><td class="num red">44</td><td class="num red">~6&ndash;7x (peak)</td><td class="red">up (sold-out)</td><td class="num red"><b class="h">&minus;22% off high</b> (IV easing .94&rarr;.88)</td><td class="red"><b class="h">Priced &amp; CAPITULATING</b> — 3rd week of record data + falling stock; IV easing off pegged = the crowd de-risking, cheap-on-peak is the cyclical trap</td></tr>
+        <tr><td class="mono">2330.TW</td><td class="mut">S1 fdry</td><td class="num">deep (TSM ADR 19&ndash;49)</td><td class="num">~21x</td><td class="mut">up (&gt;30% guide)</td><td class="num">near highs (ADR prem. 2-yr low)</td><td class="mut">Same-asset arb only — coverage deep, but Taiwan line less options-crowded</td></tr>
+      </tbody>
+    </table>
+    <p class="kicker" style="margin-top:8px"><b class="h amber">The separation (updated 07-13):</b> AIXTRON the <i>equity</i> stays re-rated above its target so on the composite it reads <span class="red">priced</span> — but the cheaper way to own the insight is the <b class="h amber">de-rated downstream optics: LITE</b> stays the standout — it bounced +9% this week but still sits &minus;26% below its high on the group's <i>lowest</i> IV (0.65), a genuine mean-revert with the InP-gated thesis intact, while <span class="red">COHR</span> de-rated with IV pegging to 1.00 (fear, not value). <span class="amber">HPS.A</span> stays the borderline "hot but thin" case; everything from GEV down is <span class="red">priced &amp; crowded</span> — and note GEV's &minus;4% pullback did <i>not</i> de-crowd (IV still 0.98). <span class="red">MU</span> keeps capitulating (&minus;22% off high, 3rd week). <span class="mut">The honest read: no liquid name screens cleanly under-modeled; the residual edge is the differentiated <i>view</i> (S4 InP) expressed via the cheapest de-rated optics, not a fresh mega-cap entry. (est. composite; counts/multiples from datapack §9; IV from IBKR 07-13, prices 07-10 close.)</span></p>
+  </div>
+
+  <!-- ===================== 5. THE NARROW EDGE — CARDS ===================== -->
+  <h2><span class="n">5</span>The work queue — where to dig (watchlist, not initiate)</h2>
+  <p class="sub">Where the residual asymmetry actually lives, as compact cards — but <b class="h">read the tag on each</b>. Only <span class="teal">S4 interconnect is the active, differentiated call</span> (DIG NOW) — but the insight owner (AIXTRON) is now priced, so the live expression is the <span class="teal">de-rated optics (LITE first)</span>, see the S4 expression bridge; every other name here is <span class="amber">RESEARCH-QUEUE / WATCHLIST</span> — a durable theme with a <i>poor entry</i> (buy-the-dip or monitor), <b class="h">NOT a fresh initiation</b>. This is consistent with the §7 decision table's action-lean column: WATCHLIST/TRAP, not buy. Each card: the name, thesis (2 sentences), mechanism (why the Street is wrong), MODE, dated catalyst, falsifier, the <b class="h">expression caveat</b>, and a <b class="h">retail-execution reality</b> row (venue · ADR/OTC quality · liquidity · options · IBKR access).</p>
+  <div class="legendrow" style="margin-bottom:2px">
+    <span><span class="pill edge" style="margin-right:4px">DIG NOW</span> active differentiated call (S4 only)</span>
+    <span><span class="pill watch" style="margin-right:4px">RESEARCH-QUEUE</span> durable theme, poor entry &rarr; buy-the-dip / monitor</span>
+    <span><span class="pill ctx" style="margin-right:4px">REL-VAL</span> same-asset positioning arb, not a discovery</span>
+  </div>
+
+  <div class="card edge">
+    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;align-items:baseline">
+      <span><span class="tag teal">&#9733; TOP RESEARCH EDGE · S4 INTERCONNECT</span> &nbsp;<b class="h" style="font-size:16px">InP epitaxy / MOCVD tool gate</b> <span class="mono mut">AIXTRON AIXA.DE · downstream LITE/COHR/FN</span></span>
+      <span><span class="pill edge">DIG (sub-segment)</span> <span class="pill trap">AIXTRON equity PRICED</span> <span class="pill watch">EV 6</span> <span class="pill ctx">sev 18/20</span></span>
+    </div>
+    <div style="background:#2a1c1d;border:1px solid #5e3331;border-radius:8px;padding:8px 11px;margin-top:8px;font-size:11.5px;color:#e9b7b3"><b class="h amber">EXPRESSION HONESTY (07-13):</b> the differentiated <i>insight</i> below is the freshest read on the map — and this week the downstream optics <b class="h">BIFURCATED</b>, proving the CPO fear is idiosyncratic — but the marquee pure-play AIXTRON is <b class="h">re-rated to ~&euro;50&ndash;55, still ~15-22% ABOVE the &euro;42.70 consensus PT</b> (consensus "Hold"). So this card is the <b class="h">"where to dig" research edge</b>, NOT a buy on AIXTRON at the high. The cheaper way to own the same thesis is the <b class="h">de-rated downstream optics</b> (LITE &minus;26% / FN &minus;37% / COHR &minus;26% off highs) — and LITE is now the cleanest, bouncing +9% this week on the group's lowest IV (0.65) while COHR de-rated with IV pegged 1.00. Position-grade sizing needs the single-name deep-dive, not this map.</div>
+    <p class="kicker" style="margin-top:8px"><b class="h">Thesis.</b> AIXTRON holds <span class="num">&gt;90%</span> MOCVD share on the <b class="h">G10-AsP InP tool</b> (Planetary Reactor&reg; IP — the only economical batch InP epitaxy) on which essentially ALL AI InP lasers are grown, and it sells to <i>both</i> Lumentum (G10-AsP order, Digitimes 2026-05-27) and Coherent. The June-2026 ~15% optics selloff on "CPO will kill the EML" fears mispriced the tool layer, because the upstream InP gate is architecture-agnostic — undersupplied through 2027 whether the future is pluggable EMLs or CPO (industry needs ~80&ndash;100 InP MOCVD tools/yr).</p>
+    <p class="kicker" style="margin-top:8px"><b class="h teal">Mechanism (why the Street is wrong) — now on PRIMARY evidence.</b> CPO does not remove laser demand — it <i>converts</i> modulated EMLs into CW lasers inside External Laser Source (ELS) modules, both grown on InP via MOCVD. <b class="h">Coherent's own OFC-2026 press release</b> (coherent.com / globenewswire, 2026-03-17) states its 6.4T socketed CPO uses an ELS module powered by Coherent's own <b class="h">high-power InP CW lasers</b> (plus a 400mW InP CW laser purpose-built for CPO) — <span class="teal">PRIMARY evidence that CPO still requires InP lasers</span>, so the InP/MOCVD bottleneck persists across architectures. The Street is anchoring AIXTRON to a lagging Q1 revenue print (&minus;48% YoY) while booked Opto orders accelerate (+30% YoY, &gt;65% mix; Lumentum/LITE multi-system G10-AsP orders, Digitimes 2026-05-27) — a pure recognition-timing dislocation. The 800G&rarr;1.6T ramp is ~2.6x (24M&rarr;63M units) and gated upstream at InP epitaxy, not at the modulator.</p>
+    <div class="grid3" style="margin-top:6px">
+      <div><span class="tag teal">CATALYST (dated)</span><p class="kicker">AIXTRON Q2/H1-2026 results <b class="h">Jul 30, 2026</b> — the order-to-revenue reconciliation; LITE FQ4 (Aug 2026) 200G-EML mix toward ~25%.</p></div>
+      <div><span class="tag amber">FALSIFIER</span><p class="kicker">A true demand air-pocket (CPO slips AND EML rolls), OR Q2&ndash;Q3 revenue fails to inflect up toward the order book (the &minus;48% is structural, not timing), OR a credible InP-MOCVD second source.</p></div>
+      <div><span class="tag red">EXPRESSION CAVEAT</span><p class="kicker"><b class="h">.DE primary listing / thin AIXXY ADR</b> — Western-desk coverage light, ADR liquidity shallow; size accordingly. Runner-ups: Oxford Instruments (OXIG.L, InP plasma back-end) and AXT (AXTI, substrate, China-permit-gated).</p></div>
+    </div>
+    <span class="tag teal" style="margin-top:10px;display:inline-block">NUMERIC TRIGGER BANDS — what print confirms vs kills (watch H1-26 results, Jul/Aug)</span>
+    <table class="trig">
+      <thead><tr><th>Trigger metric</th><th><span class="dot g"></span>GREEN — thesis confirmed</th><th><span class="dot y"></span>YELLOW — watch</th><th><span class="dot r"></span>RED — kill</th></tr></thead>
+      <tbody>
+        <tr><td>Q2/H1 opto order intake (YoY)</td><td class="g">&gt;+30% YoY sustained, &gt;65% opto mix</td><td class="y">+10&ndash;30% / mix slips to 50&ndash;65%</td><td class="r">flat / down YoY; opto mix &lt;50%</td></tr>
+        <tr><td>Order backlog / book-to-bill</td><td class="g">B:B &gt;1.0x, backlog building</td><td class="y">B:B ~0.9&ndash;1.0x</td><td class="r">B:B &lt;0.9x (orders rolling over)</td></tr>
+        <tr><td>Revenue conversion toward &euro;560M</td><td class="g">H1 run-rate inflecting UP toward ~&euro;280M H1 pace</td><td class="y">flattish, back-half-loaded but on track</td><td class="r">H1 stays at the &minus;48% trajectory (the print was structural)</td></tr>
+        <tr><td>FY26 guide</td><td class="g">reaffirmed/raised &ge;&euro;560M</td><td class="y">trimmed but &gt;&euro;520M</td><td class="r">cut below &euro;520M</td></tr>
+        <tr><td>CPO / EML demand (falsifier)</td><td class="g">EML + CW both growing (mix shift only)</td><td class="y">CPO timeline slips, EML holds</td><td class="r">true air-pocket: CPO slips AND EML rolls together</td></tr>
+      </tbody>
+    </table>
+    <span class="tag teal" style="margin-top:12px;display:inline-block">PRICE-IMPLIED REVERSE-MODEL — what the ~&euro;50&ndash;55 spot (07-02) now embeds (RE-RATED above target; order-book still accelerating)</span>
+    <div class="rmwrap">
+      <div class="rmbox">
+        <div class="rmhead">
+          <span><span class="tag mut">SPOT &amp; STREET (as-of 2026-07-13; AIXTRON .DE px carried — no fresh XETRA pull this run)</span></span>
+        </div>
+        <table class="rm">
+          <tbody>
+            <tr><td>Spot (07-02, pulled back from ~&euro;57&ndash;60 on 06-22)</td><td class="num red">~&euro;50&ndash;55</td></tr>
+            <tr><td>52-week high</td><td class="num">~&euro;60.8</td></tr>
+            <tr><td>P/E — trailing (on depressed FY25 EPS)</td><td class="num">~50x trailing / ~30&ndash;33x fwd FY26 (est.)</td></tr>
+            <tr><td>Consensus PT (15 analysts, Hold)</td><td class="num red">&euro;42.70 avg (~&minus;15 to &minus;22% below spot)</td></tr>
+            <tr><td>FY26 guide — revenue</td><td class="num">&euro;560M (&plusmn;30)</td></tr>
+            <tr><td>FY26 guide — gross margin</td><td class="num">~42%</td></tr>
+            <tr><td>FY26 guide — EBIT margin / EBIT</td><td class="num">17&ndash;20% / ~&euro;95&ndash;112M</td></tr>
+            <tr><td>One-source consensus FY26 rev (above guide)</td><td class="num mut">~&euro;618M</td></tr>
+            <tr><td>Q1-26 order intake</td><td class="num teal">+30% YoY &rarr; ~&euro;171M (&gt;65% opto)</td></tr>
+            <tr><td>Q1-26 revenue (the lagging print)</td><td class="num red">&minus;48% YoY</td></tr>
+          </tbody>
+        </table>
+        <p class="rmnote"><b class="h">Structural:</b> &gt;90% MOCVD share on the <b class="h">G10-AsP InP tool</b> (Planetary Reactor&reg; IP — the only economical batch InP epitaxy); industry needs ~80&ndash;100 InP MOCVD tools/yr at ~&euro;4M each (&asymp; &euro;320&ndash;400M TAM/yr). Lumentum ordered G10-AsP systems (Digitimes, 2026-05-27); SMART Photonics bought G10-AsP.</p>
+      </div>
+      <div class="rmbox">
+        <div class="rmhead"><span class="tag mut">3-SCENARIO REVERSE-MODEL <span class="red">(2027 rev &amp; multiple = est., reconstructed)</span></span></div>
+        <table class="rm rmscen">
+          <thead><tr><th>Scenario</th><th>What it assumes</th><th class="num">Implied</th></tr></thead>
+          <tbody>
+            <tr class="bear">
+              <td class="r"><b class="h">BEAR</b></td>
+              <td>The &minus;48% rev print is <i>structural</i> / CPO-fear real / Q1 orders were pull-forward &rarr; rev stalls ~&euro;560M, multiple de-rates ~30x <span class="mut">(est.)</span></td>
+              <td class="num red"><b class="h">~&euro;20&ndash;25</b><br/><span class="fa">~&minus;55% from &euro;51</span></td>
+            </tr>
+            <tr class="base">
+              <td class="y"><b class="h">BASE</b></td>
+              <td>H1 revenue inflects toward the &euro;560M run-rate, orders convert; 2027 rev ~&euro;650&ndash;700M <span class="mut">(est.)</span> &rarr; settles at the &euro;42.70 consensus PT (now BELOW spot)</td>
+              <td class="num red"><b class="h">~&euro;43&ndash;46</b><br/><span class="fa">~&minus;12% from &euro;51</span></td>
+            </tr>
+            <tr class="bull">
+              <td class="g"><b class="h">BULL</b></td>
+              <td>Opto super-cycle + <i>dual</i> EML + CPO-ELS InP demand; 2027 rev ~&euro;750M+ <span class="mut">(est.)</span></td>
+              <td class="num">~&euro;57&ndash;65<br/><span class="fa">~+12 to +27% from &euro;51</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="rmnote"><b class="h amber">Key insight (UPDATED 07-13 — the pure-play stays arbitraged; the downstream leg BIFURCATED).</b> The thesis worked: AIXTRON re-rated from the low-&euro;40s/high-&euro;20s scrape range to a ~&euro;57-60 high, and even after pulling back to <b class="h">~&euro;50&ndash;55 it sits ~15-22% ABOVE the &euro;42.70 consensus PT</b> — the spot embeds base/bull, the cheap entry in the tool name is <b class="h">gone</b>. What is NOT arbitraged is the <b class="h teal">downstream optics</b>, and this week they <b class="h">split</b>: LITE bounced +9% (&minus;26% off high) on the group's calmest IV (0.65) = a clean mean-revert, while COHR de-rated with IV pegged 1.00 (&minus;26% off high) and FN washed &minus;37% below high — same CPO-kills-EML misread, opposite crowding, which is exactly the signature of an idiosyncratic positioning unwind rather than a thesis break. So the live expression of the unchanged InP insight is the de-rated optics, LITE the cleanest. <b class="h">The AIXTRON Q2 print (Jul 30)</b> remains the convergence trigger — now the trigger for the <i>optics</i> re-rate too, with AIXTRON a hold / dip-buy, not a fresh add at &euro;50+.</p>
+        <p class="rmnote" style="border-top:1px solid var(--line);padding-top:8px"><b class="h amber">Honest status (07-13 — the trade played out in the pure-play; the downstream leg is where the gap lives).</b> The earlier "&euro;27.60 spot embeds the bear case" framing is now <b class="h red">obsolete</b>: AIXTRON traded UP to a ~&euro;57-60 high and even after pulling back to <b class="h">~&euro;50-55 sits ~15-22% ABOVE</b> the &euro;42.70 consensus ("Hold"). The price has re-converged to (and through) the analysts' base case, exactly as the thesis predicted — so the <i>cheap AIXTRON entry is gone</i> and the equity is a hold / dip-buy nearer the PT. The unchanged <b class="h teal">InP-gate insight</b> now lives downstream in the de-rated optics, where LITE's bounce-on-calm-IV vs COHR's de-rate-on-pegged-IV this week confirms the CPO fear is positioning, not fundamentals. <b class="h">To make any of this position-grade</b> = a dedicated single-name deep-dive (audit-grade estimate-revision history + a hardened reverse-model + a probability-weighted EV on the optics names, where the gap is still open) — this map routes you to the layer, it does not size the trade.</p>
+      </div>
+    </div>
+    <div class="exec"><b>Retail execution reality —</b> primary venue <b>AIXA.DE (XETRA)</b>, decent local liquidity (~&euro;30&ndash;50M ADV est.); US access is the thin <b>AIXXY ADR (OTC)</b> — shallow ADV (low-six-figure $ est., a 5&ndash;15x liquidity gap vs the .DE line), wide spread, no meaningful listed options. <b>IBKR access:</b> clean on the .DE ordinary (EUR settlement); AIXXY OTC fills are patchier. Treat as a small, patient, foreign-ordinary position — not an options expression; <b>limit-order only</b> on AIXXY.</div>
+    <span class="tag teal" style="margin-top:12px;display:inline-block">S4 EXPRESSION BRIDGE (P0) — if the InP insight is right, WHICH ticker still misprices the CPO-kills-EML fear?</span>
+    <div style="background:#1c232c;border:1px solid #5e4f2f;border-radius:8px;padding:8px 11px;margin-top:8px;font-size:11.5px;color:#eed9b0"><b class="h amber">FILTER RECONCILIATION (why LITE tops the DIG order without violating the financialization filter):</b> LITE, COHR and FN are all &gt;15-analyst, deep-options names — by the report's own rule they are <b class="h">EARLY-INELIGIBLE</b>, so <b class="h">LITE carries NO information edge</b>. It ranks first only as a <b class="h">positioning / mean-reversion EXPRESSION</b> of the S4 view (the calmest IV + a real de-rate on the CPO misread) — the same class of setup as MU, just on the calm/oversold side rather than the crowded/falling side (that IV split is the whole separator). The genuinely <b class="h teal">EARLY-eligible residual edge</b> — thin coverage, a real information gap — lives in the <b class="h">under-covered InP names</b>: <span class="mono">AXT (AXTI)</span> InP substrate (China-permit-gated, binary), <span class="mono">Oxford Instruments (OXIG.L)</span> InP plasma back-end (near-monopoly, thin Western coverage), and <span class="mono">AIXTRON on a dip</span> nearer the &euro;42.70 PT. Read the table below as TWO layers: the liquid <i>expressions</i> (LITE&rarr;FN&rarr;COHR, priced, ride the mean-revert) vs the <i>edge sliver</i> (AXT/OXIG.L/AIXTRON-dip, where the alpha actually is but the execution is hard).</div>
+    <p class="kicker" style="margin-top:8px;font-size:12px">The insight is architecture-agnostic InP demand; the question is the cleanest <i>vehicle</i> now that AIXTRON has re-rated. Ranked by remaining mispricing = (CPO-fear de-rate still in the price) &times; (InP/CW purity) &times; (entry-cleanliness). Prices = 07-10 close, IV-pctile = IBKR 07-13; consensus EPS/PT marked <span class="red">(est.)</span> — not measured here, that is the single-name deep-dive's job.</p>
+    <table class="trig">
+      <thead><tr><th>Name (venue)</th><th>Px / off-52w-high / IV-pctile</th><th>InP exposure (why it fits the thesis)</th><th>CPO-fear still priced in?</th><th>Rank / action</th></tr></thead>
+      <tbody>
+        <tr><td class="mono teal">LITE Lumentum (NASDAQ)</td><td class="num">$802 · &minus;26% · IV .65</td><td class="mut">Makes the 200G EMLs <b class="h">and</b> the CW lasers CPO needs; placed <b class="h">multiple AIXTRON G10-AsP orders (May-26)</b> + 240k-sqft NC InP facility &mdash; the most direct dual-architecture InP beneficiary</td><td class="teal">YES &mdash; <b class="h pos">bounced +9% wk</b> off the washout on the group's LOWEST IV (.65) = a clean mean-revert, thesis intact</td><td class="teal"><b class="h">DIG FIRST (as EXPRESSION, not edge)</b> &mdash; cleanest mean-revert (calmest IV) confirming the fear was positioning; &gt;15-analyst so NO information edge — a positioning play; clean US listing + options</td></tr>
+        <tr><td class="mono">FN Fabrinet (NYSE)</td><td class="num">$471 · &minus;37% · IV .93</td><td class="mut">Architecture-agnostic <i>assembler</i> (arms-dealer) &mdash; builds whatever optics win, incl. 1.6T; less InP-purity, thinner margin</td><td class="mut">PARTLY &mdash; deepest de-rate (&minus;37% off high, &minus;7.8% wk) but IV hot (.93) = washout/event-fear, not calm</td><td class="amber"><b class="h">SECOND</b> &mdash; deepest de-rate but it is assembly, not the InP gate; wait for IV to cool</td></tr>
+        <tr><td class="mono">COHR Coherent (NYSE)</td><td class="num">$324 · &minus;26% · IV 1.00</td><td class="mut">InP laser maker; its own OFC-2026 release confirms its CPO uses its own InP CW lasers &mdash; the cleanest <i>proof</i> of the thesis</td><td class="amber">DE-RATE WITH FEAR &mdash; &minus;26% off high but IV now <b class="h">PEGGED 1.00</b> (&minus;4.5% wk) = fear-driven, still crowded (the bifurcation's fear side)</td><td class="mut"><b class="h">WAIT</b> &mdash; proves the thesis but IV pegged at the top; watch for IV to cool before it becomes a calm entry</td></tr>
+        <tr><td class="mono">AIXA.DE AIXTRON</td><td class="num red">~&euro;50&ndash;55 (carried) · ~15-22% above PT</td><td class="mut">The upstream MOCVD tool gate (~70&ndash;90% share) &mdash; the purest expression; <b class="h">order-book accelerating</b> (May-26 Lumentum orders)</td><td class="red">NO &mdash; still ~15-22% ABOVE the &euro;42.70 PT; the cheap entry is gone (insight stronger, equity priced)</td><td class="red"><b class="h">WAIT-FOR-DIP</b> &mdash; hold / re-enter only nearer the &euro;40&ndash;43 PT zone; earnings <b class="h">Jul 30</b></td></tr>
+        <tr style="background:#13211f"><td colspan="5" class="teal mono" style="font-size:10px;letter-spacing:.06em">&#9650; THE EARLY-ELIGIBLE SLIVER — thin coverage / real information gap (harder execution; this is where the actual alpha is, not the liquid expressions above)</td></tr>
+        <tr><td class="mono teal">AXTI AXT Inc (NASDAQ)</td><td class="num">~$3&ndash;5 (est.) · micro-cap · thin cov.</td><td class="mut">InP <b class="h">substrate</b> (the wafer under every InP laser) &mdash; a genuinely under-covered 2nd-order enabler; feeds LITE/COHR/AIXTRON's whole chain</td><td class="teal">YES / DISCOVERY &mdash; no crowded consensus; the gap is real but <b class="h red">binary on China export-permits</b> (Ga/Ge/InP dual-use controls)</td><td class="teal"><b class="h">EDGE (binary)</b> &mdash; the EARLY-eligible name, but size TINY: a clean US export-license grant is the un-priced catalyst; a denial kills it</td></tr>
+        <tr><td class="mono teal">OXIG.L Oxford Instr. (LSE)</td><td class="num">~&pound;20&ndash;26 (est.) · ~mid cov.</td><td class="mut">InP <b class="h">plasma etch / deposition back-end</b> (near-monopoly on the process step after epitaxy) &mdash; architecture-agnostic like AIXTRON, thinner Western coverage</td><td class="teal">PARTLY &mdash; less financialized than the US optics; a real 2nd-order gate, but diversified parent dilutes the InP torque</td><td class="teal"><b class="h">EDGE (diluted)</b> &mdash; dig as the lower-variance InP-tool sliver; SOTP, watch InP/semi order commentary</td></tr>
+      </tbody>
+    </table>
+    <p class="rmnote"><b class="h teal">Read:</b> the order to <i>dig</i> is <b class="h">LITE &rarr; FN &rarr; COHR &rarr; AIXTRON</b>. This week's <b class="h">bifurcation sharpens the ranking</b>: LITE is the standout — it bounced +9% on the <i>calmest</i> IV (.65), the textbook clean mean-revert that says the fear was positioning; FN is the deepest de-rate (&minus;37%) but assembly with hot IV; COHR de-rated with IV <i>pegging</i> to 1.00 (the fear side of the split) — it best <i>proves</i> the thesis but is not yet a calm entry; AIXTRON is the proven-but-now-priced pure-play. <b class="h amber">All four still require a single-name reverse-model</b> (FY26/27 consensus EPS, embedded CPO-damage, downside case) before sizing &mdash; this bridge ranks <i>where to point that work</i>, it does not replace it.</p>
+    <span class="tag teal" style="margin-top:12px;display:inline-block">PER-NAME ENTRY / KILL GATES — concrete bands to act on now (px as-of 2026-07-10 close; <span class="red">watch-list gates, NOT a sized reverse-model &mdash; that is the single-name deep-dive</span>)</span>
+    <table class="trig">
+      <thead><tr><th>Name · px (07-10)</th><th><span class="dot g"></span>ENTRY zone (start a starter)</th><th><span class="dot y"></span>ADD / confirm</th><th><span class="dot r"></span>KILL / avoid</th></tr></thead>
+      <tbody>
+        <tr><td class="mono teal">LITE $802</td><td class="g">into weakness &lt;~$760 while IV stays &lt;0.70 (calm pullback) — the cleanest starter; chased less after the +9% bounce</td><td class="y">FQ4 (Aug) 200G-EML mix toward ~25% &amp; CPO order-book grows; hold &gt;$740</td><td class="r">EML mix stalls &amp; CPO cannibalizes faster than modeled, OR IV spikes &gt;0.90 (fear, not calm) &rarr; wait</td></tr>
+        <tr><td class="mono">FN $471</td><td class="g">only after IV cools &lt;0.75 (now 0.93 = washout fear); &lt;~$450 washout</td><td class="y">1.6T assembly ramp confirmed; Nvidia/Cisco mix holds</td><td class="r">optics capex air-pocket (assembler has no InP moat) &rarr; downgrade</td></tr>
+        <tr><td class="mono">COHR $324</td><td class="g">wait — IV now PEGGED 1.00; only on a calm pullback &lt;~$300 once IV cools</td><td class="y">CPO-ELS revenue called out; IV cools below 0.80</td><td class="r">stays crowded (IV &gt;0.90) with no price give-back &rarr; no edge</td></tr>
+        <tr><td class="mono red">AIXA.DE ~&euro;50-55</td><td class="g">re-enter nearer the &euro;40&ndash;43 PT zone only</td><td class="y">Jul-30 print shows revenue inflecting toward the raised guide (B:B &gt;1.0x)</td><td class="r">Jul-30 revenue fails to inflect (&minus;48% structural) &rarr; the whole InP-timing thesis breaks</td></tr>
+        <tr style="background:#13211f"><td colspan="4" class="teal mono" style="font-size:9.5px;letter-spacing:.05em">&#9650; EARLY-ELIGIBLE SLIVER (the real edge; tiny size, hard execution)</td></tr>
+        <tr><td class="mono teal">AXTI (est. $3-5)</td><td class="g">starter ONLY into a US export-license grant (the un-priced catalyst); size tiny</td><td class="y">InP substrate order commentary firms; permit path clarifies</td><td class="r">export-license denied OR China re-tightens dual-use controls &rarr; kill</td></tr>
+        <tr><td class="mono teal">OXIG.L (est. &pound;20-26)</td><td class="g">accumulate on InP/semi-tool order strength while coverage stays thin</td><td class="y">InP back-end revenue called out; semi segment re-rates</td><td class="r">semi-tool orders roll / parent conglomerate dilutes the signal &rarr; downgrade</td></tr>
+      </tbody>
+    </table>
+    <p class="rmnote" style="margin-top:6px"><b class="h">Honest scope:</b> these are <i>positioning gates on a watch-list</i> (price/IV/catalyst bands) — they tell you WHERE and WHEN to start looking to act, not HOW MUCH. The probability-weighted, FY26/27-consensus reverse-model per name (the actual sizing) is the deliverable this map <i>routes to</i>, and remains a dedicated single-name deep-dive.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="card amberc">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;align-items:baseline">
+        <span><span class="tag amber">S2 PACKAGING</span> &nbsp;<b class="h">Camtek</b> <span class="mono mut">CAMT</span></span>
+        <span><span class="pill watch">RESEARCH-QUEUE</span> <span class="pill watch">CONS-GAP</span> <span class="pill ctx">EV 4</span></span>
+      </div>
+      <p class="kicker" style="margin-top:8px"><b class="h">Thesis.</b> The method-agnostic 3D-metrology / 2D-inspection yield-gate every advanced package must pass through, as the constraint migrates from CoWoS 2.5D to 3D SoIC / hybrid bonding. Least-financialized name in the packaging cluster (~13 analysts).</p>
+      <p class="kicker" style="margin-top:6px"><b class="h">Mechanism.</b> A quieter arms-dealer than the bonder names (BESI/ASMPT) — inspection scales with every new node regardless of who wins the bonder socket.</p>
+      <p class="kicker" style="margin-top:6px"><span class="tag amber">CATALYST</span> TSMC Q2 (mid-Jul) SoIC capacity; BESI Q2 (late-Jul) hybrid-bonding order intake. <span class="tag red">CAVEAT</span> already ~46x fwd / recognition&rarr;euphoria — <b class="h">buy-the-dip, not latent</b>. Order intake has visibly inflected.</p>
+      <p class="kicker" style="margin-top:6px"><span class="tag">TRIGGERS</span> <span class="g" style="color:var(--pos)">&#9679; green</span> OSAT+HBM order intake holds &gt;$90m/qtr &amp; FY26 rev tracks &gt;$559m · <span style="color:var(--warn)">&#9679; yellow</span> orders flatten QoQ · <span style="color:var(--neg)">&#9679; red</span> CoWoS gap closes &lt;5% / inspection orders roll (glut-risk).</p>
+      <div class="exec"><b>Execution —</b> US-listed <b>NASDAQ (CAMT), clean</b>; ample ADV, listed options available; IBKR access clean. The one cleanly-tradeable name in this set.</div>
+    </div>
+    <div class="card amberc">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;align-items:baseline">
+        <span><span class="tag amber">S6a FACILITY POWER</span> &nbsp;<b class="h">Hammond Power</b> <span class="mono mut">HPS.A TSX · HMDPF OTC</span></span>
+        <span><span class="pill watch">RESEARCH-QUEUE</span> <span class="pill watch">CONTEXT</span> <span class="pill ctx">EV 4</span></span>
+      </div>
+      <p class="kicker" style="margin-top:8px"><b class="h">Thesis.</b> The under-covered power edge: ~$900M dry-type / distribution-transformer leader (~23% dry-type share), backlog +95% YoY explicitly on datacenter, only <b class="h">~7 analysts</b> vs the priced GEV (37 analysts, ~64x).</p>
+      <p class="kicker" style="margin-top:6px"><b class="h">Mechanism.</b> Thin coverage lags the datacenter-mix re-rating from cyclical-industrial toward secular-growth multiples.</p>
+      <p class="kicker" style="margin-top:6px"><span class="tag amber">CATALYST</span> GEV Q2 (late-Jul) DC-order pace; HPS quarterly backlog. <span class="tag red">CAVEAT</span> <b class="h">TSX-listed / thin OTC (HMDPF)</b> — venue liquidity is the real constraint; already +80% YTD at ~40x fwd, so CONFIRMING not latent.</p>
+      <p class="kicker" style="margin-top:6px"><span class="tag">TRIGGERS</span> <span style="color:var(--pos)">&#9679; green</span> backlog growth stays &gt;+50% YoY on DC custom &amp; margin expands · <span style="color:var(--warn)">&#9679; yellow</span> backlog decelerates / multiple &gt;45x · <span style="color:var(--neg)">&#9679; red</span> transformer lead-times contract &lt;100 wk (shortage breaking).</p>
+      <div class="exec"><b>Execution —</b> primary <b>TSX (HPS.A)</b>, modest ADV (~CAD low-single-digit $M/day est.); US is the <b>thin HMDPF OTC</b> — a <b>roughly 10&ndash;20x liquidity gap</b> vs the TSX line (est.), wide spread, no options. <b>Sizing-grade:</b> the TSX/HMDPF gap is the binding constraint — trade the TSX line in CAD; HMDPF is <b>limit-order only</b> and caps position size to small. <b>IBKR:</b> clean on TSX in CAD; OTC fills patchy.</div>
+    </div>
+    <div class="card amberc">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;align-items:baseline">
+        <span><span class="tag amber">S7 COOLING</span> &nbsp;<b class="h">Dover / CPC</b> <span class="mono mut">DOV</span></span>
+        <span><span class="pill watch">RESEARCH-QUEUE</span> <span class="pill watch">DISCOVERY</span> <span class="pill ctx">EV 4</span></span>
+      </div>
+      <p class="kicker" style="margin-top:8px"><b class="h">Thesis.</b> The hidden owner of the blind-mate quick-disconnect (QD/UQD) — the leak-proof coupling every DLC rack needs — buried inside a diversified industrial, so its AI-cooling dollars aren't priced as a pure-play. An identifiability / SOTP play.</p>
+      <p class="kicker" style="margin-top:6px"><b class="h">Mechanism.</b> Vera Rubin forces 100% DLC attach (2H26); CPC content scales with rack &times; connections-per-rack while the market still values DOV as a sleepy conglomerate.</p>
+      <p class="kicker" style="margin-top:6px"><span class="tag amber">CATALYST</span> Vera Rubin volume + supplier-BoM qualification (2H 2026); Vertiv Q2 backlog. <span class="tag red">CAVEAT</span> open OCP/UQD spec caps connector pricing (CEJN, Staubli, Parker…) &rarr; <b class="h">volume edge, not monopoly</b>; conglomerate dilutes the torque.</p>
+      <p class="kicker" style="margin-top:6px"><span class="tag">TRIGGERS</span> <span style="color:var(--pos)">&#9679; green</span> CPC named in Rubin DLC BoM + thermal-connector revenue called out · <span style="color:var(--warn)">&#9679; yellow</span> no CPC disclosure (stays buried) · <span style="color:var(--neg)">&#9679; red</span> share loss to CEJN/Staubli/Parker on the open spec.</p>
+      <div class="exec"><b>Execution —</b> US-listed <b>NYSE (DOV), clean</b>; deep ADV, listed options; IBKR access clean. Easy to trade — but the AI-cooling torque is diluted by the rest of the conglomerate (an SOTP, low-beta expression).</div>
+    </div>
+    <div class="card amberc">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;align-items:baseline">
+        <span><span class="tag amber">S3 HBM</span> &nbsp;<b class="h">Hanmi Semiconductor</b> <span class="mono mut">042700 KS</span></span>
+        <span><span class="pill watch">RESEARCH-QUEUE</span> <span class="pill watch">DISCOVERY</span> <span class="pill ctx">EV 5</span></span>
+      </div>
+      <p class="kicker" style="margin-top:8px"><b class="h">Thesis.</b> ~71% global TC-bonder share — the pick-and-shovel gate for HBM die-stacking — mis-priced on a washed-out trailing print (Q1 rev &minus;65.5% YoY) just as it landed its FIRST HBM4 "Griffin" orders from SK Hynix (44.2bn KRW, Jun-8-2026).</p>
+      <p class="kicker" style="margin-top:6px"><b class="h">Mechanism.</b> The HBM4 order inflection is a forward fact the bearish "ASMPT-takes-share" anchor hasn't priced; more bonders per stack at 16-Hi.</p>
+      <p class="kicker" style="margin-top:6px"><span class="tag amber">CATALYST</span> Follow-on Griffin orders + Wide TC Bonder launch (H2 2026); SK Hynix Q2 (late-Jul). <span class="tag red">CAVEAT &amp; VERIFIER SKEPTICISM</span> <b class="h">HBM is the most over-covered trade in semis</b>; single-customer + ASMPT/Hanwha competition; KS-listed. Treat the edge as <b class="h">thin</b>.</p>
+      <p class="kicker" style="margin-top:6px"><span class="tag">TRIGGERS</span> <span style="color:var(--pos)">&#9679; green</span> 2nd/3rd HBM4 Griffin award + revenue inflects off the &minus;65.5% trough · <span style="color:var(--warn)">&#9679; yellow</span> orders trickle, trailing P/E stays elevated · <span style="color:var(--neg)">&#9679; red</span> next HBM4 award goes to ASMPT/Hanwha, or SK Hynix shifts to hybrid bonding (20-Hi/2027).</p>
+      <div class="exec"><b>Execution —</b> <b>Korea Exchange (042700 KS)</b> foreign-ordinary; reasonable local ADV but FX + KRW settlement + no clean US line. <b>IBKR:</b> accessible on KRX but with foreign-market frictions; no US options. A foreign-ordinary, single-name position.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;align-items:baseline">
+      <span><span class="tag teal">S1 FOUNDRY · RELATIVE-VALUE / SAME-ASSET</span> &nbsp;<b class="h">TSMC Taiwan ordinary</b> <span class="mono mut">2330.TW</span> &nbsp;vs the financialized <span class="mono mut">TSM</span> ADR</span>
+      <span><span class="pill ctx">REL-VAL</span> <span class="pill watch">CONS-GAP</span> <span class="pill ctx">EV 4 · thin</span></span>
+    </div>
+    <p class="kicker" style="margin-top:8px"><b class="h">Thesis.</b> TSMC is the true allocation gate (N2 booked through 2028, 4 straight years of price hikes, GM drifting toward 67%+) — but the <span class="mono">TSM</span> ADR is a 19&ndash;49-analyst mega-cap, EARLY-ineligible and re-rated to ~21x fwd / IV-pctile .98. The Taiwan ordinary <span class="mono">2330.TW</span> captures the identical pricing-power/HPC-mix thesis with thinner Western-desk coverage and no US options-crowding, with the ADR premium at a 2-year low. <b class="h amber">Honest caveat:</b> this is a positioning / financialization arb, not a fundamental discovery — it's the same mega-cap. Foreign-ordinary access (TWSE) is the expression constraint.</p>
+    <p class="kicker" style="margin-top:6px"><span class="tag">TRIGGERS</span> <span style="color:var(--pos)">&#9679; green</span> ADR premium widens back from its 2-yr low (arb closes in your favor) + GM guide &gt;67% · <span style="color:var(--warn)">&#9679; yellow</span> premium flat · <span style="color:var(--neg)">&#9679; red</span> N2 ASP slips below $30k/no-discount, or a Big-4 capex cut (kills the foundry-gate pass-through).</p>
+    <div class="exec"><b>Execution —</b> <b>TWSE (2330.TW)</b> foreign-ordinary (TWD, foreign-investor rules) vs the deep, options-rich <b>TSM ADR</b>. <b>IBKR:</b> TWSE ordinary is accessible but with foreign-ordinary frictions/FX; the clean-but-crowded expression is the ADR. The whole point is to hold the <i>less-financialized</i> line, so the friction is the feature.</div>
+  </div>
+
+  <!-- ===================== 6. LEADING-INDICATOR DASHBOARD (TIERED) ===================== -->
+  <h2><span class="n">6</span>Leading-indicator dashboard — tiered by real lead vs PRICE</h2>
+  <p class="sub">The framework's hardest truth: <span class="red">for a &gt;15-analyst name a "leading" public release hits every desk and algo the same second</span> — it leads the 10-Q, not the price. So the dashboard is split into <b class="h teal">THREE tiers</b>: <span class="teal">TRUE-LEADING</span> (a real lead vs <i>price</i> — thin-coverage order books that move ahead of a lagging print) · <span class="amber">PUBLIC-CONFIRMING</span> (statutory/coincident for mega-caps; you can read it but you're not early) · <span class="grey">LAGGING / CONTEXT</span>. The expected-lead column is <b class="h">vs PRICE</b>, not vs revenue. Each TRUE-LEADING row carries a numeric trigger.</p>
+
+  <table>
+    <thead><tr><th>Tier · bucket</th><th>Leading signal NOW</th><th>Current reading</th><th>Free source</th><th>Expected lead vs PRICE</th><th>Numeric trigger</th></tr></thead>
+    <tbody>
+      <tr style="background:#13302c"><td colspan="6" class="teal mono" style="font-size:10.5px;letter-spacing:.08em">&#9650; TIER 1 — TRUE-LEADING (real lead vs price — via thin coverage, an order-book-vs-lagging-print, OR a differentiated INTERPRETATION of public data)</td></tr>
+      <tr><td class="mono teal">S4 Interconnect</td><td>AIXTRON Opto order intake vs lagging revenue</td><td class="mut">Q1 orders +30% YoY to ~&euro;171M, &gt;65% opto; FY26 guide &euro;560M; BUT Q1 rev &minus;48% YoY <span class="fa">(order book is PUBLIC)</span></td><td class="mut">AIXTRON IR prelim; semiconductor-today.com</td><td class="teal"><b class="h">INTERPRETIVE edge, not faster data</b> — the order book is public; the edge is the differentiated <i>reading</i> (market mis-reads CPO as killing InP-laser demand). Lead vs price = "the misread persists until the H1 print forces reconciliation," NOT a data-timing advantage</td><td class="teal">orders &gt;+30% YoY &amp; B:B &gt;1.0x = confirm; flat/down = kill</td></tr>
+      <tr><td class="mono amber">S3 HBM (tool)</td><td>HBM4 TC-bonder order intake (Hanmi)</td><td class="mut">First Griffin order 44.2bn KRW, 2026-06-08; Micron FQ3 (06-24) re-confirmed HBM4 booked thru CY2027 = bonder-demand tailwind; Wide TC Bonder H2 2026</td><td class="mut">TrendForce / TheElec / Techtimes</td><td class="amber"><b class="h">~1&ndash;3 qtrs ahead</b> off a washed-out print (thin offshore coverage)</td><td class="amber">2nd/3rd Griffin award + rev off the &minus;65.5% trough</td></tr>
+      <tr><td class="mono amber">S6a Facility pwr</td><td>HPS.A datacenter backlog (thin ~7-analyst coverage lags)</td><td class="mut">Backlog +95% YoY explicitly on DC custom product</td><td class="mut">globenewswire (HPS Q1'26); company IR</td><td class="amber"><b class="h">~1&ndash;2 qtrs ahead</b> while only ~7 analysts model the DC-mix shift</td><td class="amber">backlog growth stays &gt;+50% YoY = intact</td></tr>
+      <tr><td class="mono red">S7 Cooling</td><td>Dover/CPC thermal-connector disclosure vs Rubin BoM</td><td class="mut">QD/UQD buried in DOV; CPC not broken out; Rubin forces 100% attach 2H26</td><td class="mut">opencompute.org; cpcworldwide.com; DOV 10-Q</td><td class="amber"><b class="h">~2&ndash;3 qtrs ahead</b> until CPC revenue is disclosed (SOTP gap)</td><td class="red">CPC named in Rubin DLC BoM = confirm</td></tr>
+
+      <tr style="background:#1c232c"><td colspan="6" class="amber mono" style="font-size:10.5px;letter-spacing:.08em">&#9632; TIER 2 — PUBLIC-CONFIRMING (statutory / coincident for mega-caps; lead vs price ~0)</td></tr>
+      <tr><td class="mono amber">S1 Foundry</td><td>TSMC monthly revenue (TWSE, ~10th)</td><td class="mut">June <b class="h">+68% YoY</b> / +6.2% MoM; H1 +35.6% — Q2 $39.63B (+36%, beat); tracking well above the &gt;30% guide, yet TSM &minus;2.7% wk (coincident)</td><td class="mut">investor.tsmc.com monthly-revenue; cnbc/reuters 07-13</td><td class="red"><b class="h">~0 vs price</b> — widely watched, machine-distributed; record print did not move the stock</td><td class="mut">a sub-25% YoY monthly print = guide at risk</td></tr>
+      <tr><td class="mono red">S2 Packaging</td><td>BESI order intake &amp; book-to-bill</td><td class="mut">Q1 orders &euro;269.7m, +104.5% YoY, B:B 1.5x</td><td class="mut">BESI IR slides; Camtek 6-Ks (SEC CIK 1109138)</td><td class="red"><b class="h">~0 vs price</b> — already inflected &amp; in the stocks</td><td class="mut">B:B &lt;1.2x = ramp digesting</td></tr>
+      <tr><td class="mono red">S5 Networking</td><td>Broadcom AI/networking rev YoY (cluster pull-through)</td><td class="mut">Q3 FY26 ~$16.0B AI semi guide, +200% YoY; networking +60%</td><td class="mut">Broadcom IR; ALAB / CRDO 8-Ks</td><td class="red"><b class="h">~0 vs price</b> — guide-above is now EXPECTED</td><td class="mut">ALAB clears its raised $355&ndash;365M guide</td></tr>
+      <tr><td class="mono red">S6b Rack pwr</td><td>MPWR/IFX AI-power guide</td><td class="mut">MPWR Q2 guide $890&ndash;910M; IFX FY26 AI ~&euro;1.5B&rarr;2.5B</td><td class="mut">MPWR/IFX IR; Morningstar Delta report</td><td class="red"><b class="h">~0 vs price</b> — deep coverage, theme priced</td><td class="mut">beat-and-raise = momentum persists</td></tr>
+
+      <tr style="background:#161b22"><td colspan="6" class="grey mono" style="font-size:10.5px;letter-spacing:.08em">&#9644; TIER 3 — LAGGING / CONTEXT (confirms the demand floor / un-priceable; not a timing edge)</td></tr>
+      <tr><td class="mono grey">D0 Demand</td><td>Hyperscaler forward capex revision; capex&minus;energized-MW gap</td><td class="mut">Still revising UP; TSMC June rev <b class="h">+68% YoY</b> / H1 +35.6% (07-13) + Korea June exports (semis +199.5% YoY to $44.8B) &mdash; demand floor accelerating; but the record prints are coincident (TSM &minus;2.7% wk); only ~5GW of 12GW under construction</td><td class="mut">SEC EDGAR 8-Ks / transcripts; Sightline Climate</td><td class="grey">Coincident-to-lagging for mega-caps; leads down-chain suppliers 1&ndash;3 qtrs (context)</td><td class="mut">a hyperscaler CUT/flat-hold = floor cracks</td></tr>
+      <tr><td class="mono red">S6b Magnetics</td><td>Nanocrystalline core (VITROPERM/FINEMET) sold-out status</td><td class="mut">Sold out thru mid-2026 (VAC + Proterial duopoly)</td><td class="mut">vacuumschmelze.com; Mordor magnetics reports</td><td class="red"><b class="h">Un-priceable</b> — owners private (no ticker to express it)</td><td class="mut">sell-out extends past mid-26 = pricing power</td></tr>
+      <tr><td class="mono red">S7 TW trackers</td><td>TW monthly revenue (AVC/Auras)</td><td class="mut">AVC Q1 +110% YoY; Auras +57.7%, liquid &gt;40% of rev; DLC ~47% 2026</td><td class="mut">digitimes.com monthly tracker; trendforce.com</td><td class="grey">Fastest free DLC read but already reflected in the pure-plays</td><td class="mut">DLC attach &gt;50% confirms volume ramp</td></tr>
+    </tbody>
+  </table>
+  <p class="kicker" style="margin-top:8px"><b class="h amber">The honest caveat (verifier challenge):</b> only the <span class="teal">Tier-1</span> rows keep a genuine lead vs <i>price</i> — and they earn it because coverage is thin, the order book runs ahead of a lagging revenue print, OR (the S4 case) the data is public but the market's <i>interpretation</i> of it is wrong. <span class="teal">S4's edge is NOT faster access</span> — the AIXTRON order book is public — it is the differentiated reading that CPO preserves rather than kills InP-laser demand; the misread persists until the H1 print forces reconciliation. Every Tier-2 signal is statutory and machine-distributed, so for a &gt;15-analyst name the leading-indicator and the consensus-revision land the same afternoon and the lead-vs-price collapses to ~0. <span class="red">Don't mistake "I can read it" for "I'm early" — and don't mistake "public data" for "no edge" when the edge is interpretive.</span></p>
+
+  <!-- ===================== 7. DECISION TABLE ===================== -->
+  <h2><span class="n">7</span>Decision table — the finale (sorted by EV)</h2>
+  <p class="sub">Everything reconciled in one grid. <b class="h">Severity</b> measures the constraint (info edge), NOT the stock's attractiveness — "tightness &ne; a buy" is the whole point. The <b class="h">action lean</b> is the honest call after the priced-check veto.</p>
+
+  <div class="card" style="border-color:#3a444f;background:var(--panel2)">
+    <span class="tag">AF-1 LEDGER — currently-open per-ticker calls (the funnel's action list; render first, then the bucket map below) · source recommendations.jsonl</span>
+    <p class="kicker" style="margin-top:6px">The Alpha Map is the <i>sub-segment</i> view; the AF-1 ledger holds the live per-name calls it routes into. Open rows as-of 07-13 (deduped): <span class="mono teal">BUY-EARLY</span> ALAB (07-06) · <span class="mono amber">WATCH</span> ETN, IFX.DE, 2382.TW (Quanta), 3661.TW (Alchip), 000660.KS (SK Hynix), 6857.T (Advantest), MXL, POWL, NVT, TXN, JBL, 2327.TW (Yageo) · <span class="mono red">AVOID</span> XFAB.PA · <span class="mono mut">CLOSE</span> CRWV, COHR, 005930.KS (Samsung), 3443.TW (GUC). <span class="mut">These are the funnel's L3 momentum/rotation calls; the bucket-level watch/veto reads below are the L2 asymmetry layer — do not read them as a second competing action list. (est.; the ledger carries some null date/subsector fields pending a bridge fix.)</span></p>
+  </div>
+
+  <table>
+    <thead><tr>
+      <th>Bucket · chokepoint</th><th class="num">sev/20</th><th>mode</th><th>gap</th><th>stage</th><th>quadrant</th><th class="num">EV</th><th>edge name</th><th>liquid denom</th><th>dated catalyst</th><th>action lean</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="mono teal">S4</span> InP epitaxy / MOCVD</td><td class="num">18</td><td class="mono">CONS-GAP</td><td class="amber">above</td><td>recognition</td><td><span class="pill edge">WATCHLIST</span></td><td class="num teal"><b class="h">6</b></td>
+        <td class="mono">AIXA / AIXXY</td><td class="mono mut">LITE</td><td class="mut">AIXTRON Q2 · <b class="h">Jul 30</b></td><td class="teal"><b class="h">DIG sub-segment</b>; AIXTRON priced (~&euro;50-55) &mdash; express via de-rated optics (LITE first)</td>
+      </tr>
+      <tr>
+        <td><span class="mono amber">S3</span> HBM4 die-stack/yield</td><td class="num">19</td><td class="mono">DISCOVERY</td><td class="amber">above</td><td>recognition</td><td><span class="pill watch">WATCHLIST</span></td><td class="num">5</td>
+        <td class="mono">042700 KS</td><td class="mono mut">MU</td><td class="mut">Griffin follow-ons · H2-26</td><td class="mut">Thin edge — HBM over-covered; MU &minus;22% off high (capitulating), tool name unaffected</td>
+      </tr>
+      <tr>
+        <td><span class="mono amber">S1</span> N2/N3 wafer allocation</td><td class="num">19</td><td class="mono">CONS-GAP</td><td class="amber">above</td><td>priced</td><td><span class="pill watch">WATCHLIST</span></td><td class="num">4</td>
+        <td class="mono">2330.TW</td><td class="mono mut">TSM</td><td class="mut">TSMC Q2 · ~Jul 16</td><td class="mut">All-weather denom; rel-val arb only</td>
+      </tr>
+      <tr>
+        <td><span class="mono red">S2</span> 3D SoIC hybrid bonding</td><td class="num">15</td><td class="mono">CONS-GAP</td><td class="mut">in-line</td><td>euphoria</td><td><span class="pill trap">TRAP</span></td><td class="num">4</td>
+        <td class="mono">CAMT</td><td class="mono mut">AMAT</td><td class="mut">BESI Q2 · late-Jul</td><td class="red">Buy-the-dip only; ran already</td>
+      </tr>
+      <tr>
+        <td><span class="mono red">S6a</span> HV transformer / grid</td><td class="num">18</td><td class="mono">CONTEXT</td><td class="mut">in-line</td><td>euphoria</td><td><span class="pill trap">TRAP</span></td><td class="num">4</td>
+        <td class="mono">HPS.A</td><td class="mono mut">GEV</td><td class="mut">GEV Q2 · late-Jul</td><td class="red">Pullback did NOT de-crowd (GEV &minus;4% wk but IV still 0.98); ride-only, dip window shut</td>
+      </tr>
+      <tr>
+        <td><span class="mono red">S6b</span> nanocrystalline cores</td><td class="num">17</td><td class="mono">DISCOVERY</td><td class="amber">above</td><td>recognition</td><td><span class="pill trap">TRAP</span></td><td class="num">4</td>
+        <td class="mono">NVTS</td><td class="mono mut">MPWR</td><td class="mut">Kyber/Rubin 800V · 2027</td><td class="red">Binary 2027 option; core owners private</td>
+      </tr>
+      <tr>
+        <td><span class="mono red">S7</span> blind-mate QD/UQD</td><td class="num">16</td><td class="mono">DISCOVERY</td><td class="amber">above</td><td>recognition</td><td><span class="pill trap">TRAP</span></td><td class="num">4</td>
+        <td class="mono">DOV</td><td class="mono mut">VRT</td><td class="mut">Vera Rubin ramp · 2H-26</td><td class="red">SOTP sliver; open-spec caps it</td>
+      </tr>
+      <tr>
+        <td><span class="mono red">S5</span> 224G SerDes / switch-ASIC</td><td class="num">16</td><td class="mono">CONS-GAP</td><td class="amber">above</td><td>euphoria</td><td><span class="pill trap">TRAP</span></td><td class="num red"><b class="h">3</b></td>
+        <td class="mono">CRDO</td><td class="mono mut">AVGO</td><td class="mut">224G ramp · 2H-26</td><td class="red">Most crowded; ride-only, don't initiate</td>
+      </tr>
+      <tr>
+        <td><span class="mono grey">D0</span> power/buildout-gated demand</td><td class="num">17</td><td class="mono">CONTEXT</td><td class="mut">in-line</td><td>priced</td><td><span class="pill avoid">AVOID</span></td><td class="num red"><b class="h">3</b></td>
+        <td class="mono mut">none (NVT proxy)</td><td class="mono mut">NVDA</td><td class="mut">Q2 hyperscaler earnings · Jul/Aug</td><td class="grey">Master denominator; confirmation only</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="kicker" style="margin-top:8px"><b class="h teal">If you can only do one thing:</b> work the <b class="h">S4 interconnect</b> variant view — the InP-gate "CPO doesn't kill laser demand" misread is still the one genuinely differentiated, datable read on the map, and this week the optics complex <b class="h">bifurcated</b> (LITE bouncing on calm IV while COHR de-rated on pegged IV), proving the fear is idiosyncratic while the upstream tool gate is untouched — a 3rd-week divergence. The cleanest <i>live</i> expression is the <b class="h">de-rated downstream optics — LITE (+9% bounce but &minus;26% off high, group's lowest IV 0.65)</b> pricing the same CPO fear the upstream tool already disproved; AIXTRON itself only on a dip. Everything else is a priced denominator to hold or a TRAP to fade on strength — memory (MU, &minus;22% off high) keeps capitulating, and the NVDA/AVGO snapback is priced names bouncing, not new information.</p>
+
+  <!-- ===================== 8. RISKS ===================== -->
+  <h2><span class="n">8</span>Risks — what would break this</h2>
+  <div class="grid2">
+    <div class="card trap">
+      <span class="tag red">D0 FALSIFIERS — the demand floor cracking</span>
+      <p class="kicker" style="margin-top:8px">Every down-chain chokepoint thesis rests on an unconditional demand floor. The first cracks would be:</p>
+      <ul>
+        <li>A single hyperscaler <b class="h">CUTTING or holding flat</b> 2026/2027 capex on a quarterly call (vs raise-every-quarter).</li>
+        <li>Sharp <b class="h">cloud-RPO deceleration</b> (Oracle $553B / Google &gt;$460B backlog growth rolling).</li>
+        <li>A credit-market refusal to absorb the <b class="h">~$1.5T multi-year AI debt</b> funding gap (MS est. through ~2028 — <span class="mut">NOT a single-year 2026 number; the verifier corrected this</span>); 2026 issuance ~$570B.</li>
+        <li>The <b class="h">circular-financing chain</b> NVDA&rarr;OpenAI&rarr;Oracle&rarr;CoreWeave wobbling.</li>
+        <li><b class="h">Amazon FCF turning negative</b> (MS ~&minus;$17B / BofA ~&minus;$28B est. 2026; TTM FCF already collapsed ~$26B&rarr;$1.2B); Fed flagged AI as systemic risk.</li>
+      </ul>
+      <p class="kicker" style="margin-top:8px"><b class="h amber">The late-cycle tell already showing:</b> Meta sold off ~6% on a capex <i>RAISE</i> — the market has flipped from rewarding to scrutinizing capex.</p>
+    </div>
+    <div class="card amberc">
+      <span class="tag amber">VERIFIER CHALLENGES — to the edge itself</span>
+      <ul>
+        <li><b class="h">HBM is the most over-covered trade in semis.</b> Treat the S3/Hanmi edge as thin — a single-customer, share-loss-exposed equipment name on a high trailing multiple; SK Hynix could shift to hybrid bonding (20-Hi/2027) and displace TC-bonders entirely.</li>
+        <li><b class="h">Several "leading" indicators are public to everyone.</b> Statutory monthly-revenue and customs prints hit every analyst and algo the same second — for &gt;15-analyst names the lead-vs-price is ~0. Don't mistake "I can read it" for "I'm early."</li>
+        <li><b class="h">The freshest chokepoints are often un-investable.</b> The S6b nanocrystalline-core owners (VAC, Proterial) are private/PE-owned — the tightest link has no ticker. The S7 QD edge is capped by an open OCP spec.</li>
+        <li><b class="h">S2 CoWoS is actively LOOSENING</b> (gap 20%&rarr;10%, OSAT outsourcing) — the part most embedded in "shortage" narratives is de-rating; a glut-risk, not a chokepoint, if SoIC capacity is raised.</li>
+        <li><b class="h">S4 timing risk.</b> If AIXTRON's order book proves pull-forward/double-ordering and revenue fails to inflect, the &minus;48% print was structural — the thesis breaks; and the optics de-rate (LITE/FN) could be discounting a real CPO-transition air-pocket, not just fear.</li>
+        <li><b class="h">The pure-play already ran.</b> AIXTRON re-rated ~25% above its &euro;42.70 consensus PT (consensus "Hold", mwb at Sell &euro;40) — chasing it at &euro;57 is paying for a beat the price already holds; the edge has migrated to the (riskier) downstream optics, not the proven tool name.</li>
+        <li><b class="h">Memory euphoria unwind (the veto's freshest data).</b> MU is now &minus;22% off its high across a 3rd week <i>on</i> record data (Korea HBM +51% MoM, sold-out-through-2027, TSMC's record June print) with IV easing off pegged — a crowded name capitulating on good news is the classic late-cycle exhaustion tell; if it spreads, the whole "sold-out" complex de-risks. Power stays the other two-sided risk: GEV/ETN IV-pctile still pegged 0.98&ndash;1.00, and this week's &minus;4% GEV dip did NOT de-crowd it, so a genuine sentiment unwind in power would be violent.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">FALSIFIER STOPLIGHT — per bucket: trigger &rarr; action (keep digging / pause / downgrade-to-priced / kill)</span>
+    <table>
+      <thead><tr><th>Bucket</th><th><span class="dot g"></span>GREEN &rarr; keep digging</th><th><span class="dot y"></span>YELLOW &rarr; pause / watch</th><th><span class="dot r"></span>RED &rarr; downgrade-to-priced / kill</th></tr></thead>
+      <tbody>
+        <tr><td class="mono teal">S4 Interconnect</td><td class="g">H1-26 rev inflects toward &euro;560M; B:B &gt;1.0x; opto mix &gt;65%</td><td class="y">flattish H1, back-half-loaded; CPO timeline slips but EML holds</td><td class="r">flat/down H1 print (&minus;48% structural); CPO slips AND EML rolls; credible MOCVD 2nd source &rarr; <b class="h">kill</b></td></tr>
+        <tr><td class="mono amber">S3 HBM</td><td class="g">2nd/3rd Griffin award; rev off &minus;65.5% trough</td><td class="y">orders trickle; trailing multiple stays high</td><td class="r">next award to ASMPT/Hanwha, or SK Hynix &rarr; hybrid bonding &rarr; <b class="h">kill the share thesis</b></td></tr>
+        <tr><td class="mono amber">S1 Foundry</td><td class="g">GM guide &gt;67%; N2 ASP firm; ADR premium widens</td><td class="y">GM flat; premium unchanged</td><td class="r">N2 ASP &lt;$30k/no-discount; Big-4 capex cut &rarr; <b class="h">downgrade</b></td></tr>
+        <tr><td class="mono red">S2 Packaging</td><td class="g">CAMT order intake holds; FY26 rev &gt;$559m</td><td class="y">orders flatten QoQ; multiple &gt;50x</td><td class="r">CoWoS gap &lt;5% / SoIC capacity raised &rarr; glut-risk &rarr; <b class="h">downgrade</b></td></tr>
+        <tr><td class="mono red">S6a Facility pwr</td><td class="g">lead-times sustained &gt;128 wk; backlog &gt;+50% YoY</td><td class="y">backlog decelerates; HPS.A multiple &gt;45x</td><td class="r">lead-times contract &lt;100 wk (shortage breaking) &rarr; <b class="h">downgrade</b></td></tr>
+        <tr><td class="mono red">S6b Rack pwr</td><td class="g">nanocrystalline sell-out extends; Kyber 800V on-track</td><td class="y">800V timeline drifts; NVTS option still alive</td><td class="r">Kyber slips past 2027, or SiC glut hits DC-grade parts &rarr; <b class="h">kill NVTS option</b></td></tr>
+        <tr><td class="mono red">S7 Cooling</td><td class="g">CPC named in Rubin BoM; DLC attach &gt;50%</td><td class="y">CPC stays buried (no disclosure)</td><td class="r">CPC share loss to CEJN/Staubli/Parker on open spec &rarr; <b class="h">downgrade to context</b></td></tr>
+        <tr><td class="mono red">S5 Networking</td><td class="g">multiples de-rate to ~25&ndash;30x while still beating (re-opens gap)</td><td class="y">momentum persists at 40&ndash;120x (ride-only)</td><td class="r">hyperscaler capex pause hits 88%-concentrated names (CRDO &beta;~3.2) &rarr; <b class="h">already priced</b></td></tr>
+        <tr><td class="mono grey">D0 Demand</td><td class="g">capex guides revise UP again; RPO inflects</td><td class="y">guide held flat; FCF strain building</td><td class="r">a hyperscaler CUTS 2027 capex; RPO rolls; credit refuses the debt &rarr; <b class="h">demand floor cracks (kills everything down-chain)</b></td></tr>
+      </tbody>
+    </table>
+    <p class="kicker" style="margin-top:8px"><b class="h">Read it as a watch-list, not a forecast:</b> the GREEN column is "thesis still intact, keep working it"; YELLOW is "pause / don't add"; RED is the explicit action — most non-S4 buckets are already at or near the <span class="red">downgrade-to-priced</span> state, which is why this map is mostly a veto. <span class="mut">Triggers are point-in-time (est.) and tied to the catalysts in &sect;7.</span></p>
+  </div>
+
+  <!-- ===================== DISCLAIMER + SOURCES ===================== -->
+  <h2><span class="n">9</span>Disclaimer &amp; sources &amp; verification ledger</h2>
+  <p class="legend"><b class="h">Personal research for a private knowledge base — NOT investment advice.</b> Quadrant / EV / severity scores measure information edge and constraint, not stock attractiveness; "tightness &ne; a good buy" throughout. All figures are point-in-time estimates as-of <span class="mono">2026-07-13</span> and decay quickly; items marked (est.) or "reconstructed" are uncertain. Scatter/bar coordinates are honest reconstructions of the dossier verdicts, not a measured dataset. IBKR is <b class="h">READ-ONLY — never trade</b>; positioning context only. Cross-check every load-bearing number against &ge;2 independent sources before acting.</p>
+
+  <div class="card">
+    <span class="tag">VERIFICATION LEDGER — load-bearing numbers, two-source check &amp; confidence (from datapack.json key_data_points)</span>
+    <p class="sub" style="margin-top:6px">Every claim that drives a verdict, the value used, the primary + a 2nd source, an <b class="h">independence flag</b>, the date, and a <b class="h">confidence</b> tier. <span class="red">LOW-confidence inputs are flagged explicitly</span> — single-sourced, blog/Substack, or private market-share claims that cannot be independently confirmed. The <b class="h">Indep.?</b> column marks where the "two sources" are effectively <span class="red">single-origin</span> — both syndicating one TrendForce/TSMC/sell-side datapoint, or a company PR plus a rewrite of that PR — so they do NOT count as two independent checks.</p>
+    <table>
+      <thead><tr><th>Claim</th><th>Value used</th><th>Primary source</th><th>2nd independent source</th><th>Indep.?</th><th class="num">Date</th><th>Conf.</th></tr></thead>
+      <tbody>
+        <tr><td class="mut">D0 Big-4 2026 capex</td><td class="mono">~$725B (+69% YoY)</td><td class="mut">finance.yahoo.com</td><td class="mut">tomshardware.com; company 8-Ks</td><td class="pos">yes (8-Ks)</td><td class="num">2026-04-30</td><td class="pos">high</td></tr>
+        <tr><td class="mut">D0 2027 capex &gt;$1T; MS $805B/$1.1T</td><td class="mono">&gt;$1.0&ndash;1.1T 2027E</td><td class="mut">cnbc.com (Evercore/BofA)</td><td class="r">MS via thedarksideoftheboom <b class="h">(Substack)</b></td><td class="r"><b class="h">single-origin</b> (both restate sell-side est.)</td><td class="num">2026-05-04</td><td class="r"><b class="h">LOW</b> on the MS $1.1T point (blog-sourced)</td></tr>
+        <tr><td class="mut">D0 ~$1.5T multi-year AI debt</td><td class="mono">~$1.5T thru ~2028</td><td class="mut">1950.ai / finance.yahoo.com</td><td class="r">single-thread (MS/JPM est.)</td><td class="r"><b class="h">single-origin</b> (one MS/JPM est.)</td><td class="num">2026</td><td class="warn">med (est., corrected from 1-yr)</td></tr>
+        <tr><td class="mut">S1 TSMC &gt;30% 2026 growth; HPC 61%</td><td class="mono">&gt;30%; HPC 61%</td><td class="mut">scmp.com (TSMC Q1 call)</td><td class="mut">investing.com Q1 slides</td><td class="r"><b class="h">single-origin</b> (both = TSMC Q1 call)</td><td class="num">2026-04-16</td><td class="pos">high</td></tr>
+        <tr><td class="mut">S1 N2 $30k/wafer, no-discount, +3&ndash;5%/yr</td><td class="mono">$30k; +3&ndash;5%/yr</td><td class="mut">tweaktown.com</td><td class="r">dataconomy.com (both 2ndary trade press)</td><td class="r"><b class="h">single-origin</b> (same trade-press leak)</td><td class="num">2026-02</td><td class="warn">med (trade-press, no primary TSMC ASP disclosure)</td></tr>
+        <tr><td class="mut">S1 TSMC May rev +30.1% YoY</td><td class="mono">+30.1%; 5M +30.0%</td><td class="r">SEC EDGAR CIK 1046179 <b class="h">(primary)</b></td><td class="mut">investor.tsmc.com monthly</td><td class="warn">same issuer, 2 filings</td><td class="num">2026-06-10</td><td class="pos">high</td></tr>
+        <tr><td class="mut">S2 CoWoS gap 20%&rarr;10%</td><td class="mono">20%&rarr;10%</td><td class="mut">trendforce.com</td><td class="mut">ad-hoc-news (capacity figures)</td><td class="r"><b class="h">single-origin</b> (one TrendForce datapoint)</td><td class="num">2026-06-15</td><td class="warn">med (single primary tracker)</td></tr>
+        <tr><td class="mut">S2 SoIC 10&ndash;15k wpm, $7B/10k capex</td><td class="mono">10&ndash;15k wpm</td><td class="r">Beth Kindig (X/Substack)</td><td class="r">no independent confirm</td><td class="r"><b class="h">single-origin</b></td><td class="num">2026-05</td><td class="r"><b class="h">LOW</b> (single analyst, social-media-sourced)</td></tr>
+        <tr><td class="mut">S2 BESI Q1 orders +104.5%, B:B 1.5x</td><td class="mono">&euro;269.7m; B:B 1.5x</td><td class="r">BESI IR slides <b class="h">(primary)</b></td><td class="mut">investing.com</td><td class="warn">2nd is a PR rewrite</td><td class="num">2026-04-23</td><td class="pos">high</td></tr>
+        <tr><td class="mut">S3 Hanmi first HBM4 Griffin order</td><td class="mono">44.2bn KRW, ~15 units</td><td class="mut">trendforce.com</td><td class="mut">thelec.net</td><td class="pos">yes (2 outlets)</td><td class="num">2026-06-08</td><td class="pos">high</td></tr>
+        <tr><td class="mut">S3 Hanmi ~71% TC-bonder share</td><td class="mono">~71.2%</td><td class="r">lumenalpha <b class="h">(Substack)</b></td><td class="r">no independent share audit</td><td class="r"><b class="h">single-origin</b></td><td class="num">2026-06</td><td class="r"><b class="h">LOW</b> (single blog; bear-case share-loss disputed)</td></tr>
+        <tr><td class="mut">S3 MU ~6&ndash;7x fwd, ~$76B FY26 rev</td><td class="mono">~6&ndash;7x; ~$76B</td><td class="mut">tikr.com</td><td class="mut">stockanalysis consensus</td><td class="r"><b class="h">single-origin</b> (same consensus feed)</td><td class="num">2026-06</td><td class="warn">med (consensus aggregator)</td></tr>
+        <tr style="background:#13302c"><td class="teal">S4 AIXTRON orders +30% / rev &minus;48%</td><td class="mono teal">+30% / &minus;48% YoY</td><td class="r teal">AIXTRON Q1-26 prelim (co. IR) <b class="h">(primary)</b></td><td class="mut">semiconductor-today.com; compoundsemiconductor.net</td><td class="pos">yes (co. + 2 trade)</td><td class="num">2026-04</td><td class="pos">high (the load-bearing fact)</td></tr>
+        <tr style="background:#13302c"><td class="teal">S4 AIXTRON &gt;90% MOCVD / G10-AsP Planetary IP</td><td class="mono teal">&gt;90%; only batch InP tool</td><td class="r teal">Lumentum G10-AsP order, Digitimes 2026-05-27 <b class="h">(primary)</b></td><td class="mut">AIXTRON product page (G10-AsP / Planetary Reactor&reg;); SMART Photonics buy</td><td class="pos">yes (customer order + maker spec)</td><td class="num">2026-05-27</td><td class="warn"><b class="h">med-high</b> (replaces blog 70&ndash;90% est.)</td></tr>
+        <tr style="background:#13302c"><td class="teal">S4 CPO uses InP CW lasers (ELS)</td><td class="mono teal">CPO &rarr; InP CW + 400mW CPO laser</td><td class="r teal">Coherent OFC-2026 release, coherent.com / globenewswire 2026-03-17 <b class="h">(primary)</b></td><td class="mut">chipstrat.com (Substack, corroborating)</td><td class="pos">yes (company PR is primary)</td><td class="num">2026-03-17</td><td class="pos"><b class="h">high</b> (primary company disclosure)</td></tr>
+        <tr><td class="mut">S5 ALAB guide $355&ndash;365M vs $310M cons</td><td class="mono">+16% above</td><td class="r">globenewswire (co. release)</td><td class="mut">gurufocus (multiple/consensus)</td><td class="warn">2nd cites the same PR</td><td class="num">2026-05-05</td><td class="pos">high</td></tr>
+        <tr><td class="mut">S6a Transformer 128/144/160+ wk</td><td class="mono">128/144/160+ wk</td><td class="mut">industrialsage.com (WoodMac Q2'25)</td><td class="mut">pv-magazine-usa.com</td><td class="r"><b class="h">single-origin</b> (both cite WoodMac)</td><td class="num">2026 (Q2'25 survey)</td><td class="warn">med (survey, aging slightly)</td></tr>
+        <tr><td class="mut">S6a GEV $163B backlog, $2.4B DC/qtr</td><td class="mono">$163B; $2.4B</td><td class="r">gevernova.com 8-K <b class="h">(primary)</b></td><td class="mut">stocktitan.net</td><td class="warn">2nd is an 8-K rewrite</td><td class="num">2026-04-22</td><td class="pos">high</td></tr>
+        <tr><td class="mut">S6a HPS.A backlog +95%; ~7 analysts</td><td class="mono">+95% YoY; ~7</td><td class="r">globenewswire (co. release)</td><td class="r">analyst-count is an est. (thin coverage)</td><td class="warn">count = est., not 2nd-sourced</td><td class="num">2026-05-05</td><td class="warn">med (coverage-depth est.)</td></tr>
+        <tr><td class="mut">S6b Nanocrystalline sold out mid-26</td><td class="mono">sold out</td><td class="r">mordorintelligence.com</td><td class="r">VAC product pages (no maker confirm)</td><td class="r"><b class="h">single-origin</b> (no auditable maker print)</td><td class="num">2026-06</td><td class="r"><b class="h">LOW</b> (private duopoly; no auditable disclosure)</td></tr>
+        <tr><td class="mut">S6b VAC/Proterial private/un-investable</td><td class="mono">no liquid ticker</td><td class="r">pitchbook.com</td><td class="mut">corporate ownership records</td><td class="pos">yes (2 registries)</td><td class="num">2026-06-16</td><td class="pos">high (ownership is verifiable)</td></tr>
+        <tr><td class="mut">S6b NVTS sole NVIDIA 800V partner; ~$41M FY26E</td><td class="mono">~$41M FY26E</td><td class="r">fool.com (Q1 transcript)</td><td class="r">no real multi-year consensus (thin)</td><td class="r"><b class="h">single-origin</b> (one transcript)</td><td class="num">2026-05-06</td><td class="warn">med (narrative/option, no firm cons)</td></tr>
+        <tr><td class="mut">S7 DLC ~47% 2026; Rubin 100% liquid</td><td class="mono">~47%</td><td class="mut">trendforce.com</td><td class="mut">thecoolingreport.com</td><td class="r"><b class="h">single-origin</b> (one TrendForce forecast)</td><td class="num">2026-02</td><td class="warn">med (forecaster, single primary)</td></tr>
+        <tr><td class="mut">S7 thermal $/rack ~$55,710</td><td class="mono">~$55,710 (est.)</td><td class="r">supply-chain checks (gamegpu.com)</td><td class="r">no independent confirm</td><td class="r"><b class="h">single-origin</b></td><td class="num">2026</td><td class="r"><b class="h">LOW</b> (est. supply-chain figure)</td></tr>
+        <tr><td class="mut">S7 UQD open OCP spec; CPC a vendor</td><td class="mono">multi-vendor</td><td class="r">opencompute.org spec <b class="h">(primary)</b></td><td class="mut">cpcworldwide.com</td><td class="pos">yes (spec + vendor)</td><td class="num">2026</td><td class="pos">high</td></tr>
+        <tr style="background:#13302c"><td class="teal">Micron FQ3'26 record (06-24, the HBM priced-check)</td><td class="mono teal">NI $28.24B; HBM4 booked thru CY2027; +14.6%</td><td class="r teal">globenewswire (Micron release) <b class="h">(primary)</b></td><td class="mut">cnbc.com; investing.com transcript</td><td class="pos">yes (co. + 2 outlets)</td><td class="num">2026-06-24</td><td class="pos">high</td></tr>
+        <tr style="background:#161b22"><td class="mut">Korea June <b class="h">full-month</b> exports (demand tell)</td><td class="mono">total +70.9% YoY; semis +199.5% to $44.8B; HBM ship +51% MoM</td><td class="mut">businesstoday.com.my (MOTIE)</td><td class="mut">upi.com; indexbox.io (MOTIE series)</td><td class="pos">yes (press + data series)</td><td class="num">2026-07-01</td><td class="pos">high (statutory, coincident)</td></tr>
+        <tr style="background:#13302c"><td class="teal">S4 AIXTRON multiple Lumentum G10-AsP InP MOCVD orders</td><td class="mono teal">multiple orders (May-26); ~70&ndash;90% tool share</td><td class="r teal">TrendForce 2026-05-29 <b class="h">(primary)</b></td><td class="mut">semiconductor-today.com; ledinside.com; digitimes 2026-05-27</td><td class="pos">yes (3+ trade outlets)</td><td class="num">2026-05-29</td><td class="pos">high (order-book confirmation)</td></tr>
+        <tr style="background:#161b22"><td class="mut">TSMC record June revenue (the coincident/priced tell)</td><td class="mono">June +68% YoY / +6.2% MoM; Q2 $39.63B (+36%, beat); H1 +35.6%; yet TSM &minus;2.7% wk</td><td class="mut">cnbc.com / reuters.com (07-13)</td><td class="mut">investor.tsmc.com monthly; marketwatch; barrons</td><td class="pos">yes (co. filing + press)</td><td class="num">2026-07-13</td><td class="pos">high (statutory monthly)</td></tr>
+        <tr><td class="mut">S3 MU &minus;22% off high (3rd-wk capitulation) vs record data</td><td class="mono red">&minus;22% off high (924 pre-mkt 07-13); IV easing .94&rarr;.88</td><td class="r">IBKR get_price_snapshot <b class="h">(read-only, primary)</b></td><td class="mut">FMP 07-10 close; stockanalysis range</td><td class="pos">yes (broker + 3rd-party)</td><td class="num">2026-07-13</td><td class="warn">med (pre-mkt tick; euphoria-unwind read is judgment)</td></tr>
+        <tr><td class="mut">AIXTRON spot still ABOVE target (the re-rate)</td><td class="mono red">~&euro;50&ndash;55; cons PT &euro;42.70 (Hold); Q2 earnings Jul 30</td><td class="mut">tradingview / stockanalysis / investing.com (XETRA)</td><td class="mut">marketscreener consensus; morningstar</td><td class="pos">yes (quote + consensus)</td><td class="num">2026-07-02</td><td class="pos">high (equity priced; insight cheaper via optics)</td></tr>
+        <tr><td class="mut">Positioning IV-pctile (6 names fresh 07-13) + 52w-range (14 names)</td><td class="mono">per name</td><td class="r">IBKR get_price_snapshot <b class="h">(read-only, primary)</b></td><td class="mut">FMP 07-10 close; cross-checked vs stockanalysis ranges</td><td class="pos">yes (broker + 3rd-party)</td><td class="num">2026-07-13</td><td class="warn">med (IV pre-mkt; 8 names IV carried from 07-06)</td></tr>
+      </tbody>
+    </table>
+    <p class="kicker" style="margin-top:8px"><b class="h red">LOW-confidence flags (do not treat as load-bearing):</b> the MS $1.1T-2027 figure (Substack), SoIC 10&ndash;15k wpm (single analyst on social media), Hanmi ~71% share (blog-sourced, no independent audit), nanocrystalline sold-out (private duopoly, no auditable maker disclosure), thermal $/rack ~$55,710 (est. supply-chain), and the HPS.A/NVT coverage-depth analyst counts (est.). <span class="red">Several "two-source" pairs are flagged single-origin in the Indep.? column</span> (same TrendForce datapoint, same TSMC call, or a PR + its own rewrite) — treat those as effectively one source.</p>
+    <p class="kicker" style="margin-top:6px"><b class="h teal">S4 evidence stack now upgraded to PRIMARY.</b> The marquee thesis no longer leans on the LOW blog 70&ndash;90% estimate: it now rests on (i) the AIXTRON orders-vs-revenue fact (company prelim + 2 trade outlets, HIGH), (ii) the <b class="h">&gt;90% MOCVD / G10-AsP Planetary-IP</b> gate evidenced by the Lumentum G10-AsP order (Digitimes 2026-05-27) + AIXTRON's own product spec + the SMART Photonics buy (med-high), and (iii) <b class="h">Coherent's own OFC-2026 release (2026-03-17)</b> confirming CPO still needs InP CW lasers (HIGH, primary). This is the clean evidence stack the review asked for before sizing.</p>
+  </div>
+
+  <p class="legend" style="margin-top:18px">AI-Infra Alpha Map <b class="h">v5</b> · as-of 2026-07-13 · weekly refresh (crowding re-pull IV 07-13 + TSMC record June revenue +68% + S4 optics bifurcation; AF-1 bridge reconciled vs rotation_state 07-10) · consensus-gap bridge + two-mode lens (Engine C vocabulary) · self-contained · personal research, not advice · IBKR read-only.</p>
+</div></body>
+</html>

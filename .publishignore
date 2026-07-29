@@ -12,3 +12,7 @@
 #
 # Lines starting with # and blank lines are ignored. Nothing is excluded by default.
 portfolio_snapshot*.json
+
+# AI-Infra_INDEX.html is the vault-side index; its links point at local vault
+# paths and would 404 on the public site. The site has its own index.html.
+AI-Infra_INDEX.html

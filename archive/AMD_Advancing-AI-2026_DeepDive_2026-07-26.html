@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AMD Advancing AI 2026 Deep Dive v5.1 | HYPOTHESIS Research</title>
+  <style>
+    :root{
+      --bg:#0b1014;--panel:#11191f;--panel2:#162128;--line:#29404a;--text:#e8f1f2;
+      --muted:#9db0b5;--teal:#39d3c2;--teal2:#177e75;--red:#c85c62;--amber:#d5a84f;
+      --blue:#6da9dd;--violet:#a18bd6;--green:#78c391;--mono:"JetBrains Mono","SFMono-Regular",Consolas,monospace;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:linear-gradient(180deg,#081014 0,#0b1014 420px);color:var(--text);
+      font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+    a{color:var(--teal)}
+    .wrap{max-width:1320px;margin:auto;padding:0 24px}
+    header{padding:58px 0 32px;border-bottom:1px solid var(--line)}
+    .kick{color:var(--teal);font:700 12px/1.3 var(--mono);letter-spacing:.13em;text-transform:uppercase}
+    h1{font-size:clamp(36px,6vw,72px);line-height:1.02;margin:14px 0 18px;max-width:1120px}
+    h2{font-size:30px;margin:0 0 18px}
+    h3{font-size:20px;margin:0 0 12px}
+    h4{font-size:15px;margin:0 0 8px;color:var(--teal)}
+    p{margin:0 0 14px}
+    .lede{font-size:19px;color:#c7d4d6;max-width:980px}
+    .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+    .pill{border:1px solid var(--line);border-radius:999px;padding:7px 11px;color:var(--muted);font:600 12px var(--mono)}
+    .pill.paper{color:#ffdba1;border-color:#795d2b;background:#2a2114}
+    nav{position:sticky;top:0;z-index:20;background:rgba(8,16,20,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+    nav .wrap{display:flex;gap:18px;overflow:auto;padding-top:11px;padding-bottom:11px}
+    nav a{font:650 12px var(--mono);white-space:nowrap;color:#b9cbce;text-decoration:none}
+    main section{padding:54px 0;border-bottom:1px solid var(--line)}
+    .grid{display:grid;gap:16px}
+    .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:14px;padding:19px}
+    .card.accent{border-color:var(--teal2);box-shadow:0 0 0 1px rgba(57,211,194,.06) inset}
+    .card.risk{border-color:#6f3c41}
+    .big{font:750 28px var(--mono);letter-spacing:-.04em}
+    .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+    .muted{color:var(--muted)}
+    .tiny{font-size:12px;color:var(--muted)}
+    .plain{background:linear-gradient(90deg,#12312f,#132128);border:1px solid #246b65;border-radius:16px;padding:22px;margin:18px 0}
+    .plain strong{color:#bdf8f0}
+    .status{font:700 11px var(--mono);letter-spacing:.06em;text-transform:uppercase}
+    .status.high{color:var(--green)}.status.medium{color:var(--amber)}.status.low{color:var(--red)}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th,td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+    th{color:#b8cccf;font:700 11px var(--mono);letter-spacing:.05em;text-transform:uppercase}
+    tr:last-child td{border-bottom:0}
+    .scroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+    .scroll table{min-width:850px}
+    .tag{display:inline-block;border-radius:5px;padding:3px 6px;margin:2px 3px 2px 0;background:#22343d;color:#c6dadd;font:650 10px var(--mono)}
+    .tag.new{background:#17413c;color:#9af1e7}.tag.old{background:#323038;color:#c8c4d2}.tag.warn{background:#47341c;color:#f2d399}
+    .cid{display:inline-block;color:#7fa0a6;font:650 9px var(--mono);white-space:nowrap}
+    .barline{height:8px;background:#263941;border-radius:99px;overflow:hidden;margin:7px 0}
+    .barline span{display:block;height:100%;background:linear-gradient(90deg,var(--teal2),var(--teal));border-radius:99px}
+    .score{font:750 23px var(--mono);color:var(--teal)}
+    .svgbox{overflow-x:auto;background:#0e171c;border:1px solid var(--line);border-radius:14px;padding:14px}
+    .svgbox svg{width:100%;height:auto;min-width:960px}
+    svg{display:block;max-width:none}
+    svg text{font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:var(--text)}
+    svg text.m{font-family:var(--mono);fill:var(--muted)}
+    .timeline{display:grid;grid-template-columns:145px repeat(6,minmax(120px,1fr));min-width:900px}
+    .timeline div{padding:11px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);font-size:12px}
+    .timeline .yr{font:700 12px var(--mono);color:var(--teal);background:#122127}
+    .timeline .row{font-weight:700;background:#121c21}
+    .timeline .hot{background:#342326;border-color:#59393e}
+    .timeline .new{background:#15312f}
+    .curve{position:relative;height:210px;border-left:1px solid var(--line);border-bottom:1px solid var(--line);
+      background:linear-gradient(90deg,rgba(57,211,194,.04),rgba(213,168,79,.05),rgba(200,92,98,.06))}
+    .curve:before{content:"";position:absolute;left:4%;right:4%;bottom:24px;height:120px;border-radius:50% 50% 8% 8%;
+      border-top:3px solid #54717a;transform:skewY(-2deg)}
+    .dot{position:absolute;transform:translate(-50%,-50%);text-align:center}
+    .dot i{display:block;width:13px;height:13px;border-radius:50%;background:var(--teal);margin:auto;box-shadow:0 0 0 5px rgba(57,211,194,.12)}
+    .dot b{font:700 11px var(--mono);white-space:nowrap}
+    .dot small{display:block;white-space:nowrap}
+    .stage-labels{display:flex;justify-content:space-between;color:var(--muted);font:10px var(--mono);margin-top:9px}
+    .marker{position:absolute;left:11%;top:20px;bottom:0;border-left:1px dashed var(--teal)}
+    .marker span{position:absolute;top:0;left:8px;width:130px;color:var(--teal);font:700 10px var(--mono)}
+    .tabs{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+    .tablist{display:flex;gap:0;background:#0f181d;border-bottom:1px solid var(--line)}
+    .tablist button{flex:1;border:0;border-right:1px solid var(--line);padding:13px;background:transparent;color:var(--muted);
+      font:700 12px var(--mono);cursor:pointer}
+    .tablist button[aria-selected="true"]{background:#17302f;color:var(--teal)}
+    .tabpanel{display:none;padding:20px;background:var(--panel)}
+    .tabpanel.active{display:block}
+    .eight{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+    .eight div{background:#0e171c;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:12px}
+    .callout{border-left:4px solid var(--teal);padding:13px 16px;background:#102125}
+    .callout.red{border-color:var(--red);background:#25171a}
+    .source-list{columns:2;column-gap:32px}
+    .source-list li{break-inside:avoid;margin-bottom:8px;font-size:12px}
+    .foot{padding:30px 0 60px;color:var(--muted);font-size:12px}
+    @media(max-width:900px){.g2,.g3,.g4,.eight{grid-template-columns:1fr}.source-list{columns:1}.wrap{padding:0 16px}h1{font-size:40px}}
+    @media print{nav{display:none}body{background:#fff;color:#111}.card,.plain,.scroll,.tabs,.tabpanel,.svgbox{background:#fff;color:#111;border-color:#bbb}
+      svg text{fill:#111!important}.tabpanel{display:block!important;break-inside:avoid}a{color:#0645ad}main section{break-inside:avoid}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="kick">Deep Research · v5.1 · As of 26 Jul 2026</div>
+    <h1>AMD Advancing AI 2026: a credible second platform, not yet a proven second moat</h1>
+    <p class="lede">The event’s important change was not another faster GPU. AMD assembled a production-configured rack, annual platform roadmap, software migration layer and named launch customers. That expands the AI-infrastructure value pool—but the capacity agreements, performance claims and stock implications require separate proof.</p>
+    <div class="meta">
+      <span class="pill paper">HYPOTHESIS / RESEARCH ONLY</span>
+      <span class="pill">Industry horizon 2026–2030</span>
+      <span class="pill">Market transmission 12–24 months</span>
+      <span class="pill">Benchmark SMH</span>
+      <span class="pill">Thesis expiry 31 Dec 2028</span>
+    </div>
+  </div>
+</header>
+<nav aria-label="Report sections"><div class="wrap">
+  <a href="#snapshot">01 Snapshot</a><a href="#framework">02 Framework</a><a href="#components">03 Components</a>
+  <a href="#assembly">04 Assembly</a><a href="#usecases">05 Use cases</a><a href="#chain">06 Supply chain</a>
+  <a href="#timeline">07 Timeline</a><a href="#severity">08 Chokepoints</a><a href="#awareness">09 Awareness</a>
+  <a href="#top3">10 Top 3</a><a href="#decision">11 Decision table</a><a href="#risks">12 Risks</a>
+</div></nav>
+<main>
+<section id="snapshot"><div class="wrap">
+  <div class="kick">01 · Executive snapshot</div><h2>What changed—and what did not</h2>
+  <div class="grid g4">
+    <div class="card accent"><div class="tiny">Core industry hypothesis</div><div class="big">65%</div><p>Analyst-elicited, uncalibrated probability AMD establishes a credible open rack-scale second-source platform by end-2027. Sensitivity <span class="num">50–75%</span>. <span class="cid">forecast:industry</span></p></div>
+    <div class="card"><div class="tiny">Named capacity ceiling</div><div class="big">14 GW</div><p>OpenAI <span class="num">6</span> + Meta <span class="num">6</span> + Anthropic <span class="num">2</span>. <strong>Not backlog.</strong> <span class="cid">c_customer_frameworks</span></p></div>
+    <div class="card"><div class="tiny">Dated first tranches</div><div class="big">3 GW</div><p>Three separate first <span class="num">1 GW</span> windows are explicit; later capacity remains conditional.</p></div>
+    <div class="card risk"><div class="tiny">Incentive ceiling</div><div class="big">320m</div><p>Maximum OpenAI + Meta warrant shares: <span class="num">19.4%</span> share-count increase versus Q1 diluted shares, or <span class="num">16.3%</span> illustrative post-issuance ownership dilution. <span class="cid">c_warrant_dilution</span></p></div>
+  </div>
+  <div class="plain">
+    <h3>Explain it simply / 白話版</h3>
+    <p><strong>Before:</strong> AMD had competitive chips and an open-software story, but customers still had to assemble more of the system and accept software friction. <strong>Now:</strong> AMD is offering the full “AI factory rack”—GPU, CPU, networking, software and reference design—with large customers helping validate it.</p>
+    <p><strong>The catch:</strong> a signed framework is not shipped revenue, a benchmark is not broad production proof, and a warrant can be an equity rebate. AMD must prove three things together: racks work reliably, ROCm works across real workloads, and revenue converts to margin and cash.</p>
+    <p><strong>Balance-sheet scale:</strong> AMD’s up-to-<span class="num">$5B</span> Anthropic investment equals roughly <span class="num">40.5%</span> of Q1 cash plus short-term investments. That is a ceiling, not a cash-flow schedule; timing, funding and expected return remain undisclosed. <span class="cid">c_anthropic_investment</span></p>
+  </div>
+  <div class="grid g3">
+    <div class="card"><h3>The genuinely new</h3><p><span class="tag new">NEW</span> MI600/Helios 600 extends annual rack cadence to 2028.</p><p><span class="tag new">NEW</span> Anthropic up-to-2-GW framework and up-to-$5B AMD investment.</p><p><span class="tag new">NEW</span> Cerebras disaggregated inference and ROCm.AI tooling layer.</p></div>
+    <div class="card"><h3>Mostly updates</h3><p><span class="tag old">PRIOR + DETAIL</span> Helios, MI400, Venice and open rack architecture originated in 2025.</p><p><span class="tag old">TIMING</span> OpenAI Q4 2026; Meta testing; Microsoft Azure pathway.</p><p><span class="tag old">PRIOR + DETAIL</span> MI500 in 2027 was already disclosed.</p></div>
+    <div class="card risk"><h3>Do not overread</h3><p><span class="tag warn">VENDOR MODEL</span> Up to <span class="num">30%</span> tokens/$ versus Vera Rubin.</p><p><span class="tag warn">CEILING</span> <span class="num">14 GW</span> is not backlog.</p><p><span class="tag warn">TAM</span> AMD’s roughly <span class="num">$2T</span> 2030 AI compute estimate is market-definition sensitive.</p></div>
+  </div>
+  <h3 style="margin-top:24px">Key announcement register</h3>
+  <div class="scroll"><table><thead><tr><th>Announcement</th><th>What AMD disclosed</th><th>Novelty</th><th>Investment meaning</th><th>Evidence boundary</th></tr></thead><tbody>
+    <tr><td>Helios + MI455X</td><td class="num">72 GPUs · 18 Venice CPU trays · 2.9 FP4 exaflops · 31 TB HBM4 · 1.7 PB/s</td><td>Production timing + specifications</td><td>Concrete rack unit pulls memory, packaging, fabric, integration and facilities.</td><td>PRIMARY_ONLY vendor specs; not broad application throughput or volume yield. <span class="cid">c_helios_config · c_helios_specs</span></td></tr>
+    <tr><td>MI430X</td><td class="num">Up to 288 TFLOPS FP64</td><td>Product detail</td><td>Extends AMD’s platform into sovereign and scientific HPC.</td><td>PRIMARY_ONLY peak metric; workload results still required. <span class="cid">c_mi430x_spec</span></td></tr>
+    <tr><td>MI350P</td><td>PCIe accelerator; AMD claims up to <span class="num">4.2x</span> token/$ versus the prior comparison set.</td><td>Product expansion</td><td>Broadens inference deployment outside a full Helios rack.</td><td>PRIMARY_ONLY vendor model, not independent TCO proof. <span class="cid">c_mi350p</span></td></tr>
+    <tr><td>EPYC 9006 “Venice”</td><td class="num">TSMC 2 nm · up to 256 cores / 512 threads · 16 DDR5 channels · PCIe 6</td><td>Specification detail</td><td>Agentic workloads increase CPU scheduling, memory and I/O relevance.</td><td>PRIMARY_ONLY vendor specs; production economics pending. <span class="cid">c_epyc_9006</span></td></tr>
+    <tr><td>2027–2030 roadmap</td><td>MI500 / Helios 500 in 2027; MI600 / Helios 600 in 2028; follow-on CPU, network and DPU families.</td><td>MI500 prior; later cadence new</td><td>Moves competition from a single chip generation toward platform execution.</td><td>Roadmap commitment, not delivery proof.</td></tr>
+    <tr><td>ROCm.AI</td><td>Skills, CLI, Console and Hyperloom for setup, optimization and deployment.</td><td>Software-layer expansion</td><td>Targets migration and developer friction—the gating non-silicon bottleneck.</td><td>Does not establish CUDA parity or CI reliability. <span class="cid">c_rocm_status</span></td></tr>
+    <tr><td>Cerebras service</td><td>Helios prefill + Cerebras decode planned in Cerebras Cloud in 2H26.</td><td>New ecosystem commitment</td><td>Supports heterogeneous inference and fabric/orchestration value.</td><td>Up-to-5x efficiency is a joint expected claim. <span class="cid">c_heterogeneous_inference</span></td></tr>
+    <tr><td>Kria X100</td><td>CPU + GPU + NPU + FPGA, up to 128 GB unified memory and ROS 2 support.</td><td>Physical-AI expansion</td><td>Longer-duration option on robotics and industrial edge infrastructure.</td><td>PRIMARY_ONLY; near-term revenue and production design wins undisclosed. <span class="cid">c_kria_x100</span></td></tr>
+  </tbody></table></div>
+  <h3 style="margin-top:24px">Customer frameworks: disclosed terms versus unknown economics</h3>
+  <div class="scroll"><table><thead><tr><th>Customer</th><th>Ceiling / first tranche</th><th>Window</th><th>Purchase + cancellation</th><th>Incentive / funding</th><th>Site status</th><th>Research status</th></tr></thead><tbody>
+    <tr><td>OpenAI</td><td class="num">6 GW / 1 GW</td><td>2H26; first Helios expected Q4</td><td>UNKNOWN</td><td>Warrant up to <span class="num">160m</span> shares</td><td>Early access; scaled energization UNKNOWN</td><td>DATED_FRAMEWORK_CONTEXT</td></tr>
+    <tr><td>Meta</td><td class="num">6 GW / 1 GW</td><td>2H26</td><td>UNKNOWN</td><td>Performance warrant up to <span class="num">160m</span> shares</td><td>Early testing; acceptance UNKNOWN</td><td>DATED_FRAMEWORK_CONTEXT</td></tr>
+    <tr><td>Anthropic</td><td class="num">2 GW / 1 GW</td><td>1H27</td><td>UNKNOWN</td><td>AMD investment up to <span class="num">$5B</span>; terms UNKNOWN</td><td>UNKNOWN</td><td>CIRCULARITY_UNRESOLVED</td></tr>
+    <tr><td>Microsoft Azure</td><td>Not disclosed</td><td>Offerings planned from 2H26</td><td>UNKNOWN</td><td>None disclosed</td><td>GA/utilization UNKNOWN</td><td>CLOUD_CHANNEL_CONTEXT</td></tr>
+  </tbody></table></div>
+  <p class="tiny" style="margin-top:8px">Pricing, binding purchase terms, cancellation conditions and gross margin are UNKNOWN for every framework. A dated tranche is timing evidence, not equivalent-quality revenue evidence. <span class="cid">c_customer_frameworks · research/customer_frameworks.json</span></p>
+  <h3 style="margin-top:24px">Layer key</h3>
+  <div class="grid g4">
+    <div class="card"><h4>Upstream</h4><p>Tools and factories that design, fabricate and package chips.</p></div>
+    <div class="card"><h4>L3 · Components</h4><p>GPU, HBM, CPU, DPU, switch, retimer, power and cooling parts.</p></div>
+    <div class="card"><h4>L2 · System</h4><p>Trays, boards, fabric and liquid cooling integrated into a rack.</p></div>
+    <div class="card"><h4>L1 · Service</h4><p>A cloud or enterprise sells training, inference or agent capacity.</p></div>
+  </div>
+  <h3 style="margin-top:24px">Six terms worth knowing</h3>
+  <div class="scroll"><table><thead><tr><th>Term</th><th>Plain meaning</th><th>Why it matters</th></tr></thead><tbody>
+    <tr><td class="num">HBM4</td><td>Stacks of very fast memory beside the GPU.</td><td>Model speed increasingly depends on feeding chips, not only arithmetic.</td></tr>
+    <tr><td class="num">FP4 / FP8</td><td>Lower-precision number formats used to process AI faster.</td><td>Peak exaflops are format-specific; they are not universal application speed.</td></tr>
+    <tr><td class="num">Prefill / decode</td><td>Reading the prompt versus generating each next token.</td><td>Different hardware may be optimal for each stage.</td></tr>
+    <tr><td class="num">UALink</td><td>An open way to connect accelerators inside a scale-up domain.</td><td>Could weaken proprietary-fabric lock-in and distribute supplier value.</td></tr>
+    <tr><td class="num">ROCm</td><td>AMD’s software stack for programming accelerators.</td><td>Software reliability and migration cost determine addressable workload.</td></tr>
+    <tr><td class="num">GW</td><td>A power-capacity framework, not a GPU unit or revenue number.</td><td>Conversion depends on site timing, rack density, pricing and purchase terms.</td></tr>
+  </tbody></table></div>
+</div></section>
+
+<section id="framework"><div class="wrap">
+  <div class="kick">02 · Framework</div><h2>Two axes: workload × infrastructure layer</h2>
+  <p class="muted">The chokepoint sits where a workload’s dominant constraint intersects a scarce layer. That cell changes over time.</p>
+  <div class="scroll"><table><thead><tr><th>Workload</th><th>Dominant compute pattern</th><th>Binding layer</th><th>Likely beneficiaries</th><th>What must be proven</th></tr></thead><tbody>
+    <tr><td>Frontier training</td><td>Large synchronized clusters</td><td>HBM + scale-up fabric + package yield</td><td>Memory, foundry/packaging, networking</td><td>Cluster efficiency and software stability at scale</td></tr>
+    <tr><td>High-throughput inference</td><td>Many concurrent users; memory-bound</td><td>HBM capacity/bandwidth + power efficiency</td><td>HBM, accelerators, power/cooling</td><td>Sustained tokens/$ under real utilization</td></tr>
+    <tr><td>Agentic inference</td><td>Long context, tool use, repeated calls</td><td>CPU scheduling + memory + network I/O</td><td>CPU, DPU/NIC, storage, security, observability</td><td>Workload economics beyond demos</td></tr>
+    <tr><td>Disaggregated inference</td><td>Prefill and decode split</td><td>Low-latency fabric + orchestration</td><td>Merchant network/optics, specialist accelerators</td><td>End-to-end latency and service availability</td></tr>
+    <tr><td>Local enterprise AI</td><td>Private, low-latency agents</td><td>Manageability + security + local memory</td><td>Enterprise networking/security, client compute</td><td>Repeat deployments and recurring software revenue</td></tr>
+    <tr><td>Physical AI</td><td>Sensing, control and real-time inference</td><td>Heterogeneous edge compute + deterministic I/O</td><td>Edge modules, sensors, industrial connectivity</td><td>Production design wins and volumes</td></tr>
+  </tbody></table></div>
+  <h3 style="margin-top:26px">Five structural trends the event reinforces</h3>
+  <div class="grid g3">
+    <div class="card"><h4>1 · Rack replaces chip as the product</h4><p>System-level performance, power, software and serviceability determine useful output. More suppliers participate; integration risk also rises.</p></div>
+    <div class="card"><h4>2 · Heterogeneous inference becomes normal</h4><p>Prefill, decode, agent orchestration and local inference can split across different compute engines.</p></div>
+    <div class="card"><h4>3 · Open fabrics distribute the rent pool</h4><p>UALink and Ultra Ethernet can broaden value toward merchant switch silicon, SerDes, retimers and optics—if interoperability survives production.</p></div>
+    <div class="card"><h4>4 · Agentic AI raises non-GPU content</h4><p>Long context and tool use increase CPU scheduling, memory, storage, network, identity, security and observability work.</p></div>
+    <div class="card"><h4>5 · Power remains architecture-agnostic</h4><p>IEA’s demand and bottleneck work says chips do not remove transformer, turbine, grid-approval or site-energization constraints.</p></div>
+    <div class="card risk"><h4>The opposing trend · Custom silicon</h4><p>Hyperscaler ASICs can absorb large workloads, cap merchant accelerator share and retain platform economics inside the customer.</p></div>
+  </div>
+  <h3 style="margin-top:26px">Four-lens reconciliation</h3>
+  <div class="scroll"><table><thead><tr><th>Lens</th><th>Evidence / timestamp</th><th>Lead or lag</th><th>Status</th><th>Contradiction / gap</th><th>Permitted inference</th></tr></thead><tbody>
+    <tr><td>Industrial · 40%</td><td>Official event, customer, supplier and standards sources through cutoff</td><td>Candidate lead, mostly 1–8 quarters</td><td>STRONG DIRECTIONAL</td><td>Volume yield, rack reliability and allocation remain unproved</td><td>Platform plausibility and sector content pull only</td></tr>
+    <tr><td>Financial · 25%</td><td>AMD Q1 + current FMP estimates captured 27 Jul UTC</td><td>Current/trailing context</td><td>MIXED</td><td>High growth already embedded; incentives and terminal multiples incomplete</td><td>Scenario sensitivity; no stock EV sign</td></tr>
+    <tr><td>Institutional · 15%</td><td>Provider-derived Form 4 context; holdings/short/options unavailable</td><td>Mixed / potentially stale</td><td>UNKNOWN / NOT_RUN</td><td>No verified ownership-change, crowding or dealer data</td><td>No confirmation, no squeeze/crowding conclusion</td></tr>
+    <tr><td>Technical · 20%</td><td>26 weekly closes through 24 Jul; event response POST_HOC</td><td>Coincident/lagging context</td><td>NOT_RUN for frozen tests</td><td>No 2y daily, 5y weekly, beta residual or 30-week RS test</td><td>Awareness context only; no prediction or timing rule</td></tr>
+  </tbody></table></div>
+  <div class="callout red" style="margin-top:14px"><strong>Conflict resolution:</strong> strong industrial direction cannot substitute for missing institutional, technical or valuation evidence. The only run-level state is <strong>HYPOTHESIS</strong>; unavailable lenses are not neutral confirmation.</div>
+</div></section>
+
+<section id="components"><div class="wrap">
+  <div class="kick">03 · Layer-3 gallery</div><h2>The six pieces inside the “AI factory rack”</h2>
+  <div class="grid g3">
+    <div class="card"><svg role="img" viewBox="0 0 280 110" width="100%" aria-label="GPU chiplet schematic"><rect x="42" y="20" width="196" height="72" rx="10" fill="#142b32" stroke="#39d3c2"/><rect x="78" y="36" width="54" height="40" fill="#244b55"/><rect x="148" y="36" width="54" height="40" fill="#244b55"/><text x="140" y="60" text-anchor="middle" font-size="12">GPU chiplets</text></svg><h3>MI455X accelerator</h3><p>Compute dies optimized for AI and HPC. Who captures value: AMD plus leading-edge wafer and package suppliers.</p></div>
+    <div class="card"><svg role="img" viewBox="0 0 280 110" width="100%" aria-label="HBM stacks schematic"><rect x="48" y="76" width="184" height="12" fill="#244b55"/><g fill="#173a39" stroke="#39d3c2"><rect x="70" y="24" width="34" height="48"/><rect x="123" y="16" width="34" height="56"/><rect x="176" y="24" width="34" height="48"/></g><text x="140" y="103" text-anchor="middle" font-size="11">HBM4 beside compute</text></svg><h3>HBM4</h3><p>High-bandwidth stacked memory. Direct MI455X supplier named: Samsung; other vendors confirm the broader HBM4 cycle.</p></div>
+    <div class="card"><svg role="img" viewBox="0 0 280 110" width="100%" aria-label="CPU scheduling schematic"><circle cx="90" cy="55" r="30" fill="#192b43" stroke="#6da9dd"/><circle cx="190" cy="55" r="30" fill="#192b43" stroke="#6da9dd"/><path d="M120 55h40" stroke="#6da9dd" stroke-width="3"/><text x="90" y="60" text-anchor="middle" font-size="12">CPU</text><text x="190" y="60" text-anchor="middle" font-size="12">GPU</text></svg><h3>Venice CPU</h3><p>Feeds, schedules and coordinates accelerator work. Agentic systems can increase CPU and memory orchestration content.</p></div>
+    <div class="card"><svg role="img" viewBox="0 0 280 110" width="100%" aria-label="network fabric schematic"><g fill="#31284a" stroke="#a18bd6"><circle cx="58" cy="55" r="17"/><circle cx="140" cy="24" r="17"/><circle cx="222" cy="55" r="17"/><circle cx="140" cy="86" r="17"/></g><g stroke="#a18bd6" stroke-width="3"><path d="M75 49l48-19M157 30l48 19M205 62l-48 18M123 80L75 62"/></g></svg><h3>Scale-up / scale-out fabric</h3><p>Moves data between accelerators and racks. Open standards can broaden merchant switches, retimers and optics.</p></div>
+    <div class="card"><svg role="img" viewBox="0 0 280 110" width="100%" aria-label="DPU and NIC schematic"><rect x="48" y="28" width="184" height="54" rx="9" fill="#26331e" stroke="#78c391"/><rect x="75" y="43" width="45" height="24" fill="#39522b"/><path d="M130 55h55" stroke="#78c391" stroke-width="4"/><text x="203" y="60" text-anchor="middle" font-size="11">NIC/DPU</text></svg><h3>Pensando DPU/NIC</h3><p>Offloads data movement, security and infrastructure services so CPUs and GPUs stay productive.</p></div>
+    <div class="card"><svg role="img" viewBox="0 0 280 110" width="100%" aria-label="power and cooling schematic"><path d="M55 70h80l18-35h72" fill="none" stroke="#d5a84f" stroke-width="7"/><path d="M82 30c-12 18-18 29-18 39a18 18 0 0036 0c0-10-6-21-18-39z" fill="#174a57" stroke="#6da9dd"/><text x="179" y="91" text-anchor="middle" font-size="11">power + liquid loop</text></svg><h3>Power and cooling</h3><p>Converts utility power and removes rack heat. The benefit is broad and architecture-agnostic, but site timing can lag racks.</p></div>
+  </div>
+</div></section>
+
+<section id="assembly"><div class="wrap">
+  <div class="kick">04 · L3 → L2 → L1</div><h2>How components become a paid AI service</h2>
+  <div class="svgbox">
+    <svg viewBox="0 0 1180 290" width="1180" role="img" aria-label="Assembly from components to cloud service">
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#54717a"/></marker></defs>
+      <g fill="#142128" stroke="#29404a">
+        <rect x="20" y="55" width="220" height="170" rx="12"/><rect x="310" y="55" width="220" height="170" rx="12"/>
+        <rect x="600" y="55" width="250" height="170" rx="12"/><rect x="920" y="55" width="240" height="170" rx="12"/>
+      </g>
+      <g font-size="14" font-weight="700"><text x="130" y="85" text-anchor="middle">L3 · Components</text><text x="420" y="85" text-anchor="middle">Board / tray</text><text x="725" y="85" text-anchor="middle">L2 · Helios rack</text><text x="1040" y="85" text-anchor="middle">L1 · AI service</text></g>
+      <g class="m" font-size="12" text-anchor="middle">
+        <text x="130" y="118">GPU + HBM + CPU</text><text x="130" y="142">NIC/DPU + retimers</text><text x="130" y="166">power + cold plates</text><text x="130" y="200">Yield and qualification</text>
+        <text x="420" y="118">Power integrity</text><text x="420" y="142">Thermal loop</text><text x="420" y="166">Signal integrity</text><text x="420" y="200">Manufacturing reliability</text>
+        <text x="725" y="112">72 MI455X GPUs</text><text x="725" y="136">18 Venice CPU trays</text><text x="725" y="160">Pensando networking</text><text x="725" y="184">ROCm deployment stack</text><text x="725" y="208">Rack utilization</text>
+        <text x="1040" y="118">Training</text><text x="1040" y="142">Inference</text><text x="1040" y="166">Agents</text><text x="1040" y="200">Paid tokens and workloads</text>
+      </g>
+      <g stroke="#54717a" stroke-width="4" marker-end="url(#arr)"><path d="M240 140h65"/><path d="M530 140h65"/><path d="M850 140h65"/></g>
+      <text x="590" y="270" text-anchor="middle" class="m" font-size="12">A defect or delay at any step can prevent announced GW from becoming revenue, margin and cash.</text>
+    </svg>
+  </div>
+</div></section>
+
+<section id="usecases"><div class="wrap">
+  <div class="kick">05 · Deployment map</div><h2>Different workloads pull different parts of the stack</h2>
+  <div class="scroll"><table><thead><tr><th>Stack component</th><th>Training</th><th>Throughput inference</th><th>Agentic</th><th>Disaggregated</th><th>Local / physical</th></tr></thead><tbody>
+    <tr><td>GPU arithmetic</td><td>Very high</td><td>High</td><td>Medium–high</td><td>Specialized by phase</td><td>Low–medium</td></tr>
+    <tr><td>HBM capacity/bandwidth</td><td>Very high</td><td>Very high</td><td>High for long context</td><td>High for prefill</td><td>Local unified memory</td></tr>
+    <tr><td>CPU orchestration</td><td>Medium</td><td>Medium</td><td>High</td><td>High</td><td>High</td></tr>
+    <tr><td>Network / retimers / optics</td><td>Very high</td><td>Medium–high</td><td>High I/O</td><td>Very high latency sensitivity</td><td>Enterprise network</td></tr>
+    <tr><td>Power / cooling</td><td>Very high</td><td>Very high</td><td>High aggregate load</td><td>High aggregate load</td><td>Moderate</td></tr>
+    <tr><td>Software portability</td><td>Critical</td><td>Critical</td><td>Critical</td><td>Critical orchestration</td><td>Manageability/security</td></tr>
+  </tbody></table></div>
+</div></section>
+
+<section id="chain"><div class="wrap">
+  <div class="kick">06 · Centerpiece</div><h2>End-to-end value chain: where scarcity rent can accrue</h2>
+  <p class="muted">The primary physical chokepoint is the HBM + advanced-package complex; power/grid is the secondary facility chokepoint. Thin red arrows show constrained flow into and out of the primary bottleneck.</p>
+  <div class="svgbox">
+    <svg viewBox="0 0 1260 500" width="1260" role="img" aria-label="Six-stage AI infrastructure supply chain and scarcity premium bars">
+      <defs>
+        <marker id="greyArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#54717a"/></marker>
+        <marker id="redArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#c85c62"/></marker>
+      </defs>
+      <g fill="#142128" stroke="#29404a">
+        <rect x="20" y="70" width="170" height="180" rx="12"/><rect x="225" y="70" width="170" height="180" rx="12"/>
+        <rect x="430" y="55" width="185" height="210" rx="12" fill="#291b1e" stroke="#c85c62" stroke-width="2"/>
+        <rect x="650" y="70" width="170" height="180" rx="12"/><rect x="855" y="70" width="170" height="180" rx="12"/>
+        <rect x="1060" y="70" width="180" height="180" rx="12"/>
+      </g>
+      <rect x="450" y="28" width="145" height="28" rx="14" fill="#c85c62"/><text x="522" y="47" text-anchor="middle" font-size="11" font-weight="800">PRIMARY CHOKEPOINT</text>
+      <g text-anchor="middle"><g font-size="14" font-weight="750">
+        <text x="105" y="100">1 · EDA / IP</text><text x="310" y="100">2 · Wafer fab</text><text x="522" y="92">3 · HBM + package</text>
+        <text x="735" y="100">4 · Silicon + fabric</text><text x="940" y="100">5 · Rack / facility</text><text x="1150" y="100">6 · Cloud / workload</text>
+      </g><g class="m" font-size="11">
+        <text x="105" y="132">Synopsys · Cadence</text><text x="105" y="154">design IP · validation</text><text x="105" y="190">Recurring design rent</text><text x="105" y="212">long qualification</text>
+        <text x="310" y="132">TSMC · foundry tools</text><text x="310" y="154">2 nm / 3 nm</text><text x="310" y="190">Yield + node capacity</text><text x="310" y="212">capital intensive</text>
+        <text x="522" y="126">Samsung · SK hynix · MU</text><text x="522" y="148">ASE · Amkor · TSMC</text><text x="522" y="176">HBM4 + interposer</text><text x="522" y="198">CoWoS / test / substrate</text><text x="522" y="230">Concentrated + long lead</text>
+        <text x="735" y="132">AMD · NVIDIA</text><text x="735" y="154">Broadcom · Marvell</text><text x="735" y="190">GPU/CPU/DPU</text><text x="735" y="212">UALink / Ethernet</text>
+        <text x="940" y="132">Dell · HPE · ODM/EMS</text><text x="940" y="154">Vertiv · Eaton · nVent</text><text x="940" y="190">integration + power</text><text x="940" y="212">cooling + grid</text>
+        <text x="1150" y="132">OpenAI · Meta</text><text x="1150" y="154">Anthropic · Microsoft</text><text x="1150" y="190">paid training / tokens</text><text x="1150" y="212">utilization decides ROI</text>
+      </g></g>
+      <g fill="none" stroke-linecap="round">
+        <path d="M190 160h30" stroke="#54717a" stroke-width="7" marker-end="url(#greyArrow)"/>
+        <path d="M395 160h30" stroke="#c85c62" stroke-width="3" marker-end="url(#redArrow)"/>
+        <path d="M615 160h30" stroke="#c85c62" stroke-width="3" marker-end="url(#redArrow)"/>
+        <path d="M820 160h30" stroke="#54717a" stroke-width="7" marker-end="url(#greyArrow)"/>
+        <path d="M1025 160h30" stroke="#54717a" stroke-width="7" marker-end="url(#greyArrow)"/>
+      </g>
+      <text x="20" y="310" font-size="13" font-weight="750">Illustrative scarcity / value-capture potential</text>
+      <line x1="20" y1="455" x2="1240" y2="455" stroke="#29404a"/>
+      <g>
+        <rect x="60" y="385" width="90" height="70" fill="#54717a"/><rect x="265" y="355" width="90" height="100" fill="#6da9dd"/>
+        <rect x="475" y="305" width="95" height="150" fill="#c85c62"/><rect x="690" y="345" width="90" height="110" fill="#a18bd6"/>
+        <rect x="895" y="325" width="90" height="130" fill="#d5a84f"/><rect x="1105" y="365" width="90" height="90" fill="#39d3c2"/>
+      </g>
+      <g text-anchor="middle" class="m" font-size="11">
+        <text x="105" y="475">EDA/IP</text><text x="310" y="475">Foundry</text><text x="522" y="475">HBM/package</text>
+        <text x="735" y="475">Fabric</text><text x="940" y="475">Power/facility</text><text x="1150" y="475">Service</text>
+      </g>
+    </svg>
+  </div>
+</div></section>
+
+<section id="timeline"><div class="wrap">
+  <div class="kick">07 · Multi-year evolution</div><h2>From disclosed architecture to platform proof</h2>
+  <div class="scroll"><div class="timeline">
+    <div class="yr">Layer</div><div class="yr">2025</div><div class="yr">2026</div><div class="yr">2027</div><div class="yr">2028</div><div class="yr">2029</div><div class="yr">2030</div>
+    <div class="row">Rack platform</div><div>Helios concept</div><div class="hot">Production config; first deployments</div><div class="new">Helios 500</div><div class="new">Helios 600</div><div>Cadence proof</div><div>Platform installed base</div>
+    <div class="row">Accelerator</div><div>MI400 disclosed</div><div class="hot">MI455X / MI430X</div><div class="new">MI500</div><div class="new">MI600</div><div>Follow-on execution</div><div>Market-share evidence</div>
+    <div class="row">CPU / network</div><div>Venice / Vulcano</div><div>Venice + Pensando</div><div>Verano / Como</div><div>Ferrara / Palma</div><div>Interface stability</div><div>Zen 8 / Levanzo</div>
+    <div class="row">Customers</div><div>OpenAI framework</div><div class="hot">OpenAI, Meta, MSFT first systems</div><div class="hot">Anthropic first GW</div><div>3+ independent production customers?</div><div>Expansion tranches?</div><div>Broad market?</div>
+    <div class="row">Software</div><div>ROCm 7 direction</div><div class="hot">ROCm.AI + early access</div><div>Cloud/workload breadth</div><div>CI and support evidence</div><div>Migration economics</div><div>Moat or utility?</div>
+    <div class="row">Facility</div><div>AI capacity build</div><div>HBM4 / site bottlenecks</div><div>Power and cooling pull</div><div class="hot">Grid constraints broaden</div><div>Capacity response</div><div>IEA demand test</div>
+  </div></div>
+</div></section>
+
+<section id="severity"><div class="wrap">
+  <div class="kick">08 · Chokepoint scorecard</div><h2>Economic benefit ranking—not a buy ranking</h2>
+  <div class="callout"><strong>Variant perception:</strong> the consensus sees accelerator demand. The less-obvious shift is from a GPU contest to a rack-platform contest, which raises content for HBM, packages, fabric, validation and facilities. The counter-variant is that suppliers win volume while AMD gives away platform economics through incentives and support costs.</div>
+  <div class="scroll" style="margin-top:18px"><table><thead><tr><th>Benefit rank</th><th>Sector</th><th>Benefit /5</th><th>Severity /20</th><th>Four severity factors</th><th>Rent capture</th><th>Timing</th><th>Recognition</th></tr></thead><tbody>
+    <tr><td class="num">1</td><td>HBM4 / AI memory</td><td class="num">4.55</td><td class="score">19</td><td class="num">5 + 5 + 4 + 5</td><td>High</td><td>0–6 qtrs</td><td>High; MU proxy +85.6% in 13w</td></tr>
+    <tr><td class="num">2</td><td>Foundry / packaging / substrates / test</td><td class="num">4.53</td><td class="score">18</td><td class="num">5 + 5 + 4 + 4</td><td>High</td><td>2–8 qtrs</td><td>Mixed; bucket -0.1% in 13w</td></tr>
+    <tr><td class="num">3</td><td>Scale-up/out networking, retimers, optics</td><td class="num">4.25</td><td class="score">17</td><td class="num">4 + 4 + 4 + 5</td><td>High if open standards scale</td><td>1–6 qtrs</td><td>Mixed</td></tr>
+    <tr><td class="num">4</td><td>Power / grid / liquid cooling</td><td class="num">4.20</td><td class="score">18</td><td class="num">4 + 5 + 4 + 5</td><td>High but less AMD-specific</td><td>2–10 qtrs</td><td>Mixed-to-high; bucket -2.3%</td></tr>
+    <tr><td class="num">5</td><td>EDA / IP / validation</td><td class="num">3.93</td><td class="score">16</td><td class="num">5 + 4 + 4 + 3</td><td>High recurring rent</td><td>2–8 qtrs</td><td>Mixed; bucket -14.3%</td></tr>
+    <tr><td class="num">6</td><td>Rack OEM / ODM / EMS</td><td class="num">3.85</td><td class="score">14</td><td class="num">3 + 3 + 3 + 5</td><td>Low–medium margins</td><td>0–5 qtrs</td><td>High; bucket +31.0%</td></tr>
+    <tr><td class="num">7</td><td>Physical AI / industrial edge</td><td class="num">2.95</td><td class="score">12</td><td class="num">3 + 3 + 2 + 4</td><td>Unproven</td><td>6–16 qtrs</td><td>Early but broad</td></tr>
+    <tr><td class="num">8</td><td>Enterprise security / observability</td><td class="num">2.85</td><td class="score">13</td><td class="num">3 + 3 + 3 + 4</td><td>Unproven</td><td>4–12 qtrs</td><td>Early narrative</td></tr>
+  </tbody></table></div>
+  <p class="tiny" style="margin-top:10px">Benefit rank uses a separate analyst composite: 35% incremental pull + 25% rent capture + 20% confidence + 10% time-to-revenue + 10% AMD-event specificity, each 0–5. Severity is supply concentration + lead time + low substitutability + demand intensity, each 0–5. Neither is a stock score. Component inputs and source paths are in <span class="cid">research/sector_scorecard.json</span>.</p>
+</div></section>
+
+<section id="awareness"><div class="wrap">
+  <div class="kick">09 · Awareness and monitoring</div><h2>Strong industry evidence, limited evidence of unpriced stock alpha</h2>
+  <div class="curve" role="img" aria-label="Illustrative awareness curve from latent to fully priced">
+    <div class="marker"><span>where evidence may be under-observed</span></div>
+    <div class="dot" style="left:24%;top:155px"><i></i><b>EDA / validation</b><small class="tiny">lagging price</small></div>
+    <div class="dot" style="left:42%;top:100px"><i></i><b>Packaging</b><small class="tiny">recognized industry constraint</small></div>
+    <div class="dot" style="left:70%;top:50px"><i></i><b>HBM / rack leaders</b><small class="tiny">strong move</small></div>
+  </div>
+  <div class="stage-labels"><span>LATENT</span><span>EARLY</span><span>RECOGNITION</span><span>EUPHORIA</span><span>FULLY PRICED</span></div>
+  <p class="tiny" style="margin-top:12px"><strong>Illustrative placement only:</strong> 26-week PRIMARY_ONLY FMP price context, qualitative industry awareness and missing PIT valuation/revision data. “Lagging” means less price recognition, not positive expected return. <span class="cid">c_weekly_context</span></p>
+  <h3 style="margin-top:28px">Leading-indicator dashboard</h3>
+  <div class="scroll"><table><thead><tr><th>Signal</th><th>Trigger</th><th>Free place to read it</th><th>Expected lead</th><th>Validation</th><th>Proxy class</th><th>Observed status</th></tr></thead><tbody>
+    <tr><td>Helios / MI450 availability</td><td>AMD + one independent production counterparty inside official window</td><td>AMD IR; Microsoft Azure and customer availability pages</td><td>1–3 quarters</td><td>PROPOSED</td><td>DIRECT_PRIMARY_EVENT</td><td>CONTEXT</td></tr>
+    <tr><td>Independent customer breadth</td><td>3 production customers, parent-deduplicated</td><td>Customer newsrooms and cloud service catalogs</td><td>1–4 quarters</td><td>PROPOSED</td><td>COUNTERPARTY_CONFIRMATION</td><td>CONTEXT: frameworks only</td></tr>
+    <tr><td>ROCm production adoption</td><td>2 independent cloud/framework milestones in 180 days</td><td>ROCm release notes; cloud/framework support pages</td><td>0–4 quarters</td><td>PROPOSED</td><td>MIXED_DIRECT_OPEN_SOURCE</td><td>CONTEXT</td></tr>
+    <tr><td>HBM pull</td><td>2 supplier families sustain shipment growth/tightness with AMD milestones on time</td><td>Samsung, SK hynix, Micron IR and calls</td><td>2–5 quarters</td><td>PROPOSED</td><td>SUPPLY_CHAIN_PRIMARY</td><td>CONTEXT</td></tr>
+    <tr><td>Packaging pull</td><td>2 supplier families raise capacity or maintain &gt;12m lead times</td><td>TSMC, ASE, Amkor IR</td><td>2–6 quarters</td><td>PROPOSED</td><td>SUPPLY_CHAIN_PRIMARY</td><td>CONTEXT</td></tr>
+    <tr><td>Rack economics</td><td>Data-center growth converts to gross margin + FCF without inventory spike</td><td>AMD 10-Q, earnings call, cash-flow statement</td><td>0–2 quarters</td><td>PROPOSED</td><td>FINANCIAL_PRIMARY</td><td>UNKNOWN: Aug 4 test</td></tr>
+    <tr><td>Open-fabric production</td><td>2 independent suppliers disclose UALink/UEC production volume</td><td>UALink/UEC sites; supplier IR</td><td>2–6 quarters</td><td>PROPOSED</td><td>STANDARDS_PLUS_SUPPLIER</td><td>UNKNOWN</td></tr>
+    <tr><td>Grid / cooling conversion</td><td>2 vendors report AI density and booked capacity; site timing disclosed</td><td>Vertiv, Eaton, nVent filings; utility interconnect queues</td><td>2–8 quarters</td><td>PROPOSED</td><td>INDUSTRY_PRIMARY</td><td>CONTEXT</td></tr>
+  </tbody></table></div>
+  <p class="tiny" style="margin-top:8px">PROPOSED indicators cannot increase confidence, change an EV sign or promote lifecycle state until prospectively validated. A wake trigger authorizes a data refresh only—not entry, sizing, options or portfolio change.</p>
+  <h3 style="margin-top:28px">Ablation status: no leading-alpha claim yet</h3>
+  <div class="scroll"><table><thead><tr><th>Comparator</th><th>Status</th><th>What it would test</th><th>Current permitted use</th></tr></thead><tbody>
+    <tr><td>Event narrative only</td><td>POST_HOC_CONTEXT</td><td>Whether story alone predicts milestones</td><td>Description only</td></tr>
+    <tr><td>Official milestone only</td><td>NOT_RUN_DATA_GAP</td><td>Incremental value of dated delivery evidence</td><td>Await first mature checkpoint</td></tr>
+    <tr><td>Supplier corroboration only</td><td>NOT_RUN_DATA_GAP</td><td>Whether upstream pull leads deployment</td><td>Await prospective supplier updates</td></tr>
+    <tr><td>Sector momentum</td><td>CONTEXT_26_WEEKS</td><td>Simple price baseline versus thesis basket</td><td>Awareness only</td></tr>
+    <tr><td>Delayed entry / no change</td><td>NOT_RUN_DATA_GAP</td><td>Timing and abstention baselines after costs</td><td>No implementation inference</td></tr>
+  </tbody></table></div>
+  <h3 style="margin-top:28px">Still-latent research list</h3>
+  <div class="grid g3">
+    <div class="card"><h4>Retimers + active electrical cabling</h4><p>Open scale-up requires every short link to be reliable. Wake it when two independent suppliers disclose production UALink qualification or volume shipments.</p></div>
+    <div class="card"><h4>Medium-voltage + grid interconnection</h4><p>Rack delivery eventually collides with site power. Wake it when two equipment/utility families extend data-center-specific lead times or backlog.</p></div>
+    <div class="card"><h4>ROCm migration services</h4><p>A second platform creates integration work before software parity. Wake it when two independent providers report paid repeat migrations.</p></div>
+  </div>
+</div></section>
+
+<section id="top3"><div class="wrap">
+  <div class="kick">10 · Top-three deep dives</div><h2>Three different chokepoints, three different economics</h2>
+  <div class="tabs">
+    <div class="tablist" role="tablist" aria-label="Top three chokepoints">
+      <button role="tab" id="tab-hbm" aria-controls="panel-hbm" aria-selected="true" tabindex="0">1 · HBM4</button>
+      <button role="tab" id="tab-pkg" aria-controls="panel-pkg" aria-selected="false" tabindex="-1">2 · Packaging</button>
+      <button role="tab" id="tab-net" aria-controls="panel-net" aria-selected="false" tabindex="-1">3 · Open fabric</button>
+    </div>
+    <div class="tabpanel active" id="panel-hbm" role="tabpanel" aria-labelledby="tab-hbm">
+      <div class="grid g3"><div><h3>HBM4 / AI memory</h3><div class="score">19 / 20</div></div><div class="card"><div class="tiny">Financial/valuation strip</div><div class="num">MU $920.95 · P/E 20.85x</div><p class="tiny">24 Jul close; 13w +85.6%. Awareness is high; not an AMD-specific supplier allocation claim. <span class="cid">c_cutoff_prices</span></p></div><div class="callout">Information gap: volume visibility can rise before accelerator revenue, but memory pricing can reverse faster than end demand.</div></div>
+      <div class="eight" style="margin-top:15px">
+        <div><h4>① 怎麼賺錢</h4>Sell more HBM stacks and higher-density products at scarcity-supported pricing.</div><div><h4>② 營收結構</h4>AI memory is one part of broader DRAM; mix and pricing matter as much as bits.</div>
+        <div><h4>③ 成長來源</h4>More HBM per accelerator, more accelerators per rack, more inference context.</div><div><h4>④ 終端市場</h4>Hyperscale training, inference and sovereign AI clusters.</div>
+        <div><h4>⑤ 主要客戶</h4>Accelerator vendors and cloud customers; Samsung is named primary for MI455X.</div><div><h4>⑥ 護城河</h4>Yield, stacking, thermal performance, qualification and limited suppliers.</div>
+        <div><h4>⑦ 管理層展望</h4>Track supplier capacity, qualification and sold-out commentary, not promotional TAM.</div><div><h4>⑧ 為何是卡點</h4>Compute stalls without nearby bandwidth; long qualification limits substitution.</div>
+      </div><p style="margin-top:14px"><strong>Bull:</strong> HBM content and price remain tight through multiple AMD/NVIDIA/custom generations. <strong>Bear:</strong> capacity overshoots, bit growth persists but price and margins normalize sharply.</p>
+    </div>
+    <div class="tabpanel" id="panel-pkg" role="tabpanel" aria-labelledby="tab-pkg">
+      <div class="grid g3"><div><h3>Advanced packaging / test</h3><div class="score">18 / 20</div></div><div class="card"><div class="tiny">Financial/valuation strip</div><div class="num">TSM ADR $403.41</div><p class="tiny">24 Jul close; foundry/packaging bucket -0.1% in 13w. Cross-market valuation not normalized here. <span class="cid">c_cutoff_prices</span></p></div><div class="callout">Information gap: capacity announcements are observable early, but utilization, customer allocation and price are not interchangeable.</div></div>
+      <div class="eight" style="margin-top:15px">
+        <div><h4>① 怎麼賺錢</h4>Charge for leading-edge wafers, interposers, assembly, test and high-yield integration.</div><div><h4>② 營收結構</h4>Foundry and OSAT economics differ; leading nodes retain more scarcity rent.</div>
+        <div><h4>③ 成長來源</h4>Larger chiplets, more HBM, complex substrates and annual product cadence.</div><div><h4>④ 終端市場</h4>AI accelerators, CPUs, networking ASICs and custom silicon.</div>
+        <div><h4>⑤ 主要客戶</h4>AMD, NVIDIA, Broadcom, hyperscaler ASICs and memory vendors.</div><div><h4>⑥ 護城河</h4>Yield learning, process recipes, equipment ecosystem and customer qualification.</div>
+        <div><h4>⑦ 管理層展望</h4>Track CoWoS/advanced packaging capacity and 2nm/3nm utilization in primary IR.</div><div><h4>⑧ 為何是卡點</h4>A fully designed chip is useless until high-yield integration with HBM is available.</div>
+      </div><p style="margin-top:14px"><strong>Bull:</strong> heterogeneous integration remains capacity constrained despite rapid buildout. <strong>Bear:</strong> duplicated capex, yield improvement and shipment delays compress utilization and returns.</p>
+    </div>
+    <div class="tabpanel" id="panel-net" role="tabpanel" aria-labelledby="tab-net">
+      <div class="grid g3"><div><h3>Open scale-up/out fabric</h3><div class="score">17 / 20</div></div><div class="card"><div class="tiny">Financial/awareness strip</div><div class="num">MRVL 13w +18.3%</div><p class="tiny">Compute/interconnect bucket +12.8%; +1.8 points vs SMH. Current valuation distribution not frozen.</p></div><div class="callout">Information gap: open standards broaden the addressable ecosystem only if production qualification and software interoperability follow.</div></div>
+      <div class="eight" style="margin-top:15px">
+        <div><h4>① 怎麼賺錢</h4>Sell switches, DSPs, retimers, NICs, DPUs, SerDes IP and optics per link.</div><div><h4>② 營收結構</h4>Merchant silicon can carry strong margins; systems and optics vary by product cycle.</div>
+        <div><h4>③ 成長來源</h4>More accelerators, faster links, larger domains and disaggregated inference.</div><div><h4>④ 終端市場</h4>AI racks, clusters, data-center interconnect and cloud networks.</div>
+        <div><h4>⑤ 主要客戶</h4>Accelerator platforms, OEM/ODMs and hyperscalers.</div><div><h4>⑥ 護城河</h4>High-speed analog IP, protocol expertise, qualification and ecosystem software.</div>
+        <div><h4>⑦ 管理層展望</h4>Track UALink/UEC production design wins and AI-networking revenue, not membership.</div><div><h4>⑧ 為何是卡點</h4>Idle accelerators waste capital when links cannot feed collective operations reliably.</div>
+      </div><p style="margin-top:14px"><strong>Bull:</strong> UALink/UEC create a broad merchant ecosystem across multiple accelerator vendors. <strong>Bear:</strong> proprietary fabrics retain superior economics or open standards fragment.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="decision"><div class="wrap">
+  <div class="kick">11 · Synthesis and decision table</div><h2>The industry forecast is stronger than the stock forecast</h2>
+  <div class="grid g3">
+    <div class="card risk"><h3>Bear · 25%</h3><p>Racks/software slip; incentives fail to convert; custom silicon and NVIDIA retain platform economics.</p><p class="num">2028 AMD rev $80–90B · EPS $12–15</p></div>
+    <div class="card accent"><h3>Base · 50%</h3><p>AMD becomes a credible second source for selected workloads; NVIDIA remains the leader.</p><p class="num">2028 AMD rev $100–115B · EPS $17–21</p></div>
+    <div class="card"><h3>Bull · 25%</h3><p>ROCm and rack reliability scale; customer mix broadens; annual platform cadence holds.</p><p class="num">2028 AMD rev $135–160B · EPS $25–31</p></div>
+  </div>
+  <p class="tiny" style="margin-top:10px">Illustrative research scenarios, not price targets. Weights <span class="num">25/50/25</span> are symmetric analyst elicitation, not an empirically calibrated base rate; platform-probability sensitivity is <span class="num">50–75%</span>. Weighted 2028 midpoint: revenue <span class="num">$111.88B</span>, EPS <span class="num">$19.88</span>. Current consensus snapshot: <span class="num">$106.03B</span> and <span class="num">$19.02</span>. <span class="cid">c_consensus_growth</span></p>
+  <div class="scroll" style="margin-top:22px"><table><thead><tr><th>Context</th><th>Chokepoint</th><th>Severity</th><th>Stage</th><th>Valuation evidence</th><th>Remaining asymmetry</th><th>Research status</th><th>Data-refresh trigger</th></tr></thead><tbody>
+    <tr><td>MU / global HBM</td><td>HBM4</td><td class="num">19</td><td>Recognition</td><td>MU P/E 20.85x; +85.6% 13w</td><td>Low–medium after move</td><td>HYPOTHESIS_CONTEXT</td><td>2 suppliers sustain tightness + AMD on time</td></tr>
+    <tr><td>TSM / ASE / AMKR</td><td>Packaging</td><td class="num">18</td><td>Early–recognition</td><td>No normalized PIT distribution</td><td>Medium, unproven</td><td>HYPOTHESIS_CONTEXT</td><td>2 families extend capacity/lead time</td></tr>
+    <tr><td>AVGO / MRVL / ANET</td><td>Open fabric</td><td class="num">17</td><td>Recognition</td><td>No normalized PIT distribution</td><td>Medium if interoperability scales</td><td>HYPOTHESIS_CONTEXT</td><td>2 production UALink/UEC suppliers</td></tr>
+    <tr><td>VRT / ETN / NVT</td><td>Power / cooling</td><td class="num">18</td><td>Recognition</td><td>VRT P/E 72.95x; bucket -2.3% 13w</td><td>Medium, broad not AMD-specific</td><td>HYPOTHESIS_CONTEXT</td><td>density + bookings + site timing</td></tr>
+    <tr><td>DELL / SMCI / EMS</td><td>Rack integration</td><td class="num">14</td><td>Recognition–euphoria</td><td>DELL +102.4% 13w</td><td>Low without margin proof</td><td>HYPOTHESIS_CONTEXT</td><td>backlog converts without WC/margin damage</td></tr>
+    <tr><td>CDNS / SNPS</td><td>Design / validation</td><td class="num">16</td><td>Earlier on price</td><td>bucket -14.3% 13w</td><td>Unknown, not “cheap” by default</td><td>HYPOTHESIS_CONTEXT</td><td>AI design starts/backlog across 2 families</td></tr>
+    <tr><td>AMD</td><td>Platform capture</td><td>n/a</td><td>Strong recognition</td><td>2027 P/E 38.1x; consensus growth high</td><td>Execution upside offset by incentives</td><td>HYPOTHESIS_ONLY</td><td>on-time deployment + margin/FCF + breadth</td></tr>
+  </tbody></table></div>
+  <div class="plain"><strong>If you do only one thing:</strong> freeze the 3 August consensus baseline, then use AMD’s 4 August Q2 report and the Q4 OpenAI deployment as two separate tests. The first tests economics and timing; the second tests whether the platform is actually online. Do not count a restated GW ceiling as progress.</div>
+  <h3 style="margin-top:24px">Stock-decision gate: deliberately not run</h3>
+  <div class="scroll"><table><thead><tr><th>Required field</th><th>Status</th><th>Consequence</th></tr></thead><tbody>
+    <tr><td>PIT expectations + revision history</td><td>NOT_RUN_DATA_GAP</td><td>No surprise or expectations-gap claim</td></tr>
+    <tr><td>Terminal-multiple distribution</td><td>NOT_RUN_DATA_GAP</td><td>No price-return distribution</td></tr>
+    <tr><td>Warrant fair value + customer net economics</td><td>NOT_RUN_DATA_GAP</td><td>No dilution-adjusted stock EV</td></tr>
+    <tr><td>Anthropic investment cash flows + return</td><td>NOT_RUN_DATA_GAP</td><td>No capital-allocation EV</td></tr>
+    <tr><td>Costs, adverse tax + formal no-trade comparator</td><td>NOT_RUN_DATA_GAP</td><td>No after-cost implementation ranking</td></tr>
+    <tr><td>Sizing + correlated-cluster impact</td><td>NOT_RUN_DATA_GAP</td><td>No target weight or portfolio delta</td></tr>
+  </tbody></table></div>
+  <div class="callout red" style="margin-top:14px"><strong>Lifecycle boundary:</strong> the only run-level state is HYPOTHESIS. No entry price, expected stock excess return, target weight, options structure or trade instruction is emitted. Data-refresh triggers authorize research only, never entry, sizing, options or portfolio change.</div>
+</div></section>
+
+<section id="risks"><div class="wrap">
+  <div class="kick">12 · Open questions, falsifiers and sources</div><h2>What would make this thesis wrong</h2>
+  <div class="grid g2">
+    <div class="card risk"><h3>Platform execution</h3><p>Official delay beyond stated MI450/Helios timing; two consecutive cadence slips; rack manufacturability, signal integrity or cooling limits production.</p></div>
+    <div class="card risk"><h3>Software adoption</h3><p>ROCm gains benchmark wins but not broad CI reliability, cloud availability and repeat paid workloads. Developer tools lower friction without lowering total support cost.</p></div>
+    <div class="card risk"><h3>Economic circularity</h3><p>Customer capacity requires large equity rebates, strategic funding or uneconomic pricing; revenue grows while gross margin, FCF or diluted per-share value disappoints.</p></div>
+    <div class="card risk"><h3>Industry digestion</h3><p>Grid, permitting and site delays create inventory; AI workload ROI disappoints; HBM/packaging capacity overshoots; custom silicon absorbs the fastest-growing workloads.</p></div>
+  </div>
+  <h3 style="margin-top:28px">Hard terminal test: 31 Dec 2028</h3>
+  <p>The platform-adoption thesis fails if AMD has fewer than three economically independent production customers, fewer than two cloud channels or fewer than two independent supplier families confirming pull-through—or if evidence remains vendor-only, pilot-only or economically circular.</p>
+  <h3 style="margin-top:28px">Evidence gaps carried forward</h3>
+  <div class="scroll"><table><thead><tr><th>Missing</th><th>Status</th><th>Consequence</th></tr></thead><tbody>
+    <tr><td>Point-in-time consensus and revision breadth</td><td>NOT_RUN_DATA_GAP</td><td>No surprise or “unpriced” claim.</td></tr>
+    <tr><td>2y daily / 5y weekly market history</td><td>NOT_RUN_DATA_GAP</td><td>No event residual backtest or 30-week RS test.</td></tr>
+    <tr><td>Independent Helios benchmark</td><td>UNKNOWN</td><td>Tokens/$ remains vendor context.</td></tr>
+    <tr><td>Warrant fair value / purchase economics</td><td>UNKNOWN</td><td>Net revenue economics cannot be assessed.</td></tr>
+    <tr><td>Rack kW and independent cooling conversion</td><td>UNKNOWN</td><td>Power pull cannot be quantified from Helios specifically.</td></tr>
+    <tr><td>13F holdings, short interest, options skew</td><td>UNKNOWN</td><td>Crowding and dealer-positioning claims prohibited.</td></tr>
+  </tbody></table></div>
+  <h3 style="margin-top:28px">Inline provenance legend</h3>
+  <p class="tiny">Claim badges in the report resolve to the full source records, capture hashes and usage boundaries in <span class="num">research/claim_sources.json</span>.</p>
+  <div class="scroll"><table><thead><tr><th>Claim ID</th><th>Source families</th><th>Evidence status</th></tr></thead><tbody>
+    <tr><td class="num">c_helios_specs</td><td class="num">1</td><td>PRIMARY_ONLY_VENDOR_SPEC</td></tr>
+    <tr><td class="num">c_customer_frameworks</td><td class="num">3</td><td>COUNTERPARTY_CORROBORATED_CEILINGS_NOT_BACKLOG</td></tr>
+    <tr><td class="num">c_warrant_dilution</td><td class="num">3</td><td>DERIVED_CONTINGENT_MAXIMUM</td></tr>
+    <tr><td class="num">c_anthropic_investment</td><td class="num">2</td><td>DERIVED_SCALE_COMPARISON_TERMS_UNKNOWN</td></tr>
+    <tr><td class="num">c_hbm_pull</td><td class="num">3</td><td>DIRECTION_CORROBORATED_ALLOCATION_CONSTRAINED</td></tr>
+    <tr><td class="num">c_financial_baseline</td><td class="num">2</td><td>COMPANY_PRIMARY_CROSSCHECKED_TO_FMP</td></tr>
+    <tr><td class="num">c_consensus_growth</td><td class="num">1</td><td>CURRENT_SNAPSHOT_NOT_PIT_HISTORY</td></tr>
+    <tr><td class="num">c_weekly_context</td><td class="num">1</td><td>PRIMARY_ONLY_POST_HOC_MARKET_CONTEXT</td></tr>
+    <tr><td class="num">c_cutoff_prices</td><td class="num">2</td><td>CUTOFF_PRICE_CROSSCHECKED</td></tr>
+  </tbody></table></div>
+  <h3 style="margin-top:28px">Selected primary sources</h3>
+  <ol class="source-list">
+    <li><a href="https://ir.amd.com/news-events/press-releases/detail/1294/aai-2026-amd-delivers-full-stack-compute-for-the-agentic-ai-era">AMD AAI 2026 master release</a></li>
+    <li><a href="https://newsroom.amd.com/news/aai-2026-helios-update/">AMD Helios technical update</a></li>
+    <li><a href="https://ir.amd.com/news-events/press-releases/detail/1292/amd-and-anthropic-announce-strategic-partnership-to-deploy-up-to-2-gigawatts-of-amd-instinct-mi450-series-gpus">AMD–Anthropic partnership</a></li>
+    <li><a href="https://openai.com/index/openai-amd-strategic-partnership/">OpenAI–AMD original framework</a></li>
+    <li><a href="https://about.fb.com/news/2026/02/meta-amd-partner-longterm-ai-infrastructure-agreement/amp/">Meta–AMD framework</a></li>
+    <li><a href="https://blogs.microsoft.com/blog/2026/07/20/microsoft-expands-azure-ai-and-hpc-infrastructure-with-amd/">Microsoft Azure–AMD expansion</a></li>
+    <li><a href="https://investors.cerebras.ai/news-releases/news-release-details/amd-and-cerebras-announce-industry-leading-ultra-low-latency-and">Cerebras–AMD inference service</a></li>
+    <li><a href="https://www.amd.com/en/blogs/2026/rocm-ai-the-ai-native-developer-experience-for-building.html">ROCm.AI developer layer</a></li>
+    <li><a href="https://www.amd.com/en/newsroom/press-releases/2025-6-12-amd-unveils-vision-for-an-open-ai-ecosystem-detai.html">AMD Advancing AI 2025 baseline</a></li>
+    <li><a href="https://www.amd.com/en/newsroom/press-releases/2025-11-11-amd-unveils-strategy-to-lead-the-1-trillion-compu.html">AMD 2025 Financial Analyst Day baseline</a></li>
+    <li><a href="https://www.amd.com/en/newsroom/press-releases/2026-3-18-samsung-and-amd-expand-strategic-collaboratio.html">Samsung–AMD HBM4 collaboration</a></li>
+    <li><a href="https://investor.tsmc.com/static/annualReports/2025/english/pdf/2025_tsmc_ar_e_ch5.pdf">TSMC 2025 Annual Report</a></li>
+    <li><a href="https://ase.aseglobal.com/press-room/310x310/">ASE panel-level packaging line</a></li>
+    <li><a href="https://ualinkconsortium.org/specification/">UALink specification</a></li>
+    <li><a href="https://ultraethernet.org/ultra-ethernet-consortium-uec-launches-specification-1-0-transforming-ethernet-for-ai-and-hpc-at-scale/">Ultra Ethernet Specification 1.0</a></li>
+    <li><a href="https://www.iea.org/news/data-centre-electricity-use-surged-in-2025-even-with-tightening-bottlenecks-driving-a-scramble-for-solutions">IEA data-center electricity update</a></li>
+    <li><a href="https://ir.amd.com/news-events/press-releases/detail/1284/amd-reports-first-quarter-2026-financial-results">AMD Q1 2026 financial results</a></li>
+  </ol>
+</div></section>
+</main>
+<footer class="foot"><div class="wrap">
+  <p><strong>Research-only disclaimer:</strong> This is personal HYPOTHESIS-stage investment research, not investment advice. Estimates are attributed and scenario ranges are illustrative. No security is action-eligible. Prices are as of 24 Jul 2026; the superseding research cutoff is <span class="num">27 Jul 2026 06:29:45 UTC</span>, after the last consumed capture and before the next regular market session.</p>
+  <p>Provenance pack: <span class="num">research/claim_sources.json</span> · forecast: <span class="num">forecasts/frozen_forecast.json</span> · gaps: <span class="num">research/evidence_gaps.json</span>. No external fonts, images, scripts or stylesheets are loaded.</p>
+</div></footer>
+<script>
+(() => {
+  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  const activate = (tab) => {
+    tabs.forEach(t => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).classList.toggle('active', on);
+    });
+    tab.focus();
+  };
+  tabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => activate(tab));
+    tab.addEventListener('keydown', e => {
+      if (!['ArrowLeft','ArrowRight','Home','End'].includes(e.key)) return;
+      e.preventDefault();
+      let n = i;
+      if (e.key === 'ArrowRight') n = (i + 1) % tabs.length;
+      if (e.key === 'ArrowLeft') n = (i - 1 + tabs.length) % tabs.length;
+      if (e.key === 'Home') n = 0;
+      if (e.key === 'End') n = tabs.length - 1;
+      activate(tabs[n]);
+    });
+  });
+})();
+</script>
+</body>
+</html>

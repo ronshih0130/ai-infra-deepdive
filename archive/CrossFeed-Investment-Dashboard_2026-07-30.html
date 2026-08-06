@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cross-Feed Investment Dashboard — SemiAnalysis × ChivesKing × Macro Nowcast · 2026-07-30 · v1 (PAPER)</title>
+<style>
+:root{
+  --bg:#0b0d12; --panel:#13161e; --panel2:#1a1e28; --panel3:#212634; --line:#2a3040; --line2:#363d4f;
+  --txt:#e8eaf0; --mut:#9aa3b5; --dim:#697283;
+  --accent:#2dd4bf; --choke:#e0686a;
+  --bull:#4faf8e; --sbull:#2dd4bf; --bear:#e0686a; --neut:#9aa3b5; --watch:#d2a24a; --confl:#c47a9e;
+  --blu:#5b81c4; --pur:#8b84cf; --gold:#d2a24a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1240px;margin:0 auto;padding:0 26px}
+.m,.num,td.m{font-family:"JetBrains Mono",ui-monospace,monospace}
+header{border-bottom:1px solid var(--line);padding:34px 0 22px;margin-bottom:26px;background:linear-gradient(180deg,#0e1117,var(--bg))}
+.kick{color:var(--accent);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:8px}
+h1{font-size:29px;font-weight:600;letter-spacing:-.01em}
+h1 .zh{color:var(--mut);font-size:17px;font-weight:400;display:block;margin-top:4px}
+.badges{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+.badge{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--line2);color:var(--mut)}
+.badge.paper{border-color:var(--choke);color:var(--choke)}
+.badge.acc{border-color:var(--accent);color:var(--accent)}
+h2{font-size:19px;margin:40px 0 6px;color:var(--txt)}
+h2 .k{color:var(--accent);font-size:11px;letter-spacing:.2em;display:block;text-transform:uppercase;margin-bottom:4px}
+.sub{color:var(--mut);font-size:13.5px;margin-bottom:14px;max-width:960px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:14px 0}
+.explain{border-left:3px solid var(--accent)}
+.explain b{color:var(--accent)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(max-width:900px){.grid3,.grid2{grid-template-columns:1fr}}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.card h3{font-size:13px;color:var(--accent);margin-bottom:6px;letter-spacing:.05em}
+.card p{font-size:13px;color:var(--txt)}
+.card .mut{color:var(--mut)}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
+th{color:var(--dim);text-align:left;font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--line2)}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--txt)}
+tr:hover td{background:#161a24}
+.tag{display:inline-block;font-size:10.5px;padding:2px 9px;border-radius:12px;font-weight:600;letter-spacing:.04em;white-space:nowrap}
+.t-SB{background:rgba(45,212,191,.14);color:var(--sbull);border:1px solid rgba(45,212,191,.4)}
+.t-B{background:rgba(79,175,142,.14);color:var(--bull);border:1px solid rgba(79,175,142,.4)}
+.t-N{background:rgba(154,163,181,.12);color:var(--neut);border:1px solid rgba(154,163,181,.35)}
+.t-BR{background:rgba(224,104,106,.13);color:var(--bear);border:1px solid rgba(224,104,106,.4)}
+.t-W{background:rgba(210,162,74,.13);color:var(--watch);border:1px solid rgba(210,162,74,.4)}
+.t-C{background:rgba(196,122,158,.13);color:var(--confl);border:1px solid rgba(196,122,158,.4)}
+.st-LATENT{color:#5fc98a}.st-EARLY{color:var(--accent)}.st-RECOGNITION{color:var(--gold)}.st-EUPHORIA{color:#e0a458}.st-PRICED{color:var(--dim)}
+.idea{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:16px 18px;position:relative}
+.idea .rk{position:absolute;top:14px;right:16px;font-size:22px;color:var(--line2);font-weight:700}
+.idea h3{font-size:15px;margin-bottom:2px}
+.idea .stage{font-size:11px;letter-spacing:.12em;font-weight:600}
+.idea p{font-size:12.8px;margin-top:8px;color:var(--txt)}
+.idea .kn{font-size:11.8px;color:var(--accent);background:#0f1319;border:1px solid var(--line);border-radius:7px;padding:7px 10px;margin-top:9px;display:block}
+.idea .tr{font-size:11.8px;color:var(--mut);margin-top:8px}
+.idea .tr b{color:var(--gold);font-weight:600}
+.idea .rs{font-size:11.8px;color:var(--mut);margin-top:3px}
+.idea .rs b{color:var(--choke);font-weight:600}
+.idea .src{font-size:11px;color:var(--dim);margin-top:8px}
+.confcard{border-left:3px solid var(--confl)}
+.confcard .a{color:var(--bull)} .confcard .b{color:var(--choke)}
+.confcard .rd{color:var(--accent)}
+.confcard p{font-size:12.5px;margin-top:5px}
+.retired{border-left:3px solid var(--dim);opacity:.72}
+.retired h3{color:var(--dim)}
+.newflag{display:inline-block;font-size:9.5px;padding:1px 7px;border-radius:10px;background:rgba(45,212,191,.16);color:var(--accent);border:1px solid rgba(45,212,191,.4);letter-spacing:.06em;vertical-align:middle;margin-left:6px}
+.redflag{display:inline-block;font-size:9.5px;padding:1px 7px;border-radius:10px;background:rgba(224,104,106,.14);color:var(--choke);border:1px solid rgba(224,104,106,.4);letter-spacing:.06em;vertical-align:middle;margin-left:6px}
+svg text{font-family:"Space Grotesk","PingFang TC",sans-serif;fill:var(--txt)}
+svg text.m{font-family:"JetBrains Mono",monospace}
+svg text.dim{fill:var(--dim)} svg text.mut{fill:var(--mut)} svg text.acc{fill:var(--accent)} svg text.red{fill:var(--choke)} svg text.gold{fill:var(--gold)}
+footer{margin-top:52px;border-top:1px solid var(--line);padding-top:18px;color:var(--dim);font-size:11.5px}
+footer p{margin-bottom:6px;max-width:1100px}
+.small{font-size:11px;color:var(--dim)}
+@media print{body{background:#fff;color:#111}.panel,.card,.idea{background:#fff;border-color:#ccc}th,td{color:#111}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<div class="kick">CROSS-FEED RESEARCH DASHBOARD · 跨源研究儀表板</div>
+<h1>SemiAnalysis × ChivesKing × Macro Nowcast — Integrated Investment Dashboard
+<span class="zh">三條研究線的交叉驗證：技術瓶頸 × 買方渠道檢查 × 通膨即時數據 · as of 2026-07-30</span></h1>
+<div class="badges">
+<span class="badge paper">PAPER · research context only · action_gate_eligible=false</span>
+<span class="badge acc">HEAVY build：本系列單期最多的四份新輸入（CK GLW · CK CLS · CK Fed 7月會議 · SA 模組化資料中心）→ 新增一個節點、兩檔新排序、宏觀轉鷹</span>
+<span class="badge">Recency-weighted：最新訂閱內容權重最高（CK GLW／Fed 07-30 · CK CLS 07-29 · SA 07-29）</span>
+<span class="badge">Sources: ChivesKing 全文 101 篇（本期 +3）· SemiAnalysis 259 篇（本期 +1，全文可得）· Truflation 17 系列+BLS · 擁擠度量表 07-29 已收盤 · 盤面 07-29 收盤（＋07-30 09:36 ET 盤中，未收盤）</span>
+<span class="badge">NOT investment advice · IBKR read-only</span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="panel explain">
+<p><b>白話版 — 這頁在做什麼：</b>把三條互相獨立的研究線疊在一起找「交集」與「矛盾」。<b>ChivesKing</b>（前買方，渠道檢查+自建財務模型 vs 街上共識）給出「預期差」；<b>SemiAnalysis</b>（技術供應鏈）驗證瓶頸是否物理上成立；<b>Truflation/宏觀</b>決定整體水位與「公布日震盪」風險，並以<b>子板塊擁擠度量表</b>作為籌碼/定位輸入。兩條以上同時指向同一結論 = 高可信度；互相矛盾 = 明確列出，不硬拗。每個想法都誠實標記覺察階段（早期 EARLY vs 已定價 PRICED）——<b>分析師看對 ≠ 進場還有肉</b>。<b>本期最值得學的一件事：本 build 品質最高的新研究（SemiAnalysis 的模組化資料中心深度報告），最後產出了「零檔排序想法」。</b>因為 SA 不出財務模型、CK 也沒覆蓋那些名字，就沒有「模型 vs 共識」的預期差可以排序——這正是 07-28 build 用來擋下 CIEN 的同一條規則。<b>把規則套用在自己最想寫的內容上，才知道規則是不是真的。</b></p>
+</div>
+
+<div class="panel" style="border-left:3px solid var(--choke);padding:14px 18px">
+<p style="font-size:12.8px"><b style="color:var(--choke)">本期為 HEAVY build：四份新輸入、一個新節點、兩檔新進排序、一張矛盾卡真正退場，而且宏觀基調轉鷹。</b>
+（1）<b>宏觀破口：7/29 FOMC 維持 3.50-3.75% 不變，但<span class="m">三名</span>票委投下升息票</b>（克里夫蘭 Hammack、明尼亞波利斯 Kashkari、達拉斯 Logan），會前 FedWatch 僅約 <span class="m">30%</span> 升息機率。主席 Warsh：<b>只有 2%，沒有隱性目標</b>；若通膨續高，<b>升息「完全可能」</b>；聲明主文字數創近 <span class="m">20 年</span>最短、續刪前瞻指引。10 年期美債 <span class="m">4.61% → 4.67%</span>、30 年期 <span class="m">5.09% → 5.20%</span>，而 2Y <span class="m">4.26% → 4.22%</span>（<b>短端反而下行 4bp</b>）＝<b>長端推動的扭轉式走陡</b>，非教科書式熊陡；CK 認為 10 年期有機會挑戰 <span class="m">5%</span>。
+（2）<b>而且 Fed 點名了「半導體通膨」</b>——Warsh 說通膨工作小組正在研究包含 <b>AI CAPEX 浪潮</b>在內的一連串衝擊，AI 資本支出<b>正在推升記憶體、先進製程晶片與 AI 設備價格</b>，Fed 正在關注<b>半導體通膨是否外溢為更廣泛的通膨</b>。這在本儀表板上開出一個從未有過的<b>反身性迴路</b>（見矛盾區 4.2）。
+（3）<b>指數自己終於破了。</b>連續四個交易日「指數平靜／半導體殺盤」之後，<b>FOMC 當天 SPY <span class="m">−1.54%</span>、QQQ <span class="m">−2.04%</span>、SMH <span class="m">−4.79%</span></b>；SPY 距高點自 <span class="m">−2.8%</span> 擴大到 <span class="m">−4.1%</span>。<b>本系列最久的那張矛盾卡，最後一條腿被回答了，整張退場。</b>
+（4）<b>兩檔新進排序：CLS 進 #2 · GLW 進 #6。</b>CLS 給出<b>提前的 2027 財測</b>（營收 YoY <b>&gt;65%</b>、EPS 增速高於營收增速），CK 模型 2027 EPS <span class="m">$24.68 vs 共識 $19.19（+28.6%）</span>——而且<b>公司自己的財測就已高於共識</b>（&gt;$33.8B vs $33.0B），這部分預期差不是 CK 一個人說了算。GLW 是<b>首次覆蓋</b>（沒有模型過期問題）＋全清單最深的洗盤（<span class="m">距高 −54.4%、跌破 200 日均 7.9%</span>），拿到渠道檢查的<b>光纖報價階梯</b>與 2H26 第二輪漲價（<b>G.654.E +35~40%，NVIDIA 需求驅動</b>）。
+（5）<b>新節點 BUILD（資料中心建造／模組化）</b>：SA 追蹤 <b>&gt;61GW</b> 模組化產能、1,000+ 站點，2028 年底模組化滲透率 <b>30%+</b>；<b>電工佔工時 30-40%，2027 年出現缺口</b>，是資本砸不出來的瓶頸；<b>VRT 每 MW 含量 $3.5M → ~$7M（2 倍）</b>。<b>但本節點零檔進入排序</b>——理由見下。
+（6）定位：擁擠度（07-29 已收盤）<b>無子板塊 ≥85</b>（連續第五期）、<b>12 個中 11 個去擁擠</b>；nowcast <span class="m">2.119%</span>、print-shock <b>LOW</b>（連續第五期）但<b>鴿派緩衝連續第二期變薄</b>至 <span class="m">−0.048pp</span>。</p>
+</div>
+
+<div class="panel" style="padding:8px 12px;overflow-x:auto">
+<h3 style="font-size:13px;color:var(--accent);margin:6px 4px 2px;letter-spacing:.05em">本期輸入的「領先 vs 落後」誠實分類 · Lead-time tagging of this build's inputs</h3>
+<p class="sub" style="margin:2px 4px 8px">研究的目的是<b>在共識定價前</b>進場。財報本身是<b>落後</b>資訊——它只有在改變了「未來的預期差」時才產生領先價值。以下明列本期每一份輸入屬於哪一類，不含糊。</p>
+<table>
+<tr><th style="width:250px">輸入</th><th style="width:120px">分類</th><th>邊際價值在哪裡（或為何沒有）</th></tr>
+<tr><td class="m">CK Fed 7月會議（07-30）— 會議結果</td><td><span class="tag t-BR">落後</span></td><td>7/29 已開完、債市當天已反應（10Y <span class="m">4.61→4.67%</span>、30Y <span class="m">5.09→5.20%</span>）。三票升息本身是公開資訊</td></tr>
+<tr><td class="m">CK Fed — <b>半導體通膨表述</b></td><td><span class="tag t-SB">領先（本期最重要）</span></td><td><b>Fed 首次把「AI CAPEX 推升記憶體/先進製程/AI 設備價格」列為監控項目。</b>這不是價格資訊，是<b>政策反應函數的結構變化</b>：本頁每一條「漲價＝多頭」的論點，<b>都可能同時被拿來當作「Fed 該續鷹」的素材</b>。<b style="color:var(--choke)">但強度已在審核中下修</b>——公開報導顯示 Warsh 是在<b>反駁</b>通膨鷹派時講這段的，明說 AI 需求造成的<b>一次性</b>漲價不應與持續性通膨混為一談。見矛盾卡 4.2</td></tr>
+<tr><td class="m">CK CLS 2Q26（07-29）— 財報數字</td><td><span class="tag t-BR">落後</span></td><td>財報已公布、市場已定價當期數字</td></tr>
+<tr><td class="m">CK CLS — <b>提前給出的 2027 財測</b></td><td><span class="tag t-SB">領先（半自證）</span></td><td><b>公司自己把 2027 營收增速指引訂在 &gt;65%（＝&gt;$33.8B），而共識還在 $33.0B。</b>共識<b>非動不可</b>，與 CK 模型對不對無關——這是本期唯一「不必相信分析師也成立」的預期差</td></tr>
+<tr><td class="m">CK CLS — TPU/OpenAI/Switch 渠道量</td><td><span class="tag t-SB">領先</span></td><td>TPU <span class="m">2026 4.6M → 2027 10M</span> 顆、L6 利潤率 <span class="m">15-20%</span> vs L10-11 <span class="m">5-10%</span>、CLS 佔 L6 <span class="m">80%</span>、Switch <span class="m">500k → 1.2-1.4M</span>、OpenAI 機櫃 4Q26/1Q27 <b>未延期</b>——全是下一份財報才會被看到的先行量。<b>META Minerva 第三度下修（20k→10k→9k）</b>是同一篇裡的反向先行量</td></tr>
+<tr><td class="m">CK GLW 2Q26（07-30）— 財報＋指引</td><td><span class="tag t-BR">落後</span></td><td>財報已公布、<b>當日股價已跌 12%</b>。3Q 營收指引低於共識這件事，市場已經定價完了</td></tr>
+<tr><td class="m">CK GLW — <b>光纖報價階梯＋2H26 漲價</b></td><td><span class="tag t-SB">領先（本期最純的渠道數字）</span></td><td>6 月長約報價 <span class="m">G.652.D $9-10.5 / G.657.A1 $11-12.5 / G.657.A2 $16-18 / G.654.E $22-25</span>（現貨再加 10-20%），加上 2H26 <b>分兩季</b>的第二輪漲價幅度（<b>G.654.E +35~40%</b>）。公司不揭露、賣方沒有，且<b>新產能要 2H27-2028 才到</b>＝漲價週期能見度長</td></tr>
+<tr><td class="m">CK GLW — NVDA 暗光纖 $5-10B</td><td><span class="tag t-W">領先（但受惠者不完全是 GLW）</span></td><td>新需求向量，但 CK 自己說 <b>GLW 明確不擴光棒產能</b>，外溢由長飛/亨通吃下；GLW 只吃連接器。<b>領先程度打折，不是取消</b></td></tr>
+<tr><td class="m">SA 模組化資料中心（07-29）</td><td><span class="tag t-SB">領先（但不可排序）</span></td><td><b>全新節點</b>：勞動力是資本解不掉的瓶頸（電工佔工時 <span class="m">30-40%</span>、<span class="m">2027</span> 缺口）、<span class="m">&gt;61GW</span> 模組化追蹤、每 MW 含量倍增。<b>但 SA 不出模型、不比共識，CK 也沒覆蓋這些名字 → 沒有可驗證預期差 → 依 CIEN 規則不得排序。</b>節點立場可動，排序不可</td></tr>
+<tr><td class="m">Truflation nowcast + print gauge</td><td><span class="tag t-SB">領先（結構性）</span></td><td>唯一具<b>機制性</b>領先的來源：~45 天公布時間差。但它領先的是<b>通膨路徑</b>，<b>不是 Fed 的反應函數</b>——本期這個區別正好被 FOMC 打成一張矛盾卡（4.1）</td></tr>
+<tr><td class="m">07-29 收盤 + 擁擠度量表</td><td><span class="tag t-W">同步（定位面）</span></td><td>定義上是已發生的價格。本期價值在<b>證實</b>：指數自己破了，回答了本系列最久那張卡的最後一條腿</td></tr>
+<tr><td class="m">07-30 09:36 ET 盤中報價</td><td><span class="tag t-BR">未收盤 · 不採計</span></td><td>開盤後<b>六分鐘</b>的讀數（SMH <span class="m">+4.09%</span>、BE <span class="m">+21.79%</span>）。<b>本頁任何分級都不建立在它之上</b>——而且方向與 07-29 完全相反，正好說明為什麼不能用</td></tr>
+</table>
+</div>
+
+<h2><span class="k">Tier 0 · 宏觀水位</span>Regime Bar — 鷹派破口：三票升息 · 指數自己也破了</h2>
+<div class="grid3">
+<div class="card"><h3>MACRO REGIME · 7/29 FOMC 轉鷹</h3><p><b>以 <span class="m">9-3</span> 維持 3.50-3.75% 不變，三名票委主張升息 1 碼</b>（Hammack／Kashkari／Logan），會前僅約 <span class="m">30%</span> 升息機率；<b>這是自 2016 年 9 月以來最分裂的鷹派反對票</b>（<b style="color:var(--accent)">已用公開來源獨立交叉驗證，非單源</b>）。Warsh：<b>只有 2%、沒有隱性目標</b>，通膨續高則升息<b>「完全可能」</b>；聲明主文創近 <span class="m">20 年</span>最短、續刪前瞻指引。<b>10Y <span class="m">4.67%</span></b>（前日 4.61%）、30Y <span class="m">5.20%</span>（前日 5.09%）、2Y <span class="m">4.22%</span>（−4bp）＝長端推動的扭轉式走陡（非典型熊陡）；CK 看 10Y 挑戰 <span class="m">5%</span>（其引用 4.68%，FMP 為 4.67%，兩源差 0.01pp）。<b>鷹派尾巴不再是尾巴，就是這場會議本身。</b>6 月 CPI <span class="m">3.531%</span> 仍是最新官方值。<b>本期無新週報</b>——07-06/07-20 底稿沿用不重新標日；但需記錄：07-06 週報寫的「7/29 約 24% 升息機率」<b>方向上低估了</b>。</p></div>
+<div class="card"><h3>NOWCAST · Truflation 即時通膨</h3><p>最新 <span class="m">2.119%</span>（07-30）。前期：2.1（07-28）／2.099（07-26）／2.112（07-24）。背離指數 <span class="m">−1.381</span>（自 −1.224 <b>擴大</b>）、校準偏差 <span class="m">+1.62pp</span>。誠實註記：優勢是 <b>~45 天的「公布時間差」</b>，不是水晶球；lead-lag 樣本仍僅 ~13 個月屬暫定；<span class="m">mom_30d_delta_pp</span> 為 null → <b>本期不宣稱月變動</b>。<b>關鍵區別（本期被 FOMC 打出來）：nowcast 預測的是 CPI 路徑，不是 Fed 的反應函數。</b>它沒有被證偽——被證偽的是從它推出來的投資結論。</p></div>
+<div class="card"><h3>PRINT-SHOCK 紀律 · 公布日震盪</h3><p><b>長期看對 ≠ 公布日不挨打。</b>8/12、9/11、10/14 三個 CPI 是連續二元關卡（距 8/12 尚 <span class="m">13</span> 天）。量表：<span style="color:var(--bull)"><b>LOW</b></span>（連續第五期）——校準後隱含 8/12 公布值 <span class="m">3.575%</span> vs 慣性共識代理 <span class="m">3.623%</span>＝預期驚喜 <span class="m">−0.048pp</span>。<b>但緩衝連續第二期變薄：</b>−0.078／−0.078／−0.077 →（07-28）<span class="m">−0.057</span> →（本期）<span class="m">−0.048</span>，較三期高原<b>窄約 38%</b>。隱含值一路上行（3.566→3.575）而代理值不動。<b>下一個 FOMC 9/15-16：三票升息會不會變四票。</b></p></div>
+</div>
+
+<div class="panel" style="border-left:3px solid var(--accent);padding:14px 18px">
+<p style="font-size:12.8px"><b style="color:var(--accent)">定位面 — 指數平靜期結束（已收盤數據）。</b>連續四個交易日的「指數平靜／AI-infra 殺盤」在 FOMC 當天變成全面下跌：
+07-24 <span class="m">SPY +0.10% / SMH −3.27%</span>、07-27 <span class="m">+0.02% / −2.25%</span>、07-28 <span class="m">+0.24% / −3.45%</span>、<b>07-29（FOMC）<span class="m">SPY −1.54% / QQQ −2.04% / SMH −4.79%</span></b>。累計 07-23 → 07-29：<b><span class="m">SPY −1.18% vs SMH −13.09%</span></b>。SPY 距 52 週高點自 <span class="m">−2.8%</span>（07-27）擴大到 <span class="m">−4.1%</span>；SMH 自 <span class="m">−18.4%</span> 擴大到 <span class="m">−24.9%</span>。<b>「指數自己的自滿會不會破？」——本系列問了三期的那條腿，07-29 給了答案：會。</b>整張矛盾卡因此退場（見矛盾區）。
+<br><br><b style="color:var(--choke)">而 07-30 09:36 ET（開盤後六分鐘，未收盤，本頁不採計）方向完全相反：</b>SMH <span class="m">+4.09%</span>、SPY <span class="m">+0.81%</span>、QQQ <span class="m">+1.90%</span>；BE <span class="m">+21.79%</span>、EME <span class="m">+17.35%</span>、PWR <span class="m">+14.74%</span>、STX <span class="m">+14.02%</span>、WDC <span class="m">+11.27%</span>、FIX <span class="m">+11.19%</span>、STRL <span class="m">+11.02%</span>、TER <span class="m">+8.56%</span>、NVT <span class="m">+8.44%</span>、COHR <span class="m">+8.34%</span>、MU <span class="m">+8.25%</span>、NOK <span class="m">+8.09%</span>、CIEN <span class="m">+7.65%</span>、MRVL <span class="m">+7.64%</span>、AMD <span class="m">+7.29%</span>、CLS <span class="m">+6.93%</span>、GLW <span class="m">+6.22%</span>、VRT <span class="m">+6.06%</span>——<b>而 GOOGL <span class="m">−1.11%</span> 翻黑，與前三期的角色對調</b>（同樣翻黑且跌更多的還有 <span class="m">F −2.55%</span> 與 <span class="m">J −1.61%</span>——一併列出，不只挑 GOOGL 講）。<b>這是六分鐘的讀數，不是一個交易日的證據；本頁全部分級都用 07-29 收盤。</b>本期是整個系列裡「最想用盤中噪音重新分級」的一期，而這裡明確拒絕。
+<br><br>擁擠度（<b>已收盤 07-29</b>）同向：<b>無子板塊 ≥85</b>（連續第五期，最高為 MEM-STORAGE <span class="m">58.5</span> 且續降）、<b>12 個中 11 個</b>去擁擠，唯一回補是防務科技 <span class="m">+8.0</span>（非覆蓋範圍）。去擁擠幅度較 07-27 快照放大約 <b><span class="m">1.4 倍</span></b>（去擁擠檔數均值 <span class="m">−23.6（07-27，10 檔）→ −32.3（07-29，11 檔）</span>；最大值 <span class="m">−35.5 → −59.2</span>＝1.7 倍）。<b>唯一例外是 EDA-IP，反而收斂</b>（<span class="m">−30.6 → −28.2</span>）。</p>
+</div>
+
+<div class="panel">
+<h3 style="font-size:13px;color:var(--accent);margin-bottom:10px;letter-spacing:.05em">CATALYST TIMELINE · 未來 90 天關鍵事件（7/30 → 10/28）</h3>
+<svg viewBox="0 0 1180 292" width="100%" role="img" aria-label="Catalyst timeline July 30 to October 28 2026">
+<line x1="40" y1="150" x2="1150" y2="150" stroke="#363d4f" stroke-width="2"></line>
+<g>
+<text x="40" y="170" class="dim" font-size="11">JUL</text><text x="72" y="170" class="dim" font-size="11">AUG</text><text x="450" y="170" class="dim" font-size="11">SEP</text><text x="816" y="170" class="dim" font-size="11">OCT</text>
+</g>
+<text x="40" y="18" class="dim" font-size="10.5">近期已消化：7/29 FOMC <tspan class="m">9-3</tspan> 票維持不變、三票主張升息（鷹派）· 7/29-30 CK GLW 2Q26 首次覆蓋 · 7/29 CK CLS 2Q26 · 7/29 SA 模組化資料中心<tspan x="40" dy="14">· 7/28-8/1 MSFT/META/AMZN 財報（<tspan class="red">已發生，但語料庫尚無 CK 解讀 → 不推論</tspan>）· 7/27 CK NOK 2Q26 · 7/14 六月 CPI 3.531%</tspan></text>
+<circle cx="377" cy="150" r="5" fill="#d2a24a"></circle><line x1="377" y1="150" x2="377" y2="76" stroke="#2a3040"></line><text x="377" y="66" font-size="11">~8/26 NVDA FY2Q27 · 財務 backstop 揭露</text>
+<circle cx="804" cy="150" r="6" fill="#5b81c4"></circle><line x1="804" y1="150" x2="804" y2="76" stroke="#2a3040"></line><text x="1150" y="66" font-size="11" text-anchor="end">~9 月 Amazon DCI 決標（NOK #7 觸發）</text>
+<circle cx="450" cy="150" r="6" fill="#d2a24a"></circle><line x1="450" y1="150" x2="450" y2="106" stroke="#2a3040"></line><text x="450" y="96" font-size="11">2H26 GLW 第二輪光纖漲價 · G.654.E +35~40%（#6 觸發）</text>
+<circle cx="986" cy="150" r="5" fill="#8b84cf"></circle><line x1="986" y1="150" x2="986" y2="106" stroke="#2a3040"></line><text x="1150" y="96" font-size="11" text-anchor="end">10 月 AMD MI455X 開源 CI</text>
+<circle cx="816" cy="150" r="6" fill="#5b81c4"></circle><line x1="816" y1="150" x2="816" y2="132" stroke="#2a3040"></line><text x="816" y="124" font-size="11" text-anchor="middle">4Q26 OpenAI ASIC 機櫃首批出貨（CLS #2 觸發 · 渠道確認未延期）</text>
+<circle cx="206" cy="150" r="6" fill="#e0686a"></circle><line x1="206" y1="150" x2="206" y2="182" stroke="#2a3040"></line><text x="206" y="196" font-size="11">8/12 CPI(7月) · 隱含 3.575 vs 3.623 · LOW</text>
+<circle cx="572" cy="150" r="6" fill="#e0686a"></circle><line x1="572" y1="150" x2="572" y2="182" stroke="#2a3040"></line><text x="572" y="196" font-size="11">9/11 CPI(8月)</text>
+<circle cx="974" cy="150" r="6" fill="#e0686a"></circle><line x1="974" y1="150" x2="974" y2="182" stroke="#2a3040"></line><text x="1150" y="196" font-size="11" text-anchor="end">10/14 CPI(9月) · 三連降 = 最強證據</text>
+<circle cx="621" cy="150" r="7" fill="#e0686a"></circle><line x1="621" y1="150" x2="621" y2="208" stroke="#2a3040"></line><text x="621" y="222" font-size="11" text-anchor="middle">9/15-16 FOMC · 三票升息會不會變四票</text>
+<circle cx="1084" cy="150" r="5" fill="#d2a24a"></circle><line x1="1084" y1="150" x2="1084" y2="208" stroke="#2a3040"></line><text x="1150" y="222" font-size="11" text-anchor="end">10 月下旬 NOK 3Q26 · CLS 3Q26</text>
+<text x="40" y="252" class="mut" font-size="11.5">紅點 = 政策/公布日震盪事件 · 金點 = 財報／漲價週期 · 藍點 = 產業里程碑/決標 · 紫點 = 基準驗證。<tspan x="40" dy="15"><tspan class="red">序列風險已改變：</tspan>7/29 FOMC 已經先於 8/12 CPI 轉鷹，所以 8/12 這個 CPI 不再只是「確認鴿派」的關卡——</tspan><tspan x="40" dy="15">它同時是「Fed 有沒有搞錯」的關卡，雙向風險都變大。</tspan></text>
+</svg>
+</div>
+
+<div class="panel">
+<h3 style="font-size:13px;color:var(--accent);margin-bottom:4px;letter-spacing:.05em">籌碼定位總覽 · Subsector Crowding &amp; De-crowding Map（as_of 2026-07-29 <b>已收盤</b>）</h3>
+<p class="sub" style="margin-bottom:8px">下方各節點與想法卡反覆引用的 crowd / d20 / 反轉分 / DD 四個數字，一次看完。<b>crowd = 相對該子板塊自身歷史的擁擠度百分位</b>（≥85 為回測的洗盤風險區，<b>本期無任何子板塊觸及，連續第五期</b>）；<b>d20 = 20 日擁擠度變動</b>（往左＝去擁擠，越長越快）；反轉分越高＝洗盤後回補跡象越明顯。</p>
+<svg viewBox="0 0 1180 466" width="100%" role="img" aria-label="Subsector crowding and de-crowding map as of 2026-07-29">
+<text x="10" y="20" class="dim" font-size="10.5">子板塊</text>
+<text x="200" y="20" class="dim" font-size="10.5">擁擠度百分位 crowd（0 → 100）</text>
+<text x="690" y="20" class="dim" font-size="10.5" text-anchor="middle">20 日變動 d20（← 去擁擠 · 回補 →）</text>
+<text x="900" y="20" class="dim" font-size="10.5" text-anchor="end">反轉分</text>
+<text x="985" y="20" class="dim" font-size="10.5" text-anchor="end">126d DD</text>
+<line x1="489" y1="28" x2="489" y2="368" stroke="#e0686a" stroke-dasharray="4 4" stroke-width="1.2" opacity="0.8"></line>
+<text x="493" y="38" class="red" font-size="10">85 = 回測洗盤風險區（本期 0 檔觸及）</text>
+<line x1="690" y1="28" x2="690" y2="368" stroke="#363d4f" stroke-width="1"></line>
+<g font-size="11">
+<rect x="200" y="46" width="199" height="15" fill="#d2a24a" opacity="0.85"></rect><text x="10" y="58">MEM-STORAGE 記憶體儲存</text><text x="405" y="58" class="m gold">58.5</text><rect x="622" y="46" width="68" height="15" fill="#4faf8e" opacity="0.7"></rect><text x="616" y="58" class="m mut" text-anchor="end">−22.7</text><text x="900" y="58" class="m mut" text-anchor="end">29.1</text><text x="985" y="58" class="m mut" text-anchor="end">−35.5%</text>
+<rect x="200" y="72" width="167" height="15" fill="#2dd4bf" opacity="0.7"></rect><text x="10" y="84">SEC-SW 資安軟體</text><text x="373" y="84" class="m acc">49.2</text><rect x="617" y="72" width="73" height="15" fill="#4faf8e" opacity="0.7"></rect><text x="611" y="84" class="m mut" text-anchor="end">−24.3</text><text x="900" y="84" class="m mut" text-anchor="end">13.9</text><text x="985" y="84" class="m mut" text-anchor="end">−8.8%</text>
+<rect x="200" y="98" width="159" height="15" fill="#2dd4bf" opacity="0.7"></rect><text x="10" y="110">DEFENSE-TECH 防務科技</text><text x="365" y="110" class="m acc">46.9</text><rect x="690" y="98" width="24" height="15" fill="#e0686a" opacity="0.8"></rect><text x="720" y="110" class="m red">+8.0</text><text x="900" y="110" class="m mut" text-anchor="end">35.2</text><text x="985" y="110" class="m mut" text-anchor="end">−41.3%</text>
+<rect x="200" y="124" width="131" height="15" fill="#2dd4bf" opacity="0.7"></rect><text x="10" y="136">TEST 測試設備</text><text x="337" y="136" class="m acc">38.7</text><rect x="541" y="124" width="149" height="15" fill="#4faf8e" opacity="0.95"></rect><text x="535" y="136" class="m acc" text-anchor="end">−49.8</text><text x="900" y="136" class="m mut" text-anchor="end">27.7</text><text x="985" y="136" class="m mut" text-anchor="end">−28.9%</text>
+<rect x="200" y="150" width="116" height="15" fill="#2dd4bf" opacity="0.7"></rect><text x="10" y="162">SERVER-ODM 伺服器</text><text x="322" y="162" class="m acc">34.3</text><rect x="622" y="150" width="68" height="15" fill="#4faf8e" opacity="0.7"></rect><text x="616" y="162" class="m mut" text-anchor="end">−22.8</text><text x="900" y="162" class="m mut" text-anchor="end">26.9</text><text x="985" y="162" class="m mut" text-anchor="end">−31.8%</text>
+<rect x="200" y="176" width="115" height="15" fill="#2dd4bf" opacity="0.7"></rect><text x="10" y="188">NET-OPT 網通光通訊</text><text x="321" y="188" class="m acc">33.9</text><rect x="569" y="176" width="121" height="15" fill="#4faf8e" opacity="0.9"></rect><text x="563" y="188" class="m acc" text-anchor="end">−40.3</text><text x="900" y="188" class="m mut" text-anchor="end">28.9</text><text x="985" y="188" class="m mut" text-anchor="end">−34.3%</text>
+<rect x="200" y="202" width="114" height="15" fill="#2dd4bf" opacity="0.7"></rect><text x="10" y="214">SEMI-EQUIP 半導體設備</text><text x="320" y="214" class="m acc">33.5</text><rect x="512" y="202" width="178" height="15" fill="#4faf8e" opacity="1"></rect><text x="506" y="214" class="m acc" text-anchor="end">−59.2</text><text x="900" y="214" class="m mut" text-anchor="end">29.8</text><text x="985" y="214" class="m mut" text-anchor="end">−39.4%</text>
+<rect x="200" y="228" width="102" height="15" fill="#2dd4bf" opacity="0.7"></rect><text x="10" y="240">GRID-GEN 發電</text><text x="308" y="240" class="m acc">30.0</text><rect x="639" y="228" width="51" height="15" fill="#4faf8e" opacity="0.7"></rect><text x="633" y="240" class="m mut" text-anchor="end">−17.0</text><text x="900" y="240" class="m mut" text-anchor="end">27.7</text><text x="985" y="240" class="m mut" text-anchor="end">−22.9%</text>
+<rect x="200" y="254" width="98" height="15" fill="#2dd4bf" opacity="0.7"></rect><text x="10" y="266">CLOUD-CSP 雲端</text><text x="304" y="266" class="m acc">28.8</text><rect x="653" y="254" width="37" height="15" fill="#4faf8e" opacity="0.7"></rect><text x="647" y="266" class="m mut" text-anchor="end">−12.2</text><text x="900" y="266" class="m mut" text-anchor="end">26.2</text><text x="985" y="266" class="m mut" text-anchor="end">−19.6%</text>
+<rect x="200" y="280" width="96" height="15" fill="#2dd4bf" opacity="0.7"></rect><text x="10" y="292">ACCEL 加速器</text><text x="302" y="292" class="m acc">28.2</text><rect x="598" y="280" width="92" height="15" fill="#4faf8e" opacity="0.85"></rect><text x="592" y="292" class="m mut" text-anchor="end">−30.8</text><text x="900" y="292" class="m mut" text-anchor="end">24.7</text><text x="985" y="292" class="m mut" text-anchor="end">−20.0%</text>
+<rect x="200" y="306" width="82" height="15" fill="#2dd4bf" opacity="0.7"></rect><text x="10" y="318">POWER 電力設備</text><text x="288" y="318" class="m acc">24.2</text><rect x="545" y="306" width="145" height="15" fill="#4faf8e" opacity="0.95"></rect><text x="539" y="318" class="m acc" text-anchor="end">−48.2</text><text x="900" y="318" class="m gold" text-anchor="end">44.4</text><text x="985" y="318" class="m mut" text-anchor="end">−32.4%</text>
+<rect x="200" y="332" width="80" height="15" fill="#2dd4bf" opacity="0.7"></rect><text x="10" y="344">EDA-IP 設計工具</text><text x="286" y="344" class="m acc">23.5</text><rect x="605" y="332" width="85" height="15" fill="#4faf8e" opacity="0.85"></rect><text x="599" y="344" class="m mut" text-anchor="end">−28.2</text><text x="900" y="344" class="m mut" text-anchor="end">27.6</text><text x="985" y="344" class="m mut" text-anchor="end">−22.7%</text>
+</g>
+<text x="10" y="370" class="mut" font-size="11">綠＝去擁擠（12 個中 <tspan class="m">11</tspan> 個）· 紅＝回補（僅防務科技 <tspan class="m">+8.0</tspan>）。去擁擠幅度排序：<tspan class="m">SEMI-EQUIP −59.2（第一）· TEST −49.8（第二）· POWER −48.2（第三）· NET-OPT −40.3（第四）· ACCEL −30.8（第五）</tspan>。<tspan x="10" dy="15">幅度較 07-27 快照放大約 <tspan class="m">1.4 倍</tspan>（去擁擠檔數均值 <tspan class="m">−23.6（07-27，10 檔）→ −32.3（07-29，11 檔）</tspan>；最大值 <tspan class="m">−35.5 → −59.2</tspan> ＝ 1.7 倍）。<tspan class="red">初稿寫「約翻倍」，審核判定誇大，已更正</tspan>；</tspan><tspan x="10" dy="15">且 <tspan class="m">EDA-IP 反而收斂（−30.6 → −28.2）</tspan>，並非全面加速。<tspan class="gold">全場反轉分最高為 POWER 44.4</tspan>，但<tspan class="red">刻意低權重</tspan>：07-26 build 用同一構念（CLOUD-CSP 47.0）撐論點，兩個交易日後就必須撤回。</tspan></text>
+<text x="10" y="424" class="dim" font-size="10.5">量表有 survivorship 偏誤（成員回填）、每籃 2-5 檔，僅為定位脈絡，action_gate_eligible=false。村田 6981.T 為日股，無量表讀數。<tspan x="10" dy="14" class="red">注意：即時檔案已<tspan class="m">連續第二期</tspan>在盤中被覆寫（07-30 06:36 太平洋時間 ＝ 09:36 ET，開盤後六分鐘，SMH 當時 +4%）。</tspan><tspan x="10" dy="14" class="red">本圖數值由 <tspan class="m">crowding_panel.csv</tspan> 的 07-29 <tspan class="m">已收盤</tspan>列還原，非即時檔案原值 — 詳見頁尾誠實聲明 11b。</tspan></text>
+</svg>
+</div>
+
+<h2><span class="k">Tier 1 · 交叉驗證矩陣</span>Node Stance Matrix — where the three feeds agree, and where they don't</h2>
+<p class="sub">每個節點三欄獨立立場 → 綜合判定。<b>兩源以上同向</b>（teal/green）才是高可信；CONFLICT（粉）直接看下方矛盾區。Macro tilt 欄併入<b>擁擠度量表</b>（crowd = 相對自身歷史的百分位；DD = 126 日回撤；d20 = 20 日擁擠度變動，as_of <b>07-29 已收盤</b>）。<b>本期節點變動：新增 BUILD 節點（資料中心建造／模組化，SA 單源 BULL）· SERVER-ODM 因 CLS 升至 BULL、recency 跳到 07-29 · NET-OPT 新增 GLW 覆蓋、recency 07-30 · MACRO 轉鷹。其餘節點本期無新證據，立場與日期原樣沿用。</b></p>
+<div class="panel" style="padding:10px 16px;font-size:11.5px;color:var(--mut)"><b style="color:var(--accent)">名詞速查：</b>模組化 modular = 工廠預造的自足單元（電力室、冷卻撬塊、白空間）運到現場螺栓組裝 · 預造 prefabrication = 任何在場外製造的部分（範圍較廣；所有模組化都是預造，反之不然）· 每 MW 含量 content/MW = 一家廠商在每百萬瓦資料中心裡能收到的金額 · MEP = 機械/電氣/管路 · white space = 放伺服器的機房空間 · EPCM = 工程/採購/施工管理 · 撬塊 skid = 工廠組好的整組設備底座 · LTSA = 長期供應協議（常含訂金、產能預留、照付不議 take-or-pay）· ARR = 年化營收 · 光棒 preform = 抽拉光纖前的玻璃母材（建置期約 2 年）· G.652.D/G.657.A1/A2/G.654.E = ITU-T 單模光纖標準等級（後者為長距高速用）· TGV = 通孔玻璃 · FAU/MPO = 光纖陣列單元／多芯光纖接頭 · GCS = 玻璃核心基板 · ABF = 味之素增層膜 · L6/L11 = ODM 組裝層級（L6 主板級、利潤率較高；L10-11 整機/機櫃級）· DCI = 跨資料中心互連 · B:B = 訂單出貨比 · FMS = BofA 基金經理人調查 · SCA/LTA = 供應合約/長約 · RPO = 剩餘履約義務 · WFE = 晶圓廠設備 · CoWoS-L / SoIC-X = 台積電先進封裝 · LPU = SRAM 型推理專用晶片 · crowd/DD/d20 = 擁擠度百分位／126日回撤／20日擁擠度變動（as_of 07-29 已收盤；有 survivorship 偏誤）</div>
+<div class="panel" style="padding:8px 12px;overflow-x:auto">
+<table>
+<tr><th style="min-width:150px">Node 節點</th><th style="min-width:230px">ChivesKing（渠道+模型）</th><th style="min-width:230px">SemiAnalysis（技術瓶頸）</th><th style="min-width:150px">Macro tilt · 擁擠度</th><th>綜合</th><th style="min-width:120px">Recency</th></tr>
+
+<tr><td><b>BUILD — 資料中心建造／模組化</b><span class="newflag">本期新節點</span><br><span class="small">VRT SU FIX PWR STRL ETN NVT MOD EME IESC FLEX MYRG J SIE ABB</span></td><td><b>零覆蓋。</b>CK 對本節點任何一檔<b>都沒有財務模型</b>——這正是本節點不得進入排序的原因</td><td><b>新（07-29）· BULL。</b>模組化追蹤 <span class="m">&gt;61GW</span> 產能、<span class="m">1,000+</span> 站點，2028 年底滲透率 <span class="m">30%+</span>。<b>瓶頸是勞動力，不是資本</b>：電工佔工時 <span class="m">30-40%</span>，缺口自 <span class="m">2027</span> 浮現（德州/俄亥俄最緊）；Crusoe 為 Abilene 加薪 <span class="m">30%</span>（尖峰 9,000 人以上），QTS 說勞動力已推升每 MW 成本 <span class="m">20-30%</span>。效益：工期壓縮 <span class="m">~36%（7-9 個月）</span>、每 MW 便宜 <span class="m">~8%</span>（50MW 液冷廳 <span class="m">$13.5M vs $14.6M</span>）。<b>投資含量在「每 MW 金額」而非量：VRT <span class="m">$3.5M → ~$7M（2 倍）</span>、ETN <span class="m">$2.9M → $3.4M</span>、MOD <span class="m">$0.6M → $0.7M</span>、NVT <span class="m">~$1M</span>、SU <span class="m">$1.2-3.3M</span>、PWR 把整體框在 <span class="m">~$13M/MW</span>、STRL 可及產能 <span class="m">3.8GW → 14GW</span></b></td><td>量表無對應子板塊；最近者 POWER crowd <span class="m">24.2</span>、d20 <span class="m">−48.2</span>（第三大去擁擠）、<b>反轉分 44.4 全場最高</b>、DD <span class="m">−32.4%</span>。<b>該反轉分刻意低權重</b>（見圖註）</td><td><span class="tag t-B">BULL</span><br><span class="small" style="color:var(--choke)">單源 SA · 排序零檔</span></td><td class="small"><b style="color:var(--accent)">SA 07-29（本期最新技術輸入）</b> · CK 無覆蓋</td></tr>
+
+<tr><td><b>SERVER-ODM — TPU/ASIC 代工</b><span class="newflag">本期升至 BULL</span><br><span class="small">CLS（JBL FLEX FII 為脈絡）</span></td><td><b>新（07-29 CLS 2Q26）。</b>全年財測全線上修：營收 <span class="m">$19.0B → $20.5B（+65% YoY）</span>、營益率 <span class="m">8.1% → 8.4%</span>、EPS <span class="m">$10.15 → $11.30</span>、FCF <span class="m">$500M → $600M</span>、CCS <span class="m">+69% → +84%</span>；3Q26 營收中值 <span class="m">$5.40B vs 共識 $4.98B</span>。<b>關鍵事件是提前給出 2027 財測：營收 YoY &gt;65%、EPS 增速高於營收增速</b>（受惠 Google TPU ODM 分層、CLS 承作高利潤的 L6）。渠道：TPU <span class="m">2026 4.6M → 2027 10M</span> 顆（Q3 為全年高峰）、<b>L6 利潤率 15-20% vs L10-11 5-10%、CLS 佔 L6 80%</b>；Switch <span class="m">500k → 1.2-1.4M</span>、<b>手上 &gt;10 個 1.6T 專案</b>含 AMD scale-up switch 多年約；<b>OpenAI 機櫃 4Q26 小量、1Q27 爬坡，未延期</b>，模型給 2027 營收與獲利 <span class="m">~20%</span>。<b>反向：META Minerva 第三度下修（20k→10k→9k）</b></td><td>無直接覆蓋。間接：沿用 07-23 Vera Rubin TCO 與 07-25 AMD Helios 機櫃分析，皆指向 2027 機櫃級組裝需求上升</td><td>SERVER-ODM crowd <span class="m">34.3</span>、d20 <span class="m">−22.8</span>、DD <span class="m">−31.8%</span>、Stage2、趨勢模板 6/7。CLS 07-29 收 <span class="m">328.43</span>，距高 <span class="m">−30.7%</span>、<b>距低仍 +89.6%</b>、僅高於 200 日均 <span class="m">0.7%</span></td><td><span class="tag t-B">BULL</span><br><span class="small">（單源，但財測半自證）</span></td><td class="small"><b style="color:var(--accent)">CK 07-29</b> · SA 間接</td></tr>
+
+<tr><td><b>NET-OPT — 光纖/DCI</b><span class="newflag">本期新增 GLW</span><br><span class="small">GLW · NOK CIEN · COHR/CSCO</span></td><td><b>新（07-30 GLW 2Q26，首次覆蓋）。</b>2Q26 全面優於共識（營收 <span class="m">$4.738B vs $4.629B</span>、毛利率 <span class="m">39.6% vs 38.5%</span>、EPS <span class="m">$0.78 vs $0.76</span>），但 3Q 營收指引中值 <span class="m">$4.95B vs 共識 $5.00B</span> → <b>當日 −12%</b>（EPS 指引反而高於共識）。CK 判定是<b>供給限制而非需求</b>：CAPEX 自 <span class="m">$1.7B 上修至 $2.0B</span>，大部分有客戶承諾與預付款支撐，光通訊成長多綁 <b>LTSA（訂金＋產能預留＋照付不議）</b>；光通訊營收 <span class="m">+32% YoY</span>、其中企業網路 <span class="m">+65% YoY</span>。<b>渠道報價階梯（6 月長約，現貨再加 10-20%）：G.652.D $9-10.5 · G.657.A1 $11-12.5 · G.657.A2 $16-18 · G.654.E $22-25</b>；1H26 已漲 <span class="m">10-15%</span>，2H26 分兩季再漲 <b>+5~10% / +5~10% / +15~20% / G.654.E +35~40%</b>，並延續到 2027，新產能 <b>2H27-2028</b> 才到。<b>NVDA 暗光纖：3 年 $5-10B 自建網路</b>（光棒建置 ~2 年、抽絲 ~1 年）；<b>GLW 明確不擴光棒</b>，外溢給長飛/亨通，GLW 吃連接器。<b>Glass Bridge（CPO 被動元件）仍在驗證期、完整認證需 18-26 個月、2028 才小量試用</b>。沿用 07-27 NOK：訂單 €2.8B（+180% QoQ）、B:B 2.0，但 Google 砍標案 30% 至 $4.2B、$1.8B 轉直購（CSCO/COHR 各 $900M），CK 自砍 DCI 營收 −28%</td><td>沿用：Meta AI-Backbone 22Pb/s、2,000km scale-across → 佐證 DCI <b>需求</b>腿。<b>對光纖漲價、暗光纖、Glass Bridge 皆無覆蓋</b>（本節點關鍵新資訊為單源）</td><td>NET-OPT crowd <span class="m">33.9</span>、d20 <span class="m">−40.3</span>（第四大去擁擠）、DD <span class="m">−34.3%</span>、Transition。<b>GLW 07-29 收 <span class="m">124.05</span>：距高 <span class="m">−54.4%</span>（全清單最深）、跌破 200 日均 7.9%</b>、低於 50 日均 32.6%、距低 <span class="m">+101.9%</span>。NOK 收 <span class="m">8.41</span>：距高 <span class="m">−51.8%</span>、<b>亦已跌破 200 日均 7.9%</b>（兩期前還高於 2.0%）</td><td><span class="tag t-B">BULL</span><br><span class="small" style="color:var(--choke)">＋NOK 具名結構風險：客戶直購</span></td><td class="small"><b style="color:var(--accent)">CK 07-30（GLW，首次覆蓋）</b> · CK 07-27（NOK）· SA 無新文</td></tr>
+
+<tr><td><b>MACRO — 政策/利率</b><span class="redflag">本期轉鷹</span></td><td><b>新（07-30 Fed 7月會議）。</b><b>9-3</b> 維持 3.50-3.75%，<b>三票主張升息 1 碼</b>（Hammack/Kashkari/Logan，<b>2016 年 9 月以來最分裂的鷹派反對票</b>；已獨立交叉驗證）；Warsh：<b>只有 2%、無隱性目標</b>，通膨續高則升息「完全可能」；聲明主文近 20 年最短。<b>Fed 點名 AI CAPEX 正推升記憶體/先進製程/AI 設備價格，並在監控半導體通膨是否外溢。</b>CK 看 10Y 挑戰 5%（引用 4.68%）。<b>誠實標記：CK 自己 06-29 的「通膨都降溫了怎麼升息」在這場會議上站錯邊</b></td><td>無宏觀覆蓋（設計上如此）</td><td>10Y <span class="m">4.67%</span>（07-29，FMP；前日 4.61%）、30Y <span class="m">5.20%</span>、2Y <span class="m">4.22%</span>（−4bp）= 長端推動的扭轉式走陡（非典型熊陡）。nowcast <span class="m">2.119%</span>、print-shock <b>LOW</b>、預期驚喜 <span class="m">−0.048pp</span></td><td><span class="tag t-BR">HAWKISH</span><br><span class="small">（兩條線指向相反 → 矛盾卡 4.1/4.2）</span></td><td class="small"><b style="color:var(--accent)">CK 07-30 · Truflation 量表 07-30 · 債市 07-29</b>（<span class="small">此處「量表」指通膨 print gauge，非擁擠度量表</span>）</td></tr>
+
+<tr><td><b>CLOUD / CSP</b><br><span class="small">GOOGL AMZN</span></td><td>沿用 07-23 GOOG 2Q26：GCP <span class="m">+82%</span> YoY vs 賣方 71.7%；GCP 營益率 <span class="m">35.6%</span>；積壓訂單 <span class="m">$514.0B</span>（+385% YoY，新高）；CAPEX 指引 <span class="m">$180-190B→$195-205B</span>；五大 CSP 2027 CAPEX 增速 <span class="m">+30% → +38%</span>。<b>FCF 轉負、復甦推遲至 ~2028（該腿已退場）</b>。<b>本期空白值得記錄：7/28-8/1 MSFT/META/AMZN 財報已發生，語料庫尚無 CK 解讀</b></td><td>沿用：AWS EBIT <span class="m">+213bp</span> QoQ、Bedrock ~55% EBIT；Google 供給受限；產能到 2027 都不夠</td><td>crowd <span class="m">28.8</span>、d20 <span class="m">−12.2</span>（已由回補轉為去擁擠）、反轉分 <span class="m">26.2</span>、DD <span class="m">−19.6%</span>、Stage4。GOOGL 07-29 收 <span class="m">336.71</span>（距高 −17.6%、高於 200 日均 3.5%）；<b>07-30 盤中 <span class="m">−1.11%</span>，與全場反彈背道而馳</b></td><td><span class="tag t-SB">STRONG BULL</span><br><span class="small" style="color:var(--choke)">（一腿已退場 · 定位支撐已撤回）</span></td><td class="small">CK 07-23 · SA 07-08（皆沿用）</td></tr>
+
+<tr><td><b>ACCEL — 客製 ASIC / TPU 鏈</b><br><span class="small">MRVL MTK AVGO GUC</span></td><td>沿用 07-23：MRVL 至少 5 個 Google 專案；MTK Zebrafish 3Q26 量產領先 AVGO Sunfish。<b>本期側證（CLS 07-29）：TPU 2027 出貨 10M 顆——與 CK 06-29 直播獨立給出的同一數字吻合（源內互證，仍為單源）</b>；TPUv9 2027-28 量產、單晶片 ~2kW、2028 目標 30M 顆；部分探索 <b>CXL + PCIe Gen7 的 TB 級 DRAM 池化取代 HBM</b></td><td>沿用 07-02 ECTC：客製 HBM 省 host PHY 面積 ~60%、OMIB 解除 shoreline 限制但光 interposer 良率有風險</td><td>ACCEL crowd <span class="m">28.2</span>、d20 <span class="m">−30.8</span>（第五大）、DD <span class="m">−20.0%</span>、趨勢模板 <span class="m">7/7</span>（全場最佳）</td><td><span class="tag t-B">BULL</span></td><td class="small">CK 07-29（側證）／07-23 · SA 07-02</td></tr>
+
+<tr><td><b>MEM — DRAM/HBM</b><br><span class="small">MU SK Hynix Samsung</span></td><td>沿用 06-26/06-29：MU FY27 EPS <span class="m">$202.80 vs 共識 $148.79（+36%）</span>；16 份 SCA / RPO $100B 使評價自 PB 轉 PE；2027 定價沿 ~30% 長約天花板</td><td>沿用 06-23/07-25：DRAM 供給不足至 ~2028；HBM 漲價 AMD 轉嫁不掉、非 HBM DRAM 反被去規格化</td><td>MEM-STORAGE 仍是全場最高 crowd <span class="m">58.5</span> 但續降（d20 <span class="m">−22.7</span>）、DD <span class="m">−35.5%</span>。<b style="color:var(--choke)">新增二階風險：MU 的長約定價論點，如今按 Warsh 的說法本身就是 Fed 在盯的東西（卡 4.2）</b></td><td><span class="tag t-B">BULL</span><br><span class="small" style="color:var(--choke)">＋政策反身性</span></td><td class="small">CK 06-29 · SA 07-25（皆沿用）</td></tr>
+
+<tr><td><b>PKG — 晶圓代工/先進封裝/WFE</b><br><span class="small">TSM AMKR AMAT ASML</span></td><td>沿用 07-17/07-15：TSM 毛利率高檔徘徊 66-67%、上修 CAPEX；ASML 五大客戶採購發力、EUV 帶動 2027-28 上修循環</td><td>沿用：N3 產能與 HBM 供給跟不上；EMIB-T 可行但成熟度落後 CoWoS</td><td>SEMI-EQUIP crowd <span class="m">33.5</span>、<b>d20 <span class="m">−59.2</span> 全場最大去擁擠</b>、<b>DD <span class="m">−39.4%</span>（覆蓋範圍最深）</b>、Transition</td><td><span class="tag t-SB">STRONG BULL</span></td><td class="small">CK 07-17 / 07-15 · SA 07-02（沿用）</td></tr>
+
+<tr><td><b>TEST — SoC + CPO 測試</b><br><span class="small">TER KEYS</span></td><td>沿用 04-30 模型 + 06-29 重申：Rubin SoC 測試 30/70 分成路徑；CPO 測試機 70 → 2027 交付 200-250 台</td><td>無直接工具聲明；ECTC 量產性警語隱含<b>測試強度上升</b></td><td>TEST crowd <span class="m">38.7</span>、<b>d20 <span class="m">−49.8</span>（第二大去擁擠）</b>、DD <span class="m">−28.9%</span>、Transition</td><td><span class="tag t-B">BULL</span></td><td class="small">CK 06-29 · SA 07-02（沿用）</td></tr>
+
+<tr><td><b>POWER — 800VDC/電力設備</b><br><span class="small">Delta VRT WOLF Infineon</span></td><td>沿用 06-29：HVDC 2027H2 起量、2028 年底滲透 10-20%；電力半導體尚無超級循環</td><td>沿用 05-26 + 07-25：800VDC ~39GW by 2030；AMD Helios <span class="m">257kW/機櫃</span> vs GB300 <span class="m">159kW</span> → 07-26 已自 WATCH 升 BULL。<b>本期強化：模組化把電力設備往「工廠預整合、每 MW 含量翻倍」推</b>（VRT OneCore 為 NVDA Vera Rubin DSX 參考設計的組件）</td><td>POWER crowd <span class="m">24.2</span>（倒數第二）、d20 <span class="m">−48.2</span>（第三大）、<b>反轉分 44.4 全場最高（低權重）</b>、DD <span class="m">−32.4%</span></td><td><span class="tag t-B">BULL</span></td><td class="small">SA 07-29（模組化強化）／07-25 · CK 06-29</td></tr>
+
+<tr><td><b>OPT — CPO 元件</b><br><span class="small">LITE COHR CRDO</span></td><td>沿用 06-29：CPO 沒延期，是預期跑太前。沿用 07-27：Google 改向 COHR 直購 <span class="m">$900M</span> 相干模組。<b>新（07-30，且方向相反）：GLW 的 Glass Bridge——一家材料巨頭做的真 CPO 封裝元件——仍在驗證階段、完整認證 18-26 個月、2028 才小量試用</b></td><td>沿用 07-02：多 reticle 光 interposer 良率「challenging」、EAM 難以規模量產。沿用 07-25：MI500 押注 CPC + NPO</td><td>NET-OPT crowd <span class="m">33.9</span>、d20 <span class="m">−40.3</span>、DD <span class="m">−34.3%</span></td><td><span class="tag t-C">CONFLICT</span><br><span class="small" style="color:var(--choke)">本期新證據偏向 SA 那一側</span></td><td class="small"><b style="color:var(--accent)">CK 07-30（Glass Bridge）</b> · SA 07-25 / 07-02</td></tr>
+
+<tr><td><b>Storage — HDD/NAND</b><br><span class="small">STX WDC SNDK</span></td><td>沿用 06-29：2027 供給 2,000-2,200 EB vs 需求 2,600-2,800 EB；渠道 <span class="m">$25/TB</span> vs 賣方 ~$20</td><td>視窗內<b>零 HDD 覆蓋</b></td><td>併入 MEM-STORAGE 籃：crowd <span class="m">58.5</span>、DD <span class="m">−35.5%</span></td><td><span class="tag t-B">BULL</span><br><span class="small" style="color:var(--choke)">單源</span></td><td class="small">CK 06-29（沿用）</td></tr>
+
+<tr><td><b>GRID — 發電/BESS</b><br><span class="small">BE F/Ford Energy TLN VST</span></td><td>沿用 04-29/05-31：BE 產能 2→5GW；Ford Energy BESS 毛利率 ~25% vs 車用 ~9%</td><td>沿用 06-25：2027 電網淨餘裕轉負、2030 缺口 ~40GW。<b>本期補強（07-29）：勞動力才是更早到的瓶頸——電工 2027 缺口，先於發電缺口</b></td><td>GRID-GEN crowd <span class="m">30.0</span>、d20 <span class="m">−17.0</span>、DD <span class="m">−22.9%</span>、Stage4</td><td><span class="tag t-B">BULL</span></td><td class="small">SA 07-29（補強）／06-25 · CK 05-31</td></tr>
+
+<tr><td><b>PASSIVE — MLCC/被動元件</b><br><span class="small">村田 6981.T · Yageo</span></td><td>沿用 06-16/06-29：Rubin ~1M MLCC/機櫃（GB300 的 2.2x）；村田調價函平均 <span class="m">+34%</span>。<b style="color:var(--watch)">模型日期 06-29（31 天）</b>——<b style="color:var(--choke)">審核更正：初稿誤稱此為排序清單最舊的模型，並不成立</b>（BE 04-29、TER 04-30 更舊；STX/WDC 同為 06-29）</td><td>本節點<b>空白</b>——SA 無被動元件覆蓋</td><td>日股，<b>無量表讀數</b></td><td><span class="tag t-B">BULL</span><br><span class="small" style="color:var(--choke)">單源</span></td><td class="small">CK 06-29（沿用）</td></tr>
+
+<tr><td><b>MARGIN — AI 融資/neocloud</b><br><span class="small">CRWV IREN ORCL NVDA backstop</span></td><td>沿用 06-29：不喜歡 neocloud；Oracle 是純租戶。<b>新（07-29/07-30，兩篇皆有）：CK 說當前是 margin call 斷頭帶動的 de-grossing 環境，「基本面分析在現階段沒太多用處」，並猜測去槓桿已進入後期</b></td><td>沿用 07-06 Trinity：NVDA 租賃 backstop → neocloud IRR 趨零/為負；2029 年 AI 債務 ~$7.1T</td><td>記錄在案的保證金債務仍在高檔；<b>07-29 的全面下跌與 07-30 的暴力反彈都與「去槓桿後期」的敘事相容，但六分鐘讀數證明不了任何事</b></td><td><span class="tag t-BR">BEAR</span><br><span class="small">（罕見的兩源同向偏空）</span></td><td class="small"><b style="color:var(--accent)">CK 07-29/07-30</b> · SA 07-06</td></tr>
+
+<tr><td><b>CPU</b><br><span class="small">INTC AMD Vera Graviton</span></td><td>沿用 05-07/06-29：伺服器 CPU 上下半年各 +10% 漲價；AMD CPU TAM CAGR &gt;35%</td><td>沿用 05-27：RL 與推理帶動「CPU 需求潮」</td><td>併入 ACCEL 籃脈絡</td><td><span class="tag t-B">BULL</span></td><td class="small">CK 06-29 · SA 05-27（沿用）</td></tr>
+
+<tr><td><b>SOFTWARE — 資安/平台</b><br><span class="small">PANW CRWD PLTR</span></td><td>沿用 06-03/06-09：平台資安多頭；應用層與 PLTR 因估值迴避</td><td>無直接覆蓋</td><td>SEC-SW crowd <span class="m">49.2</span>、d20 <span class="m">−24.3</span>、<b>DD 僅 <span class="m">−8.8%</span>（全場最淺，幾乎沒被洗到）</b>、反轉分 13.9（全場最低）</td><td><span class="tag t-N">NEUTRAL</span></td><td class="small">CK 06-09（沿用）</td></tr>
+</table>
+</div>
+
+<h2><span class="k">Tier 2 · 覺察曲線</span>Awareness Staging — 誠實回答「還有肉嗎」</h2>
+<div class="panel">
+<svg viewBox="0 0 1180 320" width="100%" role="img" aria-label="Awareness curve staging the ranked ideas">
+<path d="M 60 250 C 300 245, 420 235, 560 190 C 700 145, 780 90, 900 62 C 990 42, 1080 34, 1140 32" fill="none" stroke="#363d4f" stroke-width="2.5"></path>
+<g font-size="11">
+<text x="60" y="302" class="dim">LATENT 潛伏</text><text x="330" y="302" class="acc">EARLY 早期</text><text x="640" y="302" class="gold">RECOGNITION 認知擴散</text><text x="920" y="302" class="dim">EUPHORIA</text><text x="1080" y="302" class="dim">PRICED 已定價</text>
+</g>
+<line x1="215" y1="40" x2="215" y2="255" stroke="#2dd4bf" stroke-dasharray="5 5" stroke-width="1.4"></line>
+<text x="222" y="52" class="acc" font-size="11.5">下一個進場藏在這裡 ←（潛伏名單見底部）</text>
+<rect x="640" y="118" width="290" height="40" rx="7" fill="none" stroke="#c47a9e" stroke-dasharray="5 4" stroke-width="1.3"></rect>
+<text x="785" y="134" class="m" font-size="11" text-anchor="middle" fill="#c47a9e">BUILD 模組化節點：VRT FIX PWR STRL ETN NVT MOD EME…</text>
+<text x="785" y="150" font-size="11" text-anchor="middle" fill="#c47a9e">全數不排序 — 無模型＝無預期差（CIEN 規則）· 且全部已跑過一輪</text>
+<g font-size="12">
+<circle cx="150" cy="249" r="6" fill="#5fc98a"></circle><text x="120" y="272" class="m">F(能源) · #13</text>
+<circle cx="238" cy="245" r="6" fill="#5fc98a"></circle><text x="216" y="230" class="m">MRVL · #8</text>
+<circle cx="272" cy="243" r="7" fill="#2dd4bf" stroke="#e8eaf0" stroke-width="1.4"></circle><text x="246" y="272" class="m acc">GLW · #6 新</text>
+<circle cx="308" cy="241" r="7" fill="#2dd4bf" stroke="#e0686a" stroke-width="1.6"></circle><text x="300" y="226" class="m red">NOK · #7 二輪</text>
+<circle cx="356" cy="238" r="7" fill="#2dd4bf" stroke="#e8eaf0" stroke-width="1.3"></circle><text x="332" y="266" class="m">GOOGL/AMZN · #1</text>
+<circle cx="400" cy="234" r="6" fill="#2dd4bf"></circle><text x="396" y="216" class="m">6981.T · #11</text>
+<circle cx="443" cy="230" r="6" fill="#2dd4bf"></circle><text x="437" y="253" class="m">TER · #4</text>
+<circle cx="482" cy="223" r="6" fill="#2dd4bf"></circle><text x="470" y="194" class="m">STX/WDC · #9</text>
+<circle cx="516" cy="214" r="6" fill="#2dd4bf"></circle><text x="510" y="237" class="m">CRDO · #10</text>
+<circle cx="552" cy="198" r="7" fill="#2dd4bf" stroke="#e8eaf0" stroke-width="1.4"></circle><text x="516" y="172" class="m acc">CLS · #2 新</text>
+<circle cx="620" cy="172" r="7" fill="#2dd4bf" stroke="#e8eaf0" stroke-width="1.3"></circle><text x="596" y="212" class="m acc">WFE 設備 · #3</text>
+<circle cx="664" cy="151" r="6" fill="#d2a24a"></circle><text x="640" y="140" class="m">MU · #5</text>
+<circle cx="780" cy="98" r="6" fill="#d2a24a"></circle><text x="756" y="88" class="m">BE · #13</text>
+<circle cx="1078" cy="34" r="6" fill="#697283"></circle><text x="1150" y="60" class="m dim" text-anchor="end">TSM · #12（PRICED）</text>
+<circle cx="972" cy="46" r="6" fill="#e0a458"></circle><text x="930" y="32" class="m gold">AMD（不排序）</text>
+</g>
+<text x="60" y="26" class="mut" font-size="11.5">位置 = YTD 走勢 + 賣方覆蓋密度 + 估值的誠實綜合。<tspan font-weight="700">本期兩檔新上圖：CLS（#2）與 GLW（#6）</tspan>；其餘位置未動，編號因新進而順延（被擠下，非降評）。</text>
+<text x="60" y="42" class="mut" font-size="11.5"><tspan font-weight="700">粉色虛線框是本期的重點：</tspan>SA 的模組化研究是本 build 品質最高的新內容，但整個 BUILD 節點<tspan font-weight="700">一檔都進不了排序</tspan>——因為沒有模型就沒有可驗證的預期差。<tspan x="60" dy="15"><tspan class="acc">本期依審核意見對調兩點：CLS 右移、村田左移。</tspan>村田在美股幾無賣方覆蓋、亦無擁擠度讀數，而 CLS 是公認的 Google TPU ODM 名字且距低 +89.6%；</tspan><tspan x="60" dy="15">原先的相對位置與本圖自述的三個輸入（走勢＋覆蓋密度＋估值）不一致。<tspan class="dim">TSM 亦已移到 AMD 右側的 PRICED 區，修正顏色與位置互相矛盾。</tspan></tspan><tspan x="60" dy="15">從價格看 BUILD 節點<tspan font-weight="700">多數已跑過一輪</tspan>：FIX 距低 +131.4%、FLEX +115.4%、STRL +102.5%、VRT +87.9%、MYRG +87.8%；</tspan><tspan x="60" dy="15"><tspan class="gold">但並非全部——ETN +16.0%、EME +19.0%、J +28.6% 距低有限</tspan>，故此處說「多數」而非「全部」。</tspan></text>
+</svg>
+</div>
+
+<h2><span class="k">Tier 3 · 排序想法</span>Ranked Ideas — recency × cross-source agreement × remaining asymmetry</h2>
+<p class="sub">排序邏輯：支撐內容越新效力越高 × 兩源同向加分 × 已定價扣分 × <b>引信長度折價</b>。<b>key numbers 全部是「CK 模型 vs 街上共識」的預期差</b>，出處與日期在卡片底部。這不是買進清單——是研究優先順序。<b>本期變動：CLS 新進 #2 · GLW 新進 #6 · 其餘順延（WFE→#3、TER→#4、MU→#5、NOK→#7、MRVL→#8）。</b>擁擠度與價格皆為 <b>07-29 已收盤</b>；<b>無任何排序想法的子板塊擁擠度 ≥85</b>，故本期無擁擠旗標。<b style="color:var(--choke)">引信折價本期加重，理由是證據而非風格：10Y 4.67%、曲線走陡、Fed 明確轉鷹，最長天期的預期差（MRVL FY2029、村田 2027-28、GLW 的 Glass Bridge 2028）被實質利率路徑折得最兇。</b></p>
+
+<div class="panel" style="padding:8px 12px;overflow-x:auto">
+<h3 style="font-size:13px;color:var(--accent);margin:6px 4px 2px;letter-spacing:.05em">排序依據攤開來看 · Why each idea sits where it sits</h3>
+<table>
+<tr><th style="width:36px">#</th><th style="width:120px">名稱</th><th style="width:100px">最新證據</th><th style="width:80px">跨源</th><th style="width:160px">預期差（幅度／年度）</th><th style="width:90px">引信</th><th>本期為何在這個位置</th></tr>
+<tr><td class="m">1</td><td class="m">GOOGL/AMZN</td><td class="m">CK 07-23</td><td><span class="tag t-SB">兩源</span></td><td class="m">2027 GAAP EPS +24.0% · 營收 +14.2%<br><span class="small">（CAPEX +38% vs 共識 ~12% 為驅動因子）</span></td><td class="m">1-2 年</td><td>清單裡<b>唯一兩源同向的結構性論點</b>，靠這個守住 #1，不是靠新鮮度。<b>上一期指名的解題週已發生，但語料庫沒有 CK 的解讀 → 明列為空白，不用推論補</b></td></tr>
+<tr><td class="m">2</td><td class="m">CLS <span class="newflag">新</span></td><td class="m">CK 07-29</td><td><span class="tag t-N">單源＋公司</span></td><td class="m">2027 EPS +28.6% · 營收 +16.9%</td><td class="m">2H26-1Q27</td><td>本期<b>最大也最近的乾淨「近期」預期差</b>（就<b>近期</b>而言最大；全清單絕對值最大的仍是 MRVL 的 FY2029 +53.5%，但那是三年後），而且<b>公司自己的 2027 財測就高於共識</b>（&gt;$33.8B vs $33.0B）＝部分不必相信分析師。壓在 #2 的原因：單源、已跑過一輪（距低 +89.6%）、低毛利 ODM 限制評價擴張</td></tr>
+<tr><td class="m">3</td><td class="m">WFE 設備鏈</td><td class="m">CK 07-17</td><td><span class="tag t-SB">兩源</span></td><td class="m">TSM CAPEX 上修（間接）</td><td class="m">2026-27</td><td>無新證據，被擠下。<b>定位是全場最極端</b>：d20 −59.2 全場最大去擁擠、DD −39.4% 覆蓋範圍最深</td></tr>
+<tr><td class="m">4</td><td class="m">TER</td><td class="m">CK 06-29</td><td><span class="tag t-W">單源＋間接</span></td><td class="m">2027 EPS $13.32 vs $9.40（04-30 模型）／$10-11（06-29 由下而上）</td><td class="m">2027</td><td>無新證據，被擠下。<b>兩個內部 EPS 數字未調和，用區間不用單點</b>。d20 −49.8 第二大去擁擠</td></tr>
+<tr><td class="m">5</td><td class="m">MU</td><td class="m">CK 06-29</td><td><span class="tag t-SB">兩源</span></td><td class="m">FY27 EPS $202.80 vs $148.79（+36%）</td><td class="m">FY27</td><td>無新證據，被擠下。<b>新增二階風險：長約定價論點如今是 Fed 明講在盯的東西</b>（卡 4.2）。距低仍 +614.8%</td></tr>
+<tr><td class="m">6</td><td class="m">GLW <span class="newflag">新</span></td><td class="m">CK 07-30</td><td><span class="tag t-N">單源</span></td><td class="m">2027 EPS +9.5% · 營收 +5.2%</td><td class="m">2H26-2027<br>（Glass Bridge 2028）</td><td>首次覆蓋＝<b>沒有模型過期問題</b>，且<b>全清單最深洗盤</b>（距高 −54.4%、跌破 200 日均）。只排 #6 的原因：<b>預期差是本系列新進裡最小的</b>、CK 對 2026 營收<b>比公司自己還保守</b>、近期瓶頸正是砸盤主因、Glass Bridge 吃引信折價</td></tr>
+<tr><td class="m">7</td><td class="m">NOK</td><td class="m">CK 07-27</td><td><span class="tag t-N">單源</span></td><td class="m">2027 EPS €0.48 vs €0.40（+20.0%）</td><td class="m">2026-27</td><td>無新證據，被擠下兩位。<b>來源算術缺口續掛</b>（$11.2B vs $13.1B）。<b>盤面再惡化：已跌破 200 日均 7.9%</b>（兩期前尚高於 2.0%）</td></tr>
+<tr><td class="m">8</td><td class="m">MRVL</td><td class="m">CK 07-23</td><td><span class="tag t-B">兩源</span></td><td class="m">FY2029 營收 +54.6% · EPS +53.5%</td><td class="m" style="color:var(--choke)">FY2029（最長）</td><td>清單裡<b>最大的預期差配上最長的引信</b>，在曲線走陡＋鷹派下吃最重的折價。CK 自己的 FY2027 與共識一致</td></tr>
+<tr><td class="m">9</td><td class="m">STX/WDC</td><td class="m">CK 06-29</td><td><span class="tag t-N">單源</span></td><td class="m">2027 供需缺口 ~30%；$25/TB vs ~$20</td><td class="m">2027</td><td>不變。單源，SA 零 HDD 覆蓋。距低 +428.1% / +531.7%</td></tr>
+<tr><td class="m">10</td><td class="m">CRDO</td><td class="m">CK 07-13</td><td><span class="tag t-N">單源</span></td><td class="m">FY2028 EPS $12.13 vs $8.91（+36%）</td><td class="m">FY2028</td><td>不變。SA 的 EAM/SiPh 量產性旗標直接打在這個論點上</td></tr>
+<tr><td class="m">11</td><td class="m">村田 6981.T</td><td class="m">CK 06-29</td><td><span class="tag t-N">單源</span></td><td class="m">FY2027 OP ¥690.0B vs ¥663.0B</td><td class="m">2027-28</td><td><b style="color:var(--choke)">審核更正：</b>初稿在此宣稱村田是「排序清單最舊的模型」，<b>這是錯的</b>——BE 的營運模型是 <span class="m">04-29</span>（92 天）、TER 是 <span class="m">04-30</span>（91 天），皆比村田的 06-29（31 天）更舊，且本表自己就印著「#13 BE+F · CK 05-31」與「#4 TER … 04-30 模型」。<b>陳舊度標準被套用在錯的名字上，已改正：真正最舊的是 #13 BE 與 #4 TER</b></td></tr>
+<tr><td class="m">12</td><td class="m">TSM</td><td class="m">CK 07-17</td><td><span class="tag t-SB">兩源</span></td><td class="m" style="color:var(--dim)">~+4%（+3.99%）<br><span class="small">村田 +4.07%，兩者僅差 0.08pp</span></td><td class="m">2026-27</td><td>自 07-18 起未動。<b>誠實地說，這是邊緣名單之一</b>——預期差已收窄到 ~4%</td></tr>
+<tr><td class="m">13</td><td class="m">BE + F</td><td class="m">CK 05-31</td><td><span class="tag t-B">兩源</span></td><td class="m">F 2028 EPS $2.51 vs $2.08（+21%）</td><td class="m">2027-28</td><td><b>另一個邊緣名單</b>：六月以來零新證據。BE 07-30 盤中 +21.79%——全清單最大，且正是本頁拒絕據以分級的那種讀數</td></tr>
+</table>
+<p class="sub" style="margin:8px 4px 4px"><b style="color:var(--choke)">清單長度已經是個問題，明講不掩飾：</b>10 → 11 →（本期）<b>13</b>。方法禁止「為了整齊」砍掉沒有新利空的名字，於是只進不出。誠實地標記三個邊緣位置：<b>#12 TSM（預期差僅 ~4%）· #13 BE+F（<span class="m">04-29/05-31</span> 模型，<u>清單最舊</u>）· #4 TER（<span class="m">04-30</span> 模型，第二舊）</b>（初稿誤把「最舊」掛在村田身上，審核已更正）。這是<b>排序紀律的既有缺陷</b>，應由下一期訂出明確的降編規則來解決，而不是在這一期悄悄修剪。</p>
+</div>
+
+<div class="grid2">
+<div class="idea"><span class="rk">1</span><h3>GOOGL / AMZN <span class="mut">— CSP 重估</span></h3><span class="stage st-EARLY">EARLY · 早期</span> <span class="redflag">解題週已過，但語料庫無 CK 解讀</span>
+<p>論點未變：AI 交易的「花錢那一側」尚未重估，因為 FCF 為負、沒有回購。2027 的翻轉來自 CK 渠道的 <b>五大 CSP CAPEX 增速 +38% vs 共識 ~12%</b>，且增量流向 <b>Google 鏈而非 NVIDIA</b>；SA 獨立顯示 AWS 的利潤率拐點已現（Bedrock ~55% EBIT）。<b>已退場的一條腿（折舊到期 → FCF 轉正）維持退場。</b></p>
+<span class="kn">2027 營收 $678.316B vs 共識 $594.210B（+14.2%）· 2027 GAAP EPS $18.31 vs 共識 $14.77（<b>+24.0%</b>）· GCP +82% YoY vs 賣方 71.7% · 積壓訂單 $514.0B（+385% YoY）· CAPEX $195-205B · 五大 CSP 2027 CAPEX +38%（共識 ~12%）</span>
+<p class="tr"><b>觸發：</b>CK 對 MSFT/META/AMZN 這一輪財報出解讀（<b>目前語料庫為空白</b>）· RPO YoY &gt; CAPEX YoY</p><p class="rs" style="color:var(--mut)"><b style="color:var(--accent)">審核修正：</b>本卡初稿只留下 CAPEX 增速，把 07-28 build 就有的<b>可對照 EPS 預期差</b>（2027 GAAP EPS $18.31 vs $14.77）漏掉了——那會讓排名第一的想法變成清單裡唯一沒有「模型 vs 共識」盈餘缺口的一檔。已補回。</p>
+<p class="rs"><b>風險：</b>定位支撐已於上期撤回且未回來（CLOUD-CSP 反轉分 26.2、d20 −12.2 已轉去擁擠）· <b>GOOGL 在 07-30 全場暴力反彈中反而 −1.11%，是前三期角色的對調，記錄而不解釋掉</b> · 鷹派 Fed 先打久期</p>
+<p class="src">CK 07-23（沿用）· SA 07-08 · 盤面 07-29 收盤：GOOGL 336.71（距高 −17.6%、高於 200 日均 3.5%）· AMZN 226.65（距高 −18.6%、<b>低於 200 日均 3.4%</b>）</p></div>
+
+<div class="idea"><span class="rk">2</span><h3>CLS <span class="mut">— Celestica · TPU/OpenAI 機櫃</span></h3><span class="stage st-EARLY">EARLY · 早期</span> <span class="newflag">本期新進 #2</span>
+<p>本期<b>最大且最新的乾淨預期差</b>。公司全年財測全線上修，並<b>提前給出 2027 財測：營收 YoY &gt;65%、EPS 增速高於營收增速</b>——後者來自 Google TPU ODM 分層，CLS 承作<b>利潤率 15-20% 的 L6 段且佔 80% 份額</b>（L10-11 僅 5-10%）。<b>結構上不尋常的一點：公司自己的 2027 指引（&gt;$33.8B）就已高於共識 $33.0B，共識非動不可，與 CK 模型對不對無關。</b>渠道：TPU <span class="m">2026 4.6M → 2027 10M</span> 顆、Switch <span class="m">500k → 1.2-1.4M</span> 且手上 <b>&gt;10 個 1.6T 專案</b>、<b>OpenAI 機櫃 4Q26 小量／1Q27 爬坡未延期</b>（模型給 2027 營收獲利 ~20%）。</p>
+<span class="kn">2027 EPS $24.68 vs 共識 $19.19（+28.6%）· 2027 營收 $38.561B vs $33.000B（+16.9%）· 3Q26 營收中值 $5.40B vs $4.98B · 全年 CCS +84%（原 +69%）</span>
+<p class="tr"><b>觸發：</b>TPU v7 2H26 產能爬坡 · <b>4Q26 OpenAI 機櫃首批出貨</b> · 3Q26 財報對照 $5.40B 中值指引</p>
+<p class="rs"><b>風險：</b><b>單源</b>（SA 不覆蓋 CLS）· <b>不潛伏</b>——距低仍 +89.6%、僅高於 200 日均 0.7% · <b>低毛利 ODM，8.4% 營益率限制評價擴張</b>——這是獲利力故事不是重估故事 · <b>2Q26 營收 $4.699B 低於 CK 自己的模型 $4.788B</b>（雖優於共識），且 CK 的 2026 EPS $11.15 <b>低於公司自己的 $11.30 指引</b> · <b>同一篇裡 META Minerva 第三度下修（20k→10k→9k）</b></p>
+<p class="rs" style="color:var(--mut)"><b style="color:var(--watch)">預期差半衰期（本期新增欄位，僅此卡先行）：</b>這是<b>財報後、指引驅動</b>的缺口——共識會在<b>數日到數週內</b>改口，不是數季。與 MRVL（FY2029）或 GLW 的漲價階梯（數季）性質完全不同。參考點：07-30 開盤後六分鐘 CLS 已 <span class="m">+6.93%</span>（未收盤）。<b>缺口存在的理由，本身就規定了它消失得多快。</b></p><p class="src"><b>CK 07-29（本期新輸入）</b> · 盤面 07-29 收盤 328.43（距高 −30.7%、距低 +89.6%、高於 200 日均 0.7%）· 07-30 盤中 +6.93%（未收盤，不採計）· SERVER-ODM crowd 34.3 / d20 −22.8 / DD −31.8%</p></div>
+
+<div class="idea"><span class="rk">3</span><h3>WFE 設備鏈 <span class="mut">— AMAT/ASML/LRCX/TEL/KLAC/ONTO</span></h3><span class="stage st-EARLY">EARLY · 接近 RECOGNITION</span> <span class="newflag">由 #2 移至 #3：被擠下，非降評</span>
+<p>沿用：TSM 2026-28 CAPEX 循環＋ASML 五大客戶採購發力＋EUV 帶動 2027-28 上修，是唯一被兩源同時指向的設備循環。<b>本期無新證據。</b></p>
+<span class="kn">SEMI-EQUIP crowd 33.5 · d20 −59.2（全場最大去擁擠）· DD −39.4%（覆蓋範圍最深）· Transition</span>
+<p class="tr"><b>觸發：</b>TSM 後續 CAPEX 上修 · ASML 淨訂單 · INTC 18A/14A 設備下單</p>
+<p class="rs"><b>風險：</b>本身就是「半導體通膨」的一部分（卡 4.2）· 定位極端不等於底部</p>
+<p class="src">CK 07-17 / 07-15（沿用）· SA 07-02 · 擁擠度 07-29</p></div>
+
+<div class="idea"><span class="rk">4</span><h3>TER <span class="mut">— Teradyne · CPO 測試</span></h3><span class="stage st-EARLY">EARLY · 早期</span> <span class="newflag">由 #3 移至 #4：被擠下</span>
+<p>沿用：2026 訂單前置使 H2 看起來軟（CK 已預警＝該回檔屬雜訊），2027 有三條共識未建的成長線（Rubin SoC 測試切入 30/70 分成、Google/MTK 新客戶、CPO 測試機 70 → 200-250 台）。<b>本期無新證據。</b></p>
+<span class="kn">2027 EPS $13.32 vs 共識 $9.40（04-30 模型）／$10-11 由下而上（06-29）— <b>兩個內部數字未調和，用區間</b> · TEST d20 −49.8（第二大去擁擠）· DD −28.9%</span>
+<p class="tr"><b>觸發：</b>3Q/4Q26 首批 Rubin 測試機出貨 · WLT-D2 產業化證據 · Insertion-4 供應商決標</p>
+<p class="rs"><b>風險：</b>Rubin 再延（HBM4 認證）· ficonTEC 手工瓶頸未解 · 沒收到預警的持有人會被 H2 財報嚇到</p>
+<p class="src">CK 06-29 / 04-30（沿用）· 盤面 07-29 收盤 319.41（距高 −34.5%、<b>距低 +211.9%</b>、高於 200 日均 11.3%）</p></div>
+
+<div class="idea"><span class="rk">5</span><h3>MU <span class="mut">— 記憶體 SCA 重估</span></h3><span class="stage st-RECOGNITION">RECOGNITION · 認知擴散中</span> <span class="redflag">新增政策反身性風險</span>
+<p>沿用：整組 feed 裡基本面兩源同向最強的一個（CK 的 SCA/長約制度改變 × SA 的 DRAM 供給不足至 2028）。<b>發現階段已過，剩下的是估計值缺口與 PB→PE 的重估機制。</b></p>
+<span class="kn">FY2027 EPS $202.80 vs 共識 $148.79（+36%）· 2027 定價沿 ~30% 長約天花板 · MEM-STORAGE 仍是全場最高 crowd 58.5 但續降（d20 −22.7）</span>
+<p class="tr"><b>觸發：</b>更多大型 SCA 公告 · 下一份財報對照長約定價</p>
+<p class="rs"><b>風險：</b>毛利率循環見頂（CK 自己的紀律：85% 毛利率時看循環不看倍數）· <b>本期新增：Warsh 明講 Fed 在盯「AI CAPEX 推升記憶體價格」</b>——記憶體漲價<b>可能</b>被讀成續鷹的素材。<b style="color:var(--choke)">但這條風險在審核中被下修</b>：同一場記者會 Warsh 明說一次性的 AI 需求漲價<b>不等於</b>持續性通膨，等於先否定了這個推論（卡 4.2）· 距低仍 +614.8%</p>
+<p class="src">CK 06-29（沿用）· SA 07-25 / 06-23 · 盤面 07-29 收盤 739.00（距高 −41.1%、<b>距低 +614.8%</b>、高於 200 日均 44.5%）</p></div>
+
+<div class="idea"><span class="rk">6</span><h3>GLW <span class="mut">— Corning · 光纖漲價週期</span></h3><span class="stage st-EARLY">EARLY · 早期</span> <span class="newflag">本期新進 · 首次覆蓋</span> <span class="redflag">預期差為本系列新進最小</span>
+<p><b>首次覆蓋＝沒有模型過期問題</b>，而且是全清單洗盤最深的名字（<b>距高 −54.4%、跌破 200 日均 7.9%</b>）。硬內容是<b>渠道檢查的光纖報價階梯</b>與 2H26 分兩季的第二輪漲價，對上<b>要到 2H27-2028 才到位的新產能</b>——漲價週期能見度長。CK 判定 3Q 指引偏弱是<b>供給限制而非需求</b>：CAPEX 自 $1.7B 上修至 $2.0B、多數由客戶承諾與預付款支撐，光通訊成長綁 <b>LTSA（訂金＋產能預留＋照付不議）</b>。新需求向量是 <b>NVDA 三年 $5-10B 自建暗光纖網路</b>。</p>
+<span class="kn">2027 EPS $4.72 vs 共識 $4.31（+9.5%）· 2027 營收 $24.045B vs $22.860B（+5.2%）· 6 月長約報價 G.652.D $9-10.5／G.657.A1 $11-12.5／G.657.A2 $16-18／G.654.E $22-25（現貨 +10~20%）· 2H26 再漲 +5~10%／+5~10%／+15~20%／<b>G.654.E +35~40%</b> · 光通訊 +32% YoY、企業網路 +65% YoY</span>
+<p class="tr"><b>觸發：</b><b>2H26 第二輪漲價落地（分兩季）</b> · 3Q26 財報對照 $4.95B 中值指引 · 產能擴張進度</p>
+<p class="rs"><b>風險：</b><b>預期差只有 +9.5%，是本系列新進裡最小的</b> · <b>CK 對 2026 營收比公司還保守</b>（$19.463B vs 公司 $20.0B ARR 目標）——他不是比街上更多頭，是夾在街上與管理層之間 · <b>近期瓶頸正是砸盤主因，且 CK 說不出何時解除</b> · <b>Glass Bridge 是 2028 的事</b>（驗證階段、完整認證 18-26 個月、2028 才小量試用）→ 吃引信折價 · <b>單源</b>，SA 零 GLW 覆蓋 · <b>NVDA 暗光纖的受惠者不完全是 GLW</b>——CK 自己說 GLW 明確不擴光棒產能，外溢由長飛/亨通吃下</p>
+<p class="src"><b>CK 07-30（本期新輸入，首次覆蓋）</b> · 盤面 07-29 收盤 124.05（距高 −54.4%、距低 +101.9%、<b>低於 200 日均 7.9%</b>、低於 50 日均 32.6%）· NET-OPT crowd 33.9 / d20 −40.3 / DD −34.3%</p></div>
+
+<div class="idea"><span class="rk">7</span><h3>NOK <span class="mut">— DCI 訂單創高 vs 標案被繞過</span></h3><span class="stage st-EARLY">EARLY · 第二輪（非潛伏）</span> <span class="newflag">由 #5 移至 #7：被擠下</span> <span class="redflag">來源算術缺口續掛</span>
+<p>沿用 07-27：訂單面創高（AI/CSP 新接 <b>€2.8B、+180% QoQ</b>、渠道 B:B <b>2.0</b>、6 吋 InP 報價 YoY <b>&gt;70%</b>、CoreWeave $100M），但<b>同一篇把自己的 DCI 營收預期砍 28%</b>（Google 砍標案 30% 至 $4.2B、$1.8B 轉直購給 CSCO/COHR 各 $900M，CK 預期微軟/META/AWS 跟進）。<b>本期無新證據。</b></p>
+<span class="kn">2027 EPS €0.48 vs 共識 €0.40（+20.0%）· 2027 營收 €25.813B vs €22.149B（+16.5%）· DCI 營收實現 $4.37B → $3.16B（−28%）</span>
+<p class="tr"><b>觸發：</b>~9 月 Amazon DCI 決標 · 10 月下旬 3Q26 訂單對照 $16.75 億上修空間</p>
+<p class="rs"><b>風險：</b><b>來源算術不調和</b>（$4.2+$4.9+$2.1 = $11.2B 而非 CK 宣稱的 $13.1B；套用份額得 $4.41B 而非 $4.86B）——這是來源缺口不是本頁轉錄錯誤 · <b>不是潛伏標的</b>：已走完 4.00→17.45（+336%）→8.41 一輪 · <b>盤面再惡化：現已跌破 200 日均 7.9%</b>（兩期前尚高於 2.0%）· 2026 營益「上修」是終止營運重分類假象</p>
+<p class="src">CK 07-27（沿用）· 盤面 07-29 收盤 8.41（距高 −51.8%、<b>距低 +110.2%</b>、<b>低於 200 日均 7.9%</b>）</p></div>
+
+<div class="idea"><span class="rk">8</span><h3>MRVL <span class="mut">— Google 五專案 · 最長引信</span></h3><span class="stage st-LATENT">LATENT · 潛伏</span> <span class="newflag">由 #6 移至 #8：被擠下</span> <span class="redflag">本期吃最重引信折價</span>
+<p>沿用 07-23：至少 5 個 Google 專案（TPU v10、次世代 Axion CPU、SRAM 型 LPU 4Q27 tape-out、含 Google IP 的 PAM4 DSP、DCI COLORZ 1600），是 Google 分散供應鏈的首要受惠者。<b>本期無新證據。</b></p>
+<span class="kn">FY2029 營收 $35.912B vs $23.225B（+54.6%）· FY2029 EPS $14.08 vs $9.17（+53.5%）· <b>但 CK 自己的 FY2027 與共識一致</b>（$11.502B vs $11.527B）</span>
+<p class="tr"><b>觸發：</b>TPU v10 正式決標 · SRAM-LPU 4Q27 tape-out</p>
+<p class="rs"><b>風險：</b><b>清單最大的預期差配上最長的引信（FY2029 ≈ CY2028）</b>——在 10Y 4.67%、曲線走陡、Fed 轉鷹的環境下，這正是被折得最兇的形狀 · SA 的光 interposer 良率旗標打在 OMIB 那條線上</p>
+<p class="src">CK 07-23（沿用）· 盤面 07-29 收盤 163.40（距高 −50.5%、<b>距低 +166.0%</b>、高於 200 日均 21.9%）</p></div>
+
+<div class="idea"><span class="rk">9</span><h3>STX / WDC <span class="mut">— HDD 供需缺口</span></h3><span class="stage st-EARLY">EARLY · 早期</span>
+<p>沿用：CK 自稱最大的預期差。2027 供給 2,000-2,200 EB vs 需求 2,600-2,800 EB（~30% 缺口）、渠道 $25/TB vs 賣方 ~$20；HAMR 上抬毛利率循環。<b>本期無新證據。</b></p>
+<span class="kn">~30% 2027 供需缺口 · $25/TB vs 街上 ~$20 · STX 2026/2027 EPS $19.6/$34.1 · WDC FY26/27 $15.1/$26.8</span>
+<p class="tr"><b>觸發：</b>財報顯示 HAMR ASP 組合 · 賣方把 $/TB 上修過 $20</p>
+<p class="rs"><b>風險：</b><b>單源</b>，SA 視窗內零 HDD 覆蓋 · 供給紀律可能破功 · <b>回撤深不等於便宜：STX 距低 +428.1%、WDC +531.7%</b></p>
+<p class="src">CK 06-29（沿用）· 盤面 07-29 收盤 STX 764.43（距高 −33.2%）· WDC 462.04（距高 −42.2%）</p></div>
+
+<div class="idea"><span class="rk">10</span><h3>CRDO <span class="mut">— 光 DSP 第二曲線</span></h3><span class="stage st-EARLY">EARLY · 早期</span>
+<p>沿用：CK 依證據翻多的最乾淨案例（03-18 出場、07-13 因 DustPhotonics 給出 SiPh/CPO 路徑而重新加入）。<b>本期無新證據。</b></p>
+<span class="kn">FY2028 EPS $12.13 vs 共識 $8.91（+36%）· FY2028 營收 $4.713B vs $3.651B · 近期 FY1Q27 EPS $1.10 vs 共識 $1.16（低於街上）</span>
+<p class="tr"><b>觸發：</b>光 DSP 訂單確認（Innolight/Eoptolink）· 3.2T 設計案</p>
+<p class="rs"><b>風險：</b>SA 的 EAM/SiPh 規模量產旗標<b>直接打在這個論點上</b> · 近期 EPS 低於街上 · AEC 基本盤日後面臨 CPO 替代</p>
+<p class="src">CK 07-13（沿用）· 盤面 07-29 收盤 177.45（距高 −42.5%、距低 +105.2%）</p></div>
+
+<div class="idea"><span class="rk">11</span><h3>村田 6981.T <span class="mut">— MLCC 排擠效應</span></h3><span class="stage st-EARLY">EARLY · 早期</span> <span class="redflag">審核更正：陳舊度旗標改指 #13 BE／#4 TER</span>
+<p>沿用：真正的錢不在 AI MLCC 的 TAM，而在<b>排擠效應</b>——AI 用量吃掉標準產能，逼出全品類漲價（村田調價函平均 +34%）。<b>本期無新證據。</b></p>
+<span class="kn">村田 MLCC 營收 +23%（2026）→ +72%（2027 模型）· FY2027 OP ¥690.0B vs 共識 ¥663.0B · 2027 PE ~25x</span>
+<p class="tr"><b>觸發：</b>2H26 第二輪調價函 · 村田 Q3 產能轉向 AI</p>
+<p class="rs"><b>風險：</b><b style="color:var(--choke)">審核更正：</b>初稿說村田是排序清單最舊的模型——<b>不成立</b>。BE <span class="m">04-29</span>（92 天）與 TER <span class="m">04-30</span>（91 天）更舊，STX/WDC 與村田同為 06-29。村田模型 31 天，屬中段。<b>陳舊度旗標已改指向 #13 BE 與 #4 TER</b> · 單源（SA 被動元件節點空白）· 日股，無擁擠度讀數 · <b>本身也是「半導體/電子通膨」的一部分（卡 4.2）</b></p>
+<p class="src">CK 06-29 / 06-16（沿用）· 無量表讀數</p></div>
+
+<div class="idea"><span class="rk">12</span><h3>TSM <span class="mut">— 財報看對、個股肉已收窄</span></h3><span class="stage st-PRICED">PRICED / NEUTRAL（自 RECOGNITION 降階，07-18）</span> <span class="redflag">邊緣名單</span>
+<p>沿用：整個堆疊的總鑰匙，但預期差已收窄到 <b>~+4%</b>。<b>自 07-18 起未動；本期誠實地標記為清單的邊緣位置。</b></p>
+<span class="kn">預期差 ~+4% · 毛利率高檔 66-67% · 2026-28 CAPEX $220-230B</span>
+<p class="tr"><b>觸發：</b>後續 CAPEX 上修 · N2 爬坡與 CoPoS 進度</p>
+<p class="rs"><b>風險：</b>買方門檻已高 · <b>預期差是本清單最小，若下一期仍無新證據，應依降編規則處理</b></p>
+<p class="src">CK 07-17（沿用）· 盤面 07-29 收盤 374.67（距高 −21.8%）</p></div>
+
+<div class="idea"><span class="rk">13</span><h3>BE + F <span class="mut">— 電網缺口雙表達</span></h3><span class="stage st-RECOGNITION">RECOGNITION（BE）</span> <span class="stage st-LATENT">· LATENT（F 能源腿）</span> <span class="redflag">邊緣名單：六月後零新證據</span>
+<p>沿用：SA 的電網數學是整個堆疊的結構性地板；CK 的表達是 BE（已偏貴）與 Ford Energy BESS（市場完全沒定價的重估選擇權）。<b>本期側面補強但方向是「往前挪」：SA 07-29 指出電工缺口在 2027 就到，比發電缺口更早。</b></p>
+<span class="kn">F 2028 EPS $2.51 vs 共識 $2.08（+21%）· BE FY2026 指引 $3.4-3.8B vs 共識 $2.552B · SA：2030 缺口 ~40GW</span>
+<p class="tr"><b>觸發：</b>BE 積壓訂單更新 · Ford EDF 交付與第二張 BESS 合約</p>
+<p class="rs"><b>風險：</b><b>六月以來零新證據，是清單邊緣位置</b> · BE 距低仍 +403.5%、且已跌破 200 日均 7.8% · <b>BE 在 07-30 盤中 +21.79%（全清單最大）——正是本頁拒絕據以分級的那種讀數</b></p>
+<p class="src">CK 05-31 / 04-29（沿用）· SA 07-29 / 06-25 · 盤面 07-29 收盤 BE 163.75 · F 15.28</p></div>
+</div>
+
+<h2><span class="k">矛盾區 · 不硬拗</span>Live Conflicts — where the sources genuinely disagree</h2>
+<p class="sub">矛盾是交付物，不是雜訊。本期<b>四張新卡、兩張更新、一張真正退場</b>（自 07-26 以來第一次有卡退場，而且是因為被回答，不是為了整齊）。</p>
+
+<div class="panel retired" style="border-left:3px solid var(--bull)">
+<h3 style="font-size:13.5px;color:var(--bull)">〔退場〕調查說擁擠 vs 價格說洗盤 — <b>最後一條腿被回答了</b><span class="newflag">本期唯一退場 · 因解決而退場</span></h3>
+<p><b>第一條腿</b>（FMS 說「半導體最擁擠」是不是後照鏡？）已在前三期以價格證實。<b>剩下的那條腿是 07-28 明確問出來的：「指數自己的自滿會不會破？」</b>——當時 SPY 只距高點 2.8%、而 SMH 已 −18.4%。<b class="rd">07-29 給了答案：會。SPY <span class="m">−1.54%</span>、QQQ <span class="m">−2.04%</span>，SPY 距高點擴大到 <span class="m">−4.1%</span>。</b>兩條腿都已回答，整張卡退場。</p>
+<p class="small">註：取代它的不是另一張定位卡。07-30 開盤後六分鐘的暴力反彈（SMH +4.09%）是一個觀察，<b>本頁不把它變成一個主張</b>。</p></div>
+
+<div class="panel confcard"><h3 style="font-size:13.5px">4.1 Fed 的反應函數 vs 通膨 nowcast — 而且有一條線站錯邊了<span class="newflag">本期新增</span></h3>
+<p><span class="a"><b>A 腿（nowcast）：</b></span>校準後隱含 8/12 公布值 <span class="m">3.575%</span> vs 共識代理 <span class="m">3.623%</span>＝<b>鴿派傾斜 −0.048pp、LOW，連續第五期</b>。</p>
+<p><span class="b"><b>B 腿（Fed）：</b></span>7/29 <b>三名票委投升息票</b>，Warsh 說<b>只有 2%、沒有隱性目標</b>，通膨續高<b>升息「完全可能」</b>；10Y 當日 4.61%→<b>4.67%</b>、30Y 5.09%→<b>5.20%</b>。</p>
+<p><span class="rd"><b>怎麼讀：</b></span><b>這兩個不是同一個問題</b>——Truflation 預測的是 CPI 路徑，對 Fed 的反應函數沒有發言權，所以 <b>nowcast 沒有被證偽</b>。<b class="b">被證偽的是 CK 在 06-29 從它推出來的投資結論</b>（「通膨都降溫了，怎麼升息啊」，並判斷 ~40% 升息機率是超調）。這記在 CK 這條線的誠實帳上，不是記在量表頭上。<b>觀察：8/12 CPI；9/15-16 三票會不會變四票。</b></p></div>
+
+<div class="panel confcard" style="border-left:3px solid var(--choke)"><h3 style="font-size:13.5px">4.2 半導體通膨成為 Fed 的監控項目 — 一種全新的風險類別<span class="newflag">本期新增</span> <span class="redflag">本期最重要</span></h3>
+<p><span class="a"><b>A 腿（CK 07-30 的轉述）：</b></span>Warsh 在會後說，Fed 的通膨工作小組正在檢視一連串衝擊——Covid 供應鏈、戰爭、能源中斷、關稅戰，<b>以及現在的 AI CAPEX 投資浪潮</b>；<b>AI 資本支出正在推升記憶體、先進製程晶片與相關 AI 設備的價格</b>，Fed 正在關注<b>半導體通膨是否帶來更廣泛的通膨上升</b>。</p><p><span class="b"><b>B 腿（公開報導的獨立交叉驗證 — 本期新增，且它<u>削弱</u>了 A 腿的投資推論）：</b></span>同一場記者會的公開報導指出，<b>Warsh 是在「反駁通膨鷹派」的脈絡下講這件事的</b>：他明說由 AI 需求引發的<b>一次性</b>價格上漲（例如 GPU 成本、資料中心用電）<b>不應與持續性通膨混為一談</b>；他並向參議院銀行委員會表示<b>當前這波 AI 支出不是泡沫</b>，是會擴大經濟生產能力的資本支出（1Q26 高科技支出年增近 <span class="m">25%</span>）。<b>換句話說，主席已經先一步否定了「半導體漲價＝該升息」這個推論。</b></p>
+<p><span class="rd"><b>為什麼這是矛盾卡而不只是新聞：</b></span>本儀表板上<b>每一條定價權論點，都同時可能是自己的多頭理由與「Fed 該續鷹」的素材</b>（<b>強度已依 B 腿下修，見下</b>）：MU 的長約天花板、TSM 的 ≤N5 漲價、村田的 +34% 調價函、<b>GLW 的 G.654.E +35~40%</b>、伺服器 CPU 上下半年各 +10%、MLCC 排擠效應。<b class="b">若這些漲價被讀成持續性通膨，那麼論點越成立，支持「壓縮它們評價倍數」的政策就越有理由。</b>本頁從來沒有帶過這條迴路——但也不該把它講得比證據更強。</p>
+<p><b style="color:var(--choke)">本卡在審核中被下修，過程明列：</b>初稿只寫了 A 腿，並據此宣稱「每一條定價權論點從今天起都是 Fed 續鷹的證據」。<b>加入 B 腿之後，這個宣稱過強</b>——主席明確把 AI 驅動的一次性價格效果<b>排除</b>在持續性通膨之外。修正後的說法是：<b>傳導管道確實存在且被具名，但目前的官方解讀是「一次性、不是持續性」</b>；這條迴路要真的咬到評價倍數，需要先看到 Fed 改口。<b>這是本期唯一一處自我下修的論點，記錄在此而不是悄悄改寫。</b></p><p><b>誠實界線：</b>這<b>不是</b>在預測 Fed 會據此行動——只是說，現在存在一條<b>具名、有日期</b>的傳導管道，把本頁的個股論點連到本頁的折現率上，而<b>兩條腿對這條管道的意義並不同意</b>。<b>觀察：</b>半導體/電子元件是否出現在後續 Fed 溝通或 CPI/PPI 評論中；「一次性 vs 持續性」的措辭是否鬆動；9/15-16 聲明用字。</p></div>
+
+<div class="panel confcard"><h3 style="font-size:13.5px">4.3 分析師自己否定自己的產品（源內矛盾 · CK 07-29 與 07-30）<span class="newflag">本期新增</span></h3>
+<p><span class="a"><b>A 腿：</b></span>CK 照樣產出詳細的財務模型，而本頁的 Tier 3 排序<b>整個建立在這些模型上</b>。</p>
+<p><span class="b"><b>B 腿：</b></span>在 GLW 與 CLS <b>兩篇</b>的模型段落結尾，他都寫下：在當前 <b>margin call 融資斷頭、帶動 de-grossing 去槓桿</b>的市場環境中，<b>他不太認為基本面分析在現階段會有太多用處</b>，即使他<b>猜測</b>去槓桿已進入<b>後期階段</b>。</p>
+<p><span class="rd"><b>怎麼讀：</b></span>兩句都是他自己說的。記在這裡是因為本頁的排序機制完全仰賴他所懷疑的那些模型。<b>「後期階段」是明確加了「猜測」二字的判斷，不是渠道檢查</b>，權重照此處理。07-30 的暴力反彈與這個說法相容，但<b>六分鐘的讀數什麼都證明不了</b>。</p></div>
+
+<div class="panel confcard"><h3 style="font-size:13.5px">4.4 模組化資料中心：品質數據 vs 現場經驗（源內矛盾 · SA 07-29）<span class="newflag">本期新增</span></h3>
+<p><span class="a"><b>A 腿：</b></span>工廠首次通過率（測試與檢查點無需返工的比例）<b>&gt;95%</b>，對比現場基準 <b>60-70%</b>，靠的是工廠固定作業指導書；Flex 以 DFMEA／DFM／DFA 把它工程化。</p>
+<p><span class="b"><b>B 腿（同一篇文章）：</b></span>近期與<b>營運商與 MEP 承包商</b>的對話指出，模組化方案<b>已出現可靠度問題、沒有兌現宣稱</b>——一旦如此，不只初期省下的工期全部吐回（現場team 還是得進場），<b>更嚴重的是把昂貴硬體置於風險中</b>。</p>
+<p><span class="rd"><b>怎麼讀：</b></span>SA 兩邊都寫、<b>沒有裁決</b>。這是整個 BUILD 節點的核心執行風險，也是本期把該節點定為 <b>BULL 而非 STRONG_BULL</b> 的原因。<b>觀察：</b>是否有營運商公開回頭撤掉模組化方案；VRT／SU／FIX 的保固或返工揭露。</p></div>
+
+<div class="panel confcard"><h3 style="font-size:13.5px">Meta 2027 CAPEX 品質 — <b>解題事件發生了，但這張卡不能退場</b><span class="newflag">本期更新</span></h3>
+<p>07-28 build 指名「本週的 Meta 財報」為解題事件。<b>Meta 確實已經公布。但語料庫裡沒有 CK 對它的任何分析</b>，而自行推論正是 CIEN 規則要防的錯誤。<b class="rd">因此這張卡維持開啟，等 CK 的覆蓋，而不是用推論把它結掉。</b></p>
+<p><b>唯一的新鄰接數據點，方向偏負：</b>CK 的 CLS 文章揭露 <b>META 的 Minerva ASIC 機櫃 2026 出貨第三度下修——20k → 10k → <span class="m">9k</span></b>。這是關於 Meta <b>自研矽的執行力</b>，不是關於總 CAPEX，兩者不要混為一談。</p></div>
+
+<div class="panel confcard"><h3 style="font-size:13.5px">CPO 量產性 / ramp 斜率<span class="newflag">本期更新：新證據偏向 SA 那一側</span></h3>
+<p><span class="a"><b>CK 側：</b></span>沿用 06-29——CPO 沒延期，是市場預期跑太前；scale-out 2027／scale-up 2028。</p>
+<p><span class="b"><b>SA 側：</b></span>沿用 07-02——多 reticle 光 interposer 良率「challenging」、EAM 難以規模量產。</p>
+<p><span class="rd"><b>本期新增：</b></span>GLW 的 <b>Glass Bridge</b>——一家材料巨頭推出的真 CPO 封裝被動元件（TGV＋光波導整合於同一玻璃基板，在 CPO 封裝中取代 MPO/FAU 介面）——<b>仍在技術驗證階段，完整認證需 18-26 個月，5 個製程驗證階段中 2Q27 才可能到第 3-4 階段，2027 年底才可能完成主要客戶驗證，2028 才啟動小規模試用</b>。<b class="b">這是對 SA「爬坡比較慢」那一側的溫和支持，而且來自平常站在「時程沒問題」那一側的 CK。</b>卡片維持開啟。</p></div>
+
+<div class="panel confcard"><h3 style="font-size:13.5px">NOK/CIEN DCI：訂單創歷史新高 vs 標案正被客戶繞過<span class="newflag">沿用 · 源內矛盾</span></h3>
+<p><span class="a"><b>A 腿：</b></span>訂單 <span class="m">€2.8B</span>（+180% QoQ、史上最高）、B:B <span class="m">2.0</span>、6 吋 InP ASP YoY &gt;70%、CoreWeave $100M。<span class="b"><b>B 腿：</b></span>Google 砍標案 30% 至 <span class="m">$4.2B</span>、<span class="m">$1.8B</span> 轉直購（CSCO/COHR 各 $900M），CK 預期微軟/META/AWS 跟進，並自砍 DCI 營收實現 <b>−28%</b>。</p>
+<p><span class="rd"><b>本期狀態：</b></span>無新證據，<b>也沒有任何微軟/META/AWS 的直購公告出現</b>。卡片沿用。</p></div>
+
+<div class="panel confcard"><h3 style="font-size:13.5px">其他沿用卡（本期無新證據）<span class="newflag">沿用</span></h3>
+<p><b>記憶體：HBM 定價權 vs 非-HBM DRAM 去規格化</b>（SA 07-25）· <b>AVGO：Google TPU 份額流失 vs AMD 機櫃獨家供應含量</b>（跨源真對撞）· <b>AMD：SA 最大幅度上修 vs 已經漲了三倍的股價</b>——本期機械上有所減弱，AMD 距高點自 −15.4% 擴大到 <b>−26.5%</b>，但仍<b>距低 +187.9%</b>、高於 200 日均 38.9% · <b>GOOGL FCF：成長的代價 vs 現金流失血</b> · <b>Rubin 世代躍進：真實 vs 行銷灌水</b>（單源 SA）· <b>NVDA：單位下滑 vs 約束定價權</b>。</p></div>
+
+<h2><span class="k">潛伏名單 · 下一個進場藏在這</span>Still-Latent Watchlist — pre-recognition, with wake-up triggers</h2>
+<div class="panel" style="padding:8px 12px">
+<table>
+<tr><th style="width:190px">Name</th><th>Why next · 為何是下一個</th><th style="width:300px">喚醒觸發</th></tr>
+<tr><td class="m"><b>BUILD 模組化節點</b><br><span class="small">VRT FIX PWR STRL ETN<br>NVT MOD EME IESC FLEX<br>MYRG J（SU/SIE/ABB 非美股）</span><span class="newflag">本期新增 · 整個節點</span></td><td><b>本 build 品質最高的新研究，卻一檔都不排序——理由必須寫清楚。</b>SA 的論證是：<b>勞動力是資本買不到的瓶頸</b>（電工佔工時 <span class="m">30-40%</span>、<span class="m">2027</span> 出現缺口、德州/俄亥俄最緊；Crusoe 加薪 <span class="m">30%</span>；QTS 說已推升每 MW 成本 <span class="m">20-30%</span>），所以整個產業被迫把工作搬進工廠——<b>追蹤 &gt;61GW、1,000+ 站點，2028 年底滲透率 30%+</b>，工期壓縮 <span class="m">~36%</span>、每 MW 便宜 <span class="m">~8%</span>。<b>投資含量在「每 MW 金額」而不是量：VRT $3.5M → ~$7M（2 倍，OneCore 已是 NVDA Vera Rubin DSX 參考設計的組件；2025 年底積壓 $15.0B、Q4 B:B 2.9x；4 月併 BMarko 使區域模組產能 ~7 倍；部分模組已賣光 12 個月以上）· FIX 模組化佔 1H26 營收 17%（~$2B 年化）、積壓 $14.1B（+73% YoY）、<b>預收款半年增 $1.11B 至 $3.23B</b>（客戶大幅預付是全文最硬的證據）· PWR 技術終端佔積壓 &lt;5% → ~10%、增速 &gt;100% · STRL 可及產能 3.8GW → 14GW · ETN $2.9M → $3.4M/MW · MOD 拿下 &gt;$4B 冷卻產能預留＋$165M 預付款</b>。<b class="rd">為何不排序：SA 不出財務模型、不比共識，CK 對這些名字零覆蓋 → 沒有可驗證的「模型 vs 共識」預期差。這正是 07-28 用來擋下 CIEN 的同一條規則，一致套用。</b>而且從價格看<b>也全都不潛伏</b>（07-29 收盤距低）：FIX <b>+131.4%</b>、FLEX +115.4%、STRL +102.5%、VRT +87.9%、MYRG +87.8%、NVT +71.1%、MOD +60.1%、IESC +60.3%、PWR +54.3%、J +28.6%、EME +19.0%、ETN +16.0%</td><td><b>CK 對其中任何一檔出財務模型</b>（最直接的喚醒條件，會產生本節點第一個可排序預期差）· 公司揭露每 MW 含量到可以對照共識的程度 · 2027 電工缺口出現<b>第二個獨立來源</b>。個別最高訊號：<b>VRT 的 OneCore 含量爬坡</b>（2 倍是本節點最大的單筆每 MW 躍升）· <b>FIX 的模組化積壓轉換</b> · <b>PWR 自 9 月起的 Houdini 撬塊交付</b></td></tr>
+<tr><td class="m"><b>CIEN</b> Ciena</td><td>沿用：依 CK 07-27 的份額模型，CIEN 拿 $13.1B 可及標案中的 <b>$8.24B</b>，遠大於 NOK 的 $4.86B，且 CK 明講 NOK 的機會來自 CIEN 產能不足的外溢。<b>但語料庫沒有現行 CIEN 模型（最近一次 06-08）</b>＝沒有可驗證預期差。<b>本期盤面續惡化：07-29 收 <span class="m">330.37</span>，距高 −48.2%、<b>已跌破 200 日均 5.4%</b>，但距低仍 +291.4%</b></td><td><b>CK 對 CIEN 出新模型</b> · CIEN 財報量化 DCI 得標並對照 $8.24B</td></tr>
+<tr><td class="m"><b>COHR</b>（CSCO 為脈絡）</td><td>沿用：Google $1.8B 直購的兩個受惠者，各 $900M 相干光模組。<b>語料庫的 COHR 模型停在 2026-02-06</b>（近半年）。07-29 收 <span class="m">222.05</span>，距高 −49.5%、<b>低於 200 日均 12.4%</b>，但距低仍 +163.2%</td><td>CK 對 COHR 出新模型 · 微軟/META/AWS 是否也宣布直購</td></tr>
+<tr><td class="m"><b>SRAM 型推理 LPU</b><br><span class="small">（類別，非單一標的）</span></td><td>沿用：同一季內三家獨立廠商同時押注——MRVL 為 Google 開發 SRAM 型 LPU（4Q27 tape-out，經濟驅動力是<b>記憶體大漲使 SRAM 與 DRAM 成本差距縮小</b>）· NVDA GTC 2026 發表 Groq 3 LPX · AMD 與 Cerebras 做 PD 分離推理。<b>本期側證：CLS 渠道指出 TPU 部分產品線正探索以 CXL + PCIe Gen7 的 TB 級 DRAM 池化取代 HBM</b>——同屬「繞開 HBM 成本」的同一族壓力</td><td>第二家 CSP 公開承諾 SRAM 解碼晶片 · MRVL LPU 4Q27 tape-out 如期 · Groq 3 LPX 實際出貨</td></tr>
+<tr><td class="m"><b>2454.TW</b> 聯發科 MTK</td><td>沿用：Zebrafish (v8t) 3Q26 量產、領先 AVGO Sunfish (4Q26)。<b>取用註記：台灣掛牌</b>，不在 IBKR-only 範圍內，僅列為研究脈絡</td><td>3Q26 Zebrafish 量產確認 · Google TPU 三供結構的公開證實</td></tr>
+<tr><td class="m"><b>6590.T</b> Shibaura</td><td>沿用：CoPoS 需 ~3x die-bonder 且 ASP 更高；可能成為 TSM SoIC 的 Besi 第二源；MI455X 採 SoIC-X 混合鍵合再添一個獨立需求來源</td><td>3Q26 CoPoS die-bonder 認證 · MI455X 量產爬坡</td></tr>
+<tr><td class="m"><b>High-NA EUV 受惠</b> ASML/蔡司鏈</td><td>沿用：ASML 07-15 揭露 INTC 已在 18A 採用 High-NA；蔡司 ~40%/yr 擴產是共同瓶頸</td><td>INTC 2026-27 擴大 High-NA 下單 · 蔡司產能擴張證據</td></tr>
+<tr><td class="m"><b>UCTT</b> / 無塵室鏈</td><td>沿用：CK 說設備最重要的瓶頸是無塵室、「沒人問過這題」。<b>本期共鳴：SA 的模組化文章從另一個角度講同一件事——真正卡住的是把東西蓋起來的人和空間，不是晶片</b></td><td>更多 WFE 財報點名無塵室延遲 · 廠房完工排程固化</td></tr>
+<tr><td class="m"><b>SNPS / CDNS</b> EDA</td><td>沿用：驗證佔設計 ~70% 時間、複雜度 +50%/年 vs 生產力 +20%/年。<b>擁擠度 EDA-IP 仍是全場最低（crowd <span class="m">23.5</span>）</b></td><td>ELA 續約定價／AI 工具滲透揭露 · 客製 ASIC 專案數成長</td></tr>
+<tr><td class="m">鋁質/snap-in 電容鏈</td><td>沿用：CK 說比 MLCC 更緊（~30% 缺口）但關注度只有零頭</td><td>調價函蔓延到 MLCC 以外品類</td></tr>
+</table>
+</div>
+
+<footer>
+<p><b>Compliance / 合規框架：</b>本頁為 Ron 的個人研究情境（PAPER · research context），非投資建議；所有立場均為研究脈絡，<span class="m">action_gate_eligible=false</span>——任何行動決策須經 Portfolio Decision Compiler 與 fail-closed 行動閘門。本頁不含任何部位大小、權重或交易指示。訂閱來源內容（ChivesKing/SemiAnalysis）依政策以敘事/框架形式融入、標註出處與日期、不整段轉載原文。<b>「非評分輸入」的精確意思：</b>訂閱內容<b>不</b>餵入 Leading-Indicators 儀表板的自動化量化評分管線（flow_score / 早期發現閘門等）。它<b>確實</b>是本頁 Tier 3 敘事排序的依據——本頁的排序是<b>人為序數判斷</b>（已於「排序依據攤開來看」一表中列出以供反駁），不是自動化評分，兩者不可混為一談。IBKR read-only。</p>
+<p><b>Sources &amp; as-of：</b>ChivesKing 美股 Insight 全文庫 <b>101 篇</b>（backfill 至 2026-01-11；<b>本期 3 篇新文：GLW 2Q26 首次覆蓋 07-30、Fed 7月會議 07-30、CLS 2Q26 07-29</b>；其他最高效力：NOK 2Q26 07-27、TSLA 2Q26 07-25、GOOG 2Q26 07-23、TSM 2Q26 07-17、ASML 2Q26 07-15、3Q26 直播 06-29、7月FMS 全文 07-20）· SemiAnalysis <b>259 篇 metadata + claims，本期 1 篇新文（全文 94,633 字元可得）：「The Wild Wild West Of LEGO Datacenters」07-29</b>（全文索引與 metadata 索引<b>雙軌皆查</b>；其他沿用：Can AMD break the CUDA Moat? 07-25、Vera Rubin TCO 07-23、Meta 文化 07-21、ECTC 07-02、US grid 06-25）· Truflation 17 系列（nowcast <span class="m">2.119%</span> @ 07-30；背離 −1.381；校準偏差 +1.62pp）+ BLS 官方 CPI（6月 <span class="m">3.531%</span> @ 07-14 公布）+ 子板塊擁擠度量表（as_of <b>07-29 已收盤</b>，<b>無子板塊 ≥85</b>，最高 MEM-STORAGE 58.5 且下行；12 個中 11 個去擁擠）+ 盤面 <b>07-29 收盤</b>（FMP EOD／批次報價）＋ <b>07-30 09:36 ET 盤中（未收盤，僅供參考、不採計）</b> + 美債殖利率 FMP treasury 07-29（10Y 4.67% / 2Y 4.22% / 30Y 5.20%）+ 週報 07-06 / Rotation v7 07-20（<b>本期無新週報</b>）。合成檔：notes/leading-dashboard/data/xfeed/。</p>
+<p><b>誠實聲明：</b>（1）<b>本期是 HEAVY build：四份新輸入</b>（CK GLW 07-30 首次覆蓋、CK Fed 07-30、CK CLS 07-29、SA 模組化 07-29），為本系列單期最多。（2）<b>本 build 品質最高的新研究產出了零檔排序想法</b>——SA 的模組化深度報告開出一個全新節點，但 SA 不出財務模型、不比共識，CK 對那些名字零覆蓋，<b>沒有可驗證的「模型 vs 共識」預期差就不得排序</b>；這是 07-28 用來擋下 CIEN 的同一條規則，<b>刻意套用在自己最想寫的內容上</b>。（2b）<b>連帶揭露本儀表板自身的結構性限制：</b>排序機制只能表達「帶著模型來」的論點，所以純技術/產業來源可以推動節點立場，卻<b>永遠無法產生一檔排序想法</b>，不論研究品質多高。（3）<b>CK 自己的鴿派宏觀判斷在 7/29 FOMC 上站錯邊</b>（06-29：「通膨都降溫了，怎麼升息啊」；結果 <span class="m">9-3</span>、三票主張升息 1 碼、主席說升息完全可能）。明列在提供 Tier-3 模型的同一條線上。（3b）<b>FOMC 事實已用公開來源獨立交叉驗證，不是單源轉述：</b><span class="m">9-3</span> 維持 3.50-3.75%，反對票為 Hammack／Kashkari／Logan（皆主張升息 1 碼），<b>為 2016 年 9 月以來最分裂的鷹派反對票</b>；聲明簡短、無前瞻指引。（3c）<b>本期唯一的自我下修，明列而非改寫：</b>矛盾卡 4.2 初稿宣稱「每一條定價權論點從今天起都是 Fed 續鷹的證據」。<b>公開報導顯示 Warsh 是在反駁通膨鷹派的脈絡下發言，明說 AI 需求造成的一次性價格上漲（GPU 成本、資料中心用電）不應與持續性通膨混為一談</b>，並稱這波 AI 支出不是泡沫。<b>該宣稱因此過強，已在卡片上下修並保留下修紀錄</b>；這條迴路要真的咬到評價倍數，需要先看到 Fed 改口。（4）<b>CK 在 07-29 與 07-30 兩篇裡都說「基本面分析在現階段沒太多用處」</b>，而本頁正是靠他的基本面在排序。矛盾攤開，不藏（卡 4.3）；他的「去槓桿後期」是明講的<b>猜測</b>，不是渠道檢查。（5）<b>自 07-26 以來第一次有矛盾卡退場，而且是因為被回答</b>（07-29 SPY −1.54%，指數自滿確實破了），不是為了整齊。（6）<b>07-30 的數字是 09:36 ET、開盤後六分鐘的盤中讀數</b>，且<b>方向與 07-29 完全相反</b>（SMH +4.09% vs 前日 −4.79%）。本頁全部標註、<b>全部分級都用 07-29 收盤</b>。這是整個系列裡最想用盤中噪音重新分級的一期，此處明確拒絕。（7）<b>nowcast 報 2.119%</b>；<span class="m">mom_30d_delta_pp</span> 為 null，故<b>不宣稱月變動</b>。（8）<b>print-shock 鴿派緩衝連續第二期變薄</b>（−0.078 → −0.057 → <span class="m">−0.048</span>，較三期高原窄約 38%），方向性變化明列，未以「連續第五期 LOW」帶過。（9）<b>清單已成長到 13 檔且降編紀律是既有缺陷</b>：明列三個邊緣位置——#12 TSM（預期差僅 ~4%）、#13 BE+F（六月後零新證據）、<b>#13 BE（模型 <span class="m">04-29</span>，92 天，清單最舊）與 #4 TER（<span class="m">04-30</span>，91 天）</b>——<b style="color:var(--choke)">初稿誤稱村田（06-29，31 天）為清單最舊模型並據此掛旗，這是錯的，且與本頁自己印出的「#13 BE+F · CK 05-31」「#4 TER … 04-30 模型」自相矛盾；審核抓出後已全面更正，陳舊度標準改指向真正最舊的兩檔</b>。應由下一期訂出降編規則，而非本期悄悄修剪。（10）<b>兩檔新進的弱點寫在卡片正面：</b>CLS <b>2Q26 營收 $4.699B 低於 CK 自己的模型 $4.788B</b>（雖優於共識），CK 的 2026 EPS 也低於公司指引；GLW <b>預期差僅 +9.5%，是本系列新進最小</b>，且 <b>CK 對 2026 營收比公司自己還保守</b>。（10a2）<b>審核抓到本頁自己的一處退步並已修正：</b>排名第一的 GOOGL/AMZN 卡初稿只留下 CAPEX 增速，把 07-28 build 就已載明的<b>可對照盈餘預期差</b>（2027 GAAP EPS <span class="m">$18.31 vs $14.77（+24.0%）</span>、2027 營收 <span class="m">$678.316B vs $594.210B（+14.2%）</span>）漏掉了，等於讓榜首成為清單上唯一沒有「模型 vs 共識」盈餘缺口的一檔。<b>已補回卡片與排序理由表。</b>（10b）<b>CLS 有一部分預期差是公司自證的</b>（公司 2027 指引 &gt;$33.8B vs 共識 $33.0B）——這是優點，且與 CK 模型分開陳述。（11a）<b>NOK 來源算術缺口續掛：</b>三個標案餘額相加 <span class="m">$11.2B</span>（非宣稱的 $13.1B），套用份額得 <span class="m">$4.41B</span>（非宣稱的 $4.86B）——來源的未調和缺口，非本頁轉錄錯誤。（11b）<b>擁擠度量表<span class="m">連續第二期</span>在盤中被覆寫：</b><span class="m">data/crowding_gauge.json</span> 於 <span class="m">07-30 06:36 太平洋時間（＝ 09:36 ET，與本頁其他盤中引用為同一時刻）</span>被重建為 <span class="m">as_of 2026-07-30</span>，是<b>開盤後約六分鐘的未完成盤中 bar</b>（SMH 當時 +4%），數值明顯不同（MEM-STORAGE 63.6 vs 58.5、TEST 53.5 vs 38.7、SEMI-EQUIP 42.2 vs 33.5）。<b>本 build 採用最後一個已收盤快照（07-29）。請注意：這些數值是自 <span class="m">crowding_panel.csv</span> 的 07-29 列<u>還原</u>的，不是即時 <span class="m">crowding_gauge.json</span> 的現值——讀者若直接開啟即時檔案會看到不同數字。07-28 標記的流程修正並未被實作——這是重複缺陷，如實記錄。</b>（11c）<b>去擁擠排名（07-29）：SEMI-EQUIP −59.2（第一）· TEST −49.8（第二）· POWER −48.2（第三）· NET-OPT −40.3（第四）· ACCEL −30.8（第五）</b>；07-28 build 曾把這組排名弄錯並於審核中更正，本期一開始就以正確順序陳述。（11d）<b>POWER 反轉分 44.4 為全場最高但刻意低權重</b>——07-26 build 用同一個構念（CLOUD-CSP 47.0）撐論點，兩個交易日後就必須撤回。（12）<b>上一期指名的解題事件（MSFT/META/AMZN 財報）已發生但語料庫零產出</b>，以「空白」呈報，不以推論填補；Meta CAPEX 卡因此<b>不能</b>退場，唯一新鄰接數據是 <b>Minerva 機櫃第三度下修 20k→10k→9k</b>（關於自研矽執行力，不是總 CAPEX）。（13）單源論點已標示（<b>FOMC 事實不在此列，已交叉驗證；但 Warsh 記者會中「半導體通膨」那段的具體措辭仍僅有 CK 轉述</b>）：<b>GLW 的全部光纖報價、漲價幅度、NVDA 暗光纖規模、Glass Bridge 時程；CLS 的全部 TPU/Switch/OpenAI/Minerva 數量與利潤率分層；NOK 的全部標案結構</b>——皆為 CK 渠道檢查，非財報揭露。<b>BUILD 節點的所有數字皆為 SemiAnalysis 自建模型估計或公司揭露，且完全沒有共識可對照。</b>沿用旗標——HDD、MLCC、CRDO、村田、AMD（僅 SA）、MRVL 的 Google 五專案（僅 CK）、Rubin-躍進卡（僅 SA）。（14）SA 的 TCO/功耗/BOM/每 MW 含量數字皆為 SA 自建模型、非財報文件。（15）油價尾巴為 07-20 延續脈絡、<b>連續四期未重新確認</b>。（16）多檔想法的「距高點回撤」與「距低點漲幅」<b>同時列出</b>——回撤深不等於便宜（MU +614.8%、WDC +531.7%、STX +428.1%、BE +403.5%、CIEN +291.4%、TER +211.9%、AMD +187.9%、FIX +131.4% 距 52 週低點）。（17）所有「CK 模型 vs 共識」數字為 ChivesKing 自建模型，非本 pipeline 驗證值。（18）擁擠度量表有 survivorship 偏誤（成員回填）、每籃 2-5 檔，僅為定位脈絡；村田為日股、無量表讀數。（19）<b>10 年期美債殖利率兩源交叉檢核：</b>CK 引用 4.68%、FMP treasury 為 4.67%（07-29），差 0.01pp，兩者皆列。（20）分級可能隨下一份財報或下一次 FOMC 立即失效——<b>8/12 CPI 與 9/15-16 FOMC 是下一期必須回答的兩個關卡</b>。</p>
+<p><b>審核閘門紀錄（對抗式事實查核 + 零售視角，兩位獨立審核者）：</b>事實查核者提出 <b>2 項 CRITICAL、9 項 MINOR</b>，全部已修正並在頁面上留下更正痕跡；零售視角評分 <b>邏輯 6／呈現 7／領先-落後 7／誠實 7</b>，<span class="m">fits_objective = true</span>。<b>兩項 CRITICAL 都源自本 pipeline 的合成檔，不是轉錄失誤，因此都必須公開：</b><b>（C1）「村田是排序清單最舊的模型」是錯的。</b>BE 的營運模型為 <span class="m">04-29</span>（92 天）、TER 為 <span class="m">04-30</span>（91 天）、F 為 05-31、MU 為 06-26，皆早於村田的 06-29（31 天，且與 STX/WDC 並列）。更糟的是這與本頁自己印出的「#13 BE+F · CK 05-31」「#4 TER … 04-30 模型」<b>直接矛盾</b>——也就是說，本期原本引以為傲的「一致套用陳舊度標準」其實<b>套錯了名字</b>，讓兩檔真正最舊的模型逃過檢查。已於全部 7 處更正，旗標改指向 <b>#13 BE 與 #4 TER</b>。<b>（C2）「去擁擠幅度較 07-27 約翻倍」誇大了。</b>依本頁自己指定為真值的 <span class="m">crowding_panel.csv</span>：去擁擠均值 <span class="m">−23.6 → −32.3（1.37 倍）</span>、最大值 <span class="m">−35.5 → −59.2（1.67 倍）</span>、總和 1.51 倍——<b>沒有任何一種算法達到 2 倍</b>，且 <b>EDA-IP 反而收斂</b>（−30.6 → −28.2）。已改為「約 1.4 倍」並列出例外。已修正的 MINOR 包括：矛盾卡張數（三張更新→兩張）· CLS「最大預期差」補回「近期」限定詞（全清單絕對值最大仍是 MRVL FY2029 +53.5%）· MACRO 列「量表」改標明為 Truflation print gauge（非擁擠度量表）· 「熊陡」改為「長端推動的扭轉式走陡」（2Y 實際<b>下跌</b> 4bp）· TSM「本清單最小預期差」揭露其與村田僅差 0.08pp（3.99% vs 4.07%）· 07-30 盤中翻黑名單補上 <span class="m">F −2.55%</span> 與 <span class="m">J −1.61%</span>（原本只講 GOOGL）· Crusoe 尖峰人力補回「以上」（9,000+）· 覺察曲線把 TSM 移到 AMD 右側的 PRICED 區（原本顏色標 PRICED 卻畫在 AMD 左邊，與色帶自相矛盾）。<b>事實查核者另行逐項驗證並判定「乾淨」的範圍包括：</b>全部 34 檔個股的距高／距低／均線／盤中變動、全部 12 個子板塊的 crowd/d20/反轉分/DD 與所有排名與最高最低宣稱、全部宏觀量表數字、GLW／CLS／Fed／SA 模組化四篇新文的每一個引用數字，以及所有沿用的 CK 模型對共識數字。</p>
+<p class="small">CrossFeed-Investment-Dashboard · v1 · built 2026-07-30 · engine: xfeed delta digest + synthesis + crowding gauge · reviewed: adversarial fact-check + retail-lens 行動閘門（見 review_2026-07-30.json）· 發佈為 opt-in（本系列已於 2026-07-17 獲 Ron 常設授權，slug crossfeed-dashboard.html）。</p>
+</footer>
+</div>
+</body>
+</html>

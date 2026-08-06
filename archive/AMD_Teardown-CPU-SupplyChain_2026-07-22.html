@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AMD 全公司拆解 × CPU 短缺供應鏈 · 2026-07-22 · v1 (PAPER)</title>
+<style>
+:root{--bg:#0b0d12;--panel:#13161e;--panel2:#1a1e28;--line:#2a3040;--line2:#363d4f;--txt:#e8eaf0;--mut:#9aa3b5;--dim:#697283;--accent:#2dd4bf;--choke:#e0686a;--gold:#d2a24a;--bull:#4faf8e;--blu:#5b81c4;--pur:#8b84cf}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px}
+.wrap{max-width:1240px;margin:0 auto;padding:0 26px}
+.m{font-family:"JetBrains Mono",ui-monospace,monospace}
+header{border-bottom:1px solid var(--line);padding:30px 0 20px;margin-bottom:22px;background:linear-gradient(180deg,#0e1117,var(--bg))}
+.kick{color:var(--accent);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:8px}
+h1{font-size:26px;font-weight:600}h1 .zh{color:var(--mut);font-size:15.5px;font-weight:400;display:block;margin-top:4px}
+.badge{display:inline-block;font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--line2);color:var(--mut);margin:10px 6px 0 0}
+.badge.paper{border-color:var(--choke);color:var(--choke)}.badge.acc{border-color:var(--accent);color:var(--accent)}
+h2{font-size:18px;margin:34px 0 6px}h2 .k{color:var(--accent);font-size:11px;letter-spacing:.2em;display:block;text-transform:uppercase;margin-bottom:4px}
+.sub{color:var(--mut);font-size:13px;margin-bottom:12px;max-width:1000px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:12px 0}
+.explain{border-left:3px solid var(--accent)}.explain b{color:var(--accent)}
+.decision{border:1px solid rgba(224,104,106,.4);background:linear-gradient(120deg,#1d1416,#13161e)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{color:var(--dim);text-align:left;font-weight:500;font-size:11px;letter-spacing:.07em;text-transform:uppercase;padding:7px 9px;border-bottom:1px solid var(--line2)}
+td{padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+.small{font-size:11px;color:var(--dim)}.mut{color:var(--mut)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr}}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:13px 15px}
+.card h3{font-size:13px;color:var(--accent);margin-bottom:6px}.card p{font-size:12.6px}
+.tag{display:inline-block;font-size:10.5px;padding:2px 9px;border-radius:12px;font-weight:700;white-space:nowrap}
+.t-early{background:rgba(45,212,191,.14);color:var(--accent);border:1px solid rgba(45,212,191,.4)}
+.t-rec{background:rgba(210,162,74,.14);color:var(--gold);border:1px solid rgba(210,162,74,.4)}
+.t-priced{background:rgba(154,163,181,.12);color:var(--mut);border:1px solid rgba(154,163,181,.35)}
+.t-neg{background:rgba(224,104,106,.13);color:var(--choke);border:1px solid rgba(224,104,106,.4)}
+.t-watch{background:rgba(139,132,207,.14);color:var(--pur);border:1px solid rgba(139,132,207,.4)}
+.prov{font-size:10.5px;color:var(--dim);border-top:1px dashed var(--line);margin-top:8px;padding-top:6px}
+svg text{font-family:"Space Grotesk","PingFang TC",sans-serif;fill:var(--txt)}
+svg text.m{font-family:"JetBrains Mono",monospace}
+svg text.dim{fill:var(--dim)}svg text.mut{fill:var(--mut)}svg text.acc{fill:var(--accent)}svg text.red{fill:var(--choke)}svg text.gold{fill:var(--gold)}
+footer{margin-top:44px;border-top:1px solid var(--line);padding-top:16px;color:var(--dim);font-size:11.5px}
+footer p{margin-bottom:6px}
+@media print{body{background:#fff;color:#111}.panel,.card{background:#fff;border-color:#ccc}}
+</style></head>
+<body>
+<header><div class="wrap">
+<div class="kick">SINGLE-NAME TEARDOWN × SUPPLY-CHAIN · 個股拆解 × 供應鏈</div>
+<h1>AMD — GPU+CPU 雙擴張、伺服器 CPU 短缺鏈、與研究傾向（PAPER 研究情境）
+<span class="zh">use case: single_name_teardown + thematic hybrid · as of 2026-07-22 · price ref $552.33 = 2026-07-22 NASDAQ 收盤（FMP ts 1784750401）/ 技術指標基於 7/16 週線（週頻紀律，時滯已標）· 12-18m · benchmark SMH</span></h1>
+<span class="badge paper">PAPER · compiler action = NO_CHANGE（fail-closed）· 最低邊際門檻未過 → WATCH 上限</span>
+<span class="badge acc">框架 = GOOGL run 同款五階段（Codex 雙迴圈審查）· 兩個催化劑皆前瞻（時序乾淨）</span>
+<span class="badge">IBKR read-only · NOT investment advice</span>
+</div></header>
+<div class="wrap">
+
+<div class="panel decision">
+<h3 style="color:var(--choke);font-size:13px;letter-spacing:.05em;margin-bottom:8px">DECISION DELTA · 決策摘要 — 論點為真、價格不對</h3>
+<table>
+<tr><th style="width:170px">項目</th><th>內容</th></tr>
+<tr><td><b>生命週期 / 行動</b></td><td class="m">PAPER · NO_CHANGE — producer forecast（研究）；行動權在 compiler；缺閘門 fail-closed</td></tr>
+<tr><td><b>核心判讀</b></td><td><b>短缺是真的、而且已公開到頭版</b>（配額 ~40%、EPYC 賣罄到年底、30+ 週交期、+30% 漲價 — <b>但注意：這些數字全部來自「通路商/貿易媒體」單一事實族（有販售稀缺敘事的商業動機）＝ CHANNEL-GRADE，尚無發行商/客戶第一手確認；7/23 與 8/4 的公司口徑才是確認</b>；Intel 產線轉移 Tom's Hardware 獨立報導）。但 AMD <span class="tag t-rec">RECOGNITION→EUPHORIA 邊界</span>：52 週 <span class="m">+222%</span>、距高點僅 −3.8%、73.7× 2026E / 40.9× 2027E，且共識已內建 <b>2027 EPS +80% 成長</b>（$7.49→$13.52）——<b>你今天付的價已經是 2028 的答案（29.9× 2028E）</b>。變異認知必須是「連 +80% 都太低」，這是極高的門檻</td></tr>
+<tr><td><b>期望值（淨成本後）</b></td><td class="m"><b>EV 12-18m ≈ −9.6%</b>（bull 0.30×+19.5% / base 0.45×−9.5%「deliver-and-derate」/ bear 0.25×−44.2%）· 敏感度 bull ±10pp → −6.6% ~ −12.4%（<b>連樂觀界都是負的</b>）· p10 −44% / p50 −7% / p90 +20% · P[≤−25%] ≈ 27% · log-EV 更差（−44% 的 bear 毀損 log 財富遠大於 +20% bull 的貢獻）</td></tr>
+<tr><td><b>最低邊際門檻</b></td><td class="m">EV_net &lt; +5% ⇒ 依 config 規則 producer view 封頂 <b>WATCH</b>；accumulate-context <b>不授予</b>（對照：GOOGL run 授予了）— 這是兩份報告最重要的差別</td></tr>
+<tr><td><b>再進場條件（typed，非指令）</b></td><td class="m">(a) 8/4 財報後 fwd-2027 ≤ 35×（≈$473 以下）且 DC segment beat + GM guide ≥+150bp；或 (b) ACCEL/半導體擁擠 gauge 觸發震出後 RS-vs-SMH 兩週收復 30wMA；屆時開<b>新版 forecast</b> 重跑情境樹</td></tr>
+<tr><td><b>觸發 / 證偽（typed）</b></td><td class="m"><b>INTC 7/23 已降級 CONTEXT</b>（基線凍結期限 7/22 收盤已過而凍結包不存在——依本 run 自訂 fail-closed 規則，此催化劑不再有 trigger/falsifier 權限；明日 print 僅作 duration 軟證據）· ②：AMD 8/4 收盤後（DC ≥共識+5% ∧ GM guide ≥+150bp 且引用定價；段級基線由 8/3 凍結包補齊，同一退回規則）· 硬證偽（僅綁公司數字）：AMD 8/4 DC segment 營收 &lt; 凍結共識 或 下季 GM guide 中值 ≤ 上季 guide 中值 → FALSIFIED；質性語言（短缺措辭有無）只是軟訊號，只能在下一版 forecast 調整機率，不能單獨翻判 · 技術出場 context：週收 &lt; 40w MA（$312 · 距現價 −42%！）∧ RS&lt;30wMA(RS)×2 週 · 到期 2027-02-28</td></tr>
+<tr><td><b>供應鏈表達</b></td><td>INTC <span class="tag t-priced">PRICED</span>（+431%/52w，「最乾淨的 gap」已關閉；−23% off high = 第一波震出進行中）· TSM <span class="tag t-rec">RECOGNITION</span> hold-context · MU <span class="tag t-neg">EUPHORIA 禁追</span>（+752%/52w、內部人 3:9 賣、擁擠 73.5）· SMCI <span class="tag t-watch">BROKEN/LATENT watch</span>（−46%/52w；<s>內部人 12:0 買</s> E1 勘誤：code-P 實為 0，730d 1買:19賣）· AMKR/DELL/ARM/Ibiden = context-only</td></tr>
+<tr><td><b>組合影響</b></td><td class="m">與 GOOGL run 同一 AI-compute 叢集共用 15% 上限；本 run 無新增 paper 曝險（NO_CHANGE）· 基線：no-trade、SMH passive、QQQ、等權 {AMD,INTC}、+5d 延遲</td></tr>
+<tr><td><b>證據時序（誠實）</b></td><td class="m">短缺證據（7/15 前公開）+ 1Q26 財務為回溯性；兩層時序，不可混：<b>催化劑層</b>（7/23、8/4）在宣告（7/19）之後 = 前瞻測試乾淨；<b>證據層</b>（短缺報導、1Q26 財務）在宣告之前 = 回溯性 → derived readiness 的 narrative facet 依規則標 <b>POST_HOC</b>（正確、非矛盾）。EV 立於回溯證據+預期差；前瞻隊列自 7/23 起算</td></tr>
+<tr><td><b>閘門狀態</b></td><td class="m">authenticated_execution=false · plan review 已收斂（r4+r5 fits=true）· report review 迭代中 · min_edge_bar=FAILED · 日期修正 + INTC 降級已入檔（r2 PIT 稽核抓到 — 記錄不粉飾）· 矛盾記錄：IND=短缺嚴重（現在） vs TEC/估值=已定價（現在） — 這個矛盾本身就是 verdict → derived_state PAPER</td></tr>
+</table>
+</div>
+
+<div class="panel explain"><p><b>白話版：</b>你問的方向完全對——AMD 確實在 GPU、CPU 兩線擴張，CPU 短缺也是真的（配額砍半、交期七個月、一年漲三成）。問題是<b>市場也知道</b>：AMD 一年漲了 222%，現在的價錢等於「2027 年獲利翻倍」照單全收之後，再預付 2028。買在這裡要贏，需要的不是「短缺是真的」，而是「短缺比華爾街已經很樂觀的模型<b>更久、更兇</b>」。歷史上這種位置（比 20 週均線高 33%）追進去，最常見的結局是「公司做到了、股票先跌 20%」。所以這份報告的建議是一套<b>等待計畫</b>：7/23 看 Intel 怎麼說（短缺持續性）、8/4 看 AMD 自己的數字，跌到合理倍數或洗完籌碼再開新單。供應鏈裡真正沒被定價的，反而是跌爛的 SMCI（內部人零賣單全買單）這種反向角落——但它有自己的治理包袱，只給 watch。</p></div>
+
+<h2><span class="k">① - ⑧ · 八點拆解</span>Company Teardown — AMD</h2>
+<div class="grid2">
+<div class="card"><h3>① 怎麼賺錢 How it earns</h3><p>四段：Data Center（EPYC CPU + MI GPU + Pensando/Xilinx — 成長主體）、Client（Ryzen）、Gaming（半客製+顯卡）、Embedded（Xilinx）。DC 是估值的全部邊際：CPU 短缺給「價」、MI 給「量的第二曲線」。<span class="prov">10-Q 段報 · EDGAR ✓</span></p></div>
+<div class="card"><h3>② 營收結構 Mix</h3><p>1Q26 合併 $10.25B/季（+38% YoY）；GM 52.8%（連兩季走升：51.7→52.8）— 漲價/mix 已在數字裡。2025-06 的 39.8% 低點是一次性（MI 相關費用），非趨勢。<span class="prov">EDGAR XBRL rev/GP ✓ 計算可重現</span></p></div>
+<div class="card"><h3>③ 成長來源 Growth</h3><p>(a) EPYC ASP/mix（短缺定價權）；(b) MI-series GPU 份額（推理性價比）；(c) 伺服器 CPU:GPU attach 回升（agentic/推理工作負載 — Intel 產線轉移佐證）；(d) Client AI PC 換機。共識已將 (a)(b) 大幅入模：2027 營收 +56%、EPS +80%。<span class="prov">共識 = FMP 凍結 7/19（keyed）+ 短缺多源公開 ✓</span></p></div>
+<div class="card"><h3>④ 終端市場 End market</h3><p>資料中心（雲+企業）為主戰場；PC 次之；嵌入式/車用墊底盤。CPU 短缺的根因是需求側（agentic AI 吃 CPU）+ 供給側（Intel 18A 轉換期 + 晶圓分配）雙擠。<span class="prov">Tom's Hardware 產線轉移 + 多源 ✓</span></p></div>
+<div class="card"><h3>⑤ 主要客戶 Customers</h3><p>超大規模雲商（EPYC 滲透 &gt;50% 雲端新機）、企業 OEM（DELL/HPE/Lenovo）、MI 客戶（雲商 + AI labs）。集中度中等；MI 的大單簽署節奏是 8/4 的關鍵聽點。<span class="prov">綜合（est.）；MI 客戶構成公司未完整披露</span></p></div>
+<div class="card"><h3>⑥ 護城河 Moat</h3><p>x86 雙寡頭的一半 + chiplet/先進封裝執行紀錄 + ROCm 生態追趕中（仍是 GPU 短板）。短缺期的「配置權」是暫時性護城河——會隨 Intel 產能回復衰減。<span class="prov">框架判斷</span></p></div>
+<div class="card"><h3>⑦ 管理層展望 Mgmt outlook</h3><p>8/4 財報前的公開語言：DC 動能強、MI 路線圖年度節奏。EPYC「賣罄到年底」是通路說法，非公司正式指引——8/4 要驗證的正是公司是否把短缺講成 duration。<span class="prov">通路=多源 trade press；公司口徑待 8/4 ✓ 分開標示</span></p></div>
+<div class="card"><h3>⑧ 為何是卡點 Why chokepoint</h3><p>AMD 不是卡點——它是短缺的<b>受益者兼受限者</b>：受益於價，受限於 TSM 晶圓/CoWoS 分配（MI 與 NVDA/Google 搶同一池產能）。真卡點在 TSM 分配、ABF 載板、HBM。投資上：AMD 的 upside 有一部分其實會被 TSM 的漲價吃走。<span class="prov">框架 + TSM 漲價 5-10%（GOOGL run 兩源）✓</span></p></div>
+</div>
+
+<h2><span class="k">財務鏡頭 · 已定價多少</span>What's Priced — the consensus staircase</h2>
+<p class="sub">共識樓梯（FMP 凍結 7/19，keyed；print 時以 press 共識複核）：市場不是不知道短缺——它已經把短缺+GPU 份額寫進五年的數字裡。</p>
+<div class="panel">
+<table>
+<tr><th>年度</th><th>共識營收</th><th>YoY</th><th>共識 EPS</th><th>YoY</th><th>隱含倍數 @ $552</th></tr>
+<tr><td class="m">2026E</td><td class="m">$50.1B</td><td class="m">—</td><td class="m">$7.49</td><td class="m">—</td><td class="m"><b>73.7×</b></td></tr>
+<tr><td class="m">2027E</td><td class="m">$78.1B</td><td class="m">+56%</td><td class="m">$13.52</td><td class="m"><b>+80%</b></td><td class="m">40.9×</td></tr>
+<tr><td class="m">2028E</td><td class="m">$104.8B</td><td class="m">+34%</td><td class="m">$18.49</td><td class="m">+37%</td><td class="m">29.9×</td></tr>
+<tr><td class="m">2029E</td><td class="m">$140.7B</td><td class="m">+34%</td><td class="m">$25.04</td><td class="m">+35%</td><td class="m">22.1×</td></tr>
+</table>
+<p class="small" style="margin-top:8px">讀法：現價 = 29.9× 2028E — <b>2028 的成長已被今天的價格預收</b>。對照 GOOGL：23.4× 2027E 而共識只給 +3.7% 成長（低門檻）；AMD 是 40.9× 2027E 且共識已給 +80%（高門檻）。同一個「短缺」主題，兩種完全不同的預期差結構。GM 軌跡 51.7%→52.8% 證實定價在流入——這支持「共識做得到」，不自動支持「共識還太低」。庫存 $8.04B（天數約持平）＝目前無雙重下單警訊、也無稀缺加速訊號（中性）。<span class="prov">EDGAR XBRL ✓ · FMP keyed ✓交叉待 print</span></p>
+</div>
+
+<div class="panel">
+<h3 style="color:var(--accent);font-size:13px;margin-bottom:8px">情境樹（機率算式公開 · log-EV 併列）</h3>
+<table>
+<tr><th>情境</th><th>P</th><th>橋</th><th>目標/回報</th></tr>
+<tr><td><b>Bull</b></td><td class="m">0.30</td><td>漲價 duration 貫穿 2027（再一輪 +10-15%）+ MI 份額 → 2027 EPS $16.50（共識 +22%）× 40×（動能倍數守住）。P 錨低：共識門檻已在 +80% — 「連 +80% 都太低」的先驗不高</td><td class="m">$660 · <b>+19.5%</b></td></tr>
+<tr><td><b>Base</b></td><td class="m">0.45</td><td>共識<b>做到</b>（$13.52，本身已是英雄數字）但倍數正常化 40.9→37×（成長兌現後的典型 de-rate）</td><td class="m">$500 · <b>−9.5%</b></td></tr>
+<tr><td><b>Bear</b></td><td class="m">0.25</td><td>短缺斷裂（雙重下單反噬 + Intel 18A 產能緩解 + 需求消化）→ 2027 EPS $11 × 28×。P 提高到 0.25：進場點距頂 −3.8%、+222%/52w、比 20w MA 高 33%、無 Fed put</td><td class="m">$308 · <b>−44.2%</b></td></tr>
+</table>
+<p class="small" style="margin-top:8px">EV = .30(+19.5) + .45(−9.5) + .25(−44.2) = <b class="m">−9.5%</b>（毛）→ <b class="m">−9.6%</b> 淨 · bull ±10pp → −6.6% / −12.4% · <b>log-EV ≈ −12%</b>（幾何財富目標下 bear 的懲罰更重）· 對照基線：no-trade 0%、SMH passive（2 年 +111% 不可外推；長期 log 期望 ~+10-12%）—— <b>全部基線都優於現價追入 AMD 的期望</b>。20% 資本利得情境不改變符號。單源數字（CK TAM CAGR &gt;35%）已排除於 EV。</p>
+</div>
+
+<h2><span class="k">同題兩解 · 本報告的招牌對照</span>AMD vs INTC — same shortage, two vehicles, neither cheap</h2>
+<div class="panel">
+<table>
+<tr><th></th><th>AMD @ $552</th><th>INTC @ $103</th></tr>
+<tr><td><b>短缺中的角色</b></td><td>價+mix 受益者；量受 TSM 分配限制</td><td>價受益 + 產能王（自有 fab；消費線轉 Xeon 的執行者）</td></tr>
+<tr><td><b>52 週 / 距高點</b></td><td class="m">+222% / −3.8%</td><td class="m">+431% / −23.4%（第一波震出進行中）</td></tr>
+<tr><td><b>倍數（共識）</b></td><td class="m">40.9× 2027E（EPS +80% 已入模）</td><td class="m">63.3× 2027E $1.62（turnaround 全priced）；26× 2029E</td></tr>
+<tr><td><b>7/13 儀表板判定 vs 現實</b></td><td>ACCEL 擁擠 49（中性）</td><td>當時「tight 8/priced 6 = 最乾淨 gap」→ <b>+431% 之後 gap 已關閉</b> — 誠實承認儀表板的 alpha 已被收割</td></tr>
+<tr><td><b>內部人（90d，樣本小）</b></td><td class="m">19 筆 · 8:3 買</td><td class="m">26 筆 · 11:1 買（正向但多為授予期，非訊號級）</td></tr>
+<tr><td><b>催化劑</b></td><td class="m">8/4 print（DC+5% ∧ GM+150bp 契約）</td><td class="m">7/23 print（DCAI+5% ∧ 庫存天數↓ ∧ 供限語言，三合一契約）</td></tr>
+<tr><td><b>Verdict</b></td><td><span class="tag t-watch">WATCH</span> · EV −9.6% · 不授 accumulate</td><td><span class="tag t-priced">PRICED</span> · 短缺 duration 的<b>資訊</b>來源（7/23 先開牌），不是進場標的</td></tr>
+</table>
+<p class="small" style="margin-top:6px">結論：這個主題此刻<b>沒有便宜的直接表達</b>。7/23 INTC print 是免費的資訊期權——它先驗證 duration，AMD 8/4 再定生死；等待成本（+5d 延遲基線）遠低於 −44% bear 的 log 懲罰。</p>
+</div>
+
+<h2><span class="k">產業鏡頭 · 短缺解剖</span>Shortage Anatomy — where it actually binds</h2>
+<div class="panel">
+<svg viewBox="0 0 1180 250" width="100%" role="img" aria-label="CPU shortage chain">
+<g font-size="12">
+<rect x="20" y="36" width="200" height="88" rx="9" fill="#1a1e28" stroke="#363d4f"/>
+<text x="32" y="58" class="acc" font-size="11.5">需求端 DEMAND</text>
+<text x="32" y="78">Agentic/推理 CPU attach ↑</text><text x="32" y="96" class="mut">（CPU:GPU 回向 parity）</text><text x="32" y="114" class="mut">彈性風險：+30% 價的殺需求</text>
+<rect x="250" y="36" width="200" height="88" rx="9" fill="#1a1e28" stroke="#e0686a" stroke-width="1.6"/>
+<text x="262" y="58" class="red" font-size="11.5">CPU 供給 ★短缺核心</text>
+<text x="262" y="78">INTC：18A 轉換 + 產線轉移</text><text x="262" y="96">AMD：TSM 分配是天花板</text><text x="262" y="114" class="mut">配額 ~40% · 30+ 週交期</text>
+<rect x="480" y="36" width="200" height="88" rx="9" fill="#1a1e28" stroke="#e0686a" stroke-width="1.6"/>
+<text x="492" y="58" class="red" font-size="11.5">上游共用池 ★真卡點</text>
+<text x="492" y="78">TSM N3/N2 + CoWoS 分配</text><text x="492" y="96">ABF 載板（Ibiden context）</text><text x="492" y="114">HBM for MI（MU）</text>
+<rect x="710" y="36" width="200" height="88" rx="9" fill="#1a1e28" stroke="#363d4f"/>
+<text x="722" y="58" class="acc" font-size="11.5">組裝/通路</text>
+<text x="722" y="78">ODM：DELL/SMCI/HPE</text><text x="722" y="96" class="mut">SMCI = 反向破碎角</text><text x="722" y="114" class="mut">通路價差（誰吃 spread）</text>
+<rect x="940" y="36" width="220" height="88" rx="9" fill="#10201d" stroke="#2dd4bf" stroke-width="1.6"/>
+<text x="952" y="58" class="acc" font-size="11.5">買方 · 租金結算</text>
+<text x="952" y="78">雲商/企業付 +30%</text><text x="952" y="96" class="mut">→ AMD ASP、TSM 晶圓價、</text><text x="952" y="114" class="mut">通路價差三方分租</text>
+<line x1="220" y1="80" x2="250" y2="80" stroke="#e0686a" stroke-width="2.2"/>
+<line x1="450" y1="80" x2="480" y2="80" stroke="#e0686a" stroke-width="2.2"/>
+<line x1="680" y1="80" x2="710" y2="80" stroke="#697283" stroke-width="4"/>
+<line x1="910" y1="80" x2="940" y2="80" stroke="#697283" stroke-width="4"/>
+</g>
+<g font-size="11">
+<rect x="20" y="152" width="150" height="15" fill="#e0686a" opacity=".85"/><text x="176" y="164" class="m">16 TSM 分配（MI 與 NVDA/Google 同池）</text>
+<rect x="20" y="173" width="140" height="15" fill="#d2a24a" opacity=".8"/><text x="166" y="185" class="m">15 Intel fab 轉換期（18A 爬坡 = 2027 緩解時鐘）</text>
+<rect x="20" y="194" width="130" height="15" fill="#d2a24a" opacity=".75"/><text x="156" y="206" class="m">14 HBM for MI · 13 ABF 載板（context）</text>
+<text x="20" y="232" class="dim" font-size="10.5">4 因子嚴重度 /20（框架評分 est.）· 事實層：短缺數據 = 多源 trade press ✓ · Intel 產線轉移 = Tom's Hardware ✓ · 高嚴重度 ≠ 可買 — 分級見下表</text>
+</g>
+</svg>
+<p class="small" style="margin-top:4px"><b>雙重下單警戒箱：</b>每一次半導體短缺的尾聲都長一樣——客戶重複下單墊高表觀需求，直到某季突然「消化」。目前的守門指標：AMD/INTC 庫存天數（現在持平=中性）、通路商出貨/點名（quarterly）、任一家宣布「產能大擴」（歷史上 = 週期頂訊號，同 MLCC 規則）。</p>
+</div>
+
+<h2><span class="k">鏈上表達 · 誠實分級</span>Chain Expressions — 依 all-or-nothing 規則全數正式降級為 context-only</h2>
+<p class="sub">plan §1d 規則：一個名字要嘛有完整決策物件（情境樹+EV+分佈+成本），要嘛正式降級、不帶任何 lean。四個鏈上名字全部未過 min-edge 預篩（INTC/MU 已定價、TSM 為前一 run 的 hold-context、SMCI 需自己的 run）→ 以下皆為 CONTEXT-ONLY 分級描述，非推薦物件。</p>
+<div class="panel">
+<table>
+<tr><th>名字</th><th>分級</th><th>研究傾向（非指令）</th><th>關鍵事實</th></tr>
+<tr><td><b>TSM</b></td><td><span class="tag t-rec">RECOGNITION</span></td><td>短缺的分配王 + 漲價 5-10%；與 GOOGL run 判定一致 hold-context；7/16 print 已過（beat + capex 上修 + K3 日 −7%）</td><td class="m">62%/52w · −13.8% off high · 擁擠 SEMI-EQUIP 71.2 旗標</td></tr>
+<tr><td><b>MU</b></td><td><span class="tag t-neg">EUPHORIA · 禁追</span></td><td>MI 的 HBM 腿是真的，但 +752%/52w、13w +91%、內部人 3:9 賣、擁擠 73.5 + gauge 震出旗標 — CK「只跟不追」規則的教科書觸發</td><td class="m">+752%/52w · insider 3:9 SELL</td></tr>
+<tr><td><b>SMCI</b></td><td><span class="tag t-watch">BROKEN/LATENT · watch</span></td><td>短缺鏈裡唯一「反向」角落：−46%/52w、−48% off high。<s>內部人 90 天 12:0 全買</s>【E1 勘誤 2026-07-23：該 12 筆為 M/F 選擇權行使/稅務代扣，非公開市場買入；code-P 真實紀錄 730d = 1買:19賣，無內部人買入確認】。若 MI 放量走它的機櫃，是 torque 最大的修復題——但治理歷史 + 單一論點 + 無內部人確認 → watch-only，需自己的 run</td><td class="m">−46%/52w · <s>insider 12:0</s> E1: code-P=0</td></tr>
+<tr><td><b>AMKR / DELL / ARM / Ibiden 4062.T</b></td><td><span class="tag t-priced">context-only</span></td><td>依 recommendable-set 規則不升級；Ibiden ABF 是結構上最乾淨的間接卡點（JP 可投資），值得一個獨立 run</td><td class="m">—</td></tr>
+</table>
+</div>
+
+<h2><span class="k">籌碼 + 技術 + READINESS</span>Positioning · Regime · Setup Facets</h2>
+<div class="grid3">
+<div class="card"><h3>INSTITUTIONAL（context）</h3><p class="m" style="font-size:12px">AMD Form4 90d：19 筆、方向樣本 8:3 買（樣本小，多授予期→非訊號）· 13F LAGGING · 空單 UNKNOWN · ACCEL 擁擠 49.1（中性）— AMD 自己不擁擠，<b>它的鏈才擁擠</b>（MEM 73.5 / SEMI-EQUIP 71.2）</p></div>
+<div class="card"><h3>TECHNICAL（週線）</h3><p class="m" style="font-size:12px">+222%/52w · +54%/13w · 距高 −3.8% · MOMENTUM regime · <b>價格比 20w MA（$402.7）高 33%</b> — Minervini 樣板滿足但「延伸段不追」條款正面觸發；40w stop（$312.1）距離 −42% = 停損結構極差</p></div>
+<div class="card"><h3>SETUP READINESS（derived, fail-closed）</h3><p class="m" style="font-size:12px">narrative POST_HOC（承重證據先於宣告—如實）· catalyst PRESENT（回溯）· group ABSENT · technical PRESENT<b>（在本框架裡是減分：確認到場=不對稱已被吃掉）</b> · regime UNKNOWN · 前瞻隊列自 7/23 起算</p></div>
+</div>
+
+<h2><span class="k">領先指標看板</span>Leading-Indicator Watchlist</h2>
+<div class="panel" style="overflow-x:auto">
+<table>
+<tr><th>訊號</th><th>Lead/Lag</th><th>量化門檻</th><th>免費來源</th><th>Lead time</th></tr>
+<tr><td>伺服器 CPU 交期</td><td class="m">LEAD</td><td class="m">&gt;26 週持續（現 30+）</td><td>trade press 季檢（fusionww/hostkey/Tom's）</td><td class="m">6-12m</td></tr>
+<tr><td>再一輪官方漲價</td><td class="m">LEAD</td><td class="m">H2-26 宣布 ≥+10%</td><td>廠商信函（trade press 轉載）+ 7/23、8/4 call</td><td class="m">3-9m</td></tr>
+<tr><td>Intel 產線轉移量化</td><td class="m">LEAD</td><td class="m">7/23 call 重申且量化</td><td>免費 webcast/transcript T+1</td><td class="m">6-12m</td></tr>
+<tr><td>AMD/INTC 庫存天數</td><td class="m">LEAD（反向）</td><td class="m">天數下降 ∧ ASP 上升 = 真稀缺；上升 = 雙重下單警訊</td><td>10-Q（EDGAR）</td><td class="m">1-2q</td></tr>
+<tr><td>2027 共識修正寬度</td><td class="m">LEAD</td><td class="m">4 週淨上修 &gt;+20%</td><td>FMP grades PIT（keyed 標註）+ print 時 press</td><td class="m">1-2q</td></tr>
+<tr><td>RS-vs-SMH 反轉（回檔後）</td><td class="m">LEAD-ish</td><td class="m">比值週收 &gt; 30wMA ×2</td><td>Yahoo 週線</td><td class="m">0-3m</td></tr>
+<tr><td>擁擠 gauge（ACCEL/MEM）</td><td class="m">CONTEXT（已驗證震出旗標）</td><td class="m">≥85 = 停加碼</td><td>自建面板（每日）</td><td class="m">0-60d</td></tr>
+</table>
+</div>
+
+<h2><span class="k">監測工作流 · 一頁化</span>Do-This-Next（每週收盤 checklist）</h2>
+<div class="panel"><table>
+<tr><th>日期/頻率</th><th>動作</th><th>判定</th></tr>
+<tr><td class="m">7/22 收盤前</td><td>凍結 INTC 基線包 — <b>已錯過（實際執行日 7/22 晚）→ 規則已執行：INTC 降 CONTEXT</b></td><td class="m">✔ fail-closed 已套用</td></tr>
+<tr><td class="m">7/23 盤後</td><td>INTC print：DCAI beat≥+5% ∧ 庫存天數↓ ∧ 供限語言（三合一）</td><td class="m">soft duration 證據（不能單獨翻判 AMD）</td></tr>
+<tr><td class="m">8/3 收盤前</td><td>凍結 AMD 基線包（DC 段級共識+guide 中值）</td><td class="m">同上遲到規則</td></tr>
+<tr><td class="m">8/4 盤後</td><td>AMD print：硬檢定（DC vs 凍結共識；GM guide 中值 vs 上季）</td><td class="m">CONFIRMED ⇒ 新版 forecast；FALSIFIED ⇒ 關閉 setup</td></tr>
+<tr><td class="m">每週收盤</td><td>RS-vs-SMH vs 30wMA ×2 週規則、40w MA（$312）距離、擁擠 gauge ≥85 旗標</td><td class="m">技術出場/再進場 context</td></tr>
+</table>
+<p class="small" style="margin-top:6px">六詞速查：DCAI=Intel 資料中心與 AI 部門 · CPU:GPU attach=每 GPU 配多少 CPU · CoWoS=台積電 2.5D 封裝 · ABF=載板材料 · 18A=Intel 1.8nm 級製程 · log-EV=以幾何(對數)財富計的期望值。成本壓力測試：點差 ×3 + 滑價 10bp 情境下 EV −9.6% → 約 −9.9%（結論不變）。</p>
+</div>
+
+<h2><span class="k">風險 · 殺死論點</span>What Kills What</h2>
+<div class="grid2">
+<div class="card"><h3>殺死「等待計畫」的路徑（即 bull 直接跑掉）</h3><p style="font-size:12.4px">8/4 print 給出 DC 大 beat + 2027 指引遠超共識 + 再一輪漲價宣布 → 股價直接 gap 走。這是接受的風險：min-edge 規則寧可錯過，不在 EV 為負時追。等待成本已量化（+5d 延遲基線登記於 ablation）。</p></div>
+<div class="card"><h3>殺死 AMD 論點本身</h3><p style="font-size:12.4px">(1) 7/23 INTC 揭示需求彈性（+30% 價開始殺單）；(2) 庫存天數轉升 = 雙重下單反噬開始；(3) Intel 18A 良率/產能超預期 = 2027 供給緩解提早；(4) ARM 伺服器滲透加速搶走 x86 大盤；(5) MI 大單不及預期 → 「第二曲線」失速，只剩 CPU 單腿。</p></div>
+</div>
+
+<h2><span class="k">FACT LEDGER · 可稽核事實帳</span>Appendix</h2>
+<div class="panel" style="overflow-x:auto">
+<table>
+<tr><th>#</th><th>數字/主張</th><th>來源 1</th><th>來源 2</th><th>as-of</th><th>狀態</th></tr>
+<tr><td class="m">F1</td><td class="m">配額 ~40%、EPYC 賣罄至年底、30+ 週交期、+30% 價（4Q25 起）</td><td>fusionww.com/insights/server-cpu-shortage-2026</td><td>hostkey/buysellram/win-source trade press</td><td class="m">2026-07</td><td>✓ 多源，但 C1-C4 同屬「通路商」單一事實族（confirmation 計一次）；通路商有販售稀缺敘事的利益 — 已旗標；公司口徑 7/23 與 8/4 驗證</td></tr>
+<tr><td class="m">F2</td><td class="m">Intel 消費線→Xeon 產線轉移；CPU:GPU attach 回升</td><td>tomshardware.com（產線轉移報導）</td><td>windowsforum/windowsnews 綜述</td><td class="m">2026-07</td><td>✓ 兩源</td></tr>
+<tr><td class="m">F3</td><td class="m">AMD 1Q26 rev $10.25B、GM 52.8%（51.7→52.8）、庫存 $8.04B</td><td>EDGAR XBRL CIK0000002488</td><td>計算可重現（GP/rev）</td><td class="m">2026-03-28</td><td>✓</td></tr>
+<tr><td class="m">F4</td><td class="m">共識 2026 $7.49 / 2027 $13.52（+80%）/ 2028 $18.49</td><td>FMP estimates 凍結 7/19（keyed）</td><td>print 時 press 複核（登記）</td><td class="m">2026-07-19</td><td>keyed — 不作 falsifier</td></tr>
+<tr><td class="m">F5</td><td class="m">AMD $552.33 / mcap $901B；週線收 $536.5（7/16）</td><td>FMP quote 7/19</td><td>Yahoo/快取週線 — 時點差已標</td><td class="m">2026-07-19</td><td>✓ 兩源</td></tr>
+<tr><td class="m">F6</td><td class="m">AMD +222%/52w · 20w $402.7 · 40w $312.1；INTC +431%/52w · −23.4% off high</td><td>metrics.json（close 基準）</td><td>公開週線可重現</td><td class="m">2026-07-16</td><td>✓</td></tr>
+<tr><td class="m">F7</td><td class="m">INTC 7/23 print（after close）· 共識 $14.4B/$0.10</td><td>INTC IR（BigGo 轉載 6/30）</td><td>tradingkey preview ×2</td><td class="m">2026-07</td><td>✓ 兩源</td></tr>
+<tr><td class="m">F8</td><td class="m">AMD 8/4 print（after close, call 5pm ET）</td><td>AMD newsroom 7/8 press release</td><td>SEC 8-K + globenewswire</td><td class="m">2026-07-08</td><td>✓ 官方兩源</td></tr>
+<tr><td class="m">F9</td><td class="m">內部人 90d：AMD 19筆 8:3買 · INTC 26筆 11:1買 · MU 13筆 3:9賣 · <s>SMCI 20筆 12:0買</s>【E1：SMCI 12 筆全為 M/F 代碼（選擇權/RSU/稅務），code-P 公開市場買入 = 0；730d openinsider 1買:19賣。其他名字的方向計數同樣以解析器 direction 欄為據，僅 context、不作證據】</td><td>EDGAR Form 4（positioning_fetch）</td><td>openinsider ok</td><td class="m">2026-07-19</td><td>✓ 樣本小 · context only</td></tr>
+<tr><td class="m">F10</td><td class="m">擁擠：ACCEL 49.1 / MEM 73.5 / SEMI-EQUIP 71.2 / SERVER-ODM 36.0</td><td>自建 crowding gauge 7/16</td><td>方法+回測公開於 KB</td><td class="m">2026-07-16</td><td>✓ KEPT（震出 context）</td></tr>
+<tr><td class="m">F11</td><td class="m">CK：「+10%/+10% 兩輪漲價都吃下」「AMD CPU TAM CAGR 上修 &gt;35%」</td><td>CK 3Q26 直播（訂閱敘事）</td><td>漲價部分被公開 +30% 數據覆蓋（F1，同事實族）；TAM CAGR 無第二源</td><td class="m">2026-06-29</td><td>漲價=✓（同族計一次）· TAM=<b>UNVERIFIED，排除於 EV</b></td></tr>
+<tr><td class="m">F12</td><td class="m">情境機率法（bull 0.30 錨低因共識門檻 +80%；bear 0.25 因延伸 33%）</td><td>plan §1 固定五步法</td><td>scenario 橋列於情境樹</td><td class="m">2026-07-19</td><td>✓ 算式公開</td></tr>
+</table>
+</div>
+
+<footer>
+<p><b>Compliance：</b>個人研究（PAPER）· 非投資建議 · producer view 封頂 WATCH（min-edge 規則）· 行動權在 Portfolio Decision Compiler · IBKR read-only · 訂閱來源依 2026-07-15 政策敘事引用；單源不入 EV。</p>
+<p><b>誠實聲明：</b>本報告的結論與提問的樂觀框架相反——短缺為真但已定價，EV 為負，連 bull+10pp 敏感度都是負的。這正是框架的目的：「論點對」與「現價買」是兩件事。若 8/4 後倍數壓到 ≤35× fwd-2027 且 DC/GM 契約達標，開新版 forecast 重評。期中震盪：AMD 歷史上 18 個月窗內 ≥30% 回檔是常態。</p>
+<p class="small">AMD-Teardown-CPUShortage · v1.6 (E1 erratum 2026-07-23: SMCI insider 12:0 was M/F comp-event parsing artifact, code-P=0; analytical conclusions unchanged - SMCI was watch-only context) · built 2026-07-22 · plan review CONVERGED (r4+r5 fits=true) · report review fits=true ×2 (r4+r5, P0=0) with 12 P1 residuals carried to Gate C (source depth, ablation proof accrues prospectively, visual completeness) · run root: notes/amd-cpu-gpu-teardown/ · plan review in progress (r1: no P0, 8×P1 applied) · report review pending · run root: notes/amd-cpu-gpu-teardown/</p>
+</footer>
+</div></body></html>

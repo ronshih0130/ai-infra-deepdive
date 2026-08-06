@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AI-Infra Alpha Map v5 — the conversion rule (mid-2026) · as-of 2026-08-03</title>
+<style>
+  :root{
+    --bg:#0e1116;--panel:#161b22;--panel2:#1c232c;--line:#2a323d;--line2:#3a444f;
+    --ink:#e6edf3;--muted:#9aa7b4;--faint:#8692a0;
+    --accent:#e0a23b;--accent2:#3fb6a8;--pos:#46b87f;--neg:#df6258;--warn:#dca24a;--violet:#9a8cd6;--grey:#6b7682;
+    --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55}
+  .wrap{max-width:1180px;margin:0 auto;padding:34px 26px 80px}
+  h1{font-size:28px;letter-spacing:-.02em;margin:0 0 4px}
+  h2{font-size:16px;letter-spacing:.01em;margin:40px 0 6px;padding-top:14px;border-top:1px solid var(--line)}
+  h2 .n{font-family:var(--mono);color:var(--accent2);font-size:13px;margin-right:8px}
+  .sub{color:var(--muted);max-width:92ch}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .mono{font-family:var(--mono)}
+  .num{font-family:var(--mono);font-feature-settings:"tnum"}
+  .teal{color:var(--accent2)} .red{color:var(--neg)} .amber{color:var(--accent)} .pos{color:var(--pos)} .mut{color:var(--muted)} .violet{color:var(--violet)} .grey{color:var(--grey)}
+  .card{background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px}
+  .card.edge{border-color:#2f5e57} .card.trap{border-color:#5e3331} .card.amberc{border-color:#5e4f2f}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  .grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+  @media(max-width:900px){.grid2,.grid3,.grid4{grid-template-columns:1fr}}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12.5px}
+  th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+  td.num,th.num{font-family:var(--mono)}
+  .pill{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:999px;border:1px solid var(--line2);white-space:nowrap;display:inline-block;line-height:1.5}
+  .pill.edge{color:var(--accent2);border-color:#2f5e57} .pill.trap{color:var(--neg);border-color:#5e3331}
+  .pill.watch{color:var(--accent);border-color:#5e4f2f} .pill.ctx{color:var(--faint)} .pill.avoid{color:var(--grey);border-color:#3a444f}
+  svg{display:block;width:100%;height:auto}
+  svg text{font-family:var(--sans);fill:var(--ink);font-size:12px}
+  svg text.m{font-family:var(--mono)}
+  svg text.lbl{fill:var(--muted);font-size:11px}
+  svg text.fa{fill:var(--faint);font-size:10px}
+  .legend{color:var(--faint);font-size:12px;margin-top:18px}
+  .kicker{color:var(--muted);font-size:13px;margin:2px 0 0}
+  b.h{color:var(--ink)}
+  ul{margin:6px 0 0;padding-left:18px} li{margin:3px 0;color:var(--muted)}
+  code{font-family:var(--mono);font-size:12px;background:var(--panel2);padding:1px 5px;border-radius:4px;color:var(--ink)}
+  .tag{font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.06em}
+  .verdict{background:#13302c;border:1px solid #2f5e57;border-radius:12px;padding:14px 18px;margin-top:14px}
+  .glossbox{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-top:12px}
+  .glossbox dt{font-family:var(--mono);color:var(--accent2);font-size:12px;margin-top:8px}
+  .glossbox dd{margin:1px 0 0;color:var(--muted);font-size:12.5px}
+  .legendrow{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:8px;align-items:center}
+  .sw{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+  .lead{font-size:15px;color:var(--ink)}
+  hr.soft{border:0;border-top:1px solid var(--line);margin:14px 0}
+  .trig{width:100%;border-collapse:collapse;margin-top:8px;font-size:11.5px}
+  .trig th,.trig td{padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+  .trig td.g{color:var(--pos)} .trig td.y{color:var(--warn)} .trig td.r{color:var(--neg)}
+  .trig th{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:0}
+  .dot.g{background:var(--pos)} .dot.y{background:var(--warn)} .dot.r{background:var(--neg)}
+  .exec{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 11px;margin-top:8px;font-size:11.5px;color:var(--muted)}
+  .exec b{color:var(--ink)}
+  .rmwrap{display:grid;grid-template-columns:0.95fr 1.15fr;gap:12px;margin-top:8px}
+  @media(max-width:900px){.rmwrap{grid-template-columns:1fr}}
+  .rmbox{background:var(--panel2);border:1px solid var(--line2);border-radius:10px;padding:11px 13px}
+  .rmhead{margin-bottom:2px}
+  table.rm{width:100%;border-collapse:collapse;margin-top:6px;font-size:11.5px}
+  table.rm td,table.rm th{padding:4px 7px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left;color:var(--muted)}
+  table.rm th{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+  table.rm td.num{font-family:var(--mono);text-align:right;white-space:nowrap;color:var(--ink)}
+  table.rm td.num.teal{color:var(--accent2)} table.rm td.num.red{color:var(--neg)} table.rm td.num.pos{color:var(--pos)} table.rm td.num.mut{color:var(--muted)}
+  table.rmscen td:first-child{white-space:nowrap}
+  table.rmscen td.num{min-width:88px}
+  tr.bear td:first-child{color:var(--neg)} tr.base td:first-child{color:var(--accent2)} tr.bull td:first-child{color:var(--pos)}
+  .rm .g{color:var(--pos)} .rm .y{color:var(--warn)} .rm .r{color:var(--neg)}
+  .rmnote{font-size:11px;color:var(--muted);margin:9px 0 0;line-height:1.5}
+  .rm .fa{color:var(--faint);font-size:10px}
+  @media print{
+    body{background:#fff;color:#000}
+    .wrap{max-width:none}
+    .card,.verdict,.glossbox{break-inside:avoid}
+    h2{break-after:avoid}
+  }
+</style>
+<style>a{color:var(--accent2);text-decoration:none;border-bottom:1px dotted #2f5e57}a:hover{border-bottom-style:solid}</style>
+</head>
+<body><div class="wrap">
+
+  <div class="eyebrow">AI-Infra Research · the alpha map · v5 (consensus-gap bridge · two-mode lens · weekly refresh) · as-of 2026-08-03</div>
+  <h1>The AI-Infra Alpha Map</h1>
+  <p class="kicker mono">9 sub-segments scored for information edge · honest EARLY-vs-PRICED · IBKR crowding overlaid · personal research, NOT investment advice · IBKR READ-ONLY</p>
+
+  <div class="card" style="border-color:#2f5e57;background:#13211f;margin-top:14px">
+    <span class="tag teal">ALPHA NOW — the answer in ten seconds</span>
+    <table style="margin-top:6px">
+      <tr><th class="num">#</th><th>Bucket</th><th class="num">Call</th><th>Expression (vetted only)</th><th class="num">Next trigger</th><th class="num">Evidence vs expression</th></tr>
+      <tr><td class="num"><b class="h teal">1</b></td><td class="mono"><b class="h teal">S2</b> Advanced packaging</td><td class="num"><span class="pill edge">DIG</span></td><td class="mono">SUSS MicroTec <span class="mut">SMHN.DE</span></td><td class="num mono"><b class="h">Aug 6</b></td><td class="num amber">both present <span class="mut">· guidance-gap</span></td></tr>
+      <tr><td class="num mut">&mdash;</td><td class="mono"><b class="h amber">S6b</b> Rack power <span class="mut">— best open HUNT, not a ranked idea</span></td><td class="num"><span class="pill watch">HUNT</span></td><td class="mono mut"><b class="h red">no expression exists yet</b></td><td class="num mono mut">screen, not a date</td><td class="num mut">evidence high, expression nil</td></tr>
+      <tr><td class="num mut">3</td><td class="mono"><b class="h amber">S4</b> Interconnect · <b class="h amber">S3</b> memory</td><td class="num"><span class="pill watch">WAIT</span></td><td class="mono">AIXTRON <span class="mut">AIXA.DE</span> (vetted) · memory: <span class="mut">no vetted edge</span></td><td class="num mono">late Oct / late Sep</td><td class="num amber">S4 both · S3 evidence only</td></tr>
+      <tr><td class="num mut">&mdash;</td><td class="mono"><b class="h red">S5</b> networking · <b class="h red">S7</b> cooling · <b class="h red">S6a</b> power · <b class="h red">D0</b> demand</td><td class="num"><span class="pill trap">VETO</span></td><td class="mono mut">none passes the filter</td><td class="num mono"><b class="h red">Aug 4</b> (ALAB)</td><td class="num pos">veto confidence high</td></tr>
+    </table>
+    <p class="kicker" style="margin-top:6px"><b class="h red">Label first:</b> with no point-in-time vendor consensus feed, S2 and S4 are <b class="h">GUIDANCE-GAP hypotheses, not consensus-gap findings</b> &mdash; they are benchmarked against company guidance, which lowers the bar and flatters the setup. Neither can reach REAL_ALPHA until a real consensus series is wired (&sect;3, routing R4). <b class="h teal">Within that cap: dig S2 before Aug&nbsp;6 — but for a different reason than last week.</b> <b class="h red">Do not touch S5 into tomorrow's ALAB print.</b> <span class="red">No row is capital-eligible</span> &mdash; global action gate <code>TRIAGE_ONLY</code>. Everything below is the working.</p>
+  </div>
+
+  <div class="verdict">
+    <span class="tag teal">ONE-LINE VERDICT</span>
+    <p class="lead" style="margin:6px 0 0">First, a correction that changes a conclusion: on the <b class="h">settled close-to-close</b> basis the AI-infra complex was <span class="num">&minus;1.18%</span> equal-weight this week and <b class="h teal"><span class="num">+0.28pp</span> AHEAD of SMH</b> (<span class="num">&minus;1.46%</span>). <b class="h">There was no sector-wide de-rating</b> &mdash; last week's pre-market-to-pre-market basis manufactured one, and that basis is retired here (&sect;1a). What actually happened was violent <b class="h">dispersion</b>, and four prints inside 48 hours make the rule unmistakable. <b class="h">AIXTRON</b> (Jul&#8209;30) delivered order intake <span class="num">+81%</span> YoY to <span class="num">&euro;215M</span>, a backlog of <span class="num">&euro;456.9M</span>, confirmed guidance and a Q3 guide implying <span class="num">+57%</span> sequential revenue &mdash; into a <span class="num">+6.88%</span> SMH day &mdash; and was paid <b class="h red"><span class="num">&minus;3.96pp</span></b>. <b class="h">Vertiv</b> (Jul&#8209;29) delivered a <span class="num">~$15B</span> backlog and raised full-year guidance on <i>every line</i>, with revenue 3.4% light, and was paid <b class="h red"><span class="num">&minus;12.47pp</span></b> at <b class="h red"><span class="num">1.64&times;</span> its own implied move</b>. Against them: <b class="h">Monolithic Power</b> (Jul&#8209;30) delivered <i>realised</i> revenue <span class="num">$981M +48%</span> YoY, a Q3 guide <span class="num">16.5%</span> above consensus and an AI-segment full-year growth outlook raised mid-year from <span class="num">85% to 130%</span> &mdash; paid <b class="h teal"><span class="num">+8.04pp</span></b>; <b class="h">Eaton</b> (Jul&#8209;31) delivered record realised revenue with data-centre orders <span class="num">+85%</span> <i>and</i> data-centre revenue already <span class="num">+65%</span> &mdash; paid <b class="h teal"><span class="num">+7.01pp</span></b>. Same week, same end-market, same capex dollar, opposite outcomes. The discriminator is not how good the headline was &mdash; it is <b class="h teal">where the revenue sits on the conversion curve. The market has stopped underwriting order books and pays only for cash that has already arrived.</b> <span class="amber">This cuts directly against this engine's own 07&#8209;27 queue-jump rationale, which was built on the <i>size</i> of order books; that logic was repriced four days later and the correction is recorded here rather than buried.</span></p>
+  </div>
+
+  <div class="card" style="border-color:#2f5e57;background:#13211f">
+    <span class="tag teal">WHAT CHANGED THIS WEEK (2026-07-27 &rarr; 2026-08-03) — the decision-critical deltas</span>
+    <ul style="margin-top:6px">
+      <li><b class="h red">A methodology error is corrected first, because it reverses a headline.</b> Last week's crowding file compared pre-market to pre-market, which embeds the intraday move of both endpoints. On that basis this week reads as a <span class="num">&minus;7.0%</span> equal-weight rout. On the settled close-to-close basis it is <span class="num">&minus;1.18%</span> and <b class="h teal">+0.28pp ahead of SMH</b>. The "everything is being sold" reading was an artefact. Every performance number in this report is now settled close-to-close and factor-adjusted.</li>
+      <li><b class="h teal">The governing new rule: order books are discounted, converted revenue is paid.</b> Four prints in 48 hours, factor-adjusted: AIXTRON <span class="num red">&minus;3.96pp</span> on +81% orders; Vertiv <span class="num red">&minus;12.47pp</span> on a $15B backlog and a raised guide; Monolithic Power <span class="num pos">+8.04pp</span> on realised +48% revenue; Eaton <span class="num pos">+7.01pp</span> on realised DC revenue +65%. One rule fits all four, and it also fits last week's GE&nbsp;Vernova (<span class="num red">&minus;5.7pp</span> on a $176B backlog) and BESI. <span class="mut">See &sect;1b.</span></li>
+      <li><b class="h amber">S6a gets an honest reversal.</b> Last week this map generalised from GE&nbsp;Vernova to "power blowouts get sold" and downgraded S6a to TRAP/PRICED/ev3. Nine days later Eaton printed a structurally similar blowout and was paid <span class="num pos">+7.0pp</span>. <b class="h">The generalisation was too broad and is withdrawn.</b> S6a moves to ev4 &mdash; still TRAP for entry (ETN sits <span class="num">5.1%</span> below its high at the <span class="num">82nd</span> percentile of its own range), but confirmed and paid rather than rejected.</li>
+      <li><b class="h teal">S6b rack power is the week's largest upgrade</b> (TRAP/ev4 &rarr; WATCHLIST/CONFIRMING/ev5). Monolithic Power raised its AI/enterprise-data <i>full-year</i> growth outlook mid-year from <span class="num">85% to 130%</span> and guided Q3 <span class="num">16.5%</span> above consensus. Read as $-content: <b class="h">power-conversion silicon per rack is inflecting faster than rack count</b> &mdash; the hardest quantified support yet for the disaggregation thesis the whole map rests on. It is <i>not</i> REAL_ALPHA because that information is now public and already paid.</li>
+      <li><b class="h amber">The AF-1 quant bridge reversed on us.</b> PKG moved from <code>asymmetry_flag=TRUE</code> (rotation_state 07&#8209;24) to <b class="h red">LATENT / asymmetry_flag=FALSE</b> with <code>smart_money_gap &minus;31.7</code> (07&#8209;31) &mdash; one week after this engine made PKG the queue-jump on the strength of that agreement. The claimed quant agreement is <b class="h">withdrawn</b>. S2 keeps the jump on the conversion-test argument alone, at reduced confidence.</li>
+      <li><b class="h red">S5 is the sharpest veto and it has a one-day fuse.</b> Astera Labs reports <b class="h">Aug&nbsp;4</b> after a <span class="num">+11.6pp</span> two-session squeeze at a <span class="num">0.928</span> IV-percentile &mdash; structurally identical to the AIXTRON setup vetoed a week ago. And the only four names on the entire 16-name board whose implied-vol percentiles <i>rose</i> this week (AVGO <span class="num">+0.124</span>, CRDO <span class="num">+0.080</span>, NVDA <span class="num">+0.052</span>, MRVL <span class="num">+0.016</span>) all sit in that same networking/ASIC block. Protection is being bought there while everything else de-crowds.</li>
+    </ul>
+  </div>
+
+  <div class="card" style="border-color:#3a444f">
+    <span class="tag">30-SECOND ACTION SHEET — the whole map in three buckets (detail in §5/§7)</span>
+    <div class="grid3" style="margin-top:8px">
+      <div class="rmbox" style="border-color:#2f5e57">
+        <div class="rmhead"><span class="tag teal">DIG NOW (where to point work)</span></div>
+        <ul style="margin-top:4px">
+          <li><b class="h teal">S2 bonding tool layer &mdash; but as a CONVERSION test, not an order-book story.</b> <b class="h">SUSS MicroTec (SMHN.DE)</b> reports H1 on <b class="h">Aug&nbsp;6</b>: the first look at whether the record Q1 intake (<span class="num">&euro;149.3M</span>) has begun converting into revenue and margin against a guided FY of <span class="num">&euro;425&ndash;485M</span> at an <span class="num">8&ndash;10%</span> EBIT margin. Skew is the mirror of AIXTRON's: IV-pctile <span class="num">0.646</span> (13w) into a company-guided <i>down</i> year, not <span class="num">0.984</span> into a consensus above guidance.</li>
+          <li><b class="h amber">S6b second-order vertical power &mdash; a RESEARCH GAP, not a name.</b> MPWR's print raises the question it does not answer: does the content-per-socket inflection show up in under-covered 48V/on-package/magnetics suppliers, or is it share gain at one accelerator customer? <b class="h red">No candidate has been evidenced in this run</b> &mdash; no ticker, coverage count or AI-content exposure has been verified &mdash; so S6b's "edge name" field is deliberately empty. The screen spec is in R2. Ranking S6b at ev5 reflects the strength of the <i>evidence</i>, not the availability of an expression; the two are scored separately in &sect;2b ("executable" = +1, "under-covered" = &minus;1).</li>
+          <li><b class="h amber">S4 AIXTRON &mdash; the conversion date is now published.</b> Q3 guided <span class="num">&euro;180M &plusmn;20M</span> vs <span class="num">&euro;115M</span> delivered in Q2. That is management's own falsifiable number, due late October.</li>
+        </ul>
+      </div>
+      <div class="rmbox" style="border-color:#5e4f2f">
+        <div class="rmhead"><span class="tag amber">WAIT FOR A RESET (durable, poor entry)</span></div>
+        <ul style="margin-top:4px">
+          <li><b class="h">S3 memory</b> &mdash; the widest live gap on the board and the least executable. Amazon raised 2026 capex <span class="num">$200B&rarr;$220B</span> and named memory cost as the reason (and was rewarded); MU fell <span class="num">7.1pp</span> vs SMH on Apple's consumer-BOM commentary and CXMT headlines. Both cannot be right. But every clean expression is <span class="red">&gt;15 analysts</span> and the quant says MEM is the <i>most</i> crowded subsector.</li>
+          <li><b class="h">S1 foundry</b> &mdash; the post-print de-rating has fully unwound (<span class="num">+2.8pp</span> vs SMH) and the event premium is gone (13w IV-pctile <span class="num">0.452</span>). Next dated read is TSMC July revenue via MOPS ~Aug&nbsp;10 &mdash; a <i>converted-revenue</i> print, which is the datapoint class the tape is currently paying for.</li>
+        </ul>
+      </div>
+      <div class="rmbox" style="border-color:#5e3331">
+        <div class="rmhead"><span class="tag red">VETO / CHASE-RISK (priced &amp; crowded)</span></div>
+        <ul style="margin-top:4px">
+          <li><b class="h red">S5 networking &mdash; hard veto, one day out.</b> ALAB prints <b class="h">Aug&nbsp;4</b> after <span class="num">+11.6pp</span> in two sessions at IV-pctile <span class="num">0.928</span>; every name whose implied vol rose this week is in this block.</li>
+          <li><b class="h red">S7 cooling</b> &mdash; Vertiv's <span class="num">&minus;12.5pp</span> at <span class="num">1.64&times;</span> implied is the cleanest priced-signal of the cycle. The sub-segment is confirmed; the <i>integrator</i> is what got repriced, because it carries the conversion risk on its own P&amp;L.</li>
+          <li><b class="h red">S6a power / D0 demand</b> &mdash; both now <i>confirmed and paid</i>. ETN <span class="num">&minus;5.1%</span> off its high at the 82nd percentile of its range; Amazon and Microsoft both rose on capex raises. Confirmation, never entry.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="border-color:#2f5e57">
+    <span class="tag teal">ONE-SCREEN RANKED HEATMAP — the entire map on one row per bucket · everything below this is drill-down</span>
+    <table>
+      <tr><th class="num">EV</th><th>Bucket</th><th class="num">Stage</th><th class="num">CLAIM TYPE</th><th>Expression (vetted edge vs priced denominator)</th><th>Dated catalyst</th><th class="num">Δ vs 07-27</th><th class="num">Capital</th></tr>
+      <tr><td class="num"><b class="h teal">6</b></td><td class="mono"><b class="h teal">S2</b> Packaging <span class="pill edge">DIG</span></td><td class="num mono" style="font-size:10.5px">EARLY</td><td class="num amber"><b>GUIDANCE-GAP</b></td><td class="mono">SUSS MicroTec <span class="mut">SMHN.DE</span></td><td class="mono" style="font-size:11px"><b class="h">Aug 6</b> — H1 conversion test</td><td class="num mut">held, new reason</td><td class="num red">BLOCKED</td></tr>
+      <tr><td class="num"><b class="h amber">5</b></td><td class="mono"><b class="h amber">S3</b> HBM / memory <span class="pill watch">THIN</span></td><td class="num mono" style="font-size:10.5px">EARLY</td><td class="num pos"><b>CONSENSUS-GAP</b></td><td class="mono mut">no vetted edge <span class="red">— 042700 KS unvetted</span> · denom <b class="h">MU</b></td><td class="mono" style="font-size:11px">late Sep — Q4 contract pricing</td><td class="num mut">held</td><td class="num red">BLOCKED</td></tr>
+      <tr><td class="num"><b class="h amber">5</b></td><td class="mono"><b class="h amber">S4</b> Interconnect <span class="pill watch">WAIT</span></td><td class="num mono" style="font-size:10.5px">EARLY</td><td class="num amber"><b>GUIDANCE-GAP</b></td><td class="mono">AIXTRON <span class="mut">AIXA.DE</span></td><td class="mono" style="font-size:11px">late Oct — Q3 €180M ±20M</td><td class="num mut">held</td><td class="num red">BLOCKED</td></tr>
+      <tr><td class="num"><b class="h amber">5</b></td><td class="mono"><b class="h amber">S6b</b> Rack power <span class="pill watch">RESEARCH GAP</span></td><td class="num mono" style="font-size:10.5px">CONFIRMING</td><td class="num mut">CONFIRMED</td><td class="mono mut">none evidenced <span class="red">— research gap, see R2</span></td><td class="mono" style="font-size:11px">late Oct — MPWR Q3</td><td class="num pos"><b class="h">+1 ↑</b></td><td class="num red">BLOCKED</td></tr>
+      <tr><td class="num">4</td><td class="mono"><b class="h">S1</b> Foundry <span class="pill watch">WAIT</span></td><td class="num mono" style="font-size:10.5px">PRICED</td><td class="num mut">PRICED</td><td class="mono mut">no vetted edge · denom <b class="h">TSM</b> <span class="mut">(2330.TW = same asset)</span></td><td class="mono" style="font-size:11px"><b class="h">~Aug 10</b> — MOPS July rev</td><td class="num mut">held</td><td class="num red">BLOCKED</td></tr>
+      <tr><td class="num">4</td><td class="mono"><b class="h">S6a</b> Facility power <span class="pill trap">RIDE-ONLY</span></td><td class="num mono" style="font-size:10.5px">LATE</td><td class="num mut">CONFIRMED</td><td class="mono mut">no vetted edge · denom <b class="h">ETN / GEV</b></td><td class="mono" style="font-size:11px">late Oct — Q3 prints</td><td class="num pos"><b class="h">+1 ↑</b></td><td class="num red">BLOCKED</td></tr>
+      <tr><td class="num">4</td><td class="mono"><b class="h">S7</b> Cooling <span class="pill trap">VETO</span></td><td class="num mono" style="font-size:10.5px">LATE</td><td class="num mut">CONFIRMED</td><td class="mono mut">no vetted edge · denom <b class="h">VRT</b></td><td class="mono" style="font-size:11px">late Oct — VRT Q3 re-test</td><td class="num mut">held</td><td class="num red">BLOCKED</td></tr>
+      <tr><td class="num mut">3</td><td class="mono"><b class="h red">D0</b> Demand <span class="pill avoid">VETO</span></td><td class="num mono" style="font-size:10.5px">PRICED</td><td class="num mut">PRICED</td><td class="mono mut">no vetted edge · denom <b class="h">NVDA</b></td><td class="mono" style="font-size:11px">~Aug 11 — Korea 1–10</td><td class="num mut">held</td><td class="num red">BLOCKED</td></tr>
+      <tr><td class="num mut">3</td><td class="mono"><b class="h red">S5</b> Networking <span class="pill trap">VETO</span></td><td class="num mono" style="font-size:10.5px">LATE</td><td class="num mut">NO GAP</td><td class="mono mut">no vetted edge · denom <b class="h">AVGO</b></td><td class="mono" style="font-size:11px"><b class="h red">Aug 4</b> — ALAB Q2</td><td class="num mut">held</td><td class="num red">BLOCKED</td></tr>
+    </table>
+    <p class="kicker" style="margin-top:8px"><b class="h">If you read nothing else:</b> the map's ranking barely moved, but the <i>reasons</i> moved a lot. <b class="h teal">S2 keeps the top slot on a replaced argument</b> (conversion test, not order-book size); <b class="h">S6b and S6a each gain a point</b> on hard evidence; <b class="h red">S5 is a one-day veto</b>. <span class="red">Every row is capital-blocked</span> &mdash; the global AF-1 action gate is <code>TRIAGE_ONLY</code>, so this map routes research only.</p>
+  </div>
+
+  <h2><span class="n">0</span>Explain it simply / 白話版</h2>
+  <div class="grid2">
+    <div class="card">
+      <span class="tag teal">白話版 — the headline in plain English</span>
+      <p class="kicker" style="margin-top:6px">Last week I told you the whole AI-infrastructure market was being sold no matter how good the news was. <b class="h red">Part of that was my own measurement mistake</b> — I compared prices taken before the market opened on two different days, which mixes up two days' worth of movement. Measured properly, the group was almost flat this week and actually did slightly <i>better</i> than the semiconductor index. I've fixed the method and re-run everything.</p>
+      <p class="kicker" style="margin-top:8px">What really happened is more interesting: the market stopped treating these companies as one blob and started <b class="h teal">sorting them</b>. Four companies reported in two days. Two of them said "look at all the orders we've won" — and their shares were punished. Two of them said "look at the money we've already collected" — and their shares jumped 7&ndash;8% more than the market. <b class="h">The market has stopped paying for promises and started paying only for cash that has already arrived.</b></p>
+      <p class="kicker" style="margin-top:8px">That matters to me because <i>my own idea last week was a promise</i>. I picked the chip-bonding equipment layer precisely because its order books were exploding. Four days later the market showed me exactly what it thinks of exploding order books. So I'm keeping the idea but changing the reason: <b class="h teal">SUSS MicroTec reports on Aug&nbsp;6</b>, and that report is the first chance to see whether its record orders are turning into actual sales. If they aren't, the whole "buy the order book" family of ideas is wrong for at least six months and I'll say so.</p>
+      <p class="kicker" style="margin-top:8px">One more thing worth knowing. Amazon told the world it will now spend <b class="h">$220 billion</b> this year instead of $200 billion, and said the extra $20 billion is because <b class="h">memory chips got more expensive</b> — and its shares went <i>up</i> 7&ndash;10% for saying it. In the same week, Micron, which sells those memory chips, fell 7pp more than the market because Apple said it might shop around. One of those two markets is wrong. Working out which is the most valuable open question on this map — but there is no small, cheap, under-followed way for a private investor to express it, so it stays research, not a position.</p>
+    </div>
+    <div class="card">
+      <span class="tag amber">7-term glossary</span>
+      <dl class="glossbox" style="margin-top:6px;border:0;padding:0;background:transparent">
+        <dt>Conversion (the week's key idea)</dt><dd>The gap between winning an order and recognising the revenue. Equipment makers and integrators book orders quarters before they can ship. "Converted" revenue is cash already recognised; a backlog is not.</dd>
+        <dt>Factor-adjusted / excess</dt><dd>A stock's move minus its benchmark's move over the same window. &minus;17% on a day the sector fell 5% is a &minus;12pp <i>rejection</i>; &minus;6% on a day the sector fell 5% is mostly just the tape.</dd>
+        <dt>Implied move</dt><dd>What the options market priced as the expected size of an earnings reaction. A move at 1.6&times; the implied move is a genuine surprise; a move inside it is not.</dd>
+        <dt>IV percentile</dt><dd>Where today's option-implied volatility sits in its own past year, 0&ndash;1. Near 1.00 = the market is paying up for protection or a bet; near 0.40 = calm.</dd>
+        <dt>Priced / EARLY-ineligible</dt><dd>A name with &gt;15 analysts and deep options can't be an early idea — too many people already do the work. It's a yardstick, never the edge.</dd>
+        <dt>$-content disaggregation</dt><dd>Asking how many dollars of a given component go into each rack, rather than how many racks ship. Content can inflect much faster than unit volume — that is what MPWR's 85%&rarr;130% revision measures.</dd>
+        <dt>Event binary</dt><dd>A position whose outcome is decided by one scheduled announcement. Not an information edge — a coin flip with a date on it.</dd>
+      </dl>
+    </div>
+  </div>
+
+  <h2><span class="n">1</span>The week's evidence — the conversion rule</h2>
+  <p class="sub"><b class="h">(a)</b> the measurement basis is corrected first, because it reverses last week's headline; <b class="h">(b)</b> the four prints that define the new rule, factor-adjusted; <b class="h">(c)</b> what the rule does to this engine's own prior call.</p>
+
+  <div class="card amberc">
+    <span class="tag amber">(a) BASIS CORRECTION — retiring the pre-market-to-pre-market comparison</span>
+    <table style="margin-top:6px">
+      <tr><th>Basis</th><th class="num">EW 16-name complex</th><th class="num">SMH</th><th class="num">Excess</th><th>Verdict</th></tr>
+      <tr><td class="mono">Pre-mkt 07-27 &rarr; pre-mkt 08-03 <span class="mut">(last week's method)</span></td><td class="num red">&minus;6.99%</td><td class="num mut">n/a</td><td class="num mut">not computable</td><td class="red">Retired. Embeds the intraday move of both endpoints; SMH has no matching pre-market series, so no factor adjustment is possible.</td></tr>
+      <tr><td class="mono"><b class="h teal">Close 07-27 &rarr; close 07-31</b> <span class="mut">(settled, adopted)</span></td><td class="num"><b class="h">&minus;1.18%</b></td><td class="num mut">&minus;1.46%</td><td class="num pos"><b class="h">+0.28pp</b></td><td class="pos">Adopted. Settled prices, benchmark-matched windows, event-day attribution possible.</td></tr>
+      <tr><td class="mono">Live 08-03 pre-market vs 07-31 close</td><td class="num red">&minus;1.94%</td><td class="num mut">n/a</td><td class="num mut">n/a</td><td class="amber">Reported separately as <i>live and unsettled</i>. A fresh leg down is in progress today; it is not in the weekly numbers.</td></tr>
+    </table>
+    <p class="kicker" style="margin-top:8px"><b class="h">Why this is the first thing in the report.</b> The 07&#8209;27 map's headline was "the tape refuses to pay for anything". On the corrected basis <b class="h">the complex outperformed the semis tape</b> this week. The correct statement is not that everything is sold — it is that <i>dispersion exploded</i>: the spread between the best and worst names on the 16-name board was <span class="num">26.1pp</span> (ALAB <span class="num pos">+10.2%</span> to VRT <span class="num red">&minus;16.0%</span>) against a <span class="num">1.5%</span> benchmark move. A conclusion drawn from an uncorrected basis is not a small error; it points research in the wrong direction.</p>
+  </div>
+
+  <div class="card">
+    <span class="tag">(b) THE FOUR PRINTS THAT DEFINE THE RULE — factor-adjusted against SMH over the identical session · IBKR READ-ONLY daily closes</span>
+    <svg viewBox="0 0 1120 430" role="img" aria-label="Four AI-infrastructure earnings reactions in 48 hours: order-book stories were penalised while converted-revenue stories were rewarded by seven to eight percentage points">
+      <line x1="560" y1="34" x2="560" y2="330" stroke="#3a444f"/>
+      <text class="fa" x="548" y="26" text-anchor="end">&larr; ORDER BOOK (promise of cash)</text>
+      <text class="fa" x="572" y="26" text-anchor="start">CONVERTED REVENUE (cash arrived) &rarr;</text>
+      <text class="lbl" x="76" y="352">bar length &prop; factor-adjusted excess return vs SMH, same session &middot; teal = paid, desat-red = penalised</text>
+      <text class="m" x="552" y="72" text-anchor="end" style="fill:#9aa7b4;font-size:11px">orders +81% YoY to €215M · backlog €456.9M · FY guide confirme</text>
+      <text class="fa" x="552" y="87" text-anchor="end">d · Q3 guided €180M vs €115M</text>
+      <rect x="435.24" y="56" width="122.76" height="24" fill="#df6258" fill-opacity="0.22" stroke="#df6258" stroke-width="1.2" rx="3"/>
+      <text class="m" x="425.24" y="73" text-anchor="end" style="fill:#df6258;font-size:13px">-3.96pp</text>
+      <text class="m" x="566" y="96" style="fill:#e9b7b3;font-size:10.5px">AIXTRON · Jul 30 <tspan style="fill:#8692a0">· S4 · print day +2.92% into a +6.88% SMH day</tspan></text>
+      <text class="m" x="552" y="140" text-anchor="end" style="fill:#9aa7b4;font-size:11px">backlog ~$15B · FY guide RAISED on every line · adj EPS +60% b</text>
+      <text class="fa" x="552" y="155" text-anchor="end">eat · revenue 3.4% light</text>
+      <rect x="171.43" y="124" width="386.57" height="24" fill="#df6258" fill-opacity="0.22" stroke="#df6258" stroke-width="1.2" rx="3"/>
+      <text class="m" x="161.43" y="141" text-anchor="end" style="fill:#df6258;font-size:13px">-12.47pp</text>
+      <text class="m" x="566" y="164" style="fill:#e9b7b3;font-size:10.5px">Vertiv · Jul 29 <tspan style="fill:#8692a0">· S7 · −17.26% vs SMH −4.79% · 1.64× implied move</tspan></text>
+      <text class="m" x="552" y="208" text-anchor="end" style="fill:#9aa7b4;font-size:11px">REALISED rev $981M +48% YoY · Q3 guide +16.5% vs cons · AI-seg</text>
+      <text class="fa" x="552" y="223" text-anchor="end">ment FY outlook 85%→130%</text>
+      <rect x="562" y="192" width="249.23999999999998" height="24" fill="#3fb6a8" fill-opacity="0.22" stroke="#3fb6a8" stroke-width="1.2" rx="3"/>
+      <text class="m" x="821.24" y="209" text-anchor="start" style="fill:#3fb6a8;font-size:13px">+8.04pp</text>
+      <text class="m" x="566" y="232" style="fill:#cfe9e4;font-size:10.5px">Monolithic Pwr · Jul 30 <tspan style="fill:#8692a0">· S6b · +8.35% on a +0.30% SMH day</tspan></text>
+      <text class="m" x="552" y="276" text-anchor="end" style="fill:#9aa7b4;font-size:11px">REALISED record $8.5B +21% · DC orders +85% AND DC revenue alr</text>
+      <text class="fa" x="552" y="291" text-anchor="end">eady +65% · guide raised</text>
+      <rect x="562" y="260" width="217.31" height="24" fill="#3fb6a8" fill-opacity="0.22" stroke="#3fb6a8" stroke-width="1.2" rx="3"/>
+      <text class="m" x="789.31" y="277" text-anchor="start" style="fill:#3fb6a8;font-size:13px">+7.01pp</text>
+      <text class="m" x="566" y="300" style="fill:#cfe9e4;font-size:10.5px">Eaton · Jul 31 <tspan style="fill:#8692a0">· S6a · +7.32% on a +0.30% SMH day</tspan></text>
+      <line x1="70" y1="366" x2="1050" y2="366" stroke="#2a323d"/>
+      <text class="m" x="70" y="392" style="fill:#e0a23b;font-size:12px">Prior-week rows that the same rule explains:</text>
+      <text class="fa" x="360" y="392">GE Vernova Jul-22 (orders +88% to $24.2B, $176B BACKLOG, guide raised) &minus;5.7pp &middot; BESI Jul-23 (orders +128.8%, revenue soft) flat-to-down &middot; TSMC Jul-16 (record REVENUE) &minus;2.3pp then recovered +2.8pp this week</text>
+      <text class="fa" x="70" y="414">Excess = stock close-to-close return minus SMH close-to-close return over the identical session. Implied move for VRT from pre-print options (~&plusmn;10.55%, TipRanks). All prices IBKR READ-ONLY.</text>
+    </svg>
+    <p class="kicker" style="margin-top:10px"><b class="h">Read this:</b> two companies said "look at the orders we have won" and were penalised by <span class="num">4</span> and <span class="num">12</span> percentage points. Two said "look at the revenue we have already recognised" and were paid <span class="num">7</span> and <span class="num">8</span>. The four sit in four different sub-segments &mdash; optics tools, cooling, rack power, facility power &mdash; so this is not a sector rotation. <b class="h teal">It is a repricing of the order-to-revenue gap itself.</b></p>
+  </div>
+
+  <div class="card amberc">
+    <span class="tag amber">(b-ii) THE OBVIOUS CONFOUND, TESTED — is this really "order book vs revenue", or just "small European vs large US"?</span>
+    <p class="kicker" style="margin-top:6px">The four headline prints line up suspiciously well with size and domicile: the two penalised names are a <span class="num">&euro;4bn</span>-scale German tool maker and a mid-cap US integrator; the two paid names are large, liquid US industrials. <b class="h">If size or region drove the reactions, the rule is spurious.</b> Two rows in the same sample break that confound:</p>
+    <table style="margin-top:8px">
+      <tr><th>Control</th><th>Profile</th><th class="num">Evidence class</th><th class="num">Excess vs SMH</th><th>What it tests</th></tr>
+      <tr><td class="mono">TSMC · Jul 16 print</td><td>Largest, most liquid, most covered name in the entire complex</td><td class="num pos">CONVERTED revenue (record Q2, FY guide 30%&rarr;40%)</td><td class="num red">&minus;2.3pp on the day</td><td class="red"><b class="h">Breaks the rule in one direction</b> — a converted-revenue print that was <i>not</i> paid on the day. It has since recovered <span class="num pos">+2.8pp</span> this week, which is consistent with the rule on a two-week horizon but not on a one-day one. <b class="h">The rule is not clean at daily frequency.</b></td></tr>
+      <tr><td class="mono">Astera Labs · Jul 30</td><td>Large-cap US, deeply covered, highly liquid</td><td class="num mut">NO print at all</td><td class="num pos">+13.1pp on the day</td><td class="amber"><b class="h">Breaks the size/region story</b> — the single largest positive excess of the week went to a name that published nothing, so at least one big move in this sample is pure positioning. Size and liquidity did not require good news.</td></tr>
+      <tr><td class="mono">GE Vernova · Jul 22</td><td>Large-cap US, deeply covered, highly liquid</td><td class="num red">BACKLOG ($176B, orders +88%)</td><td class="num red">&minus;5.7pp on the week</td><td class="pos"><b class="h">Supports the rule against the confound</b> — a large, liquid, US, heavily-covered name was penalised for an order-book print, which is exactly what the size/region alternative predicts should <i>not</i> happen.</td></tr>
+    </table>
+    <p class="kicker" style="margin-top:8px"><b class="h">Honest scorecard on the rule:</b> of seven observations across two weeks, <b class="h teal">five fit</b> (AIXTRON, Vertiv, MPWR, Eaton, GE&nbsp;Vernova), <b class="h red">one breaks it at daily frequency</b> (TSMC, a converted-revenue print sold on the day), and <b class="h amber">one is outside it entirely</b> (Astera Labs, a large move with no news). GE&nbsp;Vernova is the row that most damages the size/region confound. <span class="red">This is still a two-week pattern, not a tested factor</span> &mdash; it has not been backtested across prior quarters, and the correct next step is the frozen-pre-print panel in routing R5. Treat the rule as a working hypothesis with one known counter-example, not as a law.</p>
+  </div>
+
+  <div class="card" style="border-color:#5e3331">
+    <span class="tag red">(c) WHAT THIS DOES TO OUR OWN PRIOR CALL — scored honestly</span>
+    <table style="margin-top:6px">
+      <tr><th>07-27 claim</th><th class="num">Outcome</th><th>Honest scoring</th></tr>
+      <tr><td>"Veto S4 &mdash; do not own AIXTRON's Jul-30 binary at the 99.6th IV percentile with consensus above guidance."</td><td class="num amber"><b class="h">HALF RIGHT</b></td><td><b class="h teal">Right on outcome:</b> AIXA was &minus;6.4% on the week, &minus;5.0pp vs SMH, and the 13-week IV-percentile collapsed <span class="num">0.984&rarr;0.446</span> exactly as a resolved binary should. <b class="h red">Wrong on mechanism:</b> the loss came on Jul&#8209;28 (<span class="num">&minus;9.5%</span>) with the optics basket, <i>before</i> the print; the print day itself was positive in absolute terms. The stated reason did not produce the result.</td></tr>
+      <tr><td>"Queue-jump to S2 because the bonding order book is inflecting (BESI +128.8%, SUSS record intake)."</td><td class="num red"><b class="h">LOGIC DAMAGED</b></td><td>Four days later the market ran the cleanest possible experiment on that exact shape and priced it at <span class="num red">&minus;4pp</span>. The S2 <i>thesis</i> is untouched &mdash; no disclosure contradicted it &mdash; but the <i>reason to act on it now</i> has been replaced (see &sect;5). Confidence reduced from medium to medium-with-a-named-reversal.</td></tr>
+      <tr><td>"Power blowouts get sold &mdash; downgrade S6a to TRAP/PRICED/ev3 on GE Vernova's &minus;5.7pp."</td><td class="num red"><b class="h">WITHDRAWN</b></td><td>Eaton printed a structurally similar blowout on Jul&#8209;31 and was paid <span class="num pos">+7.0pp</span>. Generalising from one print to a sub-segment rule was wrong. The narrower rule that survives both observations is the conversion rule: Eaton's data-centre <i>revenue</i> was already +65%; GE Vernova's $176B was backlog.</td></tr>
+      <tr><td>"First genuine de-crowding week &mdash; 12 of 14 IV-percentiles fell."</td><td class="num pos"><b class="h">HELD</b></td><td>12 of 16 fell again this week. The refinement: the four that <i>rose</i> are all networking/ASIC (AVGO, CRDO, NVDA, MRVL), which localises where protection is being bought and produces this week's sharpest veto.</td></tr>
+      <tr><td>"The complex is being sold regardless of news."</td><td class="num red"><b class="h">FALSE — measurement error</b></td><td>See &sect;1a. On the settled basis the complex beat SMH by <span class="num">0.28pp</span>. The correct statement is dispersion, not de-rating.</td></tr>
+    </table>
+    <p class="kicker" style="margin-top:8px"><span class="mut">This table exists because an engine that only records its wins cannot be calibrated. Three of five prior-week claims were wrong, damaged or withdrawn; the two that held are the crowding read and the S4 outcome.</span></p>
+  </div>
+
+  <h2><span class="n">2</span>The master alpha map — which sub-segment has the edge</h2>
+  <p class="sub">Two linked pictures. <b class="h">(a)</b> the 2&times;2 ALPHA SCATTER plots all 9 buckets by <i>is-it-priced</i> (x) &times; <i>variant-view strength</i> (y); bubble SIZE &prop; chokepoint severity, COLOR by quadrant. <b class="h">(b)</b> the same 9 ranked by expected value, with the components published. <span class="teal">S6b moved up and left on the MPWR evidence; S6a moved up on the Eaton reversal; S5 moved right into the priced half on the pre-print squeeze.</span></p>
+
+  <div class="card">
+    <span class="tag">(a) ALPHA SCATTER — arrows = movement since 2026-07-27</span>
+    <svg viewBox="0 0 1120 560" role="img" aria-label="Alpha scatter of nine AI-infra buckets by whether they are priced versus the strength of the differentiated view, with S6b rack power moving up on the Monolithic Power evidence">
+      <rect x="70" y="40" width="490" height="220" fill="#13302c" opacity="0.35"/>
+      <rect x="560" y="40" width="490" height="220" fill="#2a1c1d" opacity="0.30"/>
+      <rect x="70" y="260" width="490" height="200" fill="#161b22" opacity="0.5"/>
+      <rect x="560" y="260" width="490" height="200" fill="#161b22" opacity="0.5"/>
+      <line x1="70" y1="40" x2="70" y2="460" stroke="#3a444f"/>
+      <line x1="70" y1="460" x2="1050" y2="460" stroke="#3a444f"/>
+      <line x1="560" y1="40" x2="560" y2="460" stroke="#2a323d" stroke-dasharray="4 4"/>
+      <line x1="70" y1="260" x2="1050" y2="260" stroke="#2a323d" stroke-dasharray="4 4"/>
+      <text class="lbl" x="76" y="56">VARIANT-VIEW STRENGTH &uarr;  (gap magnitude &times; conviction)</text>
+      <text class="lbl" x="1044" y="480" text-anchor="end">IS IT PRICED? &rarr;  (crowding &times; coverage &times; how much the tape has already paid)</text>
+      <text class="m" x="86" y="80" style="fill:#3fb6a8;font-size:13px">REAL ALPHA — un-priced &amp; differentiated</text>
+      <text class="m" x="1040" y="80" text-anchor="end" style="fill:#df6258;font-size:13px">TRAP — right thesis, already paid for</text>
+      <text class="fa" x="86" y="452">WATCHLIST — thin view, cheap</text>
+      <text class="fa" x="1040" y="452" text-anchor="end">AVOID — consensus and expensive</text>
+      <line x1="70" y1="460" x2="70" y2="466" stroke="#3a444f"/><text class="fa" x="70" y="478" text-anchor="middle">0</text>
+      <line x1="315" y1="460" x2="315" y2="466" stroke="#3a444f"/><text class="fa" x="315" y="478" text-anchor="middle">25</text>
+      <line x1="560" y1="460" x2="560" y2="466" stroke="#3a444f"/><text class="fa" x="560" y="478" text-anchor="middle">50</text>
+      <line x1="805" y1="460" x2="805" y2="466" stroke="#3a444f"/><text class="fa" x="805" y="478" text-anchor="middle">75</text>
+      <line x1="1050" y1="460" x2="1050" y2="466" stroke="#3a444f"/><text class="fa" x="1050" y="478" text-anchor="middle">100</text>
+      <line x1="64" y1="40" x2="70" y2="40" stroke="#3a444f"/><text class="fa" x="58" y="44" text-anchor="end">100</text>
+      <line x1="64" y1="150" x2="70" y2="150" stroke="#3a444f"/><text class="fa" x="58" y="154" text-anchor="end">75</text>
+      <line x1="64" y1="260" x2="70" y2="260" stroke="#3a444f"/><text class="fa" x="58" y="264" text-anchor="end">50</text>
+      <line x1="64" y1="360" x2="70" y2="360" stroke="#3a444f"/><text class="fa" x="58" y="364" text-anchor="end">25</text>
+      <line x1="64" y1="460" x2="70" y2="460" stroke="#3a444f"/><text class="fa" x="58" y="464" text-anchor="end">0</text>
+      <rect x="806" y="46" width="14" height="14" fill="#6b7682" fill-opacity="0.20" stroke="#6b7682" stroke-width="1.2" stroke-dasharray="3 2"/>
+      <text class="fa" x="826" y="58">all coordinates are JUDGMENT (est.) — dashed outline denotes the whole chart is a reconstruction, ticks are 0–100 index units, not measured quantities</text>
+      <circle cx="330" cy="118" r="26" fill="#3fb6a8" fill-opacity="0.20" stroke="#3fb6a8" stroke-width="1.6"/>
+      <text class="m" x="330" y="122" text-anchor="middle" style="fill:#3fb6a8;font-size:12px">S2</text>
+      <text class="fa" x="330" y="158" text-anchor="middle">S2 packaging</text>
+      <line x1="446" y1="140" x2="464" y2="148" stroke="#e0a23b" stroke-opacity="0.5" stroke-width="1.4" stroke-dasharray="3 3"/>
+      <circle cx="470" cy="150" r="28" fill="#e0a23b" fill-opacity="0.20" stroke="#e0a23b" stroke-width="1.6"/>
+      <text class="m" x="470" y="154" text-anchor="middle" style="fill:#e0a23b;font-size:12px">S4</text>
+      <text class="fa" x="470" y="192" text-anchor="middle">S4 interconnect</text>
+      <line x1="650" y1="119" x2="628" y2="108" stroke="#e0a23b" stroke-opacity="0.5" stroke-width="1.4" stroke-dasharray="3 3"/>
+      <circle cx="620" cy="105" r="30" fill="#e0a23b" fill-opacity="0.20" stroke="#e0a23b" stroke-width="1.6"/>
+      <text class="m" x="620" y="109" text-anchor="middle" style="fill:#e0a23b;font-size:12px">S3</text>
+      <text class="fa" x="620" y="149" text-anchor="middle">S3 memory</text>
+      <line x1="467" y1="231" x2="526" y2="189" stroke="#e0a23b" stroke-opacity="0.5" stroke-width="1.4" stroke-dasharray="3 3"/>
+      <circle cx="545" cy="175" r="27" fill="#e0a23b" fill-opacity="0.20" stroke="#e0a23b" stroke-width="1.6"/>
+      <text class="m" x="545" y="179" text-anchor="middle" style="fill:#e0a23b;font-size:12px">S6b</text>
+      <text class="fa" x="545" y="216" text-anchor="middle">S6b rack power</text>
+      <circle cx="790" cy="300" r="30" fill="#6b7682" fill-opacity="0.20" stroke="#6b7682" stroke-width="1.6"/>
+      <text class="m" x="790" y="304" text-anchor="middle" style="fill:#6b7682;font-size:12px">S1</text>
+      <text class="fa" x="790" y="344" text-anchor="middle">S1 foundry</text>
+      <line x1="879" y1="245" x2="861" y2="215" stroke="#df6258" stroke-opacity="0.5" stroke-width="1.4" stroke-dasharray="3 3"/>
+      <circle cx="855" cy="205" r="28" fill="#df6258" fill-opacity="0.20" stroke="#df6258" stroke-width="1.6"/>
+      <text class="m" x="855" y="209" text-anchor="middle" style="fill:#df6258;font-size:12px">S6a</text>
+      <text class="fa" x="855" y="247" text-anchor="middle">S6a facility power</text>
+      <line x1="646" y1="298" x2="686" y2="314" stroke="#df6258" stroke-opacity="0.5" stroke-width="1.4" stroke-dasharray="3 3"/>
+      <circle cx="700" cy="320" r="25" fill="#df6258" fill-opacity="0.20" stroke="#df6258" stroke-width="1.6"/>
+      <text class="m" x="700" y="324" text-anchor="middle" style="fill:#df6258;font-size:12px">S7</text>
+      <text class="fa" x="700" y="359" text-anchor="middle">S7 cooling</text>
+      <circle cx="935" cy="355" r="27" fill="#6b7682" fill-opacity="0.20" stroke="#6b7682" stroke-width="1.6"/>
+      <text class="m" x="935" y="359" text-anchor="middle" style="fill:#6b7682;font-size:12px">D0</text>
+      <text class="fa" x="935" y="396" text-anchor="middle">D0 demand</text>
+      <line x1="1029" y1="355" x2="981" y2="378" stroke="#df6258" stroke-opacity="0.5" stroke-width="1.4" stroke-dasharray="3 3"/>
+      <circle cx="965" cy="385" r="25" fill="#df6258" fill-opacity="0.20" stroke="#df6258" stroke-width="1.6"/>
+      <text class="m" x="965" y="389" text-anchor="middle" style="fill:#df6258;font-size:12px">S5</text>
+      <text class="fa" x="965" y="424" text-anchor="middle">S5 networking</text>
+      <text class="fa" x="76" y="500">Bubble radius &prop; chokepoint severity (15&ndash;19 / 20). Dashed arrows show movement since the 07-27 run. Coordinates are an honest reconstruction of the dossier verdicts, <b>not</b> a measured dataset <b>(est.)</b>.</text>
+      <text class="fa" x="76" y="520">S6b's move is the largest on the map: from "2027 story, TRAP" to "content inflection proven, but already paid" — up on variant strength, right on priced. S6a rises on the Eaton reversal. S5 slides right and down into the print.</text>
+    </svg>
+  </div>
+
+  <div class="card">
+    <span class="tag">(b) RANKED EXPECTED VALUE — EV = 3 + Σ(6 components ∈ [−2,+2]) + 2×(tape-paid component ∈ [−2,+2]) · clipped to [0,10] · every component names its observable</span>
+    <svg viewBox="0 0 1120 400" role="img" aria-label="Nine AI-infra buckets ranked by expected value, S2 packaging highest at six">
+      <text class="m" x="150" y="43" text-anchor="end" style="fill:#3fb6a8;font-size:13px">S2 Packaging</text>
+      <rect x="158" y="26" width="708" height="24" fill="#3fb6a8" fill-opacity="0.20" stroke="#3fb6a8" stroke-width="1.2" rx="3"/>
+      <text class="m" x="876" y="43" style="fill:#3fb6a8;font-size:13px">6</text>
+      <text class="fa" x="900" y="43">WATCHLIST &middot; EARLY &middot; edge: SMHN.DE (vetted) &mdash; nearest dated CONVERSION test — Aug 6 · GUIDANCE-GAP claim</text>
+      <text class="m" x="150" y="83" text-anchor="end" style="fill:#e0a23b;font-size:13px">S3 HBM / memory</text>
+      <rect x="158" y="66" width="590" height="24" fill="#e0a23b" fill-opacity="0.20" stroke="#e0a23b" stroke-width="1.2" rx="3"/>
+      <text class="m" x="758" y="83" style="fill:#e0a23b;font-size:13px">5</text>
+      <text class="fa" x="782" y="83">WATCHLIST &middot; EARLY &middot; no vetted edge · denom MU &mdash; widest gap, no executable expression</text>
+      <text class="m" x="150" y="123" text-anchor="end" style="fill:#e0a23b;font-size:13px">S4 Interconnect</text>
+      <rect x="158" y="106" width="590" height="24" fill="#e0a23b" fill-opacity="0.20" stroke="#e0a23b" stroke-width="1.2" rx="3"/>
+      <text class="m" x="758" y="123" style="fill:#e0a23b;font-size:13px">5</text>
+      <text class="fa" x="782" y="123">WATCHLIST &middot; EARLY &middot; edge: AIXA.DE (vetted) &mdash; order book published, tape declined to pay · GUIDANCE-GAP claim</text>
+      <text class="m" x="150" y="163" text-anchor="end" style="fill:#e0a23b;font-size:13px">S6b Rack power</text>
+      <rect x="158" y="146" width="590" height="24" fill="#e0a23b" fill-opacity="0.20" stroke="#e0a23b" stroke-width="1.2" rx="3"/>
+      <text class="m" x="758" y="163" style="fill:#e0a23b;font-size:13px">5</text>
+      <text class="fa" x="782" y="163">RESEARCH_GAP &middot; CONFIRMING &middot; no vetted edge · denom MPWR &mdash; 85%→130% revision proven at the incumbent, already paid</text>
+      <text class="m" x="150" y="203" text-anchor="end" style="fill:#6b7682;font-size:13px">S1 Foundry</text>
+      <rect x="158" y="186" width="472" height="24" fill="#6b7682" fill-opacity="0.20" stroke="#6b7682" stroke-width="1.2" rx="3"/>
+      <text class="m" x="640" y="203" style="fill:#6b7682;font-size:13px">4</text>
+      <text class="fa" x="664" y="203">WATCHLIST &middot; PRICED &middot; no vetted edge · denom TSM &mdash; event premium fully bled off</text>
+      <text class="m" x="150" y="243" text-anchor="end" style="fill:#df6258;font-size:13px">S6a Facility pwr</text>
+      <rect x="158" y="226" width="472" height="24" fill="#df6258" fill-opacity="0.20" stroke="#df6258" stroke-width="1.2" rx="3"/>
+      <text class="m" x="640" y="243" style="fill:#df6258;font-size:13px">4</text>
+      <text class="fa" x="664" y="243">TRAP &middot; LATE &middot; no vetted edge · denom ETN/GEV &mdash; confirmed AND paid — ride-only</text>
+      <text class="m" x="150" y="283" text-anchor="end" style="fill:#df6258;font-size:13px">S7 Cooling</text>
+      <rect x="158" y="266" width="472" height="24" fill="#df6258" fill-opacity="0.20" stroke="#df6258" stroke-width="1.2" rx="3"/>
+      <text class="m" x="640" y="283" style="fill:#df6258;font-size:13px">4</text>
+      <text class="fa" x="664" y="283">TRAP &middot; LATE &middot; no vetted edge · denom VRT &mdash; conversion risk sits on the integrator</text>
+      <text class="m" x="150" y="323" text-anchor="end" style="fill:#6b7682;font-size:13px">D0 Demand</text>
+      <rect x="158" y="306" width="354" height="24" fill="#6b7682" fill-opacity="0.20" stroke="#6b7682" stroke-width="1.2" rx="3"/>
+      <text class="m" x="522" y="323" style="fill:#6b7682;font-size:13px">3</text>
+      <text class="fa" x="546" y="323">AVOID &middot; PRICED &middot; no vetted edge · denom NVDA &mdash; right again, payable only via mega-caps</text>
+      <text class="m" x="150" y="363" text-anchor="end" style="fill:#df6258;font-size:13px">S5 Networking</text>
+      <rect x="158" y="346" width="354" height="24" fill="#df6258" fill-opacity="0.20" stroke="#df6258" stroke-width="1.2" rx="3"/>
+      <text class="m" x="522" y="363" style="fill:#df6258;font-size:13px">3</text>
+      <text class="fa" x="546" y="363">TRAP &middot; LATE &middot; no vetted edge · denom AVGO &mdash; prints in 1 day at 0.928 IV-pctile</text>
+      <line x1="158" y1="382" x2="1050" y2="382" stroke="#2a323d"/>
+      <text class="fa" x="158" y="396">EV is a judgment score, published so it can be argued with. It is auditable, not reproducible: a different analyst could score the components differently.</text>
+    </svg>
+    <table style="margin-top:10px">
+      <tr><th>Bucket</th><th class="num">gap size</th><th class="num">under-cover</th><th class="num">dated cat.</th><th class="num">crowding</th><th class="num">executable</th><th class="num">falsifiable</th><th class="num">tape paid?</th><th class="num">EV</th></tr>
+      <tr><td class="mono"><b class="h teal">S2</b> packaging</td><td class="num pos">+1</td><td class="num pos">+2</td><td class="num pos">+2</td><td class="num pos">+1</td><td class="num">0</td><td class="num pos">+1</td><td class="num red">&minus;4</td><td class="num"><b class="h teal">6</b></td></tr>
+      <tr><td class="mono"><b class="h amber">S3</b> memory</td><td class="num pos">+2</td><td class="num red">&minus;2</td><td class="num">0</td><td class="num red">&minus;1</td><td class="num red">&minus;1</td><td class="num pos">+2</td><td class="num pos">+2</td><td class="num"><b class="h amber">5</b></td></tr>
+      <tr><td class="mono"><b class="h amber">S4</b> interconnect</td><td class="num pos">+1</td><td class="num pos">+2</td><td class="num">0</td><td class="num pos">+2</td><td class="num">0</td><td class="num pos">+2</td><td class="num red">&minus;4</td><td class="num"><b class="h amber">5</b></td></tr>
+      <tr><td class="mono"><b class="h amber">S6b</b> rack power</td><td class="num pos">+2</td><td class="num red">&minus;1</td><td class="num">0</td><td class="num">0</td><td class="num pos">+1</td><td class="num pos">+2</td><td class="num red">&minus;1</td><td class="num"><b class="h amber">5</b></td></tr>
+      <tr><td class="mono"><b class="h">S1</b> foundry</td><td class="num">0</td><td class="num red">&minus;2</td><td class="num pos">+1</td><td class="num pos">+2</td><td class="num pos">+1</td><td class="num pos">+1</td><td class="num red">&minus;2</td><td class="num">4</td></tr>
+      <tr><td class="mono"><b class="h">S6a</b> facility pwr</td><td class="num pos">+1</td><td class="num red">&minus;2</td><td class="num">0</td><td class="num red">&minus;2</td><td class="num pos">+2</td><td class="num pos">+2</td><td class="num">0</td><td class="num">4</td></tr>
+      <tr><td class="mono"><b class="h">S7</b> cooling</td><td class="num pos">+1</td><td class="num red">&minus;1</td><td class="num">0</td><td class="num pos">+2</td><td class="num red">&minus;2</td><td class="num pos">+2</td><td class="num red">&minus;1</td><td class="num">4</td></tr>
+      <tr><td class="mono"><b class="h red">D0</b> demand</td><td class="num">0</td><td class="num red">&minus;2</td><td class="num">0</td><td class="num">0</td><td class="num pos">+2</td><td class="num pos">+1</td><td class="num red">&minus;1</td><td class="num mut">3</td></tr>
+      <tr><td class="mono"><b class="h red">S5</b> networking</td><td class="num red">&minus;1</td><td class="num red">&minus;2</td><td class="num pos">+1</td><td class="num red">&minus;2</td><td class="num pos">+2</td><td class="num pos">+1</td><td class="num pos">+1</td><td class="num mut">3</td></tr>
+    </table>
+    <p class="kicker" style="margin-top:8px"><b class="h">"Tape paid?" is the new component this week</b> and it is the only <b>double-weighted</b> one: its raw score is in the same <span class="num">[&minus;2,+2]</span> band as every other component and is then multiplied by 2, because this week the market demonstrated <span class="num">11&ndash;20pp</span> of dispersion turning on exactly that distinction. S2 and S4 each score a raw <span class="num red">&minus;2</span> &rarr; <span class="num red">&minus;4</span> weighted &mdash; the largest single penalty on the board &mdash; because both rest on order books and the market repriced order books on Jul&#8209;30. They still rank top because the other six components are strong.</p>
+    <table style="margin-top:8px">
+      <tr><th>Scoring rule</th><th class="num">S2</th><th class="num">S3</th><th class="num">S4</th><th class="num">S6b</th><th class="num">S1</th><th class="num">S6a</th><th class="num">S7</th><th class="num">D0</th><th class="num">S5</th><th>Does the ranking change?</th></tr>
+      <tr><td>Double-weighted (as published)</td><td class="num"><b class="h teal">6</b></td><td class="num">5</td><td class="num">5</td><td class="num">5</td><td class="num">4</td><td class="num">4</td><td class="num">4</td><td class="num mut">3</td><td class="num mut">3</td><td class="mut">baseline</td></tr>
+      <tr><td><b class="h">Flat weight</b> (tape-paid &times;1, consistent [&minus;2,+2])</td><td class="num"><b class="h teal">8</b></td><td class="num">4</td><td class="num"><b class="h">7</b></td><td class="num">5</td><td class="num">5</td><td class="num">4</td><td class="num">5</td><td class="num mut">3</td><td class="num mut">3</td><td class="pos"><b class="h">No &mdash; S2 stays #1</b>, and its lead <i>widens</i>. S4 rises to #2. The double weight is the <i>conservative</i> choice for the top two.</td></tr>
+      <tr><td>Tape-paid component removed entirely</td><td class="num"><b class="h teal">10</b></td><td class="num">3</td><td class="num"><b class="h">9</b></td><td class="num">6</td><td class="num">6</td><td class="num">4</td><td class="num">5</td><td class="num mut">4</td><td class="num mut">2</td><td class="mut">S2 still #1. The component only ever reduces the top two.</td></tr>
+    </table>
+    <table style="margin-top:8px">
+      <tr><th>Input change</th><th class="num">Effect on rank order</th><th>Comment</th></tr>
+      <tr><td>A real PIT consensus for SUSS lands <b>above</b> the company guide</td><td class="num red">S2 falls to ~#4</td><td class="red">The whole S2 case assumes the bar is the company's own low guide. A sell-side bar above guidance turns the setup negative-skew &mdash; the AIXTRON trap.</td></tr>
+      <tr><td>An under-covered S6b vertical-power supplier is found and vetted</td><td class="num pos">S6b rises to <b>#1</b></td><td>It already has the strongest evidence on the board; only the missing expression holds it out of the ranked lane.</td></tr>
+      <tr><td>An executable S3 memory expression is found</td><td class="num pos">S3 rises to <b>#1 or #2</b></td><td>S3 has the widest gap component (+2) and is held down entirely by "under-covered" (&minus;2) and "executable" (&minus;1).</td></tr>
+      <tr><td>AIXTRON's Q3 conversion slips a quarter</td><td class="num red">S4 falls to ~#6</td><td>The dated-catalyst and falsifiable components both weaken; the thesis survives but the timing edge does not.</td></tr>
+      <tr><td>Tape-paid weight set to zero</td><td class="num mut">no change at #1</td><td class="mut">S2 stays first under all three weightings (table above).</td></tr>
+    </table>
+    <p class="kicker" style="margin-top:8px"><span class="mut"><b class="h">Aug-6 sensitivity:</b> if the SUSS print shows conversion, S2's raw tape-paid score moves &minus;2 &rarr; 0 and EV goes to <b>10</b> (clipped) &mdash; re-scored as a REAL_ALPHA candidate. If it shows intake without conversion, the raw score stays &minus;2, "dated catalyst" drops to 0, and EV falls to <b>4</b>, alongside S1.</span></p>
+  </div>
+
+  <h2><span class="n">3</span>The consensus-gap bridge — what the Street models vs what the price implies vs the variant</h2>
+  <p class="sub">One row per bucket. <b class="h">Street consensus</b> is what published estimates or company guidance anchor on; <b class="h">price-implied</b> is what the tape's reaction says is embedded; <b class="h">variant</b> is this map's differentiated conclusion; <b class="h">gap direction</b> is the sign. Provenance of every consensus figure is graded underneath — this is the weakest link in the whole engine and it is labelled as such.</p>
+  <div class="card">
+    <span class="tag">CONSENSUS → PRICE-IMPLIED → VARIANT → DATED CATALYST</span>
+    <table>
+      <tr><th>Bucket</th><th>What the Street / guidance anchors on</th><th>What the price now implies</th><th>Variant view (this map)</th><th class="num">Gap</th><th class="num">Dated catalyst</th></tr>
+      <tr><td class="mono"><b class="h teal">S2</b> packaging</td><td>SUSS FY26 <span class="num">&euro;425&ndash;485M</span> sales at an <span class="num">8&ndash;10%</span> EBIT margin — a company-guided <b>down</b> year — against record Q1 intake <span class="num">&euro;149.3M</span> and a <span class="num">&euro;330.1M</span> order book.</td><td>That the order book will not convert on schedule. SMHN was the most inert name on the board (<span class="num">&minus;1.3%</span>, <span class="num">+0.1pp</span>) — neither bought nor sold.</td><td>Aug-6 is the first dated look at conversion, into a <b>low bar</b> at a non-extreme IV-percentile (<span class="num">0.646</span> 13w). The CPO&times;hybrid-bonding cross-silo thesis is un-contradicted.</td><td class="num pos">above</td><td class="num mono"><b class="h">Aug 6</b></td></tr>
+      <tr><td class="mono"><b class="h amber">S3</b> memory</td><td>SK Hynix Q2 record (<span class="num">76%</span> OP margin, HBM4 in mass production) read as a <i>miss</i>; MU FQ4 guide <span class="num">~$50B</span> at <span class="num">~86%</span> GM untested until late Sept.</td><td>That memory pricing power has peaked — Apple "evaluating all options", CXMT supply. MU <span class="num red">&minus;7.1pp</span>, and the 13w IV-percentile is <span class="num">0.290</span>: orderly distribution, no bid for protection.</td><td>The de-rating uses the <b>wrong customer</b>. Apple is a consumer-BOM optimiser; the marginal AI buyer (Amazon) just capitalised a <span class="num">$20B</span> memory price increase and was rewarded for it.</td><td class="num pos">above</td><td class="num mono">late Sep</td></tr>
+      <tr><td class="mono"><b class="h amber">S4</b> interconnect</td><td>AIXTRON FY26 <span class="num">&euro;560M &plusmn;30M</span> at a <span class="num">17&ndash;20%</span> EBIT margin, <b>confirmed</b>; Q3 <span class="num">&euro;180M &plusmn;20M</span>, Q4 <span class="num">&gt;&euro;200M</span>.</td><td>That the H2 ramp will not land. The print day underperformed the tape by <span class="num red">4pp</span> despite <span class="num">+81%</span> orders.</td><td>Thesis intact and now <b>company-dated</b>: Q3 <span class="num">&euro;180M</span> vs Q2 <span class="num">&euro;115M</span> is management's own falsifiable conversion number. Do not pre-empt it.</td><td class="num pos">above</td><td class="num mono">late Oct</td></tr>
+      <tr><td class="mono"><b class="h amber">S6b</b> rack power</td><td>MPWR Q3 consensus was ~<span class="num">$0.99B</span>; the company guided <span class="num">~$1.15B</span>, <span class="num">+16.5%</span> above. AI/enterprise-data FY growth outlook raised <span class="num">85%&rarr;130%</span>.</td><td>Paid, immediately: <span class="num pos">+8.04pp</span>. The tape has accepted the content-inflection story at the incumbent.</td><td>$-content per socket is inflecting faster than rack count. The residual question is whether it generalises to under-covered second-order suppliers — <b>not evidenced</b> this run.</td><td class="num mut">confirmed</td><td class="num mono">late Oct</td></tr>
+      <tr><td class="mono"><b class="h">S1</b> foundry</td><td>TSMC FY26 growth guide raised 30%&rarr;40% at the Jul-16 Q2; no revision since.</td><td>Fully digested — event premium gone (13w IV-pctile <span class="num">0.452</span>), price recovered <span class="num pos">+2.8pp</span> this week.</td><td>No timing edge. The July MOPS revenue print (~Aug 10) is a <i>converted-revenue</i> datapoint, which is the class the tape currently pays for.</td><td class="num mut">priced</td><td class="num mono">~Aug 10</td></tr>
+      <tr><td class="mono"><b class="h">S6a</b> facility pwr</td><td>Eaton FY organic growth and adj-EPS guidance raised; GEV FY guide raised on a <span class="num">$176B</span> backlog.</td><td>Split by conversion: Eaton's realised DC revenue <span class="num">+65%</span> paid <span class="num pos">+7.0pp</span>; GEV's backlog paid <span class="num red">&minus;5.7pp</span> a week earlier.</td><td>Last week's "power blowouts get sold" is <b>withdrawn</b>. The conversion rule replaces it and explains both.</td><td class="num mut">confirmed</td><td class="num mono">late Oct</td></tr>
+      <tr><td class="mono"><b class="h">S7</b> cooling</td><td>Vertiv FY26 raised to <span class="num">$13.8&ndash;14.2B</span> sales, adj EPS <span class="num">$6.65&ndash;6.75</span>, adj FCF <span class="num">$2.4&ndash;2.6B</span>; <span class="num">~$15B</span> backlog.</td><td>That conversion is the binding constraint: <span class="num red">&minus;12.5pp</span> at <span class="num">1.64&times;</span> the implied move on a <span class="num">3.4%</span> revenue shortfall, <i>despite</i> the raise.</td><td>A conversion failure inside a shortage is a <b>supply</b> signal, not a demand signal — but the integrator's P&amp;L is the wrong instrument for it.</td><td class="num mut">confirmed</td><td class="num mono">late Oct</td></tr>
+      <tr><td class="mono"><b class="h red">D0</b> demand</td><td>Big-Four 2026 aggregate ~<span class="num">$745&ndash;805B</span> <b>(est.)</b>; AMZN <span class="num">$220B</span>, MSFT ~<span class="num">$175B</span> calendar-2026.</td><td>Priced <i>and rewarded</i> — both buyers rose on their raises. AWS commitments <span class="num">$364B&rarr;$496B</span>.</td><td>The payoff has rotated from sellers to buyers. Capex is being valued as an asset on the buyer's balance sheet and a margin claim on the seller's.</td><td class="num mut">priced</td><td class="num mono">~Aug 11</td></tr>
+      <tr><td class="mono"><b class="h red">S5</b> networking</td><td>ALAB Q2 guide <span class="num">$355&ndash;365M</span> rev, <span class="num">$0.68&ndash;0.70</span> non-GAAP EPS.</td><td>A squeeze: <span class="num pos">+11.6pp</span> in two sessions with <b>no print</b>, at a <span class="num">0.928</span> IV-percentile.</td><td>No gap. Paying for event risk, not information — and every name whose implied vol rose this week is in this block.</td><td class="num red">none</td><td class="num mono"><b class="h red">Aug 4</b></td></tr>
+    </table>
+  </div>
+
+  <div class="card amberc">
+    <span class="tag amber">CONSENSUS PROVENANCE — graded, because "consensus gap" is only as good as the consensus figure</span>
+    <table style="margin-top:6px">
+      <tr><th>Figure used</th><th class="num">Grade</th><th>Honest limitation</th></tr>
+      <tr><td class="mono">SUSS FY26 €425–485M / 8–10% EBIT</td><td class="num pos">PRIMARY (company guide)</td><td>This is company guidance, not sell-side consensus. Using a guide as the "consensus anchor" biases the bar <i>downward</i> and therefore flatters the S2 setup. Stated explicitly rather than smoothed over.</td></tr>
+      <tr><td class="mono">AIXTRON FY26 €560M ±30M / Q3 €180M ±20M</td><td class="num pos">PRIMARY (company guide)</td><td>Same caveat. The one true <i>sell-side</i> consensus this engine used (~€124M for Q2) came from a media aggregate and proved directionally useful — actual €115M — but it is not a PIT vendor feed.</td></tr>
+      <tr><td class="mono">MPWR Q3 "+16.5% above consensus"</td><td class="num amber">MEDIA AGGREGATE</td><td>Sourced from an earnings-coverage aggregator, not a terminal. The direction (a large above-consensus guide) is corroborated by the +8pp reaction; the exact percentage is not independently verified.</td></tr>
+      <tr><td class="mono">VRT Q2 consensus ~$3.38–3.39B; implied move ~±10.55%</td><td class="num amber">MEDIA AGGREGATE</td><td>Both the revenue consensus and the pre-print implied move come from secondary coverage. The implied-move figure is the single most load-bearing number in §1b's "1.64× implied" claim and it is <b>not</b> from an options chain snapshot taken before the print.</td></tr>
+      <tr><td class="mono">Big-Four 2026 capex ~$745–805B</td><td class="num amber">RECONSTRUCTED (est.)</td><td>Summed from four separately-disclosed company figures with different fiscal calendars and an accounting-life change at Microsoft. Directionally solid, precisely wrong.</td></tr>
+      <tr><td class="mono">All price / IV / range data</td><td class="num pos">PRIMARY (IBKR read-only)</td><td>Daily closes and IV-percentiles pulled directly. The only caveat is that the 08-03 column is a live pre-market print, labelled as such everywhere it appears.</td></tr>
+    </table>
+    <p class="kicker" style="margin-top:8px"><b class="h red">The standing gap:</b> this engine still has no point-in-time vendor consensus feed. Where a "consensus gap" is claimed against a <i>company guide</i> rather than against sell-side estimates, it is a guidance gap, not a consensus gap &mdash; a materially weaker claim. That applies to <b class="h">both</b> S2 and S4, i.e. to the top of the ranking.</p>
+  </div>
+
+  <h2><span class="n">4</span>Crowding &amp; positioning — IBKR read-only</h2>
+  <p class="sub">Settled close-to-close returns (07-27 &rarr; 07-31) with the factor adjustment against SMH, plus the implied-volatility percentile as the crowding proxy. <b class="h">The single most useful column is "ΔIV52"</b>: where it <i>rose</i>, the market bought protection; where it fell hard, an event resolved.</p>
+  <div class="card">
+    <span class="tag">CROWDING STRIP — 16 decision-critical names · x = 52w IV-percentile (crowded →) · y = 52w range position (extended ↑) · bubble = |excess vs SMH|</span>
+    <svg viewBox="0 0 1120 470" role="img" aria-label="Crowding scatter of sixteen AI-infrastructure names by implied volatility percentile and 52-week range position">
+      <line x1="80" y1="30" x2="80" y2="400" stroke="#3a444f"/>
+      <line x1="80" y1="400" x2="1060" y2="400" stroke="#3a444f"/>
+      <line x1="80" y1="215" x2="1060" y2="215" stroke="#2a323d" stroke-dasharray="4 4"/>
+      <line x1="655" y1="30" x2="655" y2="400" stroke="#2a323d" stroke-dasharray="4 4"/>
+      <text class="lbl" x="86" y="46">52-WEEK RANGE POSITION &uarr; (extended)</text>
+      <text class="lbl" x="1054" y="424" text-anchor="end">52-WEEK IV PERCENTILE &rarr; (crowded / fear-priced)</text>
+      <text class="fa" x="1054" y="52" text-anchor="end">crowded AND extended = ride-only</text>
+      <text class="fa" x="86" y="392">calm and pulled back = mean-reversion candidates</text>
+      <circle cx="989" cy="215" r="24" fill="#df6258" fill-opacity="0.18" stroke="#df6258" stroke-width="1.4"/>
+      <text class="m" x="989" y="219" text-anchor="middle" style="fill:#df6258;font-size:10px">ALAB</text>
+      <circle cx="970" cy="156" r="19" fill="#e0a23b" fill-opacity="0.18" stroke="#e0a23b" stroke-width="1.4"/>
+      <text class="m" x="970" y="160" text-anchor="middle" style="fill:#e0a23b;font-size:10px">MPWR</text>
+      <circle cx="982" cy="97" r="15" fill="#df6258" fill-opacity="0.18" stroke="#df6258" stroke-width="1.4"/>
+      <text class="m" x="982" y="101" text-anchor="middle" style="fill:#df6258;font-size:10px">ETN</text>
+      <circle cx="746" cy="226" r="12" fill="#6b7682" fill-opacity="0.18" stroke="#6b7682" stroke-width="1.4"/>
+      <text class="m" x="746" y="230" text-anchor="middle" style="fill:#6b7682;font-size:10px">NVDA</text>
+      <circle cx="872" cy="219" r="12" fill="#df6258" fill-opacity="0.18" stroke="#df6258" stroke-width="1.4"/>
+      <text class="m" x="872" y="223" text-anchor="middle" style="fill:#df6258;font-size:10px">AVGO</text>
+      <circle cx="903" cy="145" r="11" fill="#6b7682" fill-opacity="0.18" stroke="#6b7682" stroke-width="1.4"/>
+      <text class="m" x="903" y="149" text-anchor="middle" style="fill:#6b7682;font-size:10px">TSM</text>
+      <circle cx="837" cy="178" r="10" fill="#e0a23b" fill-opacity="0.18" stroke="#e0a23b" stroke-width="1.4"/>
+      <text class="m" x="837" y="182" text-anchor="middle" style="fill:#e0a23b;font-size:10px">LITE</text>
+      <circle cx="982" cy="208" r="8" fill="#df6258" fill-opacity="0.18" stroke="#df6258" stroke-width="1.4"/>
+      <text class="m" x="982" y="212" text-anchor="middle" style="fill:#df6258;font-size:10px">CRDO</text>
+      <circle cx="958" cy="148" r="8" fill="#df6258" fill-opacity="0.18" stroke="#df6258" stroke-width="1.4"/>
+      <text class="m" x="958" y="152" text-anchor="middle" style="fill:#df6258;font-size:10px">GEV</text>
+      <circle cx="1005" cy="234" r="8" fill="#df6258" fill-opacity="0.18" stroke="#df6258" stroke-width="1.4"/>
+      <text class="m" x="1005" y="238" text-anchor="middle" style="fill:#df6258;font-size:10px">MRVL</text>
+      <circle cx="924" cy="211" r="7" fill="#3fb6a8" fill-opacity="0.18" stroke="#3fb6a8" stroke-width="1.4"/>
+      <text class="m" x="924" y="215" text-anchor="middle" style="fill:#3fb6a8;font-size:10px">SMHN</text>
+      <circle cx="1033" cy="222" r="9" fill="#e0a23b" fill-opacity="0.18" stroke="#e0a23b" stroke-width="1.4"/>
+      <text class="m" x="1033" y="226" text-anchor="middle" style="fill:#e0a23b;font-size:10px">COHR</text>
+      <circle cx="885" cy="226" r="14" fill="#e0a23b" fill-opacity="0.18" stroke="#e0a23b" stroke-width="1.4"/>
+      <text class="m" x="885" y="230" text-anchor="middle" style="fill:#e0a23b;font-size:10px">AIXA</text>
+      <circle cx="997" cy="282" r="16" fill="#e0a23b" fill-opacity="0.18" stroke="#e0a23b" stroke-width="1.4"/>
+      <text class="m" x="997" y="286" text-anchor="middle" style="fill:#e0a23b;font-size:10px">FN</text>
+      <circle cx="888" cy="178" r="18" fill="#e0a23b" fill-opacity="0.18" stroke="#e0a23b" stroke-width="1.4"/>
+      <text class="m" x="888" y="182" text-anchor="middle" style="fill:#e0a23b;font-size:10px">MU</text>
+      <circle cx="746" cy="230" r="26" fill="#df6258" fill-opacity="0.18" stroke="#df6258" stroke-width="1.4"/>
+      <text class="m" x="746" y="234" text-anchor="middle" style="fill:#df6258;font-size:10px">VRT</text>
+      <text class="fa" x="86" y="444">Bubble radius &prop; |factor-adjusted excess vs SMH this week|. VRT (far left, largest bubble) is a resolved binary: IV-percentile crushed 0.940&rarr;0.680 while the price fell 16%. AIXA likewise, 0.996&rarr;0.821.</text>
+      <text class="fa" x="86" y="462">ETN (top right) is the most extended name on the board: 82nd percentile of its own 52-week range, 5.1% below its high, at a 0.920 IV-percentile — and it was just paid +7pp. That is the definition of ride-only.</text>
+    </svg>
+  </div>
+
+  <div class="card">
+    <span class="tag">FULL CROWDING TABLE — settled week, factor-adjusted · 08-03 column is LIVE PRE-MARKET and unsettled</span>
+    <table>
+      <tr><th>Ticker</th><th class="num">Bkt</th><th class="num">07-31 close</th><th class="num">wk %</th><th class="num">vs SMH</th><th class="num">Range</th><th class="num">Below high</th><th class="num">IV-pct 52w</th><th class="num">IV-pct 13w</th><th class="num">ΔIV52</th><th class="num">08-03 live</th></tr>
+      <tr><td class="mono"><b class="h">ALAB</b></td><td class="num mut">S5</td><td class="num">311.23</td><td class="num pos">+10.2%</td><td class="num pos"><b>+11.6pp</b></td><td class="num">50%</td><td class="num mut">-39.9%</td><td class="num">0.928</td><td class="num">0.726</td><td class="num mut">-0.012</td><td class="num mut">-3.6%</td></tr>
+      <tr><td class="mono"><b class="h">MPWR</b></td><td class="num mut">S6b</td><td class="num">1,426.03</td><td class="num pos">+6.5%</td><td class="num pos"><b>+8.0pp</b></td><td class="num">66%</td><td class="num mut">-18.9%</td><td class="num">0.908</td><td class="num">0.629</td><td class="num mut">-0.068</td><td class="num mut">-2.5%</td></tr>
+      <tr><td class="mono"><b class="h">ETN</b></td><td class="num mut">S6a</td><td class="num">415.20</td><td class="num pos">+4.2%</td><td class="num pos"><b>+5.6pp</b></td><td class="num">82%</td><td class="num mut">-5.1%</td><td class="num">0.920</td><td class="num">0.694</td><td class="num mut">-0.040</td><td class="num mut">-0.3%</td></tr>
+      <tr><td class="mono"><b class="h">NVDA</b></td><td class="num mut">D0</td><td class="num">200.75</td><td class="num pos">+2.2%</td><td class="num pos"><b>+3.6pp</b></td><td class="num">47%</td><td class="num mut">-16.2%</td><td class="num">0.680</td><td class="num">0.742</td><td class="num amber">+0.052</td><td class="num mut">-1.3%</td></tr>
+      <tr><td class="mono"><b class="h">AVGO</b></td><td class="num mut">S5</td><td class="num">389.28</td><td class="num pos">+1.6%</td><td class="num pos"><b>+3.0pp</b></td><td class="num">49%</td><td class="num mut">-22.1%</td><td class="num">0.808</td><td class="num">0.742</td><td class="num amber">+0.124</td><td class="num mut">-1.0%</td></tr>
+      <tr><td class="mono"><b class="h">TSM</b></td><td class="num mut">S1</td><td class="num">404.25</td><td class="num pos">+1.3%</td><td class="num pos"><b>+2.8pp</b></td><td class="num">69%</td><td class="num mut">-16.7%</td><td class="num">0.840</td><td class="num">0.452</td><td class="num mut">-0.064</td><td class="num mut">-1.3%</td></tr>
+      <tr><td class="mono"><b class="h">LITE</b></td><td class="num mut">S4</td><td class="num">713.94</td><td class="num pos">+0.3%</td><td class="num pos"><b>+1.7pp</b></td><td class="num">60%</td><td class="num mut">-35.9%</td><td class="num">0.772</td><td class="num">0.806</td><td class="num mut">-0.040</td><td class="num mut">-2.6%</td></tr>
+      <tr><td class="mono"><b class="h">CRDO</b></td><td class="num mut">S5</td><td class="num">206.99</td><td class="num red">-0.6%</td><td class="num pos"><b>+0.9pp</b></td><td class="num">52%</td><td class="num mut">-34.4%</td><td class="num">0.920</td><td class="num">0.774</td><td class="num amber">+0.080</td><td class="num mut">-2.2%</td></tr>
+      <tr><td class="mono"><b class="h">GEV</b></td><td class="num mut">S6a</td><td class="num">990.29</td><td class="num red">-0.6%</td><td class="num pos"><b>+0.8pp</b></td><td class="num">68%</td><td class="num mut">-17.8%</td><td class="num">0.896</td><td class="num">0.645</td><td class="num mut">-0.012</td><td class="num mut">-0.8%</td></tr>
+      <tr><td class="mono"><b class="h">MRVL</b></td><td class="num mut">S5</td><td class="num">187.56</td><td class="num red">-0.9%</td><td class="num pos"><b>+0.6pp</b></td><td class="num">45%</td><td class="num mut">-44.7%</td><td class="num">0.944</td><td class="num">0.774</td><td class="num amber">+0.016</td><td class="num mut">-2.8%</td></tr>
+      <tr><td class="mono"><b class="h">SMHN</b></td><td class="num mut">S2</td><td class="num">74.04</td><td class="num red">-1.3%</td><td class="num pos"><b>+0.1pp</b></td><td class="num">51%</td><td class="num mut">-39.1%</td><td class="num">0.861</td><td class="num">0.646</td><td class="num mut">-0.064</td><td class="num mut">-2.6%</td></tr>
+      <tr><td class="mono"><b class="h">COHR</b></td><td class="num mut">S4</td><td class="num">262.89</td><td class="num red">-3.1%</td><td class="num red"><b>-1.6pp</b></td><td class="num">48%</td><td class="num mut">-41.9%</td><td class="num">0.972</td><td class="num">0.887</td><td class="num mut">-0.004</td><td class="num mut">-2.8%</td></tr>
+      <tr><td class="mono"><b class="h">AIXA</b></td><td class="num mut">S4</td><td class="num">35.74</td><td class="num red">-6.4%</td><td class="num red"><b>-5.0pp</b></td><td class="num">47%</td><td class="num mut">-43.0%</td><td class="num">0.821</td><td class="num">0.446</td><td class="num mut">-0.175</td><td class="num mut">-0.1%</td></tr>
+      <tr><td class="mono"><b class="h">FN</b></td><td class="num mut">S4</td><td class="num">435.41</td><td class="num red">-7.5%</td><td class="num red"><b>-6.1pp</b></td><td class="num">32%</td><td class="num mut">-43.0%</td><td class="num">0.936</td><td class="num">0.806</td><td class="num mut">-0.016</td><td class="num mut">-1.9%</td></tr>
+      <tr><td class="mono"><b class="h">MU</b></td><td class="num mut">S3</td><td class="num">823.03</td><td class="num red">-8.6%</td><td class="num red"><b>-7.1pp</b></td><td class="num">60%</td><td class="num mut">-37.0%</td><td class="num">0.824</td><td class="num">0.290</td><td class="num mut">-0.024</td><td class="num mut">-3.9%</td></tr>
+      <tr><td class="mono"><b class="h">VRT</b></td><td class="num mut">S7</td><td class="num">241.57</td><td class="num red">-16.0%</td><td class="num red"><b>-14.5pp</b></td><td class="num">46%</td><td class="num mut">-37.3%</td><td class="num">0.680</td><td class="num">0.387</td><td class="num mut">-0.260</td><td class="num mut">-1.4%</td></tr>
+    </table>
+    <p class="kicker" style="margin-top:8px"><b class="h">Three reads.</b> <b class="h teal">(1) De-crowding continued</b> — 12 of 16 52-week IV-percentiles fell. <b class="h red">(2) The four that rose are all networking/ASIC</b>: AVGO <span class="num">+0.124</span> (13w <span class="num">+0.242</span>), CRDO <span class="num">+0.080</span> (13w <span class="num">+0.242</span>), NVDA <span class="num">+0.052</span>, MRVL <span class="num">+0.016</span>. Protection is being bought in exactly one block. <b class="h amber">(3) MU's 13-week IV-percentile is 0.290 on an 8.6% down week</b> — a large decline with no bid for protection is orderly distribution, not capitulation, which historically means the de-rating is positioning-driven and not finished. <span class="mut">EW week &minus;1.18%, EW excess +0.28pp, dispersion 26.1pp.</span></p>
+  </div>
+
+  <h2><span class="n">5</span>The narrow edges — what to actually do, with numeric trigger bands</h2>
+  <p class="sub">Only three buckets carry a live differentiated view. Each card states the claim, the number that would falsify it, the execution reality at retail size, and what it is <b>not</b>.</p>
+  <div class="grid2">
+    <div class="card" style="border-color:#2f5e57">
+      <span class="tag teal">EDGE 1 — S2 packaging · SUSS MicroTec (SMHN.DE / OTC SESM.F) · the Aug-6 conversion test</span>
+      <p class="kicker" style="margin-top:6px"><b class="h">The claim.</b> The bonding-tool layer is long the CPO transition rather than exposed to it (BESI named co-packaged optics as a hybrid-bonding use case), and SUSS is the under-covered expression: record Q1-26 intake <span class="num">&euro;149.3M</span> (+69.5% YoY) and a <span class="num">&euro;330.1M</span> order book against a company-guided <i>down</i> year of <span class="num">&euro;425&ndash;485M</span> sales at an <span class="num">8&ndash;10%</span> EBIT margin.</p>
+      <p class="kicker" style="margin-top:8px"><b class="h red">What changed this week, against us.</b> The reason to act was the <i>size</i> of that order book. On Jul&#8209;30 the market priced an identical shape at AIXTRON at <span class="num red">&minus;4pp</span>. So the argument is replaced: SUSS is held at the top of the ranking because Aug&#8209;6 is the <b>nearest dated conversion test in the complex</b>, not because the book is big.</p>
+      <table style="margin-top:8px">
+        <tr><th>Aug-6 outcome</th><th class="num">Band</th><th>What it means</th></tr>
+        <tr><td>Q2 order intake</td><td class="num pos">&gt; €140M</td><td>Q1 was not a pull-forward — intake persistence confirmed.</td></tr>
+        <tr><td>Q2 order intake</td><td class="num red">&lt; €120M</td><td class="red">Falsifier. The record quarter was a pull-forward; thesis breaks.</td></tr>
+        <tr><td>H1 revenue vs FY guide</td><td class="num pos">tracking &gt; €200M</td><td>Conversion has begun; the "tape paid?" penalty lifts and S2 re-scores as a REAL_ALPHA candidate.</td></tr>
+        <tr><td>H1 EBIT margin</td><td class="num red">≤ 8%</td><td class="red">Intake without conversion — the AIXTRON outcome. Whole order-book family deferred two quarters.</td></tr>
+      </table>
+      <p class="kicker" style="margin-top:8px"><b class="h amber">What "surprise" means here — and why that is a weaker claim than it sounds.</b> There is no point-in-time sell-side consensus for SUSS in this stack and no usable pre-print implied move (the Xetra options are too thin to snapshot reliably). So the bands above are measured against <b>company guidance</b>, not against what the market expects. The best available proxy for expectations is positioning: SMHN's 13-week IV-percentile is <span class="num">0.646</span> and its 52-week <span class="num">0.861</span>, both <i>down</i> on the week (&Delta;<span class="num">&minus;0.229</span> / <span class="num">&minus;0.064</span>), and the stock was the most inert on the board (<span class="num">+0.1pp</span> vs SMH). Nobody is positioned for a surprise in either direction — which is a genuine, if indirect, argument that a conversion beat is not embedded. <span class="mut">It is not a substitute for a consensus number; see routing R4.</span></p>
+      <p class="kicker" style="margin-top:8px"><b class="h">Execution reality — now measured, not estimated, and it corrects last week's number.</b></p>
+      <table style="margin-top:6px">
+        <tr><th>Metric (IBKR read-only, 2026-08-03)</th><th class="num">SMHN.DE</th><th class="num">AIXA.DE <span class="mut">(edge 2)</span></th><th>Read</th></tr>
+        <tr><td>90-day average USD volume</td><td class="num">$12.51M</td><td class="num">$40.74M</td><td>Both tradeable at retail size; SMHN is roughly a third of AIXTRON's depth.</td></tr>
+        <tr><td>Live bid / ask (Xetra)</td><td class="num">72.20 / 72.35</td><td class="num">35.66 / 35.67</td><td class="mut">quoted 2026-08-03, European session</td></tr>
+        <tr><td>Quoted spread</td><td class="num red">0.21%</td><td class="num pos">0.03%</td><td class="red"><b class="h">Correction:</b> last week's card claimed a <span class="num">~0.06%</span> SMHN spread <b>(est.)</b>. The measured figure is <b class="h">0.21%</b> &mdash; 3.5&times; wider, and a round-trip cost of roughly <span class="num">0.4%</span> before commission.</td></tr>
+        <tr><td>Annualised historical volatility (30d)</td><td class="num">85.8%</td><td class="num">84.2%</td><td>Both are high-beta; position sizing, not spread, is the binding execution constraint.</td></tr>
+        <tr><td>Covering analysts</td><td class="num amber">~11 <b>(est.)</b></td><td class="num amber">~15&ndash;20 <b>(est.)</b></td><td class="amber">Still estimated &mdash; no verified coverage count. This is load-bearing for the financialization filter and is <b>not</b> yet sourced.</td></tr>
+      </table>
+      <p class="kicker" style="margin-top:8px">The <b>OTC</b> line SESM.F is the illiquid one and is not a substitute for the Xetra listing.</p>
+      <p class="kicker" style="margin-top:8px"><b class="h">What this is not.</b> Not a position-grade recommendation — no single-name reverse model has been run, and the AF-1 global gate is <code>TRIAGE_ONLY</code>. The quant bridge now <b class="h red">disagrees</b>: PKG is LATENT with <code>asymmetry_flag=FALSE</code> and <code>smart_money_gap &minus;31.7</code>.</p>
+    </div>
+    <div class="card" style="border-color:#5e4f2f">
+      <span class="tag amber">EDGE 2 — S4 interconnect · AIXTRON (AIXA.DE / ADR AIXXY) · the conversion date is now published</span>
+      <p class="kicker" style="margin-top:6px"><b class="h">The claim.</b> The InP/MOCVD deposition gate is structurally long <i>both</i> optical architectures (CPO and pluggable EML), and the H1 print confirmed the demand side emphatically: Q2 order intake <span class="num">&euro;215M</span> (<span class="num">+81%</span> YoY) with optoelectronics ~<span class="num">75%</span> of equipment intake, backlog <span class="num">&euro;456.9M</span> (vs <span class="num">&euro;257.8M</span> at YE2025), FY guidance <b>confirmed</b> at <span class="num">&euro;560M &plusmn;30M</span> and a <span class="num">17&ndash;20%</span> EBIT margin.</p>
+      <p class="kicker" style="margin-top:8px"><b class="h red">And the tape declined to pay for it.</b> <span class="num">+2.92%</span> on a <span class="num">+6.88%</span> SMH day = <span class="num red">&minus;3.96pp</span>. This is the cleanest controlled experiment the engine has produced, and it is why S4 is <b>not</b> upgraded despite a textbook post-binary setup (price 6.4% lower, 13w IV-percentile crushed <span class="num">0.984&rarr;0.446</span>).</p>
+      <table style="margin-top:8px">
+        <tr><th>Trigger</th><th class="num">Band</th><th>Action</th></tr>
+        <tr><td>Q3 revenue (late Oct)</td><td class="num pos">≥ €180M</td><td>Conversion proven on management's own number → upgrade candidate.</td></tr>
+        <tr><td>Q3 revenue</td><td class="num red">&lt; €160M</td><td class="red">Falsifier — the H2 ramp did not land.</td></tr>
+        <tr><td>Q3 order intake</td><td class="num red">&lt; €150M</td><td class="red">The +81% trend ends.</td></tr>
+        <tr><td>Optoelectronics share of intake</td><td class="num red">&lt; ~60%</td><td class="red">The AI-laser mix was a spike, not a trend.</td></tr>
+      </table>
+      <p class="kicker" style="margin-top:8px"><b class="h">Interim reads before late October</b> &mdash; because "wait until Q3" is not a usable instruction for eleven weeks. Three dated public checkpoints exist in between: <b class="h">Lumentum FQ4 (early Aug)</b> and <b class="h">Coherent FQ4 (mid-Aug)</b> sit one step downstream of AIXTRON's tools &mdash; their InP/laser capacity commentary and capex guidance are the cleanest read-across on whether the &euro;457M backlog converts on schedule; and the <b class="h">China gallium decision (~November)</b> is the binary that could break it. AIXTRON publishes no monthly order data, so those three are the whole interim set &mdash; stated plainly rather than implied.</p>
+      <p class="kicker" style="margin-top:8px"><b class="h amber">Standing risk with a date.</b> China's temporary suspension of gallium-compound export controls is reported to expire around <b class="h">November</b>. Gallium is an input to the compound-semiconductor flow; reimposition without an exemption or a diversified source is a direct cost/supply hit.</p>
+      <p class="kicker" style="margin-top:8px"><b class="h">What this is not.</b> Not a "buy the dip because vol is cheap" call. Cheap options after a resolved binary are a <i>condition</i>, not a thesis; the market has already shown what it pays for this evidence class.</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:14px">
+    <div class="card" style="border-color:#5e4f2f">
+      <span class="tag amber">EDGE 3 — S3 memory · the widest gap on the board and the least executable</span>
+      <p class="kicker" style="margin-top:6px"><b class="h">Two first-party disclosures, four days apart, that cannot both be right.</b> Jul&#8209;28: SK Hynix prints an all-time record — revenue <span class="num">&#8361;79.32T</span> (+257% YoY), operating profit <span class="num">&#8361;60.54T</span> at a <span class="num">76%</span> operating margin, HBM4 in mass production with yields near mature HBM3E — and the shares <b class="h red">fall</b>. Jul&#8209;30: Amazon raises 2026 cash capex from <span class="num">~$200B</span> to <span class="num">~$220B</span> and Jassy attributes the <span class="num">$20B</span> increase to "the higher cost of memory" — and the shares rise <span class="num">7&ndash;10%</span>.</p>
+      <p class="kicker" style="margin-top:8px"><b class="h teal">The differentiated conclusion.</b> The bear case is being sourced from the <b>wrong customer set</b>. Apple "evaluating all options" is a consumer-electronics BOM problem; CXMT is a 2027+ commodity-DRAM supply question. Neither is the marginal AI buyer — and the marginal AI buyer just wrote a $20B cheque <i>for the price increase</i>, said it still will not have enough capacity in 2026 or 2027, and was applauded.</p>
+      <p class="kicker" style="margin-top:8px"><b class="h red">Why it is nonetheless not actionable.</b> (1) MU, 000660.KS and 005930.KS are all <span class="num">&gt;15</span>-analyst, deepest-options names — EARLY-ineligible by construction. (2) The AF-1 bridge scores MEM the <b>most crowded</b> subsector (crowding <span class="num">59.7</span>) with the only positive 20-day RS on the board (<span class="num">+18.4</span>) and <code>asymmetry_flag=FALSE</code> — and this week the quant was right about direction. (3) The under-covered second-order name, Hanmi Semiconductor (<span class="mono">042700 KS</span>), is a Korean small-cap most retail accounts cannot reach, and it is itself an <i>order-book</i> story in the week the market stopped paying for those. <b class="h">Reconciliation:</b> the quant is right about positioning over weeks; the variant is about $-content into 2027. Both hold. Route to research.</p>
+    </div>
+    <div class="card" style="border-color:#5e3331">
+      <span class="tag red">THE VETOES — the most valuable output this week</span>
+      <ul style="margin-top:6px">
+        <li><b class="h red">S5 networking — hard veto with a one-day fuse.</b> Astera Labs reports <b class="h">Aug&nbsp;4</b> after <span class="num pos">+11.6pp</span> in two sessions <i>with no print</i>, at a <span class="num">0.928</span> IV-percentile, still <span class="num">39.9%</span> below its 52-week high. Structurally identical to the AIXTRON setup vetoed a week ago, and that veto was directionally right. The block-level tell is stronger than the name-level one: <b>every</b> name on the 16-name board whose implied-vol percentile rose this week is in networking/ASIC.</li>
+        <li><b class="h red">S7 cooling — the integrator is the wrong instrument.</b> Vertiv raised full-year guidance on every line, carried a <span class="num">~$15B</span> backlog, missed revenue by <span class="num">3.4%</span>, and was rejected by <span class="num red">12.5pp</span> at <span class="num">1.64&times;</span> its implied move. In a genuine shortage a conversion shortfall is a supply confirmation — but the integrator absorbs the timing gap on its own P&amp;L while the components inside its boxes ship regardless of who integrates them. <span class="mut">The component layer (CDUs, pumps, quick-disconnects, cold plates) is the correct routing; no under-covered listed pure-play there survives the liquidity screen at retail size, so it is named as a gap, not a name.</span></li>
+        <li><b class="h red">S6a facility power — confirmed AND paid.</b> Eaton's record print with data-centre orders <span class="num">+85%</span> earned <span class="num pos">+7.0pp</span>. That is exactly what makes it un-earlyable: ETN now sits <span class="num">5.1%</span> below its 52-week high at the <span class="num">82nd</span> percentile of its own range with a <span class="num">0.920</span> IV-percentile and <span class="num">&gt;15</span> analysts. Ride-only.</li>
+        <li><b class="h red">D0 demand — right again, and again unpayable.</b> Microsoft and Amazon both raised and both rose; AWS commitments went <span class="num">$364B&rarr;$496B</span> in a quarter; Korea's July chip exports ran <span class="num">+178.8%</span>. Every fact confirms the floor. The only vehicles are mega-caps.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2><span class="n">6</span>Leading-indicator dashboard — honest lead-vs-PRICE, tiered</h2>
+  <p class="sub">The distinction that matters is not "leading vs lagging the fundamentals" — it is <b class="h">leading vs lagging the PRICE</b>. A statutory monthly release is fundamental-leading and simultaneously price-coincident for a &gt;15-analyst name, because everyone reads it at the same instant.</p>
+  <div class="card">
+    <table>
+      <tr><th class="num">Tier</th><th>Signal</th><th>Current reading</th><th class="num">Where to read · cadence · latency</th><th class="num">Lead vs fundamentals</th><th class="num">Lead vs PRICE</th></tr>
+      <tr><td class="num amber">A?</td><td><b class="h teal">Order-to-revenue conversion ratio</b> (new this week, <b class="h amber">TESTING</b>) — company-guided next-quarter revenue vs last delivered quarter</td><td>AIXTRON Q3 <span class="num">€180M</span> vs Q2 <span class="num">€115M</span> = <span class="num">1.57×</span>; SUSS unknown until Aug 6; Vertiv implied H2 <span class="num">~$7.6–8.0B</span> vs H1</td><td class="num mono" style="font-size:10.5px">company IR guidance decks · quarterly · same-day</td><td class="num pos">1–2 quarters</td><td class="num amber"><b class="h">TESTING</b> — differentiated and computable, but <b>not yet shown to lead price</b>. 5 of 7 observations fit, 1 breaks it (TSMC), 1 is outside it (ALAB). Promote only after the R5 frozen-pre-print panel.</td></tr>
+      <tr><td class="num pos">A</td><td><b class="h">IV-percentile direction</b> (IBKR, weekly)</td><td>12/16 fell; the 4 that rose are all networking/ASIC</td><td class="num mono" style="font-size:10.5px">IBKR <code>get_price_snapshot</code> · weekly · live</td><td class="num mut">n/a</td><td class="num pos">days–weeks · pre-price</td></tr>
+      <tr><td class="num amber">B</td><td>Equipment order intake &amp; backlog (AIXTRON, BESI, SUSS)</td><td>AIXTRON Q2 <span class="num">+81%</span>, backlog <span class="num">€456.9M</span>; BESI H1 orders <span class="num">+116.5%</span></td><td class="num mono" style="font-size:10.5px">company IR / EQS · quarterly · same-day</td><td class="num pos">2–4 quarters</td><td class="num red"><b class="h red">DEGRADED this week — the market has demonstrably stopped paying for it</b></td></tr>
+      <tr><td class="num amber">B</td><td>Korea monthly &amp; 20-day exports (MOTIE, statutory)</td><td>July <span class="num">$98.89B +62.8%</span>; semis <span class="num">$41.01B +178.8%</span></td><td class="num mono" style="font-size:10.5px">MOTIE · 1st &amp; 21st · 09:00 KST</td><td class="num pos">1–2 months</td><td class="num mut">coincident — public at 09:00 KST, priced instantly</td></tr>
+      <tr><td class="num amber">B</td><td>Taiwan MOPS monthly revenue (~10th)</td><td>TSMC July due <b class="h">~Aug 10</b></td><td class="num mono" style="font-size:10.5px">Taiwan MOPS · monthly ~10th · same-day</td><td class="num pos">~1 month</td><td class="num amber">weak lead — but it is a CONVERTED-revenue print, the class currently being paid</td></tr>
+      <tr><td class="num mut">C</td><td>Hyperscaler capex guidance</td><td>AMZN <span class="num">$220B</span>; MSFT ~<span class="num">$175B</span>; AWS commitments <span class="num">$496B</span></td><td class="num mono" style="font-size:10.5px">company IR / 10-Q · quarterly · same-day</td><td class="num pos">2–4 quarters</td><td class="num red">lagging price — quarterly, universally covered</td></tr>
+      <tr><td class="num mut">C</td><td>DRAM/HBM contract pricing (TrendForce, late Sep)</td><td>pending</td><td class="num mono" style="font-size:10.5px">TrendForce · monthly/quarterly · paywalled</td><td class="num pos">1 quarter</td><td class="num red">lagging — the whole street subscribes</td></tr>
+      <tr><td class="num red">—</td><td><b class="h red">MISSING:</b> grid interconnection queues, HV transformer lead times</td><td class="mut">no feed</td><td class="num mono mut" style="font-size:10.5px">ISO/RTO queues, FERC — unbuilt</td><td class="num mut">would be 2–5 years</td><td class="num red">the engine's highest-value unbuilt feed — S6a has no pre-price signal</td></tr>
+      <tr><td class="num red">—</td><td><b class="h red">MISSING:</b> point-in-time vendor consensus</td><td class="mut">no feed</td><td class="num mono mut" style="font-size:10.5px">vendor terminal — unavailable</td><td class="num mut">n/a</td><td class="num red">forces "consensus gap" claims to lean on company guides — see §3 provenance</td></tr>
+    </table>
+    <p class="kicker" style="margin-top:8px"><b class="h teal">The one genuinely new indicator this week</b> is the conversion ratio, and it is deliberately marked <b class="h amber">TESTING (A?)</b> rather than Tier A. It is computable from public guidance, it is not in most sub-segment models, and this week the market priced it to the tune of <span class="num">11&ndash;20pp</span> of dispersion &mdash; but a two-week pattern with one known counter-example is a hypothesis, not a validated pre-price signal, and calling it Tier A would be exactly the kind of over-claim this engine exists to avoid. <span class="mut">It is also the reason Tier-B order intake gets marked down: the same datapoint that led fundamentals by 2&ndash;4 quarters is now being <i>discounted</i> by the tape, which is a change in its price-lead, not in its fundamental-lead.</span></p>
+  </div>
+
+  <h2><span class="n">7</span>Decision table — what is authored here vs what is not</h2>
+  <p class="sub">Three separate things, deliberately not merged. <b class="h">(a)</b> research routing authored by this map; <b class="h">(b)</b> the AF-1 ledger, which this map does <b>not</b> author and only renders; <b class="h">(c)</b> bucket-level watch/veto reads.</p>
+  <div class="card" style="border-color:#2f5e57">
+    <span class="tag teal">(a) RESEARCH ROUTING AUTHORED HERE — ordered, with dependencies</span>
+    <table style="margin-top:6px">
+      <tr><th class="num">#</th><th>Next artifact</th><th>Why now</th><th class="num">Blocked by</th></tr>
+      <tr><td class="num">R1</td><td><b class="h teal">SUSS MicroTec Aug-6 conversion read</b> — H1 intake, revenue trajectory vs the €425–485M guide, EBIT margin vs 8–10%</td><td>The nearest dated conversion test in the complex and the direct falsifier of this run's top call.</td><td class="num mono">Aug 6</td></tr>
+      <tr><td class="num">R2</td><td>Second-order vertical-power screen — who else sells the content MPWR just re-guided from 85% to 130% growth</td><td>The MPWR evidence is the strongest $-content datapoint on the map, but the incumbent is already paid.</td><td class="num mut">none</td></tr>
+      <tr><td class="num">R3</td><td>Liquid-cooling <i>component</i> layer map (CDUs, quick-disconnects, cold plates)</td><td>Vertiv proved the integrator carries conversion risk; the components ship regardless of the integrator.</td><td class="num mut">none</td></tr>
+      <tr><td class="num">R4</td><td>Point-in-time consensus feed — the standing capability gap</td><td>Without it, "consensus gap" claims lean on company guides (§3 provenance) at the top of the ranking.</td><td class="num red">no data source</td></tr>
+      <tr><td class="num">R5</td><td>Pre-print implied-move capture, automated weekly</td><td>The 1.64×-implied VRT finding was reconstructed from secondary coverage. It should be a primary options-chain snapshot.</td><td class="num red">no snapshot job</td></tr>
+      <tr><td class="num">R6</td><td>Grid-interconnection-queue / transformer lead-time feed</td><td>S6a is the only bucket with no pre-price signal at all.</td><td class="num red">no data source</td></tr>
+    </table>
+  </div>
+  <div class="card" style="border-color:#3a444f">
+    <span class="tag">(b) AF-1 LEDGER — NOT authored here · rendered from <code>leading-dashboard/data/recommendations.jsonl</code> · every row is NO CAPITAL under a blocked global gate</span>
+    <table style="margin-top:6px">
+      <tr><th>As-of</th><th>Ticker</th><th class="num">Action</th><th class="num">Venue</th><th>Note</th></tr>
+      <tr><td class="mono">2026-07-30</td><td class="mono"><b class="h">COHR</b></td><td class="num red">CLOSE</td><td class="num mut">US</td><td>invalidation: close below the 200dma (40wMA proxy) per the technical feed. The only non-WATCH action in the ledger this week.</td></tr>
+      <tr><td class="mono">2026-07-27</td><td class="mono">BESI.AS · MXL · ALAB · MRVL · HPE · SANM</td><td class="num">WATCH</td><td class="num mut">EU/US</td><td>opened at the prior run; unchanged.</td></tr>
+      <tr><td class="mono">2026-07-13 → 07-23</td><td class="mono">FN · ONTO · DELL · AVGO · ON · VSH · CLS</td><td class="num">WATCH</td><td class="num mut">US</td><td>open.</td></tr>
+      <tr><td class="mono">2026-07-01 → 07-10</td><td class="mono">AMKR · ANET · CRDO · LITE · ORCL · SMCI · NVTS · WDC · IFX.DE · 2382.TW · 3661.TW · ETN · 000660.KS · 6857.T · 2327.TW · 6723.T · TXN · JBL · NVT · POWL</td><td class="num">WATCH</td><td class="num mut">global</td><td>open. <span class="mut">XFAB.PA carries AVOID.</span></td></tr>
+    </table>
+    <p class="kicker" style="margin-top:8px"><span class="mut">34 open rows, all WATCH except one AVOID; one CLOSE fired this week. This map does not add, remove or re-rank AF-1 rows — it renders them so that the decision table has a single owner. <b class="h red">The global action gate is <code>TRIAGE_ONLY</code>: no row is capital-eligible.</b></span></p>
+  </div>
+  <div class="card" style="border-color:#3a444f">
+    <span class="tag">(c) BUCKET-LEVEL READS — this map's own, non-position-grade</span>
+    <table style="margin-top:6px">
+      <tr><th>Bucket</th><th class="num">FINAL STATE</th><th class="num">Read</th><th>Condition</th><th class="num">Next date</th><th class="num">Owner artifact</th></tr>
+      <tr><td class="mono"><b class="h teal">S2</b> packaging</td><td class="num"><b class="h teal">DIG_NEXT</b></td><td class="num"><span class="pill edge">DIG</span></td><td>Conversion test, not order-book size. Confidence reduced; quant bridge now disagrees. <span class="mut">Guidance-gap, not consensus-gap.</span></td><td class="num mono"><b class="h">Aug 6</b></td><td class="num mono mut">R1</td></tr>
+      <tr><td class="mono"><b class="h amber">S6b</b> rack power</td><td class="num amber"><b class="h">RESEARCH_GAP</b></td><td class="num"><span class="pill watch">CONFIRMED</span></td><td>$-content inflection proven at the incumbent and already paid. No expression evidenced — research gap.</td><td class="num mono">late Oct</td><td class="num mono mut">R2</td></tr>
+      <tr><td class="mono"><b class="h amber">S4</b> interconnect</td><td class="num"><b class="h amber">WAIT_FOR_TRIGGER</b></td><td class="num"><span class="pill watch">WAIT</span></td><td>Thesis intact, conversion date published by management. Do not pre-empt. <span class="mut">Guidance-gap, not consensus-gap.</span></td><td class="num mono">late Oct</td><td class="num mono mut">R4</td></tr>
+      <tr><td class="mono"><b class="h amber">S3</b> memory</td><td class="num"><b class="h amber">WAIT_FOR_TRIGGER</b></td><td class="num"><span class="pill watch">RESEARCH</span></td><td>Widest gap, no executable expression, quant says most-crowded.</td><td class="num mono">late Sep</td><td class="num mono mut">—</td></tr>
+      <tr><td class="mono"><b class="h">S1</b> foundry</td><td class="num"><b class="h amber">WAIT_FOR_TRIGGER</b></td><td class="num"><span class="pill watch">WAIT</span></td><td>Priced; the MOPS revenue print is the class the tape pays for.</td><td class="num mono">~Aug 10</td><td class="num mono mut">—</td></tr>
+      <tr><td class="mono"><b class="h">S6a</b> facility pwr</td><td class="num"><b class="h red">DO_NOT_CHASE</b></td><td class="num"><span class="pill trap">RIDE-ONLY</span></td><td>Confirmed and paid; most extended name on the board.</td><td class="num mono">late Oct</td><td class="num mono mut">R6</td></tr>
+      <tr><td class="mono"><b class="h red">S7</b> cooling</td><td class="num"><b class="h red">DO_NOT_CHASE</b></td><td class="num"><span class="pill trap">VETO</span></td><td>Conversion risk on the integrator's P&amp;L; component layer has no listed pure-play.</td><td class="num mono">late Oct</td><td class="num mono mut">R3</td></tr>
+      <tr><td class="mono"><b class="h red">S5</b> networking</td><td class="num"><b class="h red">DO_NOT_CHASE</b></td><td class="num"><span class="pill trap">VETO</span></td><td>Squeeze into a print at a 0.928 IV-percentile; protection being bought across the block.</td><td class="num mono"><b class="h red">Aug 4</b></td><td class="num mono mut">—</td></tr>
+      <tr><td class="mono"><b class="h red">D0</b> demand</td><td class="num"><b class="h red">DO_NOT_CHASE</b></td><td class="num"><span class="pill avoid">VETO</span></td><td>Correct, rewarded, and only via mega-caps.</td><td class="num mono">~Aug 11</td><td class="num mono mut">—</td></tr>
+    </table>
+  </div>
+
+  <h2><span class="n">8</span>Risks, and what this report still cannot do</h2>
+  <div class="card" style="border-color:#5e3331">
+    <span class="tag red">STANDING WEAKNESSES — stated, not buried</span>
+    <table style="margin-top:6px">
+      <tr><th>Weakness</th><th>Detail</th><th class="num">Status</th></tr>
+      <tr><td><b class="h">The conversion rule rests on six observations</b></td><td>AIXTRON, Vertiv, MPWR, Eaton this week; GE Vernova and BESI last week. Six prints across two weeks is a pattern, not a tested factor. It has not been backtested across prior quarters, and there is an obvious confound: order-book-heavy names in this sample are also smaller and more European than the converted-revenue names.</td><td class="num amber">named, untested</td></tr>
+      <tr><td><b class="h">The 1.64×-implied figure is secondary-sourced</b></td><td>The pre-print implied move for Vertiv (~±10.55%) comes from published coverage, not from an options-chain snapshot taken before the print. It is the load-bearing number in the strongest single claim in §1b.</td><td class="num amber">flagged · routing R5</td></tr>
+      <tr><td><b class="h">"Consensus gap" is often a guidance gap</b></td><td>With no point-in-time vendor consensus feed, both top-ranked buckets (S2, S4) benchmark against <i>company guidance</i>, which systematically lowers the bar and flatters the setup.</td><td class="num red">open · routing R4</td></tr>
+      <tr><td><b class="h">S2 keeps the top slot after its own rationale was damaged</b></td><td>Retaining a call while replacing its justification is exactly where confirmation bias lives. The mitigations are that the replacement reason is dated three days out, the decision rule is written in advance, and the quant reversal is disclosed rather than dropped — but the inertia risk is real and is named here.</td><td class="num amber">named</td></tr>
+      <tr><td><b class="h">EV components are judgment scores</b></td><td>The arithmetic and the named observable behind each component are published (§2b), but a different analyst could score them differently. Auditable, not reproducible.</td><td class="num amber">bounded</td></tr>
+      <tr><td><b class="h">S6a still has no pre-price signal</b></td><td>Grid interconnection queues and transformer lead times remain unfed; the bucket is read entirely off covered-issuer prints.</td><td class="num red">open · routing R6</td></tr>
+      <tr><td><b class="h">Crowding is IV-heavy</b></td><td>Short interest, borrow cost, fund/ETF ownership and transcript attention are not wired in, so crowding for the two European edge names rests on coverage count and venue liquidity alone.</td><td class="num amber">partial</td></tr>
+      <tr><td><b class="h">Nothing here is position-grade</b></td><td>No single-name reverse model has been run; the AF-1 global gate is <code>TRIAGE_ONLY</code>. The report routes research and vetoes chases. That is its whole scope.</td><td class="num red">by design</td></tr>
+    </table>
+  </div>
+
+  <h2><span class="n">9</span>Source verification ledger</h2>
+  <div class="card">
+    <span class="tag">EVERY LOAD-BEARING NUMBER, WITH ITS SOURCE, AS-OF DATE AND PROVENANCE TIER</span>
+    <p class="kicker" style="margin-top:6px"><b class="h">Tiers:</b> <span class="pos">PRIMARY_VERIFIED</span> = company IR / statutory release, cross-checked. <span class="amber">SECONDARY_USED</span> = media aggregate or coverage; a primary replacement target is named. <span class="mut">INTERNAL_ONLY</span> = generated by this stack. <span class="red">ESTIMATE</span> = reconstructed by this report.</p>
+    <table style="margin-top:6px">
+      <tr><th>Claim</th><th class="num">Tier</th><th>Value</th><th class="num">As-of</th><th>Source · primary replacement target</th></tr>
+      <tr><td>Amazon 2026 capex raised on memory cost</td><td class="num" style="font-size:10.5px"><span class="pos">PRIMARY_VERIFIED</span></td><td class="mono">$200B → $220B; Jassy attributes the $20B to "the higher cost of memory"; AWS $42.2B +37%; commitments $364B → $496B</td><td class="num mono">2026-07-30</td><td><a href="https://www.cnbc.com/2026/07/30/amazon-amzn-q2-earnings-report-2026.html">CNBC</a> · <a href="https://www.fierce-network.com/cloud/memory-drives-amazon-capex-another-20b-2026">Fierce Network</a> · <a href="https://www.datacenterdynamics.com/en/news/aws-reports-fastest-growth-since-2021-amazon-annual-capex-to-hit-220bn-on-ai-memory-costs/">DCD</a></td></tr>
+      <tr><td>Microsoft FY-Q4 capex</td><td class="num" style="font-size:10.5px"><span class="pos">PRIMARY_VERIFIED</span></td><td class="mono">Q4 revenue $90.0B +18%; capex + finance leases $41B, +69% YoY; ~$175B calendar-2026</td><td class="num mono">2026-07-29</td><td><a href="https://www.cnbc.com/2026/07/29/microsoft-msft-q4-earnings-report-2026.html">CNBC</a> · <a href="https://www.microsoft.com/en-us/investor/earnings/fy-2026-q4/press-release-webcast">Microsoft IR</a></td></tr>
+      <tr><td>Vertiv Q2 — the revenue miss with a raised guide</td><td class="num" style="font-size:10.5px"><span class="pos">PRIMARY_VERIFIED</span></td><td class="mono">Net sales $3,274M +24% (18% organic); adj op profit $738M / 22.6% margin (+410bp); adj EPS $1.52 +60%; ~$15B backlog; FY26 raised to $13,800–14,200M sales, $6.65–6.75 adj EPS, $2,400–2,600M adj FCF</td><td class="num mono">2026-07-29</td><td><a href="https://www.prnewswire.com/news-releases/vertiv-reports-strong-second-quarter-2026-with-diluted-eps-growth-of-53-adjusted-diluted-eps-growth-of-60-raises-full-year-2026-guidance-across-all-key-metrics-302837598.html">Vertiv PR (primary)</a> · <a href="https://finance.yahoo.com/markets/stocks/articles/vertiv-shares-sink-q2-revenue-103846946.html">Yahoo Finance</a></td></tr>
+      <tr><td>Vertiv pre-print implied move <span class="amber">(secondary — see §8)</span></td><td class="num" style="font-size:10.5px"><span class="amber">SECONDARY_USED</span></td><td class="mono">options implied ~±10.55%</td><td class="num mono">2026-07-25</td><td><a href="https://www.tipranks.com/news/vertiv-will-report-q2-earnings-on-july-29-options-traders-expect-a-major-move-in-vrt-stock">TipRanks</a></td></tr>
+      <tr><td>AIXTRON H1 — orders, backlog, confirmed guidance</td><td class="num" style="font-size:10.5px"><span class="pos">PRIMARY_VERIFIED</span></td><td class="mono">Q2 order intake €215M +81% YoY (optoelectronics ~75% of equipment intake); H1 bookings €386.0M; backlog €456.9M (vs €284.6M a year earlier, €257.8M at YE2025); Q2 revenue €115M −16%; Q2 EBIT €14.7M; FY26 €560M ±30M at 17–20% EBIT; Q3 €180M ±20M; Q4 &gt;€200M; H1 FCF €162M; net financial assets €467M</td><td class="num mono">2026-07-30</td><td><a href="https://www.tradingview.com/news/eqs:3159b0bef094b:0-strong-momentum-in-optoelectronics-continues/">EQS / company release</a> · <a href="https://www.investing.com/news/company-news/aixtron-h1-2026-slides-optoelectronics-surge-drives-81-order-growth-93CH-4825521">Investing.com H1 slides</a></td></tr>
+      <tr><td>SK Hynix Q2 — record read as a miss <span class="red">(one line QUARANTINED)</span></td><td class="num" style="font-size:10.5px"><span class="pos">PRIMARY_VERIFIED</span> <span class="red">(1 line quarantined)</span></td><td class="mono">Revenue ₩79.3187T +257% YoY / +51% QoQ; operating profit ₩60.5426T at a 76% margin; HBM4 in mass production, yields near mature HBM3E; HBM4E sampled; 2026 capex "high ₩40T range"; M15X pulled forward. <b class="red">QUARANTINED: the reported net profit of ₩93.9226T exceeds revenue (a 118% net margin).</b> That is arithmetically possible only via very large non-operating or one-off gains and is not reconciled here, so the net-income line is <b>excluded</b> from every conclusion in this report. Revenue, operating profit and the HBM4 status are corroborated across two sources and are what the S3 read uses.</td><td class="num mono">2026-07-28</td><td><a href="https://news.skhynix.com/en/q2-2026-business-results/">SK hynix newsroom (primary)</a> · <a href="https://www.prnewswire.com/news-releases/sk-hynix-announces-2q26-financial-results-302837085.html">PR Newswire</a></td></tr>
+      <tr><td>Monolithic Power Q2 — the 85%→130% revision</td><td class="num" style="font-size:10.5px"><span class="amber">SECONDARY_USED</span></td><td class="mono">Record revenue $981M +48% YoY / +22% QoQ; EPS $6.50; Q3 guide ~$1.15B ≈ +16.5% vs consensus; enterprise data +45% sequential, FY growth outlook raised 85% → 130%; +$500M buyback</td><td class="num mono">2026-07-30</td><td><a href="https://stockstory.org/us/stocks/nasdaq/mpwr/news/earnings/monolithic-power-systems-nasdaqmpwr-beats-expectations-in-strong-q2-stock-jumps-105percent">StockStory</a> · <a href="https://www.fool.com/earnings/call-transcripts/2026/07/30/monolithic-power-systems-mpwr-q2-2026-earnings-call-transcript/">Q2 call transcript</a></td></tr>
+      <tr><td>Eaton Q2 — the power blowout that was paid</td><td class="num" style="font-size:10.5px"><span class="pos">PRIMARY_VERIFIED</span></td><td class="mono">Record revenue $8.5B +21% (14% organic); adj EPS $3.15; electrical data-centre orders ~+85% with DC revenue ~+65%; rolling-12m orders +41% Electrical Americas / +33% Electrical Global; guidance raised</td><td class="num mono">2026-07-31</td><td><a href="https://finance.yahoo.com/markets/stocks/articles/eaton-reports-record-second-quarter-103000489.html">Eaton release via Yahoo</a> · <a href="https://www.investing.com/news/company-news/eaton-q2-2026-slides-record-results-drive-guidance-raise-93CH-4829032">Investing.com Q2 slides</a></td></tr>
+      <tr><td>Korea July 2026 full-month exports</td><td class="num" style="font-size:10.5px"><span class="pos">PRIMARY_VERIFIED</span></td><td class="mono">Total $98.89B +62.8% YoY (2nd-highest month ever); semiconductors $41.01B +178.8% YoY, 2nd consecutive month &gt;$40B; average daily exports +69.6% to $4.12B; trade surplus &gt;$30B</td><td class="num mono">2026-08-01</td><td><a href="https://en.sedaily.com/finance/2026/08/01/koreas-july-exports-reach-989-billion-on-chip-strength">Seoul Economic Daily</a> · <a href="https://english.news.cn/asiapacific/20260801/ed2feebb9da64e27aa419debc85583fd/c.html">Xinhua</a> · <a href="https://www.upi.com/Top_News/World-News/2026/08/02/semiconductor-exports-trade-surplus/6201785710264/">UPI</a></td></tr>
+      <tr><td>SUSS MicroTec Q1 anchor (pre-Aug-6)</td><td class="num" style="font-size:10.5px"><span class="pos">PRIMARY_VERIFIED</span></td><td class="mono">Record Q1-26 order intake €149.3M +69.5% YoY; order book €330.1M (+23.7% in the quarter); Q1 revenue €86.5M; FY26 guidance reaffirmed €425–485M sales at an 8–10% EBIT margin</td><td class="num mono">2026-05-07</td><td><a href="https://www.suss.com/en/news/corporate-news/2026/order-intake-reaches-record-level-in-the-first-quarter-of-2026">SUSS corporate news (primary)</a> · <a href="https://www.eqs-news.com/news/corporate/order-intake-reaches-record-level-in-the-first-quarter-of-2026/4720e214-0e3d-4760-a979-07952a7dd847_en">EQS</a></td></tr>
+      <tr><td>Memory de-rating drivers</td><td class="num" style="font-size:10.5px"><span class="amber">SECONDARY_USED</span></td><td class="mono">Apple CEO "evaluating all options" on alternative memory suppliers and expects higher memory expense; CXMT competition concerns; MU/SNDK/WDC/STX all ≥30% below 52-week highs</td><td class="num mono">2026-07-28 → 07-31</td><td><a href="https://www.fool.com/investing/2026/07/31/why-micron-stock-keeps-falling/">Motley Fool</a> · <a href="https://247wallst.com/investing/2026/07/28/buy-or-sell-the-memory-plunge-sandisk-sinks-9-micron-drops-7-western-digital-falls-8/">24/7 Wall St</a></td></tr>
+      <tr><td>Astera Labs — the squeeze and the print date</td><td class="num" style="font-size:10.5px"><span class="amber">SECONDARY_USED</span></td><td class="mono">+20.00% on 07-30 with no company print (technical reversal + coverage); Q2 reports Aug 4 guiding $355–365M revenue and $0.68–0.70 non-GAAP EPS</td><td class="num mono">2026-07-30</td><td><a href="https://finviz.com/news/131956/astera-labs-alab-surges-287-as-earnings-soar">Finviz</a> · <a href="https://finance.yahoo.com/markets/stocks/articles/buy-sell-hold-alab-stock-173900918.html">Yahoo Finance preview</a></td></tr>
+      <tr><td>Optics-basket selloff had no company-specific cause</td><td class="num" style="font-size:10.5px"><span class="amber">SECONDARY_USED</span></td><td class="mono">COHR −11%, AOI −10%, LITE −9% on 07-28; "no fresh company-specific news behind the move in any of the marquee optics names"; pattern points to positioning</td><td class="num mono">2026-07-28</td><td><a href="https://247wallst.com/investing/2026/07/28/coherent-sinks-11-applied-optoelectronics-falls-10-lumentum-drops-9-as-traders-question-ai-spending-spree/">24/7 Wall St</a></td></tr>
+      <tr><td>China gallium export-control reprieve</td><td class="num" style="font-size:10.5px"><span class="amber">SECONDARY_USED</span></td><td class="mono">Beijing's temporary suspension of gallium-compound controls reported to expire "likely November"</td><td class="num mono">2026-07-07</td><td><a href="https://www.ad-hoc-news.de/boerse/news/ueberblick/aixtron-s-8-percent-slide-highlights-the-twin-pressures-of-revenue/69714784">ad-hoc-news</a></td></tr>
+      <tr><td>All prices, IV-percentiles, 52-week ranges, factor adjustments</td><td class="num" style="font-size:10.5px"><span class="pos">PRIMARY_VERIFIED</span></td><td class="mono">Daily closes 07-16 → 07-31 (RTH); IV-percentile 13w/52w and 52w hi/lo pulled 2026-08-03 12:07–12:36 UTC (pre-market); SMH used as the benchmark for every excess-return figure</td><td class="num mono">2026-08-03</td><td>IBKR <b class="h">READ-ONLY</b> <code>get_price_history</code> + <code>get_price_snapshot</code> (primary)</td></tr>
+      <tr><td>AF-1 quantitative bridge</td><td class="num" style="font-size:10.5px"><span class="mut">INTERNAL_ONLY</span></td><td class="mono">rotation_state 2026-07-31: PKG LATENT / asymmetry_flag FALSE / smart_money_gap −31.7; MEM crowding 59.7, rs_20d +18.4; COOL rs_20d −22.2, crowding 23.7, smart_money_gap −26.2; GRID crowding 25.0</td><td class="num mono">2026-07-31</td><td><code>notes/leading-dashboard/data/rotation_state.json</code> (internal)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <span class="tag red">DISCLAIMER &amp; METHOD BOUNDS</span>
+    <p class="kicker" style="margin-top:6px"><b class="h">This is personal research for a private knowledge base. It is NOT investment advice</b>, not a recommendation, and not a solicitation. Nothing here is position-grade: the Alpha Map scores <i>information edge</i> at the sub-segment level and routes research — it does not size positions, and every AF-1 ledger row is explicitly <code>NO CAPITAL</code> under a blocked global action gate (<code>TRIAGE_ONLY</code>). All market data is IBKR <b class="h">READ-ONLY</b>; no trade, transfer or order has been or will be placed by this process.</p>
+    <p class="kicker" style="margin-top:6px"><b class="h">Estimates and reconstructions are marked (est.)</b>; scatter and bubble coordinates are an honest reconstruction of the dossier verdicts, not a measured dataset. Consensus figures sourced from company guidance or media aggregates rather than a point-in-time vendor feed are graded in §3 — most importantly the Vertiv implied-move figure, which is the single most load-bearing number in this week's §1b evidence. Where a claim rests on vendor or company material rather than independent verification, it is labelled as such. Cross-checks are two-source minimum for load-bearing numbers.</p>
+    <p class="kicker" style="margin-top:6px"><span class="tag">LEDGER</span> This run appends to <code>notes/ai-infra-state.json</code> as <code>2026-08-03-run26-alphamap-conversion-rule-orderbooks-discounted-revenue-paid</code>. Prior run: <code>2026-07-27</code>. The chokepoint deep-dive reads <code>queue_jump</code> (this week: <b class="h teal">S2 / PKG</b>, edge <code>SMHN.DE</code>, <i>held from last week on a replaced rationale</i>) and the macro monitor reads the L3 gap/stage rows.</p>
+  </div>
+
+  <p class="legend" style="margin-top:26px">AI-Infra Alpha Map v5 · Engine C (the Expectations Layer) · generated 2026-08-03 · 9 buckets · 16 crowding names · IBKR READ-ONLY · NOT investment advice</p>
+</div></body></html>

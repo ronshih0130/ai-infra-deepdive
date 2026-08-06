@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SMCI 全公司拆解 × 破碎成長反轉 · 2026-07-22 · v1.3 (PAPER)</title>
+<style>
+:root{--bg:#0b0d12;--panel:#13161e;--panel2:#1a1e28;--line:#2a3040;--line2:#363d4f;--txt:#e8eaf0;--mut:#9aa3b5;--dim:#697283;--accent:#2dd4bf;--choke:#e0686a;--gold:#d2a24a;--bull:#4faf8e;--blu:#5b81c4;--pur:#8b84cf}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:"Space Grotesk",-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.55;padding:0 0 70px}
+.wrap{max-width:1240px;margin:0 auto;padding:0 26px}
+.m{font-family:"JetBrains Mono",ui-monospace,monospace}
+header{border-bottom:1px solid var(--line);padding:30px 0 20px;margin-bottom:22px;background:linear-gradient(180deg,#0e1117,var(--bg))}
+.kick{color:var(--accent);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:8px}
+h1{font-size:26px;font-weight:600}h1 .zh{color:var(--mut);font-size:15.5px;font-weight:400;display:block;margin-top:4px}
+.badge{display:inline-block;font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--line2);color:var(--mut);margin:10px 6px 0 0}
+.badge.paper{border-color:var(--choke);color:var(--choke)}.badge.acc{border-color:var(--accent);color:var(--accent)}
+h2{font-size:18px;margin:34px 0 6px}h2 .k{color:var(--accent);font-size:11px;letter-spacing:.2em;display:block;text-transform:uppercase;margin-bottom:4px}
+.sub{color:var(--mut);font-size:13px;margin-bottom:12px;max-width:1000px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:12px 0}
+.explain{border-left:3px solid var(--accent)}.explain b{color:var(--accent)}
+.decision{border:1px solid rgba(224,104,106,.4);background:linear-gradient(120deg,#1d1416,#13161e)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{color:var(--dim);text-align:left;font-weight:500;font-size:11px;letter-spacing:.07em;text-transform:uppercase;padding:7px 9px;border-bottom:1px solid var(--line2)}
+td{padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+.small{font-size:11px;color:var(--dim)}.mut{color:var(--mut)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr}}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:13px 15px}
+.card h3{font-size:13px;color:var(--accent);margin-bottom:6px}.card p{font-size:12.6px}
+.tag{display:inline-block;font-size:10.5px;padding:2px 9px;border-radius:12px;font-weight:700;white-space:nowrap}
+.t-early{background:rgba(45,212,191,.14);color:var(--accent);border:1px solid rgba(45,212,191,.4)}
+.t-rec{background:rgba(210,162,74,.14);color:var(--gold);border:1px solid rgba(210,162,74,.4)}
+.t-priced{background:rgba(154,163,181,.12);color:var(--mut);border:1px solid rgba(154,163,181,.35)}
+.t-neg{background:rgba(224,104,106,.13);color:var(--choke);border:1px solid rgba(224,104,106,.4)}
+.t-watch{background:rgba(139,132,207,.14);color:var(--pur);border:1px solid rgba(139,132,207,.4)}
+.prov{font-size:10.5px;color:var(--dim);border-top:1px dashed var(--line);margin-top:8px;padding-top:6px}
+svg text{font-family:"Space Grotesk","PingFang TC",sans-serif;fill:var(--txt)}
+svg text.m{font-family:"JetBrains Mono",monospace}
+svg text.dim{fill:var(--dim)}svg text.mut{fill:var(--mut)}svg text.acc{fill:var(--accent)}svg text.red{fill:var(--choke)}svg text.gold{fill:var(--gold)}
+footer{margin-top:44px;border-top:1px solid var(--line);padding-top:16px;color:var(--dim);font-size:11.5px}
+footer p{margin-bottom:6px}
+@media print{body{background:#fff;color:#111}.panel,.card{background:#fff;border-color:#ccc}}
+
+svg{width:100%;height:auto;display:block} .panel{overflow-x:auto}</style></head>
+<body>
+<header><div class="wrap">
+<div class="kick">SINGLE-NAME TEARDOWN × BROKEN-GROWTH CONTRARIAN · 個股拆解 × 反向確認</div>
+<h1>SMCI — 毛利崩壞後的彈簧假說：真偽等 8/11 驗證（PAPER 研究情境）
+<span class="zh">use case: single_name_teardown · as of 2026-07-22 · price ref $30.56 = 2026-07-22 NASDAQ 收盤（FMP ts 1784750401）· 12-18m · benchmark QQQ（SMH 輔助）· declared 2026-07-23T05:45Z（於 7/22 +19.8% 反應之後 — 誠實時序）</span></h1>
+<span class="badge paper">PAPER · action = NO_CHANGE（provenance lock PL-20260723-A：manifest/gate 綁定本報告最終雜湊 — 非循環）· research_state = WATCH</span>
+<span class="badge acc">計畫審查已收斂（r4+r5 連續 fits=true, 0 P0/P1）· 報告審查迴圈進行中（r1/r2 punch list 全數入版）· 9-claim 對抗查核（C3 refuted → A5）· C4/C5/C7 一手源已入檔</span>
+<span class="badge">IBKR read-only · NOT investment advice · 現股 only（選擇權 INELIGIBLE）</span>
+</div></header>
+<div class="wrap">
+
+<div class="panel explain">
+<h3 style="color:var(--accent);font-size:13px;margin-bottom:6px">白話版 — 一分鐘看懂</h3>
+<p style="font-size:13px"><b>一句話論點</b>：SMCI 因毛利崩到 6.3% 被市場當成「淪為低毛利組裝廠」打了對折再對折；7/21 公司自己預告上季毛利其實是 15–17%（原本只指引 8.2–8.4%）＋單季接了超過 $60B 新訂單。<b>若毛利真的回來，現在的價格接近用「無復甦」劇本在賣</b>。<br/>
+<b>為什麼不直接買</b>：這些數字未經審計、公司正被董事會獨立調查（出口管制案）且原文明說結果「可能影響這些初步數字」、內部人一股都沒買、技術面也還沒翻多。<br/>
+<b>等什麼</b>：8/11 下午 5 點正式財報：毛利是否真的 ≥15%、下季毛利指引是否顯著高於共識（管理層自己背書持久性）、backlog 是否給得出金額與確定性。<br/>
+<b>什麼會殺死論點</b>：毛利印出 &lt;15%、下季指引又回 ~9–11%、調查改動已公布數字、或現金見底又沒新融資。</p>
+<p class="small" style="margin-top:6px"><b>詞彙</b>：GM＝毛利率 · prelim＝公司自行預告的未審計初步數字 · code-P＝內部人「公開市場真買」申報代碼（M/F 是選擇權行使/扣稅，不是買）· 13D/G＝5%+ 大股東申報 · backlog＝已接未出貨訂單 · DCBBS＝SMCI 資料中心積木方案 · 殘差報酬＝扣掉大盤（QQQ β）後的自身報酬 · keyed source＝需 API 金鑰的資料商（僅參照，不作證據）· T1–T5＝五個升級條件 · F1–F5＝五個否證條件 · compiler＝唯一有權改變（紙上）部位的模組，本報告只提供研究</p>
+</div>
+
+<div class="panel decision">
+<h3 style="color:var(--choke);font-size:13px;letter-spacing:.05em;margin-bottom:8px">DECISION DELTA · 決策摘要 — 彈簧假說存在；真偽等 8/11 驗證</h3>
+<table>
+<tr><th style="width:170px">項目</th><th>內容</th></tr>
+<tr><td><b>生命週期 / 行動</b></td><td class="m">PAPER · action = NO_CHANGE — 由 decision_manifest.json 與 gate_result.json 凍結（provenance lock PL-20260723-A：兩者於報告定稿後最後生成、綁定本報告 sha256 與全部源雜湊 — 報告只引 lock id，避免循環）；producer 只產研究；<b>選擇權 INELIGIBLE（本 run 僅現股）</b>；確認前 w=0（portfolio_snapshot 3e901980f2f1ed9f：現行 paper 部位=0）</td></tr>
+<tr><td><b>核心判讀</b></td><td>市場把 SMCI 定價成「結構性淪為組裝廠」：<b>共識 FY27 EPS $3.12 反推隱含毛利 ~8.5%</b>（凍結模型 A5：opex $2.0B/yr、稅 16%、650M 股 — 即幾乎完全回落到崩壞期指引區 8.2–8.4%），現價 $30.56 = 9.8× 這個「無復甦」情境。7/21 初步更新（<b>GM 15–17% vs 指引 8.2–8.4%、Q4 新訂單 >$60B、backlog 創高</b>）是第一個「公司揭露的數字」反證 — 但它<b>未經審計</b>（COMPANY_DISCLOSED_UNAUDITED，不入 VERIFIED EV）、出口管制董事會調查明文寫「可能影響這些初步結果」、且 $60B 帶有「非確定承諾/可取消」的原文警語。<b>每 100bp 持久毛利 ≈ +$0.67 EPS ≈ $6–8 股價</b> — 整場賭注壓縮在一條毛利線上</td></tr>
+<tr><td><b>兩個機制（勝負手）</b></td><td><b>BEAR「延遲假象」</b>：Q4 曾被指引 8.2–8.4%（= 管理層原預期低毛利超大雲出貨潮）→ 營收貼指引下緣 + 毛利翻倍 = <b>低毛利出貨又滑期了</b>（Q3 已有 site-readiness 先例），滑掉的單就藏在 $60B 裡，出貨時毛利均值回歸 → FY27 GM ~9%。<b>BULL「政權轉移」</b>：企業/主權/DCBBS 軟服附加占比結構性上升（管理層自稱「sustainable double-digit GM model」— 目標非承諾）→ FY27 GM 12%+。<b>判別證據 = 8/11 的 Q1'FY27 毛利指引</b>（單一最有資訊量的數字）</td></tr>
+<tr><td><b>EV（凍結三元組）</b></td><td class="m">bear 0.35 / base 0.45 / bull 0.20（A3.2 下限/上限制）→ EV_net <b>+26.1%</b> · 保守界(bull−10pp) <b>+12.7%</b> → 最低邊際門檻 PASS — 但這是「若持有整段」的 EV；<b>等待策略的完整條件數學見策略表 — 等待放棄 ~6.7pp EV 換取移除未審計左尾（規則要求，誠實記帳非免費）</b></td></tr>
+<tr><td><b>research_state</b></td><td><span class="tag t-watch">WATCH</span>（非 accumulate-context，儘管 EV 過門檻）：理由＝技術面 ABSENT（趨勢模板 2/7、RS 低於 30 週線）＋ <b>內部人 code-P 買入 = 0（A2 勘誤後，corrected_summary 32f1a990bf7db111）</b>＋ 數字屬 COMPANY_DISCLOSED_UNAUDITED ＋ 調查未結。EV 記為「升級資格」，非「進場許可」</td></tr>
+<tr><td><b>升級路徑（型別化）</b></td><td class="m">8/11 後首個週收盤評估 T1–T5：T1 GM≥15.0% 且 rev≥$10.7B · T2 Q1'FY27 GM 指引中值 ≥ max(12.0%, 凍結共識+50bp)（正驚奇制；EPS 後備 ≥$1.00@≥$11B ↔ 隱含 GM ~11.6%）· T3 10-K 乾淨無調整 · T4 以實際價重算 EV_net≥+5% ∧ 保守界≥+2% · T5 價 ≤ $39.61（凍結上限）。混合結果 → 路徑 2026-09-04 到期；10-K 不乾淨/遲交 → AVOID_CONTEXT</td></tr>
+<tr><td><b>對照表達 DELL</b></td><td><span class="tag t-watch">WATCH（禁追）</span> 品質優（AI 營收 $16.1B/季 exhibit 已入檔；backlog $51.3B 法說覆蓋源）但週收盤 0% off high（盤中 −5.9%）、+237%/52w、高於 30 週線 84%、內部人 730d 1買:102賣 — 兩套框架（Minervini/CK）都說這不是買點</td></tr>
+<tr><td><b>殺手風險</b></td><td>F4 出口管制調查若觸及「先前期間或 Q4 數字」→ 論點死亡 + 退出規則；F5 現金 $1.29B（Mar-26）+ 9M OCF −$7.56B → 8/11 若現金 &lt;$1.0B 且無新融資承諾 → AVOID。<b>$60B backlog 兌現本身需要數十億營運資金 — 牛市情境也需要融資</b>（稀釋/增發風險雙向存在）</td></tr>
+</table>
+<p class="prov">provenance: EDGAR XBRL（dc09d533166997f2）· prelim capture（14146e712881c212）· forecast（d81de8a2ea9bfc24）· readiness（9a61fced03a571ef）· registry v4 file-sha（9cc47f22086364a8）/ canonical-indicators-hash 2ec6e283…· plan r4（0f9369ef0135fea9）r5（1a5c4e96aaa3cc9f）· 入檔一手源：DELL 8-K exhibit（7e448123c949aee1）· SMCI 調查更新（1ba21128d8e2a5e3）· 2030 可轉債定價（c6217f94488c1219）· portfolio_snapshot（3e901980f2f1ed9f）· 對抗查核 wf_b435375e · Yahoo 快照（1ee3754192c6f741）· lock PL-20260723-A</p>
+</div>
+
+<h2><span class="k">SETUP READINESS GATE</span>設定就緒閘門 — 誠實列印（context only，不能提升生命週期或部位）</h2>
+<div class="panel">
+<table>
+<tr><th>欄位</th><th>實際值（forecasts/setup_readiness.json 9a61fced03a571ef）</th></tr>
+<tr><td class="m">fail_closed / ceiling</td><td class="m">True / PAPER（PAPER 上限保留）</td></tr>
+<tr><td class="m">narrative</td><td class="m">HYPOTHESIS_DECLARED_AFTER_CATALYST — prelim 為 POST_HOC 觀察，宣告在 7/22 反應之後（誠實時序；8/11 才是前瞻測試）</td></tr>
+<tr><td class="m">independent families</td><td class="m">1（OPERATIONAL_FUNDAMENTAL）— 確認族僅 1，其餘 ABSENT/UNKNOWN</td></tr>
+<tr><td class="m">group / technical</td><td class="m">ABSENT / ABSENT（無群組確認、無技術突破 — 不對稱保留、路徑風險自負）</td></tr>
+<tr><td class="m">regime</td><td class="m">UNKNOWN — regime 列不記 readiness 分（A4.1 明文），僅 context</td></tr>
+<tr><td class="m">missing_fields</td><td class="m">complete_options_implementation_comparison, eligible_frozen_underlying_forecast, narrative_hypothesis, regime_context</td></tr>
+<tr><td class="m">registry 狀態</td><td class="m">canonical-indicators-hash 2ec6e283…（file-sha 另列於 provenance）· 唯一 KEPT 指標 = crowding_gauge（回測驗證）；其餘 NOT_KEPT/PROXY_CONTEXT（誠實不記分）</td></tr>
+</table></div>
+
+<h2><span class="k">PRICE PATH</span>週線全景 — 崩壞、築底、prelim 跳空</h2>
+<div class="panel"><svg viewBox="0 0 1180 240" role="img" aria-label="SMCI 108 週週線收盤價：高點 62.36、崩壞至 19.48-24.36 底部區、7/22 收 30.56">
+<line x1="52" y1="208.4" x2="1166" y2="208.4" stroke="#2a3040" stroke-width="0.6"/><text x="8" y="212.4" class="m dim" font-size="10">$20</text><line x1="52" y1="182.3" x2="1166" y2="182.3" stroke="#2a3040" stroke-width="0.6"/><text x="8" y="186.3" class="m dim" font-size="10">$30</text><line x1="52" y1="156.3" x2="1166" y2="156.3" stroke="#2a3040" stroke-width="0.6"/><text x="8" y="160.3" class="m dim" font-size="10">$40</text><line x1="52" y1="130.2" x2="1166" y2="130.2" stroke="#2a3040" stroke-width="0.6"/><text x="8" y="134.2" class="m dim" font-size="10">$50</text><line x1="52" y1="104.2" x2="1166" y2="104.2" stroke="#2a3040" stroke-width="0.6"/><text x="8" y="108.2" class="m dim" font-size="10">$60</text><line x1="52" y1="78.2" x2="1166" y2="78.2" stroke="#2a3040" stroke-width="0.6"/><text x="8" y="82.2" class="m dim" font-size="10">$70</text><line x1="52" y1="52.1" x2="1166" y2="52.1" stroke="#2a3040" stroke-width="0.6"/><text x="8" y="56.1" class="m dim" font-size="10">$80</text>
+<path d="M52.0,40.0 L62.4,23.5 L72.8,53.0 L83.2,75.0 L93.6,97.8 L104.1,128.0 L114.5,96.7 L124.9,100.8 L135.3,146.5 L145.7,159.8 L156.1,141.4 L166.5,141.4 L176.9,151.1 L187.3,153.1 L197.8,136.0 L208.2,137.4 L218.6,137.4 L229.0,192.6 L239.4,196.6 L249.8,212.1 L260.2,174.1 L270.6,175.4 L281.0,146.0 L291.5,165.5 L301.9,178.2 L312.3,177.2 L322.7,173.7 L333.1,175.6 L343.5,180.2 L353.9,173.8 L364.3,186.2 L374.7,166.0 L385.2,135.7 L395.6,114.4 L406.0,152.5 L416.4,160.9 L426.8,150.6 L437.2,150.7 L447.6,171.2 L458.0,182.8 L468.4,174.1 L478.9,178.4 L489.3,165.5 L499.7,172.7 L510.1,177.1 L520.5,140.3 L530.9,156.0 L541.3,156.2 L551.7,152.2 L562.1,152.2 L572.6,142.4 L583.0,136.5 L593.4,134.0 L603.8,132.2 L614.2,125.6 L624.6,118.6 L635.0,112.9 L645.4,144.3 L655.9,142.3 L666.3,146.2 L676.7,152.3 L687.1,155.2 L697.5,143.3 L707.9,141.2 L718.3,141.1 L728.7,125.1 L739.1,122.8 L749.6,124.6 L760.0,134.7 L770.4,125.1 L780.8,156.9 L791.2,165.6 L801.6,176.6 L812.0,172.3 L822.4,170.1 L832.8,176.3 L843.3,179.4 L853.7,180.7 L864.1,179.8 L874.5,181.9 L884.9,175.4 L895.3,177.9 L905.7,184.6 L916.1,170.9 L926.5,180.9 L937.0,176.0 L947.4,176.1 L957.8,178.9 L968.2,180.4 L978.6,207.0 L989.0,203.2 L999.4,200.0 L1009.8,194.7 L1020.2,186.1 L1030.7,184.7 L1041.1,189.9 L1051.5,168.3 L1061.9,179.6 L1072.3,167.8 L1082.7,140.4 L1093.1,152.0 L1103.5,181.1 L1113.9,180.6 L1124.4,180.7 L1134.8,189.6 L1145.2,186.7 L1155.6,197.5 L1166.0,180.9" fill="none" stroke="#2dd4bf" stroke-width="1.8"/>
+<circle cx="1166.0" cy="180.9" r="4" fill="#2dd4bf"/>
+<text x="1006.0" y="168.9" class="m acc" font-size="11">7/22 收 $30.56（+19.8%）</text>
+<text x="343.5" y="170.2" class="m dim" font-size="10">52w 高 $62.36</text>
+<text x="945.6" y="215.5" class="m red" font-size="10">7/20 低 $24.36 · GM 崩壞低點區 $19.48</text>
+<text x="52" y="234" class="dim" font-size="10">2024-07-05</text><text x="1060" y="234" class="dim" font-size="10">2026-07-22</text>
+</svg>
+<p class="sub" style="margin-top:6px">108 週：$84.66（2024-07）→ 52w 高 $62.36 → GM 崩壞 −56% → 底部區 $19.48–24.36 → 7/22 收 $30.56（+19.8%、量 162M 股 ≈ 常態 5×）。仍低於 200D $33.70 與 50D $32.84 — <b>Stage 1 基底，突破未發生</b>。</p></div>
+
+<h2><span class="k">THE CRUX</span>毛利橋 — 6.3% 到「15–17%」之間發生了什麼</h2>
+<div class="panel"><svg viewBox="0 0 1180 230" role="img" aria-label="SMCI 季度 GAAP 毛利率：15.52% 一路跌到 6.3% 再回升 9.95%，Q4 初步宣稱 15-17%"><rect x="70" y="41" width="62" height="137" rx="3" fill="#4faf8e" opacity="0.82"/><text x="101" y="34" text-anchor="middle" class="m" font-size="11">16.69%</text><text x="101" y="194" text-anchor="middle" class="dim" font-size="10">Q1'24</text><rect x="166" y="52" width="62" height="126" rx="3" fill="#4faf8e" opacity="0.82"/><text x="197" y="45" text-anchor="middle" class="m" font-size="11">15.4%</text><text x="197" y="194" text-anchor="middle" class="dim" font-size="10">Q2'24</text><rect x="262" y="51" width="62" height="127" rx="3" fill="#4faf8e" opacity="0.82"/><text x="293" y="44" text-anchor="middle" class="m" font-size="11">15.52%</text><text x="293" y="194" text-anchor="middle" class="dim" font-size="10">Q3'24</text><rect x="358" y="71" width="62" height="107" rx="3" fill="#4faf8e" opacity="0.82"/><text x="389" y="64" text-anchor="middle" class="m" font-size="11">13.06%</text><text x="389" y="194" text-anchor="middle" class="dim" font-size="10">Q1'25</text><rect x="454" y="81" width="62" height="97" rx="3" fill="#d2a24a" opacity="0.82"/><text x="485" y="74" text-anchor="middle" class="m" font-size="11">11.8%</text><text x="485" y="194" text-anchor="middle" class="dim" font-size="10">Q2'25</text><rect x="550" y="100" width="62" height="78" rx="3" fill="#d2a24a" opacity="0.82"/><text x="581" y="93" text-anchor="middle" class="m" font-size="11">9.57%</text><text x="581" y="194" text-anchor="middle" class="dim" font-size="10">Q3'25</text><rect x="646" y="102" width="62" height="76" rx="3" fill="#d2a24a" opacity="0.82"/><text x="677" y="95" text-anchor="middle" class="m" font-size="11">9.31%</text><text x="677" y="194" text-anchor="middle" class="dim" font-size="10">Q1'26</text><rect x="742" y="126" width="62" height="52" rx="3" fill="#e0686a" opacity="0.82"/><text x="773" y="119" text-anchor="middle" class="m" font-size="11">6.3%</text><text x="773" y="194" text-anchor="middle" class="dim" font-size="10">Q2'26</text><rect x="838" y="96" width="62" height="82" rx="3" fill="#d2a24a" opacity="0.82"/><text x="869" y="89" text-anchor="middle" class="m" font-size="11">9.95%</text><text x="869" y="194" text-anchor="middle" class="dim" font-size="10">Q3'26</text><rect x="934" y="39" width="62" height="16" rx="3" fill="none" stroke="#2dd4bf" stroke-width="1.6" stroke-dasharray="5 3"/><rect x="934" y="55" width="62" height="123" rx="3" fill="#2dd4bf" opacity="0.35"/><text x="965" y="32" text-anchor="middle" class="m acc" font-size="11">15–17%</text><text x="965" y="194" text-anchor="middle" class="acc" font-size="10">Q4'26 prelim</text><line x1="60" y1="110" x2="1030" y2="110" stroke="#e0686a" stroke-width="1" stroke-dasharray="3 4"/><text x="794" y="104" class="m red" font-size="10">Q4 原 guide 8.2–8.4% · 共識 FY27 隱含 ~8.5%</text><line x1="60" y1="178" x2="1050" y2="178" stroke="#363d4f"/></svg>
+<p class="sub" style="margin-top:6px">紅=崩壞（Q2'26 6.3% = 超大雲混合 + <b>非經常性</b>加急費/存貨減值——Q3 法說已承認非經常性）；金=過渡；綠=FY24 常態帶。prelim 15–17% 若為真 = 一舉回到 FY23（18.0%）與 FY24（13.8%）之間。<b>但 Q4 原指引 8.2–8.4% 代表管理層原本預期低毛利出貨潮 — 營收貼下緣+毛利翻倍的組合，同時相容於「政權轉移」與「低毛利單再度滑期」兩種解讀</b>。Q3 法說並明訂 FY26 指引假設「CPU 與記憶體供應穩定」— 2026 記憶體漲價循環是 FY27 固定價 backlog 的 COGS 逆風。</p>
+<p class="prov">EDGAR XBRL（GAAP GM，季度，2 位小數）· Q3'26 prepared remarks（s204.q4cdn.com 官方）· prelim = COMPANY_DISCLOSED_UNAUDITED</p></div>
+
+<h2><span class="k">TRANSMISSION</span>經濟傳導鏈 — 每一環的斷點</h2>
+<div class="panel"><svg viewBox="0 0 1180 210" role="img" aria-label="經濟傳導鏈：需求到訂單到backlog到出貨到混合到毛利到EPS到估值，每一環標註斷點"><defs><marker id="arr" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#9aa3b5"/></marker></defs><rect x="30" y="46" width="128" height="52" rx="8" fill="#1a1e28" stroke="#2dd4bf" stroke-opacity="0.5"/><text x="94" y="67" text-anchor="middle" font-size="11.5">AI 需求</text><text x="94" y="84" text-anchor="middle" font-size="11.5">CSP/主權/企業</text><text x="94" y="122" text-anchor="middle" class="red" font-size="9.5">NVDA 配額轉移</text><path d="M161,72 L173,72" stroke="#9aa3b5" stroke-width="1.4" marker-end="url(#arr)"/><rect x="176" y="46" width="128" height="52" rx="8" fill="#1a1e28" stroke="#2dd4bf" stroke-opacity="0.5"/><text x="240" y="67" text-anchor="middle" font-size="11.5">訂單</text><text x="240" y="84" text-anchor="middle" font-size="11.5">>$60B?</text><text x="240" y="122" text-anchor="middle" class="red" font-size="9.5">LOI/框架可取消</text><text x="240" y="136" text-anchor="middle" class="red" font-size="9.5">DataVolt~2028</text><path d="M307,72 L319,72" stroke="#9aa3b5" stroke-width="1.4" marker-end="url(#arr)"/><rect x="322" y="46" width="128" height="52" rx="8" fill="#1a1e28" stroke="#2dd4bf" stroke-opacity="0.5"/><text x="386" y="67" text-anchor="middle" font-size="11.5">確定 backlog</text><text x="386" y="122" text-anchor="middle" class="red" font-size="9.5">無金額揭露</text><text x="386" y="136" text-anchor="middle" class="red" font-size="9.5">無訂金條款</text><path d="M453,72 L465,72" stroke="#9aa3b5" stroke-width="1.4" marker-end="url(#arr)"/><rect x="468" y="46" width="128" height="52" rx="8" fill="#1a1e28" stroke="#2dd4bf" stroke-opacity="0.5"/><text x="532" y="67" text-anchor="middle" font-size="11.5">出貨/營收</text><text x="532" y="122" text-anchor="middle" class="red" font-size="9.5">site-readiness</text><text x="532" y="136" text-anchor="middle" class="red" font-size="9.5">電力/網路閘門</text><path d="M599,72 L611,72" stroke="#9aa3b5" stroke-width="1.4" marker-end="url(#arr)"/><rect x="614" y="46" width="128" height="52" rx="8" fill="#1a1e28" stroke="#2dd4bf" stroke-opacity="0.5"/><text x="678" y="67" text-anchor="middle" font-size="11.5">混合 mix</text><text x="678" y="122" text-anchor="middle" class="red" font-size="9.5">超大雲回流</text><text x="678" y="136" text-anchor="middle" class="red" font-size="9.5">→毛利稀釋</text><path d="M745,72 L757,72" stroke="#9aa3b5" stroke-width="1.4" marker-end="url(#arr)"/><rect x="760" y="46" width="128" height="52" rx="8" fill="#1a1e28" stroke="#2dd4bf" stroke-opacity="0.5"/><text x="824" y="67" text-anchor="middle" font-size="11.5">毛利 GM</text><text x="824" y="122" text-anchor="middle" class="red" font-size="9.5">記憶體/CPU 成本</text><text x="824" y="136" text-anchor="middle" class="red" font-size="9.5">固定價 backlog</text><path d="M891,72 L903,72" stroke="#9aa3b5" stroke-width="1.4" marker-end="url(#arr)"/><rect x="906" y="46" width="128" height="52" rx="8" fill="#1a1e28" stroke="#2dd4bf" stroke-opacity="0.5"/><text x="970" y="67" text-anchor="middle" font-size="11.5">EPS / FCF</text><text x="970" y="122" text-anchor="middle" class="red" font-size="9.5">WC 熔爐</text><text x="970" y="136" text-anchor="middle" class="red" font-size="9.5">OCF −7.56B</text><path d="M1037,72 L1049,72" stroke="#9aa3b5" stroke-width="1.4" marker-end="url(#arr)"/><rect x="1052" y="46" width="128" height="52" rx="8" fill="#1a1e28" stroke="#2dd4bf" stroke-opacity="0.5"/><text x="1116" y="67" text-anchor="middle" font-size="11.5">估值/股價</text><text x="1116" y="122" text-anchor="middle" class="red" font-size="9.5">治理折價</text><text x="1116" y="136" text-anchor="middle" class="red" font-size="9.5">調查 F4</text><text x="30" y="26" class="dim" font-size="10.5">經濟傳導鏈（紅字＝每一環的斷點；聚合 AI 需求可同時利多 DELL/HPE/NVDA 而利空 SMCI 毛利 — 分解陷阱已標）</text></svg></div>
+
+<h2><span class="k">8-POINT TEARDOWN</span>八點拆解 ①–⑧</h2>
+<div class="grid2">
+<div class="card"><h3>① 怎麼賺錢</h3><p>AI/企業伺服器系統 + 機櫃級整合（DCBBS 資料中心積木）。組裝/整合毛利 + 起步中的軟體服務附加。零組件（GPU/記憶體/CPU）是別人的 — SMCI 賺的是 time-to-market 與密度/散熱工程費。</p></div>
+<div class="card"><h3>② 營收結構</h3><p>FY26 ≈ $38.9B（9M $27.94B 已申報 + Q4 prelim ~$11.0B）＝ +77% y/y。AI/GPU 系統 >70%。季度極端波動：$12.68B → $10.24B → ~$11.0B（超大雲 lumpiness + site-readiness 滑期）。</p></div>
+<div class="card"><h3>③ 成長來源</h3><p>Q4 新訂單 >$60B（book-to-bill ~5.5×，<b>未經審計 + 非確定承諾警語</b>）；GB300/次世代機櫃；主權 AI（Saudi DataVolt $20B 型、build-out ~2028）；企業本地推理。</p></div>
+<div class="card"><h3>④ 終端市場</h3><p>超大雲 CSP AI 叢集（低毛利）、企業 AI（較高毛利）、主權 AI（肥厚但 lumpy、政治閘門）、edge/5G 傳統。混合比例＝毛利命運。</p></div>
+<div class="card"><h3>⑤ 主要客戶</h3><p>集中且集中化中（公司自己的風險語言原文重申）。Q2'26 GM 6.3% = 集中度機制的實地示範。$60B 的客戶構成未揭露 — 8/11 必問。</p></div>
+<div class="card"><h3>⑥ 護城河</h3><p><b>薄，且這就是誠實的癥結</b>：新平台上市速度（週級領先）、台北+聖荷西工程、NVDA 關係。無捕獲式 IP；客戶雙源採購；DELL 單季 AI 營收 $16.1B 證明護城河會漏水。</p></div>
+<div class="card"><h3>⑦ 管理層展望</h3><p>「sustainable double-digit gross margin model」（軟體/服務/企業推理混合 — 是目標非承諾）；FY26 $38.9–40.4B 指引附供應假設；prelim 歸因「favorable customer and product mix」。8/11 的 FY27 指引是政權轉移論的第一次公開檢驗。</p></div>
+<div class="card"><h3>⑧ 為何不是卡點</h3><p><b>SMCI 不是卡點（非 chokepoint）</b>：它是 AI 伺服器需求的「吞吐量/執行力」表達，負護城河風險。alpha 主張不在結構租金，而在<b>市場對毛利均值回歸的定價過於絕對</b>（共識隱含 ~8.5% vs 公司宣稱 15–17%）。</p></div>
+</div>
+
+<h2><span class="k">FINANCIAL LENS</span>財務透鏡（0.35）— 共識反推、營運資金熔爐、可轉債</h2>
+<div class="grid2">
+<div class="card"><h3>共識反推（定價之錨 · A5 重算後）</h3>
+<table><tr><th>FY27 GM</th><th>EPS（凍結模型 est.）</th><th>$30.56 對應</th></tr>
+<tr><td class="m">8.5%（共識隱含）</td><td class="m">~$3.15</td><td class="m">9.7×</td></tr>
+<tr><td class="m">10.5%</td><td class="m">~$4.50</td><td class="m">6.8×</td></tr>
+<tr><td class="m">12.5%</td><td class="m">~$5.85</td><td class="m">5.2×</td></tr>
+<tr><td class="m">15.0%（prelim 下緣持續）</td><td class="m">~$7.53</td><td class="m">4.1×</td></tr></table>
+<p class="prov">凍結模型（A5 一致化）：opex $2.0B/yr（$500M/季 ±10%；Q3'26 實際 ~$445M）· 稅 16% · 稀釋 650M（>$55 用 692M）· 每 100bp GM ≈ +$0.67 EPS · FMP 共識 $52.2B/$3.12（Yahoo 交叉 $53.2B/$3.24 ☑）= KEYED context 非證據 · 內部一致性經 9-agent 對抗查核（C3 refuted→已修正）</p></div>
+<div class="card"><h3>營運資金熔爐（全部已申報數字）</h3>
+<table><tr><th></th><th>Jun-25</th><th>Dec-25</th><th>Mar-26</th></tr>
+<tr><td>現金</td><td class="m">$5.17B</td><td class="m">$4.09B</td><td class="m" style="color:var(--choke)">$1.29B</td></tr>
+<tr><td>應收帳款</td><td class="m">$2.20B</td><td class="m" style="color:var(--choke)">$11.00B</td><td class="m">$8.41B</td></tr>
+<tr><td>存貨</td><td class="m">$4.68B</td><td class="m">$10.60B</td><td class="m">$11.10B</td></tr>
+<tr><td>FY26 累計 OCF</td><td class="m">—</td><td class="m">−$0.94B</td><td class="m" style="color:var(--choke)">−$7.56B</td></tr></table>
+<p>Q3'26 單季 OCF ≈ <b>−$6.62B</b>。DSO 由 ~35 天倍增至 ~75–79 天（超大雲/主權付款慢）。<b>$60B backlog 的兌現需要 $6–10B+ 增量營運資金 — 融資（ABL/應收/可轉/增發）幾乎必然，牛熊雙向都有稀釋風險</b>。F5 落此。</p></div>
+</div>
+<div class="panel"><h3 style="color:var(--accent);font-size:13px;margin-bottom:6px">可轉債堆疊（發行條款 ≥2 源；A5 精確化）</h3>
+<p class="sub">$700M 2.25% 2028 · $1.725B 2029（2025-02 修訂）· $2.3B 2030（0% 票息；轉換率 18.1154/1000 → ~$55.20、capped call ~$81.78 — <b>此轉換價僅屬 2030 檔；IR 定價原文已入檔 c6217f94488c1219</b>）＝ 共 $4.725B。$30.56 全數深度價外 → 近期無轉換稀釋；但（a）2028–2030 是再融資牆（若股價不回）；（b）2030 檔 <b>41.7M 股</b>（2.3B/55.20）潛在稀釋恰在 >$55 的牛市情境啟動 — 牛市目標價已用 692M 股扣減；2028/29 檔轉換價未入檔（不計、標 unknown）。</p></div>
+
+<h2><span class="k">BACKLOG QUALITY</span>$60B 訂單 — 尺度檢查與 8/11 必答題</h2>
+<div class="panel">
+<table>
+<tr><th>比較軸</th><th>SMCI（Q4'FY26）</th><th>DELL（Q1'FY27，5 月季）</th></tr>
+<tr><td>單季 AI/新訂單</td><td class="m">>$60B（<b>單季</b>、未審計、非確定承諾警語原文）</td><td class="m">$24.4B（AI 訂單，有定義）</td></tr>
+<tr><td>Backlog 存量</td><td class="m" style="color:var(--choke)">「record levels」— 未給金額</td><td class="m">$51.3B（AI backlog — 法說/覆蓋來源；<b>8-K exhibit 未含此數</b> ⚠ 降級 coverage-context）</td></tr>
+<tr><td>對照尺度</td><td colspan="2">SMCI 的單季訂單宣稱 <b>超過 DELL 的整個 AI backlog</b>、等於 DELL 的 FY27 全年 AI 營收指引（$60B）— 唯一相容解釋：多年期主權/框架協議（DataVolt $20B 型、時程 ~2028）大量入帳 → 正是「非確定承諾」型</td></tr></table>
+<p class="sub" style="margin-top:8px">8/11 必答：backlog 金額化與 FY27 內排程比例 · 確定性定義（PO vs LOI/框架）與訂金條款 · 10%+ 客戶構成 · <b>backlog 的毛利輪廓</b>（若主權基建為主，毛利低於 15–17% 現印 — 與延遲假象機制相互印證）。</p>
+<p class="prov">DELL 訂單/營收/指引 = 8-K exhibit 一手源<b>已入檔</b>（research/archive/… 7e448123c949aee1）；$51.3B backlog 為法說覆蓋源（exhibit 未含，誠實降級）· SMCI prelim 原文警語見 frozen capture 14146e712881c212</p></div>
+
+<h2><span class="k">POSITIONING</span>機構/內部人透鏡（0.20）— POSITIONING_CONTEXT，非確認證據</h2>
+<div class="panel">
+<table>
+<tr><th>來源</th><th>讀值</th><th>lead/lag</th><th>判讀</th></tr>
+<tr><td>Form 4 code-P（開盤市場真買）</td><td class="m" style="color:var(--choke)">SMCI = 0 筆（近 25 件中 12 件含代碼欄，全為 M/F/A 薪酬事件：6 月 M4/F2/A4、7 月 M40/F15）· OpenInsider 730d 全窗獨立：1買:19賣</td><td class="m">LEADING 1–6mo</td><td><b>A2 勘誤重點：內部人沒有買自己的崩盤</b>。先前「12:0 全買」為解析器誤讀（M=選擇權行使≠買入）；stale 欄位已在 posn/ 標記 SUPERSEDED，更正檔 corrected_summary.json（32f1a990bf7db111）。反向論最強的反證</td></tr>
+<tr><td>DELL Form 4</td><td class="m">0 code-P（coded 子集 S:160）· 730d 1買:102賣</td><td class="m">LEADING</td><td>持續性賣出程式（創辦人）— 高位動能股的典型</td></tr>
+<tr><td>13D/G</td><td class="m">最新 2024-11（615 天前）</td><td class="m">LAGGING</td><td>崩盤後<b>無</b>新 5% 舉牌/行動主義 — 缺席</td></tr>
+<tr><td>13F</td><td class="m">6/30 期 ~8/14 才到</td><td class="m">LAGGING 45d</td><td>不記分（設計如此）</td></tr>
+<tr><td>選擇權</td><td class="m">1,576 條鏈 · dealer 方向 UNKNOWN</td><td class="m">unsigned</td><td>僅無符號 context；不做 dealer-gamma 符號宣稱</td></tr>
+<tr><td>空單餘額</td><td class="m">UNAVAILABLE（本 run 數據缺口）</td><td class="m">—</td><td>FINRA 下期公布補；誠實標記</td></tr>
+<tr><td>賣方共識</td><td>懷疑派主導（GS sell PT $24 進事件；「還不能稱毛利改善為趨勢」）</td><td class="m">coincident</td><td>不信 = 不對稱的來源；但內部人零買入是對「聰明錢已進場」最直接的否定</td></tr>
+</table>
+<p class="prov">EDGAR Form 4 原始代碼 + OpenInsider 730d 篩選（P/S only）· posn/*/corrected_summary.json 為唯一可引用內部人結論</p></div>
+
+<h2><span class="k">TECHNICAL</span>技術/情勢透鏡（0.20）— 確認 ABSENT（這是特徵，不是缺陷）</h2>
+<div class="grid2">
+<div class="card"><h3>SMCI — Stage 1 · 趨勢模板 2/7</h3>
+<p class="m" style="font-size:12px">✗ 價 > 30W/40W 均線排列 · ✗ 30W > 40W · ✗ 30W 上升 · ✓ 10W > 30W/40W · ✗ 價 > 10W · ✓ 高於 52w 低 ≥30%（+48.9%）· ✗ 距 52w 高 ≤25%（−46%）</p>
+<p>RS-vs-QQQ 低於其 30 週線 −6.8%。<b>規則（凍結）</b>：確認 = 週收 >$33.70（200D 區）帶 ≥1.5× 十週均量；失效 = 週收 &lt;$24.00；崩潰 = &lt;$19.48。技術只改變執行時點與部位帶，不改變論點。</p></div>
+<div class="card"><h3>DELL — 晚期 Stage 2 · 7/7 但過度延伸</h3>
+<p>週收盤 0.0% off high（<b>盤中 52w 高 $469.47 基準：−5.9%</b>）、+104%/13w、價高於 30 週線 <b>84%</b>（441.70/239.84）、RS +76% 高於其 30 週均。每個 Minervini 準則都過 — 但延伸度屬 climax 風險輪廓。<b>兩套框架的同一句話：這裡不是買點</b>。SERVER-ODM 籃子：擁擠 41.7（中位）、20 日 Δ−26（去擁擠中）、washout 87.2 百分位（僅 context — 反轉確認變體在我們的回測中無效）。</p></div>
+</div>
+
+<h2><span class="k">LEADING INDICATORS</span>領先指標表（registry v4 — 每列含觸發/來源/時滯/權限）</h2>
+<div class="panel"><table>
+<tr><th>訊號</th><th>lead/lag</th><th>量化觸發</th><th>免費來源</th><th>時滯</th><th>前導</th><th>權限</th></tr>
+<tr><td>Q1'FY27 GM/EPS 指引</td><td class="m">LEADING</td><td class="m">T2/F3 門檻（驚奇制）</td><td>IR 8-K + 法說</td><td class="m">0d</td><td class="m">2–3 季</td><td class="m" style="color:var(--accent)">trigger/falsifier</td></tr>
+<tr><td>Q4 最終 GM vs prelim</td><td class="m">COINCIDENT</td><td class="m">≥15.0%（F1）</td><td>8-K</td><td class="m">0d</td><td class="m">—</td><td class="m" style="color:var(--accent)">trigger/falsifier</td></tr>
+<tr><td>存貨/季營收比</td><td class="m">LEADING</td><td class="m">>1.05×＝風險旗（Mar-26 1.08×）</td><td>EDGAR XBRL</td><td class="m">0–40d</td><td class="m">1–2 季</td><td class="m">context</td></tr>
+<tr><td>DRAM/NAND 合約價</td><td class="m">LEADING</td><td class="m">連 2 月漲＝COGS 逆風旗</td><td>TrendForce 公開摘要</td><td class="m">~5d</td><td class="m">1–2 季</td><td class="m">context</td></tr>
+<tr><td>DELL/HPE AI 訂單</td><td class="m">LEADING</td><td class="m">DELL &lt;$15B/季＝需求降溫旗</td><td>其 8-K</td><td class="m">0d</td><td class="m">1–2 季</td><td class="m">context</td></tr>
+<tr><td>Form 4 cluster</td><td class="m">LEADING</td><td class="m">≥3 人 30 天內 code-P（現況 0）</td><td>EDGAR</td><td class="m">≤2bd</td><td class="m">1–6 月</td><td class="m">context</td></tr>
+<tr><td>估計修正廣度</td><td class="m">LEADING</td><td class="m">≥60% 上修＝確認 context</td><td>Yahoo Analysis 頁（凍結快照）</td><td class="m">0–3d</td><td class="m">1–2 季</td><td class="m">context（KEYED 交叉）</td></tr>
+<tr><td>週收 vs $33.70</td><td class="m">COINCIDENT</td><td class="m">週收>區間＝基底離場確認</td><td>任何免費圖表</td><td class="m">0d</td><td class="m">—</td><td class="m">執行時點 only</td></tr>
+<tr><td>SERVER 擁擠度</td><td class="m">context</td><td class="m">≥85＝震出旗（回測 KEPT）</td><td>自建 gauge（公式公開）</td><td class="m">0d</td><td class="m">~60d</td><td class="m">context</td></tr>
+</table></div>
+
+<h2><span class="k">EVENT CONTRACT</span>8/11 事件驚奇合約（8/10 收盤凍結）＋情境梯</h2>
+<div class="panel"><svg viewBox="0 0 1180 210" role="img" aria-label="情境梯：SEVERE 16.5、BEAR 綜合 21、BASE 42、BULL 62，對照現價 30.56 與 T5 追價上限"><line x1="371" y1="30" x2="371" y2="170" stroke="#e8eaf0" stroke-width="1.2" stroke-dasharray="4 3"/><text x="371" y="20" text-anchor="middle" class="m" font-size="11.5">現價 $30.56</text><circle cx="124" cy="74" r="6" fill="#e0686a"/><text x="135" y="78" font-size="11.5">SEVERE（F4/F5） <tspan class="dim">(bear 內 25%)</tspan></text><circle cx="203" cy="100" r="6" fill="#e0686a"/><text x="214" y="104" font-size="11.5">BEAR 綜合 $21.0 · −31% <tspan class="dim">(p=0.35)</tspan></text><circle cx="572" cy="74" r="6" fill="#d2a24a"/><text x="583" y="78" font-size="11.5">BASE $42 · +37% <tspan class="dim">(p=0.45)</tspan></text><circle cx="924" cy="100" r="6" fill="#4faf8e"/><text x="935" y="104" font-size="11.5">BULL $62 · +103%（>55 稀釋已計） <tspan class="dim">(p=0.20)</tspan></text><line x1="98" y1="172" x2="98" y2="178" stroke="#697283"/><text x="98" y="192" text-anchor="middle" class="m dim" font-size="9.5">15</text><line x1="186" y1="172" x2="186" y2="178" stroke="#697283"/><text x="186" y="192" text-anchor="middle" class="m dim" font-size="9.5">20</text><line x1="273" y1="172" x2="273" y2="178" stroke="#697283"/><text x="273" y="192" text-anchor="middle" class="m dim" font-size="9.5">25</text><line x1="361" y1="172" x2="361" y2="178" stroke="#697283"/><text x="361" y="192" text-anchor="middle" class="m dim" font-size="9.5">30</text><line x1="449" y1="172" x2="449" y2="178" stroke="#697283"/><text x="449" y="192" text-anchor="middle" class="m dim" font-size="9.5">35</text><line x1="537" y1="172" x2="537" y2="178" stroke="#697283"/><text x="537" y="192" text-anchor="middle" class="m dim" font-size="9.5">40</text><line x1="625" y1="172" x2="625" y2="178" stroke="#697283"/><text x="625" y="192" text-anchor="middle" class="m dim" font-size="9.5">45</text><line x1="713" y1="172" x2="713" y2="178" stroke="#697283"/><text x="713" y="192" text-anchor="middle" class="m dim" font-size="9.5">50</text><line x1="801" y1="172" x2="801" y2="178" stroke="#697283"/><text x="801" y="192" text-anchor="middle" class="m dim" font-size="9.5">55</text><line x1="889" y1="172" x2="889" y2="178" stroke="#697283"/><text x="889" y="192" text-anchor="middle" class="m dim" font-size="9.5">60</text><line x1="977" y1="172" x2="977" y2="178" stroke="#697283"/><text x="977" y="192" text-anchor="middle" class="m dim" font-size="9.5">65</text><line x1="1065" y1="172" x2="1065" y2="178" stroke="#697283"/><text x="1065" y="192" text-anchor="middle" class="m dim" font-size="9.5">70</text><line x1="479" y1="30" x2="479" y2="170" stroke="#8b84cf" stroke-width="1" stroke-dasharray="2 4"/><text x="479" y="166" text-anchor="middle" class="m" font-size="10" fill="#8b84cf">T5 上限(pre) $36.67</text><line x1="530" y1="30" x2="530" y2="170" stroke="#8b84cf" stroke-width="1" stroke-dasharray="2 4"/><text x="534" y="36" class="m" font-size="10" fill="#8b84cf">post $39.61</text><line x1="60" y1="172" x2="1120" y2="172" stroke="#363d4f"/></svg>
+<table style="margin-top:8px">
+<tr><th>層</th><th>內容（全部綁定公司揭露數字）</th></tr>
+<tr><td><b>凍結包（8/10 截止）</b></td><td class="m">共識 Q4 rev/GM/EPS（post-prelim 修正後）· Q1'FY27+FY27 共識 · 收盤/IV/skew（無符號）· β(126d) vs QQQ/SMH · DELL/HPE 收盤 · 現金/負債/DSO 觀察欄 · Yahoo Analysis 頁重拍快照（修正廣度分母揭露）· <b>補檔：SMCI IR 調查更新頁 + DELL 8-K exhibit（A5 archive-gap 修復）</b>· 每指標 frozen_consensus / observed / surprise_magnitude / pass_fail。<b>缺凍結包 → 催化劑自動降 CONTEXT（fail-closed，AMD run 已對 INTC 執行過此規則）</b></td></tr>
+<tr><td><b>升級 T1–T5</b></td><td class="m">T1 GM≥15.0% ∧ rev≥$10.7B · T2 Q1'27 GM 指引中值 ≥ max(12.0%, 凍結共識+50bp)（正驚奇制；EPS 後備 ≥$1.00@≥$11B ↔ ~11.6% GM — 現行共識僅 $0.71 ↔ ~8.7%，門檻是真驚奇）· T3 無調查相關調整 + 10-K 準時乾淨 · T4 實價重算 EV_net≥+5% ∧ 保守界≥+2% · T5 價≤$39.61。全過 → research_state 升級（行動仍歸 compiler）</td></tr>
+<tr><td><b>否證 F1–F5</b></td><td class="m">F1 GM&lt;15.0% · F2 rev&lt;$10.7B · F3 Q1'27 GM 指引中值 &lt;11.0%（EPS 後備 &lt;$0.80 ↔ ~10.2%）· F4 調查觸及已報數字（論點死亡+退出）· F5 現金&lt;$1.0B 且無新融資承諾 → AVOID_CONTEXT</td></tr>
+<tr><td><b>反應量測</b></td><td class="m">殘差 = SMCI − β·QQQ 於 +1d/+5d/+20d（β 凍結）· DISCONNECT：門檻全過但 +20d 殘差 &lt; −10% → 禁追、強制重審</td></tr>
+<tr><td><b>到期</b></td><td class="m">混合結果 → 升級路徑至 min(FY26 10-K, 2026-09-04) · 10-K 不乾淨/未到 2026-09-30 → AVOID_CONTEXT · setup 整體 2027-02-28 到期</td></tr>
+</table></div>
+
+<h2><span class="k">MONITORING CHECKLIST</span>監測清單 — 接下來要做的每一件事（含日期）</h2>
+<div class="panel"><table>
+<tr><th>日期（ET）</th><th>動作</th><th>規則</th></tr>
+<tr><td class="m">2026-08-10（一）收盤前</td><td>凍結包寫入 forecasts/（共識/價格/β/IV + Yahoo 快照重拍 + 入檔清單）</td><td class="m">缺 → 催化劑降 CONTEXT（fail-closed）</td></tr>
+<tr><td class="m">2026-08-11（二）17:00</td><td>Q4+FY26 正式財報＋法說（ir.supermicro.com）</td><td class="m">對照 T1–T5 / F1–F5</td></tr>
+<tr><td class="m">2026-08-12（三）</td><td>評分：surprise 欄位填寫 + 殘差 +1d 起算</td><td class="m">DISCONNECT 規則武裝</td></tr>
+<tr><td class="m">2026-08-14（五）收盤</td><td>首個週收盤 → T1–T5 全套評估（升級與否在此決定）</td><td class="m">全過→升級資格；混合→WATCH；否證→AVOID_CONTEXT</td></tr>
+<tr><td class="m">每週五收盤</td><td>F1–F5 + 技術等級（$24.00 失效 / $33.70 確認 / $39.61 上限）檢查</td><td class="m">週頻紀律</td></tr>
+<tr><td class="m">~2026-08-底</td><td>FY26 10-K：審計語言 + 出口管制影響 + 現金/融資揭露</td><td class="m">T3；遲交 → 升級凍結</td></tr>
+<tr><td class="m">2026-09-04</td><td>混合結果的升級路徑到期日</td><td class="m">未升級 → 維持 WATCH，新證據需重新立案</td></tr>
+<tr><td class="m">2026-09-30</td><td>乾淨 10-K 死線</td><td class="m">未達 → AVOID_CONTEXT</td></tr>
+<tr><td class="m">2027-02-28</td><td>setup 整體到期</td><td class="m">自動回歸未立案狀態</td></tr>
+</table></div>
+
+<h2><span class="k">STRATEGY TABLE</span>同情境策略比較 — buy-now vs 等待的誠實數學</h2>
+<div class="panel"><table>
+<tr><th>策略</th><th>進場</th><th>EV_net</th><th>p10 / max-DD</th><th>E[ΔlogW]@3.5%</th><th>判讀</th></tr>
+<tr><td class="m">no_trade（T-bill）</td><td class="m">—</td><td class="m">+5.0%</td><td class="m">+5% / 0</td><td class="m">+0.17%</td><td>基準</td></tr>
+<tr><td class="m">buy_now（7/23 開盤）</td><td class="m">$30.56</td><td class="m">+26.1%</td><td class="m">−45% / −45%</td><td class="m">+0.91%</td><td>EV 最高，但吃全部未審計左尾 — <b>被證據等級規則禁止</b>（UNAUDITED 不得授權建倉）</td></tr>
+<tr><td class="m">catalyst_wait（T1–T5 過才進）＝候選</td><td class="m">E[entry|pass]≈$35.5（p(pass)≈0.25）</td><td class="m">≈+19.4%</td><td class="m">+5%（75% 未進場）/ 條件 −27%</td><td class="m">+0.31%</td><td><b>放棄 ~6.7pp EV 換取：移除 F1/F2/F4 左尾 + 符合規則</b>。E[8/11 無條件 gap]=−1.75% 表示「錯過成本」期望≈0 — 代價全在條件進場價（35.5 vs 30.56）；誠實記帳，非免費午餐</td></tr>
+<tr><td class="m">breakout_wait（週收>$33.70）</td><td class="m">~$34+</td><td class="m">≈+14%（est.）</td><td class="m">—/−20%</td><td class="m">+0.24%</td><td>技術等待，無基本面資訊增量 — 劣於 catalyst_wait</td></tr>
+<tr><td class="m">QQQ 等額</td><td class="m">—</td><td class="m">+4.8%（est.）</td><td class="m">—/−15%</td><td class="m">+0.16%</td><td>bear −5/base +8/bull +15 同三元組</td></tr>
+<tr><td class="m">SMH 等額</td><td class="m">—</td><td class="m">+4.2%（est.）</td><td class="m">—/−25%</td><td class="m">+0.13%</td><td>雙向高 beta</td></tr>
+<tr><td class="m">DELL 替代（同額）</td><td class="m">$441.70</td><td class="m">+2.4%（est.）</td><td class="m">—/−25%</td><td class="m">+0.07%</td><td>品質高、進場點差 — 延伸懲罰</td></tr>
+</table>
+<p class="sub" style="margin-top:8px">本表與 forecasts/smci_forecast.json 的 strategy_ablation_table 為同一數據（單一事實源 d81de8a2ea9bfc24）。條件分佈：p(pass)≈0.25（bull 0.20 全數 + base 內指引驚奇切片 0.05）；pass 後情境 bear .25/base .50/bull .25 自 $35.5 起算；T5 上限 $39.61 拒絕 ~3% 過熱缺口情形（改 T-bill）。候選勝過 no_trade/QQQ/SMH/DELL 於 EV 與 E[ΔlogW]，輸給 buy_now 於純期望 — <b>差距 ≈6.7pp 是「未審計數字不得授權建倉」規則的顯性成本</b>。</p></div>
+
+<h2><span class="k">AWARENESS</span>覺察曲線 — 誰在哪裡（含量化面板＋供應鏈同儕圖）</h2>
+<div class="panel"><svg viewBox="0 0 1180 190" role="img" aria-label="覺察曲線：SMCI 位於左側 LATENT 至 EARLY 之間；DELL 與 AMD 位於 EUPHORIA 附近"><path d="M60,150 C260,148 420,140 560,110 C700,80 780,48 880,38 C980,28 1060,40 1120,74" fill="none" stroke="#5b81c4" stroke-width="1.6"/><circle cx="300" cy="138" r="6" fill="#2dd4bf"/><text x="310" y="142" font-size="11">SMCI · BROKEN→EARLY RECOG（prelim 已+20%，8/11 未定）</text><circle cx="700" cy="74" r="6" fill="#d2a24a"/><text x="710" y="78" font-size="11">INTC (AMD run)</text><circle cx="860" cy="36" r="6" fill="#e0686a"/><text x="870" y="40" font-size="11">DELL · 週收盤 0% off high（盤中 −5.9%）</text><circle cx="840" cy="52" r="6" fill="#9aa3b5"/><text x="850" y="56" font-size="11">AMD (AMD run)</text><text x="100" y="180" class="dim" font-size="10" letter-spacing="2">LATENT</text><text x="360" y="180" class="dim" font-size="10" letter-spacing="2">EARLY</text><text x="640" y="180" class="dim" font-size="10" letter-spacing="2">RECOGNITION</text><text x="900" y="180" class="dim" font-size="10" letter-spacing="2">EUPHORIA</text><text x="1070" y="180" class="dim" font-size="10" letter-spacing="2">PRICED/FADE</text></svg>
+<table style="margin-top:8px">
+<tr><th>名字</th><th>52w</th><th>距高</th><th>估值錨</th><th>階段</th><th>剩餘不對稱</th></tr>
+<tr><td class="m">SMCI</td><td class="m">−43.9%</td><td class="m">−46%（週收）</td><td class="m">9.8× FY27 共識（隱含 GM ~8.5%）</td><td><span class="tag t-early">BROKEN→EARLY</span></td><td><b>高 — 但閘門在 8/11 確認</b></td></tr>
+<tr><td class="m">DELL</td><td class="m">+236.6%</td><td class="m">−5.9%（盤中）</td><td class="m">~24.7× FY27 non-GAAP $17.90（exhibit）</td><td><span class="tag t-neg">EUPHORIA 禁追</span></td><td>低 — 完全定價+延伸</td></tr>
+<tr><td class="m">AMD（跨 run）</td><td class="m">+222%</td><td class="m">−3.8%</td><td class="m">40.9× 2027E</td><td><span class="tag t-rec">RECOG→EUPH</span></td><td>低（AMD run：EV −9.6%）</td></tr>
+<tr><td class="m">GOOGL（跨 run）</td><td class="m">+—</td><td class="m">近高</td><td class="m">GOOGL run EV +6.2%</td><td><span class="tag t-rec">EARLY-RECOG</span></td><td>中</td></tr>
+</table>
+<svg viewBox="0 0 1180 150" role="img" aria-label="供應鏈同儕圖：上游 GPU/記憶體/CPU 到系統整合層 SMCI/DELL/HPE/ODM 到下游 CSP/企業/主權"><defs><marker id="arr2" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#9aa3b5"/></marker></defs><text x="40" y="26" font-size="12" fill="#5b81c4">上游（配額/成本）</text><rect x="40" y="38" width="330" height="21" rx="5" fill="#1a1e28" stroke="#5b81c4" stroke-opacity="0.4"/><text x="49" y="53" font-size="11">NVDA GPU（配額）</text><rect x="40" y="64" width="330" height="21" rx="5" fill="#1a1e28" stroke="#5b81c4" stroke-opacity="0.4"/><text x="49" y="79" font-size="11">HBM/DRAM（漲價循環）</text><rect x="40" y="90" width="330" height="21" rx="5" fill="#1a1e28" stroke="#5b81c4" stroke-opacity="0.4"/><text x="49" y="105" font-size="11">伺服器 CPU（短缺）</text><rect x="40" y="116" width="330" height="21" rx="5" fill="#1a1e28" stroke="#5b81c4" stroke-opacity="0.4"/><text x="49" y="131" font-size="11">液冷/機構件</text><path d="M376,71.0 L434,71.0" stroke="#9aa3b5" stroke-width="1.4" marker-end="url(#arr2)"/><text x="440" y="26" font-size="12" fill="#2dd4bf">系統整合（本層）</text><rect x="440" y="38" width="330" height="21" rx="5" fill="#1a1e28" stroke="#2dd4bf" stroke-opacity="0.4"/><text x="449" y="53" font-size="11">SMCI（本題）</text><rect x="440" y="64" width="330" height="21" rx="5" fill="#1a1e28" stroke="#2dd4bf" stroke-opacity="0.4"/><text x="449" y="79" font-size="11">DELL（$16.1B/季 AI）</text><rect x="440" y="90" width="330" height="21" rx="5" fill="#1a1e28" stroke="#2dd4bf" stroke-opacity="0.4"/><text x="449" y="105" font-size="11">HPE</text><rect x="440" y="116" width="330" height="21" rx="5" fill="#1a1e28" stroke="#2dd4bf" stroke-opacity="0.4"/><text x="449" y="131" font-size="11">ODM 直供（Quanta/Wiwynn）</text><path d="M776,71.0 L834,71.0" stroke="#9aa3b5" stroke-width="1.4" marker-end="url(#arr2)"/><text x="840" y="26" font-size="12" fill="#d2a24a">下游客戶（毛利命運）</text><rect x="840" y="38" width="330" height="21" rx="5" fill="#1a1e28" stroke="#d2a24a" stroke-opacity="0.4"/><text x="849" y="53" font-size="11">超大雲 CSP（低毛利）</text><rect x="840" y="64" width="330" height="21" rx="5" fill="#1a1e28" stroke="#d2a24a" stroke-opacity="0.4"/><text x="849" y="79" font-size="11">企業 AI（高毛利）</text><rect x="840" y="90" width="330" height="21" rx="5" fill="#1a1e28" stroke="#d2a24a" stroke-opacity="0.4"/><text x="849" y="105" font-size="11">主權 AI（lumpy）</text><rect x="840" y="116" width="330" height="21" rx="5" fill="#1a1e28" stroke="#d2a24a" stroke-opacity="0.4"/><text x="849" y="131" font-size="11">edge/5G</text></svg>
+<p class="sub">SMCI 是本工作台三次 run 中唯一站在曲線左側的名字。剩餘不對稱大 — 但左側的代價是：確認未到、內部人零買入、數字未審計。<b>紀律：左側名字用事件合約賺確認，不用希望賺缺口。</b></p></div>
+
+<h2><span class="k">PORTFOLIO IMPLEMENTATION</span>組合實作表（PAPER）</h2>
+<div class="panel"><table>
+<tr><th>欄位</th><th>值</th></tr>
+<tr><td>現行部位（portfolio_snapshot.json 3e901980f2f1ed9f）</td><td class="m">paper book 空倉（三 run 均 WATCH/NO_CHANGE，無 compiler 建倉紀錄；IBKR 實倉 read-only、不屬 PAPER 生命週期）· AI-compute 集群現用 0%</td></tr>
+<tr><td>確認後上限</td><td class="m">單名 5% 上限 → 單調規則降至 <b>3.5%</b>（未審計歷史+調查+65% 年化波動+集群相關）；確認前 0%</td></tr>
+<tr><td>集群約束</td><td class="m">AI-compute（GOOGL+AMD+SMCI run 名單合併）≤15%；SMCI 跨 run 只計一次</td></tr>
+<tr><td>流動性</td><td class="m">7/22 量 162M 股（~$5B 名目）→ 3.5% 紙上部位 ≪2% ADV ✓ · 點差 5–10bp · 滑價壓力測試 2×</td></tr>
+<tr><td>成本/稅</td><td class="m">單邊 15–30bp 全含 · 融資 0（無槓桿）· FX 0（USD）· SMCI 無股利 → 無 withholding；DELL 對照含 ~15bp/年 withholding · LTCG 敏感度：20% 稅則 EV_net ≈ +20.5% 仍 PASS（0% 假設未驗證）</td></tr>
+<tr><td>周轉/監測</td><td class="m">年單向周轉預算 2.0× · 週收盤節奏 · 8/10 凍結 → 8/11 印 → 8/12 評分 → 每週 T/F 檢查</td></tr>
+<tr><td>vs no_trade 淨益</td><td class="m">候選策略 +19.4% vs +5.0%（12–18m，est.）→ 期望淨益 ~+14pp，條件於 8/11 通過（p≈0.25）</td></tr>
+</table></div>
+
+<h2><span class="k">RISK REGISTER</span>風險簿 — 按殺傷力排序</h2>
+<div class="panel"><table>
+<tr><th>風險</th><th>機制</th><th>綁定</th></tr>
+<tr><td><b>出口管制調查（F4）</b></td><td>2026-03-19 兩員工+一承包商被起訴（公司非被告、未被指控）；2026-04-07 兩位獨立董事（Angel + Liu）主導調查，MTO + AlixPartners + BDO 協同（<b>公司一手源已入檔 1ba21128d8e2a5e3</b>）；<b>prelim 原文（在檔）：結果「可能影響預測、這些初步結果、與先前期間」— 重述風險直接掛在漲勢所繫的那個毛利數字上</b></td><td class="m">F4 = 論點死亡+退出</td></tr>
+<tr><td><b>延遲假象毛利（F3）</b></td><td>低毛利超大雲單滑期 → 均值回歸；Q1'27 指引是判別器</td><td class="m">F3 / T2</td></tr>
+<tr><td><b>流動性/融資（F5）</b></td><td>現金 $1.29B、9M OCF −$7.56B、backlog 兌現吃 WC；增發稀釋雙向存在</td><td class="m">F5 · 8/11 資產負債表檢查</td></tr>
+<tr><td><b>集中度</b></td><td>公司原文風險語言；GM 6.3% 一季已示範</td><td class="m">soft（10%+ 客戶揭露）</td></tr>
+<tr><td><b>競爭/配額</b></td><td>DELL $16.1B/季證明份額可流動；NVDA 配額轉移「無法量化」（賣方語）；ODM 直供擠壓 CSP 段</td><td class="m">context</td></tr>
+<tr><td><b>投入成本</b></td><td>記憶體漲價循環 + CPU 短缺（AMD run 交叉讀）打固定價 backlog 的 COGS</td><td class="m">memory_contract_price（context）</td></tr>
+<tr><td><b>審計歷史</b></td><td>2024 EY 辭任/10-K 遲交前科；折價已在、但 10-K 再遲交 = 直接 AVOID 規則</td><td class="m">T3 / 到期規則</td></tr>
+</table></div>
+
+<h2><span class="k">CLAIM MATRIX</span>主張矩陣＋來源審計附錄（經 9-agent 對抗查核）</h2>
+<div class="panel" style="overflow-x:auto"><table>
+<tr><th>#</th><th>主張</th><th>as-of</th><th>等級</th><th>源1（路徑/hash）</th><th>源2（獨立性）</th><th>進入</th></tr>
+<tr><td class="m">C1</td><td>Q4 prelim：rev 近下緣 · GM 15–17% · 訂單 >$60B（+可取消警語+調查語言）</td><td class="m">7/21</td><td class="m" style="color:var(--gold)">COMPANY_DISCLOSED_UNAUDITED</td><td class="m">research/archive/smci_ir_prelim…md 0ed5328c74e44eab（<b>官方 IR 頁已入檔</b>，與鏡像 14146e712881c212 逐字一致）</td><td class="m">qz/SiliconANGLE/Reuters 同日（傳播核實 only）✗獨立</td><td class="m">情境（含折減）；<b>不入 VERIFIED EV</b></td></tr>
+<tr><td class="m">C2</td><td>季度 GM 路徑、存貨/現金/AR/OCF 全表（GM 以 2 位小數顯示）</td><td class="m">→Mar-26</td><td class="m" style="color:var(--bull)">FILED_XBRL</td><td class="m">research/edgar_fundamentals_smci.json dc09d533166997f2 + OCF/cash/AR 檔（EDGAR CIK 1375365）</td><td class="m">EDGAR = 監管申報單源即足 ✓</td><td class="m">EV/情境基礎</td></tr>
+<tr><td class="m">C3</td><td>共識 FY27 → 隱含 GM ~8.5%（A5 一致化模型重算，對抗查核後修正）</td><td class="m">7/22</td><td class="m">KEYED + MODELED_EST</td><td class="m">research/fmp_estimates_SMCI.json（FMP keyed）</td><td class="m">Yahoo Analysis 快照 1ee3754192c6f741（免費、獨立聚合商）✓</td><td class="m">context only；非否證器</td></tr>
+<tr><td class="m">C4</td><td>可轉債 $4.725B；2030 檔轉換 ~$55.20/capped $81.78/41.7M 股（2028/29 檔轉換價 unknown）</td><td class="m">2025-06 發行</td><td class="m" style="color:var(--bull)">VERIFIED_MULTI_SOURCE（條款）</td><td class="m">research/archive/smci_ir_convert2030…md c6217f94488c1219（IR 一手源<b>已入檔</b>）</td><td class="m">Benzinga/Yahoo/fi-desk 定價報導 ✓獨立</td><td class="m">情境（稀釋/再融資）</td></tr>
+<tr><td class="m">C5</td><td>出口管制調查 + 「可能影響初步結果」語言</td><td class="m">3/19–7/21</td><td class="m" style="color:var(--bull)">VERIFIED_MULTI_SOURCE（一手源已入檔）</td><td class="m">research/archive/smci_ir_investigation…md 1ba21128d8e2a5e3（公司一手源，含兩位董事姓名/MTO/AlixPartners/BDO）</td><td class="m">prelim 原文 14146e712881c212 + investing/NatLawReview ✓獨立</td><td class="m">F4 否證器背景</td></tr>
+<tr><td class="m">C6</td><td>內部人 code-P = 0（12:0 為解析假象；代碼欄覆蓋近 25 件中 12 件 + OpenInsider 全窗）</td><td class="m">7/22</td><td class="m" style="color:var(--bull)">FILED_RAW_CODES</td><td class="m">posn/SMCI/corrected_summary.json 32f1a990bf7db111</td><td class="m">OpenInsider 730d P/S 篩選 ✓獨立</td><td class="m">research_state 理由</td></tr>
+<tr><td class="m">C7</td><td>DELL AI $16.1B/季、backlog $51.3B、FY27 AI $60B</td><td class="m">5/28</td><td class="m" style="color:var(--bull)">EXHIBIT-VERIFIED（訂單/營收/指引）；$51.3B backlog = 覆蓋源降級 context</td><td class="m">research/archive/dell_8k_exhibit991…md 7e448123c949aee1（sec.gov 一手源<b>已入檔</b>）</td><td class="m">CNBC/SeekingAlpha/Futurum ✓獨立</td><td class="m">對照 context</td></tr>
+<tr><td class="m">C8</td><td>Q3'26 GM 恢復歸因 + site-readiness 滑期 + FY26 指引供應假設</td><td class="m">5/5</td><td class="m" style="color:var(--gold)">COMPANY_OFFICIAL（單一事實族）</td><td class="m">Q3 prepared remarks PDF（s204.q4cdn.com）</td><td class="m">10-Q 申報佐證（同源家族 ⚠ 降級 context）</td><td class="m">機制敘事 only</td></tr>
+<tr><td class="m">C9</td><td>技術指標組（模板 2/7、RS −6.8%、DELL 盤中 −5.9% off high 等）</td><td class="m">7/22</td><td class="m">OWN_COMPUTED</td><td class="m">metrics.json（公式在 registry v4 9cc47f22086364a8；週線快取 + FMP 收盤拼接已標）</td><td class="m">任何免費圖表可重現 ✓</td><td class="m">執行時點 only</td></tr>
+</table>
+<p class="prov">ONE_FAMILY_CHANNEL_GRADE 降級適用 C1/C8；r2 archive-gap 已關閉（C4/C5/C7 一手源入檔於 research/archive/）；殘餘 coverage-only 項僅 DELL $51.3B backlog（已降級） · 全部 hash = sha256[:16] · KEYED 源永不定義否證器 · 對抗查核：wf_b435375e（9 agents / 74 tool-uses；C3 refuted → A5 修正；C1/C2/C4–C9 minor notes 全數入版）</p></div>
+
+<footer>
+<p class="small">SMCI-Teardown-BrokenGrowth · v1.3 · built 2026-07-23（v1.0 ~00:45 · v1.1 ~01:5x = r1 修正 · v1.2 ~02:1x = r2 修正、v1.3 ~02:3x = r3 P2（官方 IR prelim 頁入檔/HTML escape/全面板 overflow/工作筆記 SUPERSEDED 標記）：provenance lock PL-20260723-A 非循環化、C4/C5/C7 一手源入檔、forecast 策略表對齊、insider.json 加誤用哨兵、portfolio_snapshot 3e901980f2f1ed9f、監測清單、量化覺察+供應鏈圖）· declared_at 2026-07-23T05:45Z · <b>計畫審查已收斂：r4（0f9369ef0135fea9）+ r5（1a5c4e96aaa3cc9f）連續 fits=true、0 P0/P1</b> · 報告審查迴圈續行至收斂 · 凍結三元組 bear .35/base .45/bull .20 · EV_net +26.1% / 保守 +12.7% · research_state WATCH + T1–T5 · provenance lock PL-20260723-A（manifest/gate 定稿於報告雜湊之後）· run root: notes/smci-teardown/</p>
+<p class="small">PAPER lifecycle · producer authority = context only · Portfolio Decision Compiler 為唯一行動權（本 run 斷言 NO_CHANGE）· 選擇權 INELIGIBLE · IBKR READ-ONLY · 本文件為個人研究，非投資建議 · 訂閱源內容僅作敘事/框架、不作評分輸入</p>
+</footer>
+</div></body></html>

@@ -105,7 +105,8 @@ case "$SLUG" in
   power.html|cooling.html|networking.html|substrates.html|macro.html|alpha-map.html|\
   alpha-map-blueprint.html|leading-data-map.html|bom-alpha-scan.html|alpha-funnel.html|\
   leading-indicators.html|aixtron.html|xfab.html|tech-alpha-map.html|crossfeed-dashboard.html|\
-  crowding-gauge.html|quant-desk.html|rotation-framework.html|coiled-spring.html) ;;
+  crowding-gauge.html|quant-desk.html|rotation-framework.html|coiled-spring.html|\
+  cycle-alpha-scan.html) ;;
   *) echo "BLOCKED: slug is not allowlisted: $SLUG" >&2; exit 2 ;;
 esac
 
